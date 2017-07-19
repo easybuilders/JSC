@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libpciaccess'
+version = '0.13.4'
+
+homepage = 'http://cgit.freedesktop.org/xorg/lib/libpciaccess/'
+description = """Generic PCI access library."""
+
+source_urls = ['http://cgit.freedesktop.org/xorg/lib/libpciaccess/snapshot']
+sources = [SOURCE_TAR_GZ]
+
+toolchain = {'name': 'GCCcore', 'version': '5.3.0'}
+
+builddependencies = [
+    ('binutils', '2.26'),
+    ('Autotools', '20150215'),
+    ('xorg-macros', '1.19.0'),
+]
+
+preconfigopts = "ACLOCAL='aclocal -I $EBROOTXORGMINMACROS/share/aclocal' ./autogen.sh && "
+
+sanity_check_paths = {
+    'files': ['include/pciaccess.h', 'lib/libpciaccess.a'],
+    'dirs': ['lib/pkgconfig'],
+}
+
+moduleclass = 'system'

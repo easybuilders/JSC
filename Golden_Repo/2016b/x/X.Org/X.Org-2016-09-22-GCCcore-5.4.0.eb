@@ -1,0 +1,66 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'EB_jhbuild'
+
+name = 'X.Org'
+version = '2016-09-22'
+
+homepage = 'https://www.x.org/wiki'
+description = """
+The X.Org project provides an open source implementation of the X Window System.
+The development work is being done in conjunction with the freedesktop.org
+community.
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+sources = ['xorg.modules', 'jhbuildrc']
+
+source_urls = ['https://cgit.freedesktop.org/xorg/util/modular/plain/']
+
+patches = ['xorg_moduleset-%(version)s.patch', 'xorg_jhbuild-%(version)s.patch']
+
+builddependencies = [
+    ('Python', '2.7.12', '-bare'),
+    ('git', '2.10.0'),
+    ('gperf', '3.0.4'),
+    ('Perl', '5.24.0'),
+    ('intltool', '0.51.0', '-Perl-5.24.0'),
+    ('XML-Parser', '2.44', '-Perl-5.24.0'),
+    # jhbuild is python so it has a python dependency, we use a Python that includes the required Python modules for this build
+    ('jhbuild', '3.15.92'),
+    ('binutils', '2.27')
+]
+
+dependencies = [
+    ('eudev', '3.2'),
+    ('LLVM', '3.9.0'),
+    ('freetype', '2.7'),
+    ('zlib', '1.2.8'),
+]
+
+# The packages below are the ones to be excluded from build
+xorg_skip = "libAppleWM mtdev xf86-input-joystick xf86-video-ati xf86-video-geode xf86-video-modesetting "
+xorg_skip += "xf86-video-sisusb xf86-video-v4l xf86-video-vmware xf86-video-wsfb xf86-input-evdev " 
+
+prebuildopts = 'XORG_VERSION_DATE=%(version)s '
+prebuildopts += ' XORG_SKIP_SET="%s" ' % xorg_skip
+
+modluafooter =  'prepend_path("LD_LIBRARY_PATH", "/usr/lib64/nvidia")'
+
+sanity_check_paths = {
+    'files': [
+              'lib/libGL.%s' % SHLIB_EXT, 'lib/libOSMesa.%s' % SHLIB_EXT, 'lib/libGLESv1_CM.%s' % SHLIB_EXT,
+              'lib/libGLESv2.%s' % SHLIB_EXT, 'include/GL/glext.h', 'include/GL/gl_mangle.h', 'include/GL/glx.h',
+              'include/GL/osmesa.h', 'include/GL/wglext.h', 'include/GL/gl.h', 'include/GL/glxext.h',
+              'include/GL/glx_mangle.h', 'include/GLES/gl.h', 'include/GLES2/gl2.h', 'include/GLES3/gl3.h',
+             ] + 
+             [
+              'include/X11/%s' % x for x in [
+                  'cursorfont.h', 'ImUtil.h', 'Xcms.h', 'XKBlib.h', 'XlibConf.h', 'Xlib.h', 'Xlibint.h', 
+                  'Xlib-xcb.h', 'Xlocale.h', 'Xregion.h', 'Xresource.h', 'Xutil.h']
+             ],
+    'dirs': ['bin', 'lib'],
+}
+
+moduleclass = 'lib'

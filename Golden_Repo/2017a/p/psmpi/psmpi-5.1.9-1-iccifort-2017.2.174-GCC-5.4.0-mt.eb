@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.1.9-1'
+versionsuffix = '-mt'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+
+"""
+
+toolchain = {'name': 'iccifort', 'version': '2017.2.174-GCC-5.4.0'}
+
+sources = ['%(version)s.tar.gz']
+source_urls = ['https://github.com/ParaStation/psmpi2/archive/']
+
+dependencies = [
+    ('pscom', 'Default', '', True),
+]
+
+patches = [
+    'psmpi_shebang.patch'
+]
+
+mpich_opts = '--enable-static'
+
+threaded = True
+
+# use a more explicit module name to help our naming scheme
+modaltsoftname = 'ParaStationMPI'
+
+# Add a family for our naming scheme
+modluafooter = 'family("mpi")'
+
+moduleclass = 'mpi'

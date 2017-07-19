@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'x265'
+version = '2.4'
+
+homepage = 'https://www.videolan.org/developers/x265.html'
+description = """x265 is a free software library and application for encoding video streams
+ into the H.265/MPEG-H HEVC compression format, and is released under the terms of the GNU GPL.
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+toolchainopts = {'pic': True}
+
+#download_suffix = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=all&downloadFile='
+source_urls = ['ftp://ftp.videolan.org/pub/videolan/x265/']
+sources = ['x265_%(version)s.tar.gz']
+
+builddependencies = [
+    ('CMake', '3.7.2'),
+    ('binutils', '2.28')
+]
+
+dependencies = [
+    ('Yasm', '1.3.0')
+]
+
+start_dir = 'source'
+
+sanity_check_paths = {
+    'files': ['bin/x265', 'include/x265_config.h', 'include/x265.h', 'lib/libx265.a', 'lib/libx265.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+moduleclass = 'vis'

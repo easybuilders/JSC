@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'icc'
+version = '2015.3.187'
+versionsuffix = '-GCC-4.9.3-2.25'
+
+homepage = 'http://software.intel.com/en-us/intel-compilers/'
+description = "C and C++ compiler from Intel"
+
+toolchain = {'version': '', 'name': 'dummy'}
+
+sources = ['l_ccompxe_%(version)s.tgz']
+
+dependencies = [
+    ('GCCcore', '4.9.3'),
+    ('binutils', '2.25', '', ('GCCcore', '4.9.3')),
+]
+
+#components = ['intel-comp', 'intel-ccomp', 'intel-%(name)s', 'intel-openmp', 'intel-ipsc?_']
+dontcreateinstalldir = 'True'
+
+moduleclass = 'compiler'

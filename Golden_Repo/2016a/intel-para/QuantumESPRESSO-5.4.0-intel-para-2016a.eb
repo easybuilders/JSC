@@ -1,0 +1,62 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'QuantumESPRESSO'
+version = '5.4.0'
+
+homepage = 'http://www.pwscf.org/'
+description = """Quantum ESPRESSO  is an integrated suite of computer codes
+ for electronic-structure calculations and materials modeling at the nanoscale.
+ It is based on density-functional theory, plane waves, and pseudopotentials
+  (both norm-conserving and ultrasoft)."""
+
+toolchain = {'name': 'intel-para', 'version': '2016a'}
+
+toolchainopts = {'usempi': True, 'openmp': True}
+
+dependencies = [
+#    ('netCDF-Fortran','4.4.3'), # For Yambo, check if it is picked up
+#    ('Libxc','2.2.2'), # For Yambo, check if it is picked up
+]
+
+# Part of this list was determined from install/plugins_list
+sources = [
+    'espresso-%(version)s.tar.gz',
+    'tddfpt-%(version)s.tar.gz',
+    # Other sources
+    'yambo-3.4.2.tgz',  
+    'want-2.5.1-base.tar.gz',
+    'wannier90-2.0.1.tar.gz',
+    'West-1.0.3.tar.gz',  
+    # Common source
+    'atomic-%(version)s.tar.gz',
+    'neb-%(version)s.tar.gz',
+    'PHonon-%(version)s.tar.gz',
+    'pwcond-%(version)s.tar.gz',
+    'xspectra-%(version)s.tar.gz' ,
+    'plumed-1.3-qe.tar.gz',
+    'SaX-2.0.2.tar.gz',  
+    'qe-gipaw-5.4.tar.gz',  
+]
+source_urls = [
+    'http://qe-forge.org/gf/download/frsrelease/211/967/', # espresso-%(version)s.tar.gz
+    'http://qe-forge.org/gf/download/frsrelease/211/956/', # tddfpt-%(version)s.tar.gz
+    'http://qe-forge.org/gf/download/frsrelease/153/618/', # want-2.5.1-base.tar.gz
+    'http://qe-forge.org/gf/download/frsrelease/208/932/', # yambo-3.4.2.tgz
+    'http://www.wannier.org/code/',  # wannier90-2.0.1.tar.gz
+    'http://www.west-code.org/downloads/',  # West-1.0.3.tar.gz
+    'http://files.qe-forge.org/index.php?file=',  # Almost all
+]
+
+#preconfigopts = 'export BLAS_LIBS="$LIBBLAS $LIBFFT" && export LAPACK_LIBS="$LIBLAPACK" && export FFT_LIBS="$LIBFFT" &&'
+
+hybrid = True
+
+#patches = ['QuantumESPRESSO-5.3.0_yambo-fixes.patch']
+
+#buildopts = 'all w90 want yambo plumed xspectra gipaw'
+#buildopts = 'all w90 want plumed xspectra gipaw'
+buildopts = 'all w90 want xspectra gipaw'
+
+# parallel build tends to fail
+parallel = 1
+
+moduleclass = 'chem'

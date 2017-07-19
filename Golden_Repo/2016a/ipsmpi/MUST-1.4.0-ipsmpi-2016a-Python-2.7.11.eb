@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013-2016 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# Authors::   Damian Alvarez <d.alvarez@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+easyblock = 'CMakeMake'
+
+name = "MUST"
+version = "1.4.0"
+versionsuffix = "-Python-2.7.11"
+
+homepage = 'https://doc.itc.rwth-aachen.de/display/CCP/Project+MUST'
+description = """MUST detects usage errors of the Message Passing Interface (MPI) and reports them
+ to the user. As MPI calls are complex and usage errors common, this functionality is extremely helpful
+ for application developers that want to develop correct MPI applications. This includes errors that
+ already manifest --segmentation faults or incorrect results -- as well as many errors that are not
+ visible to the application developer or do not manifest on a certain system or MPI implementation."""
+
+toolchain = {'name': 'ipsmpi', 'version': '2016a'}
+
+# https://doc.itc.rwth-aachen.de/download/attachments/7373495/must-release-1.4.0.tgz?version=2&modificationDate=1427732652000&api=v2
+#source_urls = ['https://doc.itc.rwth-aachen.de/display/CCP/Project+MUST']
+source_urls = ['https://doc.itc.rwth-aachen.de/download/attachments/7373495']
+sources = ['%(namelower)s-release-%(version)s.tgz']
+
+dependencies = [
+    ('GTI', '1.4.0'),
+    ('PnMPI', '1.4.0'),
+    ('libxml2', '2.9.3'),
+    ('Python', '2.7.11'),
+]
+
+builddependencies = [
+    ('CMake', '3.4.3'),
+]
+
+#configopts  = ' -DCMAKE_BUILD_TYPE=Release -DGTI_INSTALL_PREFIX=${EBROOTGTI}'
+configopts  = ' -DCMAKE_BUILD_TYPE=Release '
+
+separate_build_dir = True
+
+skipsteps = ['build']
+
+sanity_check_paths = {
+    'files': ["bin/mustrun", "include/mustConfig.h"],
+    'dirs': [],
+}
+
+moduleclass = 'perf'

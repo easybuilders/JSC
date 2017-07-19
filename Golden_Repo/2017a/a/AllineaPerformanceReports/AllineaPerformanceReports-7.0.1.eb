@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'EB_Allinea'
+
+name = 'AllineaPerformanceReports'
+version = '7.0.1'
+
+homepage = 'http://www.allinea.com'
+description = """
+Allinea Performance Reports provides unique insight to enable system users and adminstrators to understand the performance they are getting from their applications on a HPC system.
+
+The tool runs on existing applications without modification and provides a simple one page HTML report that highlights processor, memory, communication and I/O issues and offers advice on how to improve the performance.
+
+To run Performance Reports execute 
+   perf-report --mpi="slurm" -n $NUM_PROCS ./executable
+Your chosen program will be run just as before and two report files, one .txt and one .html
+will be created in the current directory on completion.
+
+"""
+
+toolchain = {'version': 'dummy', 'name': 'dummy'}
+
+sources = ['allinea-reports-%(version)s-Redhat-7.0-x86_64.tar']
+source_urls = ['http://content.allinea.com/downloads/']
+
+start_dir = '%(builddir)s/allinea-reports-%(version)s-Redhat-7.0-x86_64/'
+install_cmd = "./textinstall.sh --accept-licence %(installdir)s"
+
+sanity_check_paths = {
+    'files': ['bin/perf-report'],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

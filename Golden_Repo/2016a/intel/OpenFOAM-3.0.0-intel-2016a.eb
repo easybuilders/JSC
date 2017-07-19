@@ -1,0 +1,67 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'OpenFOAM'
+version = '3.0.0'
+
+homepage = 'http://www.openfoam.com/'
+description = """OpenFOAM is a free, open source CFD software package. 
+ OpenFOAM has an extensive range of features to solve anything from complex fluid flows
+ involving chemical reactions, turbulence and heat transfer, 
+ to solid dynamics and electromagnetics.
+
+OpenFOAM %(version)s%(versionsuffix)s is installed in
+$EBROOTOPENFOAM
+and the corresponding module
+OpenFOAM/%(version)s%(versionsuffix)s
+provides settings to run its solvers and utilities.
+The full OpenFOAM environment can be initiated via
+. $FOAM_BASH
+"""
+
+toolchain = {'version': '2016a', 'name': 'intel'}
+toolchainopts = {'opt': True, 'cstd': 'c++14'}
+
+sources = [SOURCE_TGZ, 'ThirdParty-%(version)s.tgz']
+source_urls = ['http://downloads.sourceforge.net/foam/%(version)s']
+
+patches = [
+    '%(name)s-%(version)s_cleanup.patch',
+    '%(name)s-%(version)s_libreadline.patch',
+    ('ThirdParty-%(version)s_cleanup.patch', '..'),
+    '%(name)s-%(version)s_external-3rd.patch',
+    ('ThirdParty-%(version)s_external-3rd.patch', '..'),
+    '%(name)s-%(version)s_external_paraview-4.4.0.patch',
+]
+
+builddependencies = [
+    ('Bison', '3.0.4'),
+    ('CMake', '3.4.3'),
+    ('flex', '2.5.39'),
+]
+dependencies = [
+    ('CGAL', '4.7', '-Python-2.7.11'),
+    ('libreadline', '6.3'),
+    # OpenFOAM requires 64 bit METIS using 32 bit array indices (which is the default)
+    ('METIS', '5.1.0'),
+    ('ncurses', '6.0'),
+    ('ParaView', '4.4.0'),
+    ('SCOTCH', '6.0.4'),
+]
+
+parallel = 16
+
+keeppreviousinstall = True
+cleanupoldinstall = False
+
+modextravars = {
+    'MPI_BUFFER_SIZE': '20000000',
+    'WM_PROJECT_DIR': '%(installdir)s/%(name)s-%(version)s',
+    'WM_THIRD_PARTY_DIR': '%(installdir)s/ThirdParty-%(version)s',
+}  # OpenFOAM requires 64 bit METIS using 32 bit indexes (array indexes)
+
+modloadmsg = "This module provides only a minimal environment to run %(name)s executables.\nThe full environment can be initiated via:\n. $FOAM_BASH\n"
+modextrapaths = {
+    'LD_LIBRARY_PATH': ['%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib/dummy', '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib', '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib/mpi'],
+    'PATH': '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/bin',
+}
+
+moduleclass = 'cae'

@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ifort'
+version = '2016.2.181'
+versionsuffix = '-GCC-4.9.3-2.25'
+
+homepage = 'http://software.intel.com/en-us/intel-compilers/'
+description = "C and C++ compiler from Intel"
+
+toolchain = {'version': '', 'name': 'dummy'}
+
+sources = ['parallel_studio_xe_%(version_major)s_update2.tgz']
+
+dependencies = [
+    ('GCCcore', '4.9.3'),
+    ('binutils', '2.25', '', ('GCCcore', '4.9.3')),
+]
+
+# full list of components can be obtained from pset/mediaconfig.xml in unpacked sources
+# cfr. https://software.intel.com/en-us/articles/intel-composer-xe-2015-silent-installation-guide
+components = ['intel-comp', 'intel-fcomp', 'intel-%(name)s', 'intel-openmp', 'intel-ipsf?_']
+dontcreateinstalldir = 'True'
+
+moduleclass = 'compiler'

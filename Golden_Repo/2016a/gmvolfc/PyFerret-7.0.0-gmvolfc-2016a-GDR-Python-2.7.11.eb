@@ -1,0 +1,128 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'PyFerret'
+version = '7.0.0'
+versionsuffix = '-Python-2.7.11'
+
+homepage = 'http://ferret.pmel.noaa.gov/'
+description = '''PyFerret is an interactive computer visualization and analysis environment
+designed to meet the needs of oceanographers and meteorologists analyzing large and complex gridded data sets.'''
+
+toolchain = {'name': 'gmvolfc', 'version': '2016a-GDR'}
+
+sources = ['PyFerret-%s-Source.tar.gz' % version]
+source_urls = ['ftp://ftp.pmel.noaa.gov/ferret/pub/pyferret']
+
+pythonver = '2.7.11'
+pyshortver = '.'.join(pythonver.split('.')[0:2])
+
+buildtype = 'x86_64-linux'
+
+dependencies = [
+    ('Python',pythonver),
+    ('SciPy-Stack','2016a','-Python-%s' % pythonver ), # numpy is included here
+    ('PyQt','4.11.4','-Python-%s' % pythonver ),
+    ('netCDF', '4.4.0'),
+    ('netCDF-Fortran', '4.4.3'),
+    ('HDF5', '1.8.16'),
+    ('zlib', '1.2.8'),
+    ('cURL', '7.47.1'),
+    ('Java', '1.8.0_77', '', True),
+    ('Pango', '1.39.0'),
+    ('libpng','1.6.21'),
+    ('cairo','1.14.6'),
+    ('pixman','0.34.0'),
+    ('GLib','2.47.5'),
+]
+
+skipsteps = ['configure']
+
+patches = ['pyferret_7.0.0_extra_deps.patch']
+
+# Without limiting it might crash. Increase with care!
+maxparallel = 1
+
+buildopts =  ' LIBZ_DIR=$EBROOTZLIB'
+buildopts += ' INSTALL_FER_DIR=%(installdir)s'
+buildopts += ' PYTHON_EXE=python%s' % pyshortver
+buildopts += ' NETCDF4_DIR=$EBROOTNETCDF'
+buildopts += ' NETCDFFORTRAN4_DIR=$EBROOTNETCDFMINFORTRAN'
+buildopts += ' HDF5_DIR=$EBROOTHDF5'
+buildopts += ' JAVA_HOME=$JAVA_HOME'
+buildopts += ' CAIRO_DIR=$EBROOTCAIRO'
+buildopts += ' PANGO_DIR=$EBROOTPANGO'
+buildopts += ' GLIB_DIR=$EBROOTGLIB'
+buildopts += ' PIXMAN_DIR=$EBROOTPIXMAN'
+buildopts += ' BUILDTYPE=%s' % buildtype
+buildopts += ' DIR_PREFIX=%(builddir)s/PyFerret-7.0.0-Source'
+
+prebuildopts =  ' export CC=$CC &&'
+prebuildopts += ' export FC="$FC " &&'
+prebuildopts += ' export F77="$F77 " &&'
+prebuildopts += ' export FCFLAGS="-L%(builddir)s/PyFerret-7.0.0-Source/build/lib.linux-x86_64-2.7/pyferret" &&'
+prebuildopts += ' export F77FLAGS="-L%(builddir)s/PyFerret-7.0.0-Source/build/lib.linux-x86_64-2.7/pyferret" &&'
+prebuildopts += ' export FFLAGS="-L%(builddir)s/PyFerret-7.0.0-Source/build/lib.linux-x86_64-2.7/pyferret" &&'
+prebuildopts += ' export CFLAGS="" &&'
+prebuildopts += ' export LDFLAGS="-Wl,-fuse-ld=bfd" &&'
+prebuildopts += ' export LIBS="" &&'
+
+installopts = ' INSTALL_FER_DIR=%(installdir)s'
+installopts += ' BUILDTYPE=%s' % buildtype
+
+modextrapaths = {
+    'PYTHONPATH' : 'lib/python%s/site-packages' % pyshortver,
+    'LD_LIBRARY_PATH' : 'lib/python%s/site-packages/pyferret' % pyshortver,
+}
+
+modextravars = {
+    'FER_DIR' : '%(installdir)s',
+    'FER_DSETS' : '%(installdir)s/datasets',
+    #'FER_WEB_BROWSER' : 'firefox', # Probably nobody should use this
+    'FER_DATA_THREDDS' : 'http://ferret.pmel.noaa.gov/geoide/geoIDECleanCatalog.xml %(installdir)s/datasets', # The spaces are not a typo
+    'FER_DATA' : '. %(installdir)s/datasets/data %(installdir)s/go %(installdir)s/examples',
+    'FER_DESCR' : '. %(installdir)s/datasets/descr',
+    'FER_GRIDS' : '. %(installdir)s/datasets/grids',
+    'FER_GO' : '. %(installdir)s/go %(installdir)s/examples %(installdir)s/contrib',
+    'FER_EXTERNAL_FUNCTIONS' : '%(installdir)s/ext_func/libs',
+    'PYFER_EXTERNAL_FUNCTIONS' : '%(installdir)s/ext_func/pylibs',
+    'FER_PALETTE' : '. %(installdir)s/ppl',
+    'SPECTRA' : '%(installdir)s/ppl',
+    'FER_FONTS' : '%(installdir)s/ppl/fonts',
+    'PLOTFONTS' : '%(installdir)s/ppl/fonts',
+    'FER_LIBS' : '%(installdir)s/lib',
+    'FER_DAT' : '%(installdir)s',
+}
+
+# All these commands are pretty ugly, we should find a more elegant way (postinstallpatches?)
+postinstallcmds = [
+
+    # pyferret script
+    'echo \"#!/bin/sh\" > %(installdir)s/bin/pyferret',
+    'echo \"if [ -z \"\${FER_LIBS}\" ]; then\" >> %(installdir)s/bin/pyferret',
+    'echo \"    echo \"**ERROR: Ferret environment variables are not defined\"\" >> %(installdir)s/bin/pyferret',
+    'echo \"    exit 1\" >> %(installdir)s/bin/pyferret',
+    'echo \"fi\" >> %(installdir)s/bin/pyferret',
+    'echo \"python -i -c \"import sys; import pyferret; (errval, errmsg) = pyferret.init(sys.argv[1:], True)\" \$*\" >> %(installdir)s/bin/pyferret',
+    'chmod +x %(installdir)s/bin/pyferret',
+
+    # Get and decompress the dataset
+    'curl -O ftp://ftp.pmel.noaa.gov/ferret/pub/data/fer_dsets.tar.gz',
+    'mkdir %(installdir)s/datasets', 
+    'tar -zxvf fer_dsets.tar.gz -C %(installdir)s/datasets', 
+
+    # Wrapper to compensate for the lack of function definition (defined when sourcing a PyFerret script)
+    'echo \"#!/bin/sh\" > %(installdir)s/bin/Faddpath',
+    'echo \"if [ -n \"\$*\" ]\" >> %(installdir)s/bin/Faddpath',
+    'echo \"then\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_GO=\"\$FER_GO \$*\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_DATA=\"\$FER_DATA \$*\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_DESCR=\"\$FER_DESCR \$*\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_GRIDS=\"\$FER_GRIDS \$*\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"else\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    echo \"    Usage: Faddpath new_directory_1 ...\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"fi\" >> %(installdir)s/bin/Faddpath',
+    'chmod +x %(installdir)s/bin/Faddpath',
+]
+
+moduleclass = 'vis'

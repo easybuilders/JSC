@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+name = 'NCL'
+version = "6.3.0"
+homepage = 'http://www.ncl.ucar.edu'
+description = """NCL is an interpreted language designed specifically for scientific data analysis and visualization."""
+
+toolchain = {'name': 'intel-para', 'version': '2016a'}
+
+dependencies = [
+    ('cURL', '7.47.1'),
+    ('netCDF', '4.4.0'),
+    ('JasPer', '1.900.1'),
+    ('g2lib', '1.4.0'),
+    ('HDF5', '1.8.16'),
+    ('HDF', '4.2.11'),
+    ('g2clib', '1.4.0'),
+    ('Szip', '2.1'),
+    ('UDUNITS', '2.2.20'),
+    ('ESMF', '7.0.0'),
+    ('cairo', '1.14.6'),
+    ('libdap', '3.15.1', '-Python-2.7.11'),
+]
+
+sources = ['%s_ncarg-%s.Linux_CentOS7.0_x86_64_gcc482.tar.gz' % (name.lower(), version)]
+
+install_cmd = 'cp -Raf %(builddir)s/* %(installdir)s'
+
+sanity_check_paths = {
+  'files': ["bin/ncl"],
+  'dirs': [],
+}
+
+modextravars = {'NCARG_ROOT': '$EBROOTNCL'}
+
+moduleclass = 'data'

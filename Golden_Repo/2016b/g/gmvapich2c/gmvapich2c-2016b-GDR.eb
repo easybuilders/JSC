@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'gmvapich2c'
+version = '2016b'
+versionsuffix = '-GDR'
+
+homepage = '(none)'
+description = """ GCC based compiler toolchain,
+ including CUDA and MVAPICH2 for CUDA-aware MPI support.
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+compname = 'GCC'
+compver = '5.4.0'
+comp = (compname, compver)
+
+dependencies = [
+    ('GCC', compver),
+    ('CUDA', '8.0.44', '', True),
+    ('MVAPICH2', '2.2', '%s' % versionsuffix, comp),
+]
+
+moduleclass = 'toolchain'

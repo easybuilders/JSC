@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'YAXT'
+version = '0.4.4'
+
+homepage = 'https://www.dkrz.de/redmine/projects/yaxt'
+description = "Yet Another eXchange Tool"
+
+toolchain = {'name': 'iimpi', 'version': '8.2.5-GCC-4.9.3-2.25'}
+toolchainopts = {'usempi': True}
+
+source_urls = ['https://www.dkrz.de/redmine/attachments/download/464/']
+sources = [SOURCELOWER_TAR_GZ]
+
+sanity_check_paths = {
+    'files': ["include/yaxt.h", "include/yaxt.mod", "lib/libyaxt.a", "lib/libyaxt.so"],
+    'dirs': ["include/xt"],
+}
+
+moduleclass = 'tools'

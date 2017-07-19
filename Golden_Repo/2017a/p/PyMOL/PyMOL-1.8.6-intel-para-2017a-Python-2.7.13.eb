@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'PyMOL'
+version = '1.8.6'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = "http://www.pymol.org"
+description = """PyMOL is a user-sponsored molecular visualization system on an open-source foundation.
+
+"""
+
+toolchain = {'name': 'intel-para', 'version': '2017a'}
+toolchainopts = {'pic': True}
+
+# download from http://downloads.sourceforge.net/project/pymol/pymol/1.8/pymol-v1.8.4.0.tar.bz2
+source_urls = ['http://downloads.sourceforge.net/project/pymol/pymol/1.8/']
+sources = ['pymol-v%(version)s.0.tar.bz2']
+
+dependencies = [
+    ('Python','2.7.13'),
+    ('X11','20170129'),
+    ('freeglut','3.0.0'),
+    ('freetype','2.7.1'),
+    ('libpng','1.6.28'),
+    ('SciPy-Stack','2017a', versionsuffix),
+    ('Pmw','2.0.1', versionsuffix),
+    ('GLEW','2.0.0'),
+    ('msgpack-c','2.1.1'),
+    ('VirtualGL','default'),
+    ('nvidia','driver','', True),
+]
+
+sanity_check_paths = {
+    'files': ['bin/pymol'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'vis'

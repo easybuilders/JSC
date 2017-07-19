@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'PyGObject'
+version = '3.24.0'
+pyver = '2.7.13'
+versionsuffix = '-Python-%s' % pyver
+
+homepage = 'http://www.pygtk.org/'
+description = """Python Bindings for GLib/GObject/GIO/GTK+
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+pyshortver = '.'.join(pyver.split('.')[:2])
+
+dependencies = [
+    ('Python', '2.7.13'),
+    ('GLib', '2.51.5'),
+    ('GObject-Introspection', '1.51.5'),
+    ('PyCairo', '1.10.0', versionsuffix),
+]
+
+builddependencies = [
+    ('binutils', '2.28'),
+    ('X11', '20170129'),
+]
+
+modextrapaths = {
+    'PYTHONPATH': [
+        'lib/python%(pyshortver)s/site-packages',
+        'lib/python%(pyshortver)s/site-packages/gtk-2.0',
+    ],
+}
+
+sanity_check_paths = {
+    'files': ['include/pygobject-%(version_major)s.0/pygobject.h'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+sanity_check_commands = [
+    ('python', "-c 'import gi'"),
+]
+
+moduleclass = 'vis'

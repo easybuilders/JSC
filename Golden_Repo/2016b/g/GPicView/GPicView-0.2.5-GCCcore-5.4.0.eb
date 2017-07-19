@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'GPicView'
+version = '0.2.5'
+
+homepage = 'http://lxde.sourceforge.net/gpicview'
+description = """
+ GPicView - A Simple and Fast Image Viewer for X
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = ['https://sourceforge.net/projects/lxde/files/GPicView%20%28image%20Viewer%29/0.2.x/']
+sources = [SOURCELOWER_TAR_XZ]
+
+dependencies = [
+    ('X.Org','2016-09-22'),
+    ('GTK+','3.22.1'),
+    ('libjpeg-turbo','1.5.1'),
+    ('adwaita-icon-theme', '3.22.0')
+]
+
+builddependencies = [
+    ('binutils','2.27'),
+    ('pkg-config','0.29.1'),
+    ('XML-Parser','2.44','-Perl-5.24.0'),
+]
+
+configopts = '--enable-gtk3 '
+
+sanity_check_paths = {
+    'files': ['bin/gpicview'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

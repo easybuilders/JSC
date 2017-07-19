@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+name = "TAU"
+version = "2.25.2"
+
+homepage = 'http://tau.uoregon.edu'
+description = """The TAU Performance System is a portable profiling and tracing toolkit
+ for performance analysis of parallel programs written in Fortran, C, C++, Java, Python.
+
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2016b'}
+toolchainopts = {"usempi": True}
+
+# compiler toolchain depencies
+dependencies = [
+    ('OTF2', '2.0'),
+    ('PDT', '3.22.1'),
+    ('Score-P', '3.0', '-p1'),
+    ('PAPI', '5.5.0'),
+    ('libunwind', '1.1'),
+    ('OPARI2', '2.0.1'),
+    ('Java', '1.8.0_102','',True),
+    ('darshan-runtime', '3.1.1'),
+]
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = ['http://www.cs.uoregon.edu/research/paracomp/tau/tauprofile/dist/']
+
+extra_backends = [
+    'scorep'
+]
+
+tau_makefile = 'Makefile.tau-papi-mpi-pdt'
+#tau_makefile = 'Makefile.tau-icpc-papi-mpi-pdt'
+
+modextravars = {
+    'TAU_PROFILE':        '1',
+    'TAU_TRACE':          '0',
+    'TAU_CALLPATH':       '1',
+    'TAU_CALLPATH_DEPTH': '10',
+    'TAU_COMM_MATRIX':    '1',
+}
+
+moduleclass = 'perf'

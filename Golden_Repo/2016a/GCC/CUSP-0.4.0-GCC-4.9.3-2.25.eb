@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'CUSP'
+version = '0.4.0'
+
+homepage = 'http://cusplibrary.github.io/'
+description = """
+ CUSP is a library for sparse linear algebra and graph computations based on Thrust. Cusp provides a flexible, 
+ high-level interface for manipulating sparse matrices and solving sparse linear systems.
+"""
+toolchain = {'name': 'GCC', 'version': '4.9.3-2.25'}
+
+source_urls = ['https://github.com/cusplibrary/cusplibrary/archive/']
+sources = ['v%(version)s.tar.gz']
+
+dependencies = [('CUDA', '7.5.18')]
+
+postinstallcmds = [
+    'ln -s %(installdir)s/cusp %(installdir)s/include',
+    'ln -s %(installdir)s/cusp %(installdir)s/include/cusp',
+]
+
+sanity_check_paths = {
+    'files': ['cusp/version.h', 'include/version.h','include/cusp/version.h'],
+    'dirs':  ['build','cusp','examples','testing'],
+}
+
+# Add GPU property
+modluafooter = """
+add_property("arch","gpu")
+"""
+moduleclass = 'math'

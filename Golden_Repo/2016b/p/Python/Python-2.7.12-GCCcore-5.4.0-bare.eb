@@ -1,0 +1,60 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Python'
+version = '2.7.12'
+# This version is to allow us to build X.Org and related visual python libraries (PyQT, PyGTK, etc)
+versionsuffix = '-bare'
+
+homepage = 'http://python.org/'
+description = """
+Python is a programming language that lets you work more quickly and integrate your systems more effectively.
+
+This module is intended just for auxiliary tools and libraries that require python support.
+
+This bundle contains setuptools, six, Make, lxml and Cython
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+toolchainopts = {'pic': True, 'opt': True, 'optarch': True}
+
+source_urls = ['http://www.python.org/ftp/%(namelower)s/%(version)s/']
+sources = [SOURCE_TGZ]
+
+builddependencies = [
+    ('binutils', '2.27'),
+]
+
+dependencies = [
+    ('zlib', '1.2.8'),
+    ('libreadline', '7.0'),
+    ('ncurses', '6.0'),
+    ('SQLite', '3.14.2'),
+    #   ('OpenSSL', '1.0.1k'),  # OS dependency should be preferred if the os version is more recent then this version, it's
+    #   nice to have an up to date openssl for security reasons
+    ('libxml2', '2.9.4'),  # for lxml
+    ('libxslt', '1.1.29'),  # for lxml
+]
+
+osdependencies = [('openssl-devel', 'libssl-dev')]
+
+# We hide this by default since users should not use it in production, high-performance Python should be delivered at
+# compiler level with a default extension set
+hidden = True
+
+modloadmsg = 'WARNING: You are loading a python module (Python/.2.7.12-bare), possibly as a dependency for another package. '
+modloadmsg += 'This module is intended to be used by auxiliary tools, not for heavy computing. Please make sure '
+modloadmsg += 'you are not using this module to perform simulations or analyze data. If in doubt check the loaded modules '
+modloadmsg += 'with "module load" or simply reload python with "module load Python/2.7.12" or "module load Python/3.5.2"
+'
+
+# bare installation to be used by auxiliary tools and python visualization libraries
+exts_list = [
+    ('setuptools', '28.3.0', {'source_urls': ['https://pypi.python.org/packages/source/s/setuptools/']}),
+    ('six', '1.10.0', {'source_urls': ['https://pypi.python.org/packages/source/s/six']}),
+    ('Mako', '1.0.4', {'source_urls': ['https://pypi.python.org/packages/source/m/Mako']}),
+    ('lxml', '3.6.4', {'source_urls': ['https://pypi.python.org/packages/source/l/lxml']}),
+    ('Cython', '0.24.1', {'source_urls': ['http://www.cython.org/release/']}),
+]
+
+
+moduleclass = 'lang'

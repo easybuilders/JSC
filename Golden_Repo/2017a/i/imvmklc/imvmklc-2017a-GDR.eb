@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'imvmklc'
+version = '2017a-GDR'
+
+homepage = '(none)'
+description = """Intel based compiler toolchain with CUDA,
+ MVAPICH2 MPICH variant for MPI support, MKL and Intel FFTW wrappers.
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+comp_name = 'iccifort'
+comp_ver = '2016.4.258-GCC-5.4.0'
+comp = (comp_name, comp_ver)
+
+# toolchain used to build  dependencies
+comp_mpi_tc_name = 'imvapich2c'
+comp_mpi_tc_ver = version
+comp_mpi_tc = (comp_mpi_tc_name, comp_mpi_tc_ver)
+
+# compiler toolchain dependencies
+dependencies = [
+    comp,
+    ('icc', comp_ver),
+    ('ifort', comp_ver),
+    ('CUDA', '8.0.61', '', True),
+    ('MVAPICH2', '2.2', '-GDR', comp),
+    ('imkl', '2017.2.174','',('imvapich2c',version)),
+]
+
+moduleclass = 'toolchain'

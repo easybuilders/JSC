@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonPackage"
+
+name = 'gr'
+version = '0.20.0'
+
+homepage = 'http://gr-framework.org/'
+
+description = """GR is a universal framework for cross-platform visualization applications. It offers developers a compact, portable and consistent graphics library for their programs. Applications range from publication quality 2D graphs to the representation of complex 3D scenes.
+
+"""
+
+toolchain = {'name': 'intel-para', 'version': '2016b'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+
+python = 'Python'
+pythonver = '2.7.12'
+pythonshortver = '.'.join(pythonver.split('.')[0:2])
+versionsuffix = '-%s-%s' % (python, pythonver) 
+
+dependencies = [
+    ('X.Org', '2016-09-22'),
+    ('Ghostscript', '9.18'),
+    ('Qt', '4.8.7'),
+    (python, pythonver),
+    ('SciPy-Stack', '2016b', versionsuffix),
+]
+
+sanity_check_paths = {
+    'files': [],
+#    'dirs': ['lib/python%s/site-packages/%%(name)s' % pythonshortver]
+    'dirs': ['lib/python%s/site-packages/%%(name)s-%s-py%s-linux-x86_64.egg/%%(name)s' % (pythonshortver,version,pythonshortver) ]
+}
+
+moduleclass = 'vis'

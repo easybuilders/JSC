@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'Xpra'
+version = '1.0.5'
+
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = "http://www.xpra.org"
+description = """Xpra is an open-source multi-platform persistent remote display server and client
+for forwarding applications and desktop screens.
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['http://xpra.org/src/']
+sources = ['xpra-%(version)s.tar.bz2']
+
+patches = ['tmpfiles.patch']
+
+dependencies = [
+    ('Python', '2.7.13'),
+    ('X11','20170129'),
+    ('x264','20170316'),
+    ('x265','2.4'),
+    ('vpx','1.6.1'),
+    ('FFmpeg','3.2.4'),
+    ('libyuv','2017-01-16'),
+    ('PyGObject','2.28.6', versionsuffix),
+    ('PyGTK','2.24.0', versionsuffix),
+    ('Python-Xpra','2017a', versionsuffix),
+]
+
+prebuildopts = " export CFLAGS='-Wno-error=strict-prototypes -Wno-error=strict-aliasing' && "
+
+installopts = "--without-service"
+
+sanity_check_paths = {
+    'files': ['bin/xpra'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'vis'

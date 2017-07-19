@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013-2016 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+#             Markus Geimer <m.geimer@fz-juelich.de>
+# License::   3-clause BSD
+#
+# This work is based on experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+
+easyblock = 'EB_Score_minus_P'
+
+name = 'Score-P'
+version = '3.0'
+versionsuffix = '-p1'
+
+homepage = 'http://www.score-p.org'
+description = """The Score-P measurement infrastructure is a highly scalable and
+ easy-to-use tool suite for profiling, event tracing, and online analysis of HPC
+ applications.
+ 
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2016b'}
+
+sources = ['scorep-%(version)s.tar.gz']
+source_urls = ['http://www.vi-hps.org/upload/packages/scorep/']
+# Backported changesets from trunk to significantly reduce measurement overhead,
+# included in Score-P >3.0; see also 'preconfigopts' below
+patches = [
+    'scorep-3.0_initial_exec_tls.patch',
+    'scorep-3.0_omp_ancestry_default.patch',
+]
+
+dependencies = [
+    ('libunwind', '1.1'),
+    ('Cube', '4.3.4'),
+    ('OPARI2', '2.0.1'),
+    ('OTF2', '2.0'),
+    ('PAPI', '5.5.0'),
+    ('PDT', '3.22.1'),
+]
+
+# Prevent rerunning configure during 'make all' after applying scorep-3.0_initial_exec_tls.patch
+preconfigopts = 'touch -r aclocal.m4 build-config/m4/scorep_thread_local_storage.m4 && '
+configopts  = "--with-machine-name=JURECA --enable-shared"
+
+sanity_check_paths = {
+    'files': ["bin/scorep", "include/scorep/SCOREP_User.h",
+              ("lib/libscorep_adapter_mpi_event.a", "lib64/libscorep_adapter_mpi_event.a"),
+              ("lib/libscorep_adapter_mpi_event.%s" % SHLIB_EXT, "lib64/libscorep_adapter_mpi_event.%s" % SHLIB_EXT)],
+    'dirs': [],
+}
+
+#preconfigopts = 'unset CFLAGS; unset CXXFLAGS; unset CC; unset CXX && '
+
+# Ensure that local metric documentation is found by Cube GUI
+modextrapaths = {'CUBE_DOCPATH': 'share/doc/scorep/profile'}
+
+# Necessary due to a bug in Score-P. It shouldn't be necessary for >2.0.1
+modextravars = {'SCOREP_TIMER': 'gettimeofday'}
+
+moduleclass = 'perf'

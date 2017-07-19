@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'makedepend'
+version = '1.0.5'
+
+homepage = "http://www.linuxfromscratch.org/blfs/view/svn/x/makedepend.html"
+description = "The makedepend package contains a C-preprocessor like utility to determine build-time dependencies."
+
+toolchain = {'name': 'GCCcore', 'version': '5.3.0'}
+toolchainopts = {'optarch': True}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['http://xorg.freedesktop.org/releases/individual/util']
+
+builddependencies = [
+    ('binutils', '2.26'),
+    ('Coreutils', '8.25'),
+    ('xproto', '7.0.28'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/makedepend'],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

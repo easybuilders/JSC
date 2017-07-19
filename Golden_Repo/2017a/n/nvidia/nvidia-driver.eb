@@ -1,0 +1,18 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'nvidia'
+version = 'driver'
+
+homepage = 'http://nvidia.com'
+description = """This module simply prepends the libraries provided by NVIDIA's drivers to LD_LIBRARY_PATH
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+modextrapaths = {'LD_LIBRARY_PATH': '/usr/lib64/nvidia'}
+
+modextravars = {'NVIDIALIBDIR': '/usr/lib64/nvidia'}
+
+moduleclass = 'vis'

@@ -1,0 +1,11 @@
+--- share/cmake-3.6/Modules/FindMPI.cmake.orig	2016-09-07 16:11:58.000000000 +0200
++++ share/cmake-3.6/Modules/FindMPI.cmake	2017-03-07 16:41:40.891511463 +0100
+@@ -552,7 +552,7 @@
+ get_filename_component(_MPI_BASE_DIR "${MPIEXEC}" PATH)
+ get_filename_component(_MPI_BASE_DIR "${_MPI_BASE_DIR}" PATH)
+ 
+-set(MPIEXEC_NUMPROC_FLAG "-np" CACHE STRING "Flag used by MPI to specify the number of processes for MPIEXEC; the next option will be the number of processes.")
++set(MPIEXEC_NUMPROC_FLAG "-n" CACHE STRING "Flag used by MPI to specify the number of processes for MPIEXEC; the next option will be the number of processes.")
+ set(MPIEXEC_PREFLAGS     ""    CACHE STRING "These flags will be directly before the executable that is being run by MPIEXEC.")
+ set(MPIEXEC_POSTFLAGS    ""    CACHE STRING "These flags will come after all flags given to MPIEXEC.")
+ set(MPIEXEC_MAX_NUMPROCS "2"   CACHE STRING "Maximum number of processors available to run MPI applications.")

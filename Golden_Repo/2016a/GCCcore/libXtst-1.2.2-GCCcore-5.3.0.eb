@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libXtst'
+version = '1.2.2'
+
+homepage = "http://www.freedesktop.org/wiki/Software/xlibs"
+description = """Client library for X Record and Test extensions."""
+
+toolchain = {'name': 'GCCcore', 'version': '5.3.0'}
+toolchainopts = {'optarch': True}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [XORG_LIB_SOURCE]
+
+builddependencies = [
+    ('binutils', '2.26'),
+    ('pkg-config', '0.29'),
+    ('xorg-macros', '1.19.0'),
+    ('xproto', '7.0.28'),
+    ('kbproto', '1.0.7'),
+    ('xextproto', '7.3.0'),
+    ('inputproto', '2.3.1'),
+    ('fixesproto', '5.0'),
+    ('recordproto', '1.14.2'),
+    ('libpthread-stubs', '0.3'),
+]
+
+
+dependencies = [
+    ('libX11', '1.6.3'),
+    ('libXext', '1.3.3'),
+    ('libXi', '1.7.6'),
+    ('libXfixes', '5.0.1'),
+]
+
+sanity_check_paths = {
+    'files': ['lib/%s' % x for x in ['libXtst.a', 'libXtst.%s' % SHLIB_EXT]],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

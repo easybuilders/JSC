@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'LAMMPS'
+version = '16Feb16'
+
+homepage = 'http://lammps.sandia.gov/'
+description = """LAMMPS is a classical molecular dynamics code, and an acronym
+for Large-scale Atomic/Molecular Massively Parallel Simulator. LAMMPS has
+potentials for solid-state materials (metals, semiconductors) and soft matter
+(biomolecules, polymers) and coarse-grained or mesoscopic systems. It can be
+used to model atoms or, more generically, as a parallel particle simulator at
+the atomic, meso, or continuum scale. LAMMPS runs on single processors or in
+parallel using message-passing techniques and a spatial-decomposition of the
+simulation domain. The code is designed to be easy to modify or extend with new
+functionality."""
+
+toolchain = {'name': 'intel', 'version': '2016a'}
+toolchainopts = {'openmp': False, 'usempi': True}
+
+# The source will most likely be downloaded as "lammps-stable.tar.gz". You can
+# find out the version number by running "tar tvf lammps-stable.tar.gz" and
+# having a look at the contents. It will probably be necessary to download the
+# source code by hand.
+sources = ['%(namelower)s-%(version)s.tar.gz']
+#source_urls = ['http://lammps.sandia.gov/download.html']
+
+dependencies = [
+    ('Python', '2.7.11'),
+    ('libpng', '1.6.21'),
+    ('tbb', '4.4.3.181', '', True),
+]
+
+# Set up the compilation properties
+# Disable CUDA for the moment; compatibility issues must be resolved
+with_png = True
+use_asphere = True
+use_body = True
+#use_gpu = True
+use_granular = True
+use_meam = True
+#use_poems = True # NOt in easyblock yet
+use_python = True
+#use_reax = True # NOt in easyblock yet
+use_rigid = True
+use_srd = True
+#use_cuda = True
+use_intel = True
+use_lb = True
+
+# Install executables
+files_to_copy = [(["src/lmp_*"], "bin")]
+
+# Don't name the executable specifically, as what if there are
+# multiple lmp_ executables?
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['bin']
+}
+
+moduleclass = 'chem'

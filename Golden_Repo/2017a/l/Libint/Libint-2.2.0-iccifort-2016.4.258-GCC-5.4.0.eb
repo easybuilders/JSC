@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Libint'
+version = '2.2.0'
+
+homepage = 'https://sourceforge.net/p/libint/'
+description = """Libint library is used to evaluate the traditional (electron repulsion) and certain novel two-body
+ matrix elements (integrals) over Cartesian Gaussian functions used in modern atomic and molecular theory.
+
+"""
+
+toolchain = {'name': 'iccifort', 'version': '2016.4.258-GCC-5.4.0'}
+toolchainopts = {'opt': True, 'optarch': True, 'pic': True}
+
+source_urls = ['https://github.com/evaleev/libint/releases/download/v%(version)s/']
+sources = [SOURCELOWER_TGZ]
+
+configopts = "--enable-deriv --enable-r12"
+
+sanity_check_paths = {
+    'files': ['include/lib%(x)s.h' % {'x': x} for x in ['int2']] +
+             ['lib/lib%s.a' % x for x in ['int2']] +
+             ['lib/lib%s.so' % x for x in ['int2']],
+    'dirs': [],
+}
+
+moduleclass = 'chem'

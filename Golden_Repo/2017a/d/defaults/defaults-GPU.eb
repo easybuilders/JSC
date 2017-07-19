@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'defaults'
+version = 'GPU'
+
+homepage = 'http://fz-juelich.de/jsc'
+description = """This module loads the default modules for use in GPU nodes
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+dependencies = [
+    ('iccifort', '2016.4.258-GCC-5.4.0'),
+    ('MVAPICH2', '2.2', '-GDR', ('iccifort', '2016.4.258-GCC-5.4.0')),
+    ('imkl', '2017.2.174', '', ('imvapich2c', '2017a-GDR')),
+]
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'toolchain'

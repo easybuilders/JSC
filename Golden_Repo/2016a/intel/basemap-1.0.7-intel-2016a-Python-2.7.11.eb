@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'basemap'
+version = '1.0.7'
+
+homepage = 'http://matplotlib.org/basemap/'
+description = """Basemap is a Python matplotlib toolkit for plotting data on maps."""
+
+toolchain = {'name': 'intel', 'version': '2016a'}
+
+source_urls = ['http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-%(version)s']
+sources = ['%(namelower)s-%(version)s.tar.gz']
+
+python = "Python"
+pythonversion = '2.7.11'
+pyshortver = ".".join(pythonversion.split(".")[:-1])
+
+versionsuffix = "-%s-%s" % (python, pythonversion)
+
+dependencies = [
+    (python, pythonversion),
+    ('SciPy-Stack','2016a', versionsuffix),
+    ('GEOS', '3.5.0', versionsuffix),
+]
+
+prebuildopts = 'GEOS_DIR="${EBROOTGEOS}" '
+preinstallopts = 'GEOS_DIR="${EBROOTGEOS}" '
+
+# this fixes sanity check issue: without, eb tries to check python -c "import basemap", mismatch of module name and invocation command
+options = {'modulename': False}
+
+pyprefix = 'lib/python%s/site-packages' % pyshortver
+eggname = 'basemap-%%(version)s-py%s-linux-x86_64.egg' % pyshortver
+
+sanity_check_paths = {
+    'dirs': ['lib/'],
+    'files': ['lib/python2.7/site-packages/mpl_toolkits/basemap/pyproj.py'],
+}
+
+sanity_check_commands = [('python','-c "import mpl_toolkits.basemap"')]
+
+moduleclass = 'vis'

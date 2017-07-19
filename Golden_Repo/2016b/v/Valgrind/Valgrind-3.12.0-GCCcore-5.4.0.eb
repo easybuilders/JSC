@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Valgrind'
+version = '3.12.0'
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+homepage = 'http://valgrind.org/downloads/'
+description = """Valgrind is an instrumentation framework for building dynamic analysis tools. There are Valgrind tools that can automatically detect many memory management and threading bugs, and profile your programs in detail.
+
+"""
+
+sources = [SOURCELOWER_TAR_BZ2]
+source_urls = ['http://valgrind.org/downloads/']
+
+builddependencies = [('binutils', '2.27')]
+
+binaries = [
+    'callgrind_annotate', 'callgrind_control', 'cg_annotate', 'cg_diff',
+    'cg_merge', 'ms_print', 'valgrind', 'valgrind-listener', 'vgdb'
+]
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in binaries],
+    'dirs': []
+}
+
+moduleclass = 'debugger'

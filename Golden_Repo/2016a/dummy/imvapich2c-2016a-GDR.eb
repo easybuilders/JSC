@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'imvapich2c'
+version = '2016a'
+versionsuffix = '-GDR'
+
+homepage = '(none)'
+description = """ Intel based compiler toolchain,
+ including CUDA and MVAPICH2 for CUDA-aware MPI support."""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+compname = 'iccifort'
+compver = '2015.3.187'
+gccsuffix = '-GCC-4.9.3-2.25'
+comp = (compname, compver + gccsuffix)
+
+dependencies = [
+    ('iccifort', '%s%s' % (compver, gccsuffix)),
+    ('icc', compver, gccsuffix),
+    ('ifort', compver, gccsuffix),
+    ('CUDA', '7.5.18', '', comp),
+    ('MVAPICH2', '2.2b', '%s' % versionsuffix, comp),
+]
+
+moduleclass = 'toolchain'

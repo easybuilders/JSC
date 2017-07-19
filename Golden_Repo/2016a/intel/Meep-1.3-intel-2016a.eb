@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+name = 'Meep'
+version = '1.3'
+
+homepage = 'http://ab-initio.mit.edu/wiki/index.php/Meep'
+description = """Meep (or MEEP) is a free finite-difference time-domain (FDTD) simulation software packagedeveloped at
+MIT to model electromagnetic systems."""
+
+toolchain = {'name': 'intel', 'version': '2016a'}
+toolchainopts = {'usempi': True, 'opt': True, 'optarch': True, 'unroll': True, 'pic': True}
+
+source_urls = [
+    'http://ab-initio.mit.edu/meep/',
+    'http://ab-initio.mit.edu/meep/old/',
+]
+sources = [SOURCELOWER_TAR_GZ]
+
+dependencies = [
+    ('Harminv', '1.4'),
+    ('HDF5', '1.8.16'),
+    ('libctl', '3.2.2'),
+    ('GSL', '2.1'),
+]
+
+configopts = '--with-pic --with-mpi --without-gcc-arch --with-libctl=$EBROOTLIBCTL/share/libctl --enable-shared '
+
+moduleclass = 'phys'

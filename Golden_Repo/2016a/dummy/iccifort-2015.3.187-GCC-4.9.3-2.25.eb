@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'iccifort'
+version = '2015.3.187'
+versionsuffix = '-GCC-4.9.3-2.25'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = "Intel Cluster Toolkit Compiler Edition provides Intel C,C++ and fortran compilers, Intel MPI and Intel MKL"
+
+toolchain = {'version': 'dummy', 'name': 'dummy'}
+
+dependencies = [
+    ('icc', version, versionsuffix),
+    ('ifort', version, versionsuffix),
+]
+
+# We have a custom naming scheme that allows us to use a more descriptive module name
+modaltsoftname = 'Intel'
+
+# We use a HMNS, so let's enforce a unique compiler
+modluafooter = 'family("compiler")'
+
+# Always do a recursive unload on compilers
+recursive_module_unload = True
+
+moduleclass = 'compiler'

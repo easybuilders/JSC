@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Grace'
+version = '5.1.25'
+
+homepage = 'http://freecode.com/projects/grace'
+description = """Grace is a WYSIWYG 2D plotting tool for X Windows System and Motif."""
+
+source_urls = ['ftp://plasma-gate.weizmann.ac.il/pub/grace/src/stable']
+sources = [SOURCELOWER_TAR_GZ]
+
+toolchain = {'name': 'GCCcore', 'version': '4.9.3'}
+
+builddependencies = [
+    ('binutils', '2.25'),
+    ('xproto', '7.0.28'),
+    ('kbproto', '1.0.7'),
+    ('renderproto', '0.11'),
+    ('xextproto', '7.3.0'),
+    ('pkg-config',  '0.29'),
+]
+
+dependencies = [
+    ('motif', '2.3.4', '-libX11-1.6.3'),
+    ('libpng', '1.6.21'),
+    ('libjpeg-turbo', '1.4.2'),
+    ('libXpm', '3.5.11'),
+    ('libXmu', '1.1.2'),
+]
+
+configopts = "--enable-grace-home='$(PREFIX)'"
+
+runtest = 'tests'
+
+sanity_check_paths = {
+    'files': ['bin/xmgrace'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

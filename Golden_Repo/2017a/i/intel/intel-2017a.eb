@@ -1,0 +1,22 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'intel'
+version = '2017a'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = """Intel Cluster Toolkit Compiler Edition provides Intel C/C++ and Fortran compilers, Intel MPI & Intel MKL.
+
+"""
+
+toolchain = {'version': '', 'name': 'dummy'}
+
+dependencies = [
+    ('iccifort', '2017.2.174', '-GCC-5.4.0'),
+    ('icc', '2017.2.174', '-GCC-5.4.0'),
+    ('ifort', '2017.2.174', '-GCC-5.4.0'),
+    ('impi', '2017.2.174', '', ('iccifort', '2017.2.174-GCC-5.4.0')),
+    ('imkl', '2017.2.174', '', ('iimpi', '2017a')),
+]
+
+moduleclass = 'toolchain'

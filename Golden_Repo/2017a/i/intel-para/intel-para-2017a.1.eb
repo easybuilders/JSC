@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'intel-para'
+version = '2017a.1'
+versionsuffix = ''
+
+intelversion = '2016.4.258'
+intelsuffix = '-GCC-5.4.0'
+
+homepage = ''
+description = """intel-para provides Intel C/C++ and Fortran compilers, ParaStationMPI & Intel MKL.
+
+"""
+
+toolchain = {'version': '', 'name': 'dummy'}
+
+dependencies = [
+    ('iccifort', intelversion, intelsuffix),
+    ('icc', intelversion, intelsuffix),
+    ('ifort', intelversion, intelsuffix),
+    ('psmpi', '5.1.9-1', versionsuffix, ('iccifort', intelversion+intelsuffix)),
+    ('imkl', '2017.2.174', versionsuffix, ('ipsmpi', version)),
+]
+
+
+moduleclass = 'toolchain'

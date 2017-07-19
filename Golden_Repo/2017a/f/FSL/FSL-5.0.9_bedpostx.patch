@@ -1,0 +1,543 @@
+--- fsl.orig/src/fdt/bedpostx	2016-05-30 14:13:03.286477000 +0200
++++ fsl/src/fdt/bedpostx	2015-10-27 17:58:06.000000000 +0100
+@@ -2,68 +2,7 @@
+ 
+ #   Copyright (C) 2004,2013 University of Oxford
+ #
+-#   Part of FSL - FMRIB's Software Library
+-#   http://www.fmrib.ox.ac.uk/fsl
+-#   fsl@fmrib.ox.ac.uk
+-#   
+-#   Developed at FMRIB (Oxford Centre for Functional Magnetic Resonance
+-#   Imaging of the Brain), Department of Clinical Neurology, Oxford
+-#   University, Oxford, UK
+-#   
+-#   
+-#   LICENCE
+-#   
+-#   FMRIB Software Library, Release 5.0 (c) 2012, The University of
+-#   Oxford (the "Software")
+-#   
+-#   The Software remains the property of the University of Oxford ("the
+-#   University").
+-#   
+-#   The Software is distributed "AS IS" under this Licence solely for
+-#   non-commercial use in the hope that it will be useful, but in order
+-#   that the University as a charitable foundation protects its assets for
+-#   the benefit of its educational and research purposes, the University
+-#   makes clear that no condition is made or to be implied, nor is any
+-#   warranty given or to be implied, as to the accuracy of the Software,
+-#   or that it will be suitable for any particular purpose or for use
+-#   under any specific conditions. Furthermore, the University disclaims
+-#   all responsibility for the use which is made of the Software. It
+-#   further disclaims any liability for the outcomes arising from using
+-#   the Software.
+-#   
+-#   The Licensee agrees to indemnify the University and hold the
+-#   University harmless from and against any and all claims, damages and
+-#   liabilities asserted by third parties (including claims for
+-#   negligence) which arise directly or indirectly from the use of the
+-#   Software or the sale of any products based on the Software.
+-#   
+-#   No part of the Software may be reproduced, modified, transmitted or
+-#   transferred in any form or by any means, electronic or mechanical,
+-#   without the express permission of the University. The permission of
+-#   the University is not required if the said reproduction, modification,
+-#   transmission or transference is done without financial return, the
+-#   conditions of this Licence are imposed upon the receiver of the
+-#   product, and all original and amended source code is included in any
+-#   transmitted product. You may be held legally responsible for any
+-#   copyright infringement that is caused or encouraged by your failure to
+-#   abide by these terms and conditions.
+-#   
+-#   You are not permitted under this Licence to use this Software
+-#   commercially. Use for which any financial return is received shall be
+-#   defined as commercial use, and includes (1) integration of all or part
+-#   of the source code or the Software into a product for sale or license
+-#   by or on behalf of Licensee to third parties or (2) use of the
+-#   Software or any derivative of it for research with the final aim of
+-#   developing software products for sale or license to a third party or
+-#   (3) use of the Software or any derivative of it for research with the
+-#   final aim of developing non-software products for sale or license to a
+-#   third party, or (4) use of the Software to provide any service to an
+-#   external organisation for which payment is received. If you are
+-#   interested in using the Software commercially, please contact Isis
+-#   Innovation Limited ("Isis"), the technology transfer company of the
+-#   University, to negotiate a licence. Contact details are:
+-#   innovation@isis.ox.ac.uk quoting reference DE/9564.
+-export LC_ALL=C
++#   SHCOPYRIGHT
+ 
+ Usage() {
+     echo ""
+@@ -132,7 +71,7 @@
+     if [ ! \$havedad -gt 0 ]; then
+        exit 0
+     fi
+-    if [ "x$SGE_ROOT" == "x" ]; then
++    if [ "x$SGE_ROOT" = "x" ]; then
+         havedad=\`ps -e -o pid 2>&1 | grep "$$\\b" | wc -l\`        
+     fi
+     sleep 180;
+--- fsl.orig/src/fdt/CUDA/bedpostx_gpu	2016-05-30 14:13:03.277109000 +0200
++++ fsl/src/fdt/CUDA/bedpostx_gpu	2016-05-30 14:16:32.045831000 +0200
+@@ -1,69 +1,9 @@
+-#!/bin/sh
++#!/bin/bash
+ 
+ #   Copyright (C) 2004 University of Oxford
+ #
+-#   Part of FSL - FMRIB's Software Library
+-#   http://www.fmrib.ox.ac.uk/fsl
+-#   fsl@fmrib.ox.ac.uk
+-#   
+-#   Developed at FMRIB (Oxford Centre for Functional Magnetic Resonance
+-#   Imaging of the Brain), Department of Clinical Neurology, Oxford
+-#   University, Oxford, UK
+-#   
+-#   
+-#   LICENCE
+-#   
+-#   FMRIB Software Library, Release 5.0 (c) 2012, The University of
+-#   Oxford (the "Software")
+-#   
+-#   The Software remains the property of the University of Oxford ("the
+-#   University").
+-#   
+-#   The Software is distributed "AS IS" under this Licence solely for
+-#   non-commercial use in the hope that it will be useful, but in order
+-#   that the University as a charitable foundation protects its assets for
+-#   the benefit of its educational and research purposes, the University
+-#   makes clear that no condition is made or to be implied, nor is any
+-#   warranty given or to be implied, as to the accuracy of the Software,
+-#   or that it will be suitable for any particular purpose or for use
+-#   under any specific conditions. Furthermore, the University disclaims
+-#   all responsibility for the use which is made of the Software. It
+-#   further disclaims any liability for the outcomes arising from using
+-#   the Software.
+-#   
+-#   The Licensee agrees to indemnify the University and hold the
+-#   University harmless from and against any and all claims, damages and
+-#   liabilities asserted by third parties (including claims for
+-#   negligence) which arise directly or indirectly from the use of the
+-#   Software or the sale of any products based on the Software.
+-#   
+-#   No part of the Software may be reproduced, modified, transmitted or
+-#   transferred in any form or by any means, electronic or mechanical,
+-#   without the express permission of the University. The permission of
+-#   the University is not required if the said reproduction, modification,
+-#   transmission or transference is done without financial return, the
+-#   conditions of this Licence are imposed upon the receiver of the
+-#   product, and all original and amended source code is included in any
+-#   transmitted product. You may be held legally responsible for any
+-#   copyright infringement that is caused or encouraged by your failure to
+-#   abide by these terms and conditions.
+-#   
+-#   You are not permitted under this Licence to use this Software
+-#   commercially. Use for which any financial return is received shall be
+-#   defined as commercial use, and includes (1) integration of all or part
+-#   of the source code or the Software into a product for sale or license
+-#   by or on behalf of Licensee to third parties or (2) use of the
+-#   Software or any derivative of it for research with the final aim of
+-#   developing software products for sale or license to a third party or
+-#   (3) use of the Software or any derivative of it for research with the
+-#   final aim of developing non-software products for sale or license to a
+-#   third party, or (4) use of the Software to provide any service to an
+-#   external organisation for which payment is received. If you are
+-#   interested in using the Software commercially, please contact Isis
+-#   Innovation Limited ("Isis"), the technology transfer company of the
+-#   University, to negotiate a licence. Contact details are:
+-#   innovation@isis.ox.ac.uk quoting reference DE/9564.
+-export LC_ALL=C
++#   SHCOPYRIGHT
++# Modified by Rajalekshmi Deepu, Simulation Lab for Neuroscience, JSC, FZJ in 2016
+ 
+ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${FSLDIR}/lib
+ 
+@@ -78,7 +18,7 @@
+     echo "<options>:"
+     #echo "-QSYS (Queue System, 0 use fsl_sub: FMRIB, 1 TORQUE (default): WashU)"
+     echo "-Q (name of the GPU(s) queue, default cuda.q (defined in environment variable: FSLGECUDAQ)"
+-    #echo "-Q (name of the GPU(s) queue, default cuda.q for QSYS=0 and dque_gpu for QSYS=1)"	
++    #echo "-Q (name of the GPU(s) queue, default cuda.q for QSYS=0 and no queue for QSYS=1)"	
+     echo "-NJOBS (number of jobs to queue, the data is divided in NJOBS parts, usefull for a GPU cluster, default 4)"
+     echo "-n (number of fibres per voxel, default 3)"
+     echo "-w (ARD weight, more weight means less secondary fibres per voxel, default 1)"
+@@ -154,7 +94,7 @@
+     if [ ! \$havedad -gt 0 ]; then
+        exit 0
+     fi
+-    if [ "x$SGE_ROOT" == "x" ]; then
++    if [ "x$SLURM_JOB_ID" = "x" ]; then
+         havedad=\`ps -e -o pid 2>&1| grep "$$\\b" | wc -l\`
+     fi
+     sleep 50;
+@@ -163,6 +103,116 @@
+     chmod +x ${subjdir}.bedpostX/monitor
+ }
+ 
++# function which creates a slurm submission script for the pre-processing part
++pre-proc-sub(){
++    cat <<EOPRE > ${subjdir}.bedpostX/pre-proc-sub.sh
++#!/bin/bash -x  
++#SBATCH --job-name=bedpostx_preproc_gpu                                                                            
++#SBATCH --nodes=1     
++#SBATCH --ntasks-per-node=24
++#SBATCH --time=02:00:00
++#SBATCH --partition=gpus
++#SBATCH --gres=gpu:1
++#SBATCH --output=${subjdir}.bedpostX/logs/pre-proc-out.%j
++#SBATCH --error=${subjdir}.bedpostX/logs/pre-proc-err.%j
++                                                                                                         
++date
++srun -n1 --gres=gpu:1 preproc_command &
++wait
++date
++
++EOPRE
++      chmod +x ${subjdir}.bedpostX/pre-proc-sub.sh
++}
++
++# function which creates a slurm submission script for the parallel-processing part  
++para-proc-sub(){
++    cat <<EOPA > ${subjdir}.bedpostX/para-proc-sub.sh 
++#!/bin/bash -x                                                                                                                                     
++#SBATCH --job-name=bedpostx_paraproc_gpu                                                                                                           
++#SBATCH --nodes=1                                                                                                                                  
++#SBATCH --ntasks-per-node=24                                                                                                                       
++#SBATCH --time=06:00:00                                                                                                                            
++#SBATCH --partition=gpus                                                                                                                           
++#SBATCH --gres=gpu:4                                                                                                                               
++#SBATCH --output=${subjdir}.bedpostX/logs/para-proc-out.%j
++#SBATCH --error=${subjdir}.bedpostX/logs/para-proc-err.%j
++
++date
++
++EOPA
++    chmod +x ${subjdir}.bedpostX/para-proc-sub.sh
++}
++
++# function which creates a slurm submission script for the post-processing part
++post-proc-sub(){
++    cat <<EOPST > ${subjdir}.bedpostX/post-proc-sub.sh
++#!/bin/bash -x
++#SBATCH --job-name=bedpostx_postproc_gpu
++#SBATCH --nodes=1
++#SBATCH --ntasks-per-node=24
++#SBATCH --time=06:00:00 
++#SBATCH --partition=gpus
++#SBATCH --gres=gpu:1 
++#SBATCH --output=${subjdir}.bedpostX/logs/post-proc-out.%j
++#SBATCH --error=${subjdir}.bedpostX/logs/post-proc-err.%j
++
++date 
++srun -n1 --gres=gpu:1 postproc_command &                                                                                                                                                    
++wait
++date
++                                                                                                                                                                                                                
++EOPST
++    chmod +x ${subjdir}.bedpostX/post-proc-sub.sh
++}
++
++
++
++insert_in_sbatch_script (){
++   # $* or $@ refer to all arguments passed to script
++    pre_command1=$*
++    echo $pre_command1
++    inplace_insert_variable ${subjdir}.bedpostX/pre-proc-sub.sh  "preproc_command" "$pre_command1"
++    
++}
++
++insert_in_sbatch_script_post (){
++   # $* or $@ refer to all arguments passed to script                                                                                                                                                            
++    post_command1=$*
++    echo $post_command1
++    inplace_insert_variable ${subjdir}.bedpostX/post-proc-sub.sh  "postproc_command" "$post_command1"
++
++}
++
++insert_in_para_sbatch_script (){
++   # $* or $@ refer to all arguments passed to script                                                                                               
++    para_command1=$*
++    echo $para_command1
++    args=$#
++    n=`expr "$args" - 2`
++    narg=${!n}
++    echo $narg
++    #create an output log file for each data part execution
++    touch ${subjdir}.bedpostX/logs/para-proc-data$narg.log
++    #srun $para_command1 -o ${subjdir}.bedpostX/logs/para-proc-data$narg.log & 
++    cat <<EOF >> ${subjdir}.bedpostX/para-proc-sub.sh 
++srun -n1 --gres=gpu:1 $para_command1 & 
++EOF
++
++}
++
++
++inplace_insert_variable () {
++# Parses all occurances of string $2 in file $1 by string $3; Uses cat, sed and move
++
++    FILE_PATH=$1
++    SEARCH_STRING=$2
++    REPLACE_STRING=$3
++
++    # Use a temp file                                                                   
++    cat $FILE_PATH      | sed "s|$SEARCH_STRING|$REPLACE_STRING|g" > $FILE_PATH".temp"; mv $FILE_PATH".temp" $FILE_PATH
++}
++
+ make_absolute(){
+     dir=$1;
+     if [ -d ${dir} ]; then
+@@ -188,7 +238,6 @@
+ 
+ #parse option arguments
+ qsys=0
+-queue="$FSLGECUDAQ"
+ njobs=4
+ nfibres=3
+ fudge=1
+@@ -198,16 +247,14 @@
+ model=2
+ gflag=0
+ other=""
+-if [ "x$SGE_ROOT" = "x" ]; then
+-	queue=''
+-fi
++queue=""
+ 
+ shift
+ while [ ! -z "$1" ]
+ do
+   case "$1" in
+       -QSYS) qsys=$2;shift;;
+-      -Q) queue=$2;shift;;
++      -Q) queue="-q $2";shift;;
+       -NJOBS) njobs=$2;shift;;
+       -n) nfibres=$2;shift;;
+       -w) fudge=$2;shift;;
+@@ -224,11 +271,6 @@
+ defopts="--cnonlinear"
+ opts="$opts $defopts $other"
+ 
+-if [ $qsys -eq 1 ]; then
+-	#WashU
+-	queue=dque_gpu
+-fi 
+-
+ #check that all required files exist
+ 
+ if [ ! -d $subjdir ]; then
+@@ -287,8 +329,6 @@
+ rm -f ${subjdir}.bedpostX/logs/monitor/*
+ mkdir -p ${subjdir}.bedpostX/xfms
+ 
+-#mailto=`whoami`@fmrib.ox.ac.uk
+-
+ echo Copying files to bedpost directory
+ 
+ cp ${subjdir}/bvecs ${subjdir}/bvals ${subjdir}.bedpostX
+@@ -306,30 +346,19 @@
+ else
+ 	pre_command="$FSLDIR/bin/split_parts_gpu ${subjdir}/data ${subjdir}/nodif_brain_mask NULL 0 $njobs ${subjdir}.bedpostX"
+ fi
+-if [ $qsys -eq 0 ]; then
+-	#SGE
+-	splitID=`${FSLDIR}/bin/fsl_sub -T 40 -l ${subjdir}.bedpostX/logs -N bedpostx_preproc_gpu $pre_command`
+-else
+-	#TORQUE
+-	echo $pre_command > ${subjdir}.bedpostX/temp
+-	torque_command="qsub -q $queue -V -l nodes=1:ppn=1,walltime=00:40:00 -N bedpostx_preproc_gpu -o ${subjdir}.bedpostX/logs -e ${subjdir}.bedpostX/logs"
+-	splitID=`exec $torque_command ${subjdir}.bedpostX/temp | awk '{print $1}' | awk -F. '{print $1}'`
+-        rm ${subjdir}.bedpostX/temp
+-	sleep 10
+-fi
+-
++ 
++pre-proc-sub
++insert_in_sbatch_script ${pre_command}
++#Getting the slurm job id for the pre-processing job
++pre_proc_slurm_jobid=`exec sbatch ${subjdir}.bedpostX/pre-proc-sub.sh | awk '{print $4}' &`
++echo Pre processing job id is $pre_proc_slurm_jobid
+ 
++#Compute number of voxels
+ nvox=`${FSLDIR}/bin/fslstats $subjdir.bedpostX/nodif_brain_mask -V  | cut -d ' ' -f1 `
+-
++echo $nvox > ${subjdir}.bedpostX/logs/numvoxels.txt
+ echo Queuing parallel processing stage
+ 
+-[ -f ${subjdir}.bedpostX/commands.txt ] && rm ${subjdir}.bedpostX/commands.txt
+-
+-monitor
+-if [ "x$SGE_ROOT" = "x" ]; then
+-    ${subjdir}.bedpostX/monitor&
+-fi
+-
++#Compute local model
+ part=0
+ while [ $part -lt $njobs ]
+ do
+@@ -340,58 +369,42 @@
+ 	else
+ 	    gopts=$opts
+ 	fi    
+-
+-	echo "${FSLDIR}/bin/xfibres_gpu --data=${subjdir}.bedpostX/data_$part --mask=$subjdir.bedpostX/nodif_brain_mask -b ${subjdir}.bedpostX/bvals -r ${subjdir}.bedpostX/bvecs --forcedir --logdir=$subjdir.bedpostX/diff_parts/data_part_$partzp $gopts ${subjdir} $part $njobs $nvox" >> ${subjdir}.bedpostX/commands.txt
+-    
++   
++     
++        echo "${FSLDIR}/bin/xfibres_gpu --data=${subjdir}.bedpostX/data_$part --mask=$subjdir.bedpostX/nodif_brain_mask -b ${subjdir}.bedpostX/bvals -r ${subjdir}.bedpostX/bvecs --forcedir --logdir=$subjdir.bedpostX/diff_parts/data_part_$partzp $gopts ${subjdir} $part $njobs $nvox" >> ${subjdir}.bedpostX/commands.txt
+     	part=$(($part + 1))
+ done
+ 
+-if [ $qsys -eq 0 ]; then
+-	#SGE
+-	bedpostid=`${FSLDIR}/bin/fsl_sub -q $queue -l ${subjdir}.bedpostX/logs -N bedpostx_gpu -j $splitID -t ${subjdir}.bedpostX/commands.txt`
+-else
+-	#TORQUE
+-	taskfile=${subjdir}.bedpostX/commands.txt
+-	tasks=`wc -l $taskfile | awk '{print $1}'`
+-	sge_tasks="-t 1-$tasks"
+-	echo "command=\`cat "$taskfile" | head -\$PBS_ARRAYID | tail -1\` ; exec \$command" > ${subjdir}.bedpostX/temp
+-	torque_command="qsub -q $queue -V -l nodes=1:ppn=1:gpus=1,walltime=4:00:00,pmem=16gb -N bedpostx_gpu -o ${subjdir}.bedpostX/logs -e ${subjdir}.bedpostX/logs -W depend=afterok:$splitID $sge_tasks"
+-	bedpostid=`exec $torque_command ${subjdir}.bedpostX/temp | awk '{print $1}' | awk -F. '{print $1}'`
+-        rm ${subjdir}.bedpostX/temp
+-	sleep 10
+-fi
+-
++taskfile=${subjdir}.bedpostX/commands.txt
++#Assigning the total number of tasks in the command text file to a variable
++tasks=`wc -l $taskfile | awk '{print $1}'`
++#function call to initialise the sbatch script for parallel processing 
++para-proc-sub
++j=1+$tasks
++for i in `seq $tasks`
++    do
++       #each command in the txt file is assigning to a variable 
++       para_command=`head -n $(($j-$i))   ${subjdir}.bedpostX/commands.txt | tail -1`
++       insert_in_para_sbatch_script ${para_command}
++    done
++    cat <<EOF >> ${subjdir}.bedpostX/para-proc-sub.sh                                                                                                      
++wait
++date                                                                                                                                       
++EOF
++ #Getting the slurm job id for the parallel-processing job to a variable; submitting the para-proc job only when pre-proc-job is completed successfully
++para_proc_slurm_jobid=`exec sbatch --dependency=afterok:$pre_proc_slurm_jobid ${subjdir}.bedpostX/para-proc-sub.sh | awk '{print $4}' &`
++echo Parallel processing job id is $para_proc_slurm_jobid
+ 
+-echo Queuing post processing stage
++#echo Queuing post processing stage
+ post_command="${FSLDIR}/bin/bedpostx_postproc_gpu.sh --data=${subjdir}/data --mask=$subjdir.bedpostX/nodif_brain_mask -b ${subjdir}.bedpostX/bvals -r ${subjdir}.bedpostX/bvecs  --forcedir --logdir=$subjdir.bedpostX/diff_parts $gopts $nvox $njobs ${subjdir} ${FSLDIR}"
+-if [ $qsys -eq 0 ]; then
+-	#SGE
+-	mergeid=`${FSLDIR}/bin/fsl_sub -T 120 -j $bedpostid -N bedpostx_postproc_gpu -l ${subjdir}.bedpostX/logs $post_command`
+-else
+-	#TORQUE
+-	echo $post_command > ${subjdir}.bedpostX/temp
+-	torque_command="qsub -q $queue -V -l nodes=1:ppn=1,walltime=00:40:00 -N bedpostx_postproc_gpu -o ${subjdir}.bedpostX/logs -e ${subjdir}.bedpostX/logs -W depend=afterokarray:$bedpostid"
+-	mergeid=`exec $torque_command ${subjdir}.bedpostX/temp | awk '{print $1}' | awk -F. '{print $1}'`
+-        rm ${subjdir}.bedpostX/temp
+-	sleep 10
+-fi
++post-proc-sub
++insert_in_sbatch_script_post ${post_command}
++#Getting the slurm job id for the post-processing job                                                                                                                  
++post_proc_slurm_jobid=`exec sbatch --dependency=afterok:$para_proc_slurm_jobid ${subjdir}.bedpostX/post-proc-sub.sh | awk '{print $4}' &`
++echo Post processing job id is $post_proc_slurm_jobid
++
++
++echo $post_proc_slurm_jobid > ${subjdir}.bedpostX/logs/postproc_ID
+ 
+-echo $mergeid > ${subjdir}.bedpostX/logs/postproc_ID
+ 
+-if [ "x$SGE_ROOT" != "x" ]; then
+-    echo
+-    echo Type ${subjdir}.bedpostX/monitor to show progress.
+-    echo Type ${subjdir}.bedpostX/cancel to terminate all the queued tasks.
+-    cat <<EOC > ${subjdir}.bedpostX/cancel
+-#!/bin/sh
+-qdel $mergeid $bedpostid
+-EOC
+-    chmod +x ${subjdir}.bedpostX/cancel
+-
+-    echo
+-    echo You will get an email at the end of the post-processing stage.
+-    echo
+-else
+-    sleep 60
+-fi
+ 
+--- fsl.orig/src/fdt/CUDA/bedpostx_postproc_gpu.sh	2016-05-30 14:13:03.275876000 +0200
++++ fsl/src/fdt/CUDA/bedpostx_postproc_gpu.sh	2015-10-27 17:58:24.000000000 +0100
+@@ -1,69 +1,8 @@
+-#!/bin/sh
++#!/bin/bash
+ 
+ #   Copyright (C) 2012 University of Oxford
+ #
+-#   Part of FSL - FMRIB's Software Library
+-#   http://www.fmrib.ox.ac.uk/fsl
+-#   fsl@fmrib.ox.ac.uk
+-#   
+-#   Developed at FMRIB (Oxford Centre for Functional Magnetic Resonance
+-#   Imaging of the Brain), Department of Clinical Neurology, Oxford
+-#   University, Oxford, UK
+-#   
+-#   
+-#   LICENCE
+-#   
+-#   FMRIB Software Library, Release 5.0 (c) 2012, The University of
+-#   Oxford (the "Software")
+-#   
+-#   The Software remains the property of the University of Oxford ("the
+-#   University").
+-#   
+-#   The Software is distributed "AS IS" under this Licence solely for
+-#   non-commercial use in the hope that it will be useful, but in order
+-#   that the University as a charitable foundation protects its assets for
+-#   the benefit of its educational and research purposes, the University
+-#   makes clear that no condition is made or to be implied, nor is any
+-#   warranty given or to be implied, as to the accuracy of the Software,
+-#   or that it will be suitable for any particular purpose or for use
+-#   under any specific conditions. Furthermore, the University disclaims
+-#   all responsibility for the use which is made of the Software. It
+-#   further disclaims any liability for the outcomes arising from using
+-#   the Software.
+-#   
+-#   The Licensee agrees to indemnify the University and hold the
+-#   University harmless from and against any and all claims, damages and
+-#   liabilities asserted by third parties (including claims for
+-#   negligence) which arise directly or indirectly from the use of the
+-#   Software or the sale of any products based on the Software.
+-#   
+-#   No part of the Software may be reproduced, modified, transmitted or
+-#   transferred in any form or by any means, electronic or mechanical,
+-#   without the express permission of the University. The permission of
+-#   the University is not required if the said reproduction, modification,
+-#   transmission or transference is done without financial return, the
+-#   conditions of this Licence are imposed upon the receiver of the
+-#   product, and all original and amended source code is included in any
+-#   transmitted product. You may be held legally responsible for any
+-#   copyright infringement that is caused or encouraged by your failure to
+-#   abide by these terms and conditions.
+-#   
+-#   You are not permitted under this Licence to use this Software
+-#   commercially. Use for which any financial return is received shall be
+-#   defined as commercial use, and includes (1) integration of all or part
+-#   of the source code or the Software into a product for sale or license
+-#   by or on behalf of Licensee to third parties or (2) use of the
+-#   Software or any derivative of it for research with the final aim of
+-#   developing software products for sale or license to a third party or
+-#   (3) use of the Software or any derivative of it for research with the
+-#   final aim of developing non-software products for sale or license to a
+-#   third party, or (4) use of the Software to provide any service to an
+-#   external organisation for which payment is received. If you are
+-#   interested in using the Software commercially, please contact Isis
+-#   Innovation Limited ("Isis"), the technology transfer company of the
+-#   University, to negotiate a licence. Contact details are:
+-#   innovation@isis.ox.ac.uk quoting reference DE/9564.
+-export LC_ALL=C
++#   SHCOPYRIGHT
+ 
+ # last 2 parameters are subjdir and bindir
+ parameters=""

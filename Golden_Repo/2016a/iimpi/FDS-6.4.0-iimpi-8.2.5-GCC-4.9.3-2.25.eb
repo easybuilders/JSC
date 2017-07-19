@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Date: 08.04.2016
+# Author: 
+# Lukas Arnold
+# Juelich Supercomputing Centre
+# Forschungszentrum Juelich, Germany
+
+easyblock = 'MakeCp'
+
+name = "FDS"
+version = "6.4.0"
+
+homepage = 'https://code.google.com/p/fds-smv/'
+description = """ 
+Fire Dynamics Simulator (FDS) is a large-eddy simulation (LES) code for low-speed flows, with an emphasis on smoke and heat transport from fires. 
+
+"""
+
+toolchain = {'name': 'iimpi', 'version': '8.2.5-GCC-4.9.3-2.25'}
+
+
+sources = ['FDS-6.4.0-r10-59.tgz']
+
+start_dir = "FDS_Compilation/mpi_intel_linux_64"
+
+buildopts = 'VPATH="../../FDS_Source" -f ../makefile impi_intel_linux_64'
+
+files_to_copy = [
+    (['FDS_Compilation/mpi_intel_linux_64/fds_impi_intel_linux_64'], "bin"), 
+    "Verification",
+    "Validation"
+]
+
+postinstallcmds = [
+    'mv %(installdir)s/bin/fds_impi_intel_linux_64 %(installdir)s/bin/fds',
+]
+
+sanity_check_paths = {
+    'files': ["bin/fds"],
+    'dirs': ["bin", "Verification", "Validation"]
+}
+
+modextravars = {
+	     'FDS_VERIFICATION_DIR': '%(installdir)s/Verification', 
+	     'FDS_VALIDATION_DIR'  : '%(installdir)s/Validation',
+}
+
+moduleclass = 'cae'

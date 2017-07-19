@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'SCons'
+version = '2.5.0'
+
+homepage = 'http://www.scons.org/'
+description = """SCons is a software construction tool.
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = ['http://prdownloads.sourceforge.net/%(namelower)s']
+
+builddependencies = [
+    ('binutils', '2.27'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/scons', 'bin/scons-time', 'bin/sconsign'],
+    'dirs': ['lib/%(namelower)s-%(version)s/%(name)s'],
+}
+
+options = {'modulename': False}
+
+moduleclass = 'devel'

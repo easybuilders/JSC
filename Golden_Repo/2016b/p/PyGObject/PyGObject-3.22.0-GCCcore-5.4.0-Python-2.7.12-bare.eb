@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'PyGObject'
+version = '3.22.0'
+pyver = '2.7.12'
+pythonversionsuffix = '-bare'
+versionsuffix = '-Python-%s%s' % (pyver, pythonversionsuffix)
+
+homepage = 'http://www.pygtk.org/'
+description = """Python Bindings for GLib/GObject/GIO/GTK+
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+pyshortver = '.'.join(pyver.split('.')[:2])
+
+dependencies = [
+    ('Python', '2.7.12', pythonversionsuffix),
+    ('GLib', '2.50.0'),
+    ('GObject-Introspection', '1.50.0'),
+    ('PyCairo', '1.10.0', versionsuffix),
+]
+
+builddependencies = [
+    ('binutils', '2.27'),
+    ('X.Org', '2016-09-22'),
+]
+
+modextrapaths = {
+    'PYTHONPATH': [
+        'lib/python%(pyshortver)s/site-packages',
+        'lib/python%(pyshortver)s/site-packages/gtk-2.0',
+    ],
+}
+
+sanity_check_paths = {
+    'files': ['include/pygobject-%(version_major)s.0/pygobject.h'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+sanity_check_commands = [
+    ('python', "-c 'import gi'"),
+]
+
+moduleclass = 'vis'

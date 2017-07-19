@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'pmvmklc'
+version = '2016b-GDR'
+
+homepage = '(none)'
+description = """PGI based compiler toolchain with CUDA,
+ MVAPICH2 MPICH variant for MPI support, MKL and Intel FFTW wrappers.
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+comp_name = 'PGI'
+comp_ver = '16.9-GCC-5.4.0'
+comp = (comp_name, comp_ver)
+
+dependencies = [
+    comp,
+    ('CUDA', '8.0.44', '', True),
+    ('MVAPICH2', '2.2', '-GDR', comp),  
+    ('imkl', '2017.0.098','',('pmvapich2c',version)),
+]
+
+moduleclass = 'toolchain'

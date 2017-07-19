@@ -1,0 +1,46 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Waf'
+
+name = 'PyCairo'
+version = '1.10.0'
+
+homepage = 'http://cairographics.org/pycairo/'
+description = """Python bindings for the cairo library"""
+
+toolchain = {'name': 'GCC', 'version': '4.9.3-2.25'}
+
+source_urls = ['http://cairographics.org/releases/']
+# py2cairo is the Python 2 compatible release
+sources = ['py2cairo-%(version)s.tar.bz2']
+
+pyver = '2.7.11'
+pyshortver = '.'.join(pyver.split('.')[:2])
+versionsuffix = '-Python-%s' % pyver
+
+configopts = " --nopyc --nopyo "
+
+builddependencies = [
+    ('Coreutils', '8.25'),
+    ('xorg-macros', '1.19.0'),
+    ('pkg-config', '0.29'),
+    ('xproto', '7.0.28'),
+    ('kbproto', '1.0.7'),
+    ('renderproto', '0.11'),
+    ('xextproto', '7.3.0'),
+]
+
+dependencies = [
+    ('Python', pyver),
+    ('cairo', '1.14.6'),
+]
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%s/site-packages' % pyshortver, 'lib64/python%s/site-packages' % pyshortver],
+}
+
+sanity_check_paths = {
+    'files': ['include/pycairo/pycairo.h', 'lib/pkgconfig/pycairo.pc'],
+    'dirs': ['lib/python%s/site-packages/cairo' % pyshortver],
+}
+
+moduleclass = 'vis'

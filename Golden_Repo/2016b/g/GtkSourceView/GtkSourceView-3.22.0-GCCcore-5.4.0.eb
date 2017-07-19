@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'GtkSourceView'
+version = '3.22.0'
+
+homepage = 'https://wiki.gnome.org/Projects/GtkSourceView'
+description = """
+ GtkSourceView is a portable C library that extends the standard GTK+ framework for multiline text editing with support for configurable syntax highlighting, unlimited undo/redo, search and replace, a completion framework, printing and other features typical of a source code editor.
+ 
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('binutils', '2.27'),
+    #('Coreutils', '8.25'),
+    ('pkg-config', '0.29.1'),
+]
+
+dependencies = [
+    ('GTK+', '3.22.1'),
+    #('X.Org', '2016-09-22'),
+]
+
+#configopts = "--disable-silent-rules --disable-glibtest --enable-introspection=yes --disable-visibility "
+configopts = "--enable-introspection=yes"
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib/girepository-1.0',
+    'XDG_DATA_DIRS': 'share',
+}
+
+sanity_check_paths = {
+    'files': ['include/gtksourceview-3.0/gtksourceview/gtksourceview.h',
+              'lib/libgtksourceview-3.0.so'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

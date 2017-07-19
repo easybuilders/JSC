@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CmdCp'
+
+name = 'GPC'
+version = '2.32'
+
+homepage = 'http://www.cs.man.ac.uk/~toby/alan/software'
+description = """
+ The University of Manchester GPC library is a flexible and highly robust polygon 
+ set operations library for use with C, C#, Delphi, Java, Perl, Python, Haskell, Lua,
+ VB.Net (and other) applications.
+
+"""
+
+
+toolchain = {'name': 'iccifort', 'version': '2017.0.098-GCC-5.4.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['http://www.cs.man.ac.uk/~toby/alan/software/assets/']
+sources = ['%(namelower)s%(version_major)s%(version_minor)s-release.zip']
+
+cmds_map = [
+    ('gpc*', '$CC $CFLAGS -shared gpc.c -o libgpc.so')
+]
+
+files_to_copy = [
+    (['libgpc.so'], 'lib'),
+    (['gpc.h'], 'include'),
+]
+
+sanity_check_paths = {
+    'files': ['lib/libgpc.so', 'include/gpc.h'],
+    'dirs': [],
+}
+
+moduleclass = 'lib'

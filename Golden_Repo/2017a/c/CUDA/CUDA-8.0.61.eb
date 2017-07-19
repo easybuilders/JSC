@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Copyright:: Copyright 2012-2013 Cyprus Institute / CaSToRC, University of Luxembourg / LCSB, Ghent University
+# Authors::   George Tsouloupas <g.tsouloupas@cyi.ac.cy>, Fotis Georgatos <fotis.georgatos@uni.lu>, Kenneth Hoste
+# License::   MIT/GPL
+# $Id$
+#
+# This work implements a part of the HPCBIOS project and is a component of the policy:
+# http://hpcbios.readthedocs.org/en/latest/HPCBIOS_2012-99.html
+##
+
+name = 'CUDA'
+version = '8.0.61'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """CUDA (formerly Compute Unified Device Architecture) is a parallel
+ computing platform and programming model created by NVIDIA and implemented by the
+ graphics processing units (GPUs) that they produce. CUDA gives developers access
+ to the virtual instruction set and memory of the parallel computational elements
+ in CUDA GPUs.
+
+"""
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = [
+    'http://developer.download.nvidia.com/compute/cuda/%(version_major_minor)s/Prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/Prod2/local_installers/'
+]
+
+sources = ['%(namelower)s_%(version)s_375.26_linux-run']
+
+host_compilers = [ 'g++', 'icpc', 'pgc++' ]
+
+dependencies = [
+    ('nvidia', 'driver', '', True),
+]
+
+# Be careful and have a message consistent with the wrappers present
+modloadmsg = "nvcc uses g++ as the default host compiler. If you want to use icpc as a host compiler "
+modloadmsg += "you can load the compiler module and use nvcc_icpc (or -ccbin=icpc). For completeness "
+modloadmsg += "and convenience nvcc_g++ is also provided. Please note that CUDA 8 is not compatible with Intel 2017 "
+modloadmsg += "and PGI 17 compilers
+"
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

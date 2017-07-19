@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libXpm'
+version = '3.5.11'
+
+homepage = "http://www.freedesktop.org/wiki/Software/xlibs"
+description = """libXp provides the X print library."""
+
+toolchain = {'name': 'GCCcore', 'version': '5.3.0'}
+toolchainopts = {'optarch': True}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [XORG_LIB_SOURCE]
+
+dependencies = [
+    ('libX11', '1.6.3'),
+]
+
+builddependencies = [
+    ('binutils', '2.26'),
+    ('pkg-config', '0.29'),
+    ('gettext', '0.19.7'),
+    ('xproto', '7.0.28'),
+    ('kbproto', '1.0.7'),
+    ('xorg-macros', '1.19.0'),
+    ('libpthread-stubs', '0.3'),
+]
+
+sanity_check_paths = {
+    'files': ['lib/%s' % x for x in ['libXpm.a', 'libXpm.%s' % SHLIB_EXT]],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

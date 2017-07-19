@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ParaView'
+version = '5.1.2'
+versionsuffix = '-OSMesa'
+
+homepage = "http://www.paraview.org"
+description = """Paraview is a scientific parallel visualizer.
+
+"""
+
+toolchain = {'name': 'iimpi', 'version': '2016b'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+download_suffix = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=all&downloadFile='
+source_urls = ['http://www.paraview.org/paraview-downloads/%s' % download_suffix]
+sources = ["ParaView-v%(version)s.tar.gz"]
+
+python = 'Python'
+pyver = '2.7.12'
+pysuff = '-%s-%s' % (python,pyver)
+dependencies = [
+    (python, pyver),
+    ('Qt', '4.8.7'),
+    ('X.Org', '2016-09-22'),
+    ('zlib', '1.2.8'),
+    ('Boost', '1.61.0', pysuff),
+    ('HDF5', '1.8.17'),
+]
+
+builddependencies = [('CMake', '3.6.2')]
+
+separate_build_dir = True
+
+maxparallel = 4 
+
+configopts = '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON -DVTK_OPENGL_HAS_OSMESA=ON '
+configopts += '-DOPENGL_INCLUDE_DIR=$EBROOTXORG/include -DOPENGL_gl_LIBRARY=$EBROOTXORG/lib/libGL.so '
+configopts += '-DOSMESA_INCLUDE_DIR=$EBROOTXORG/include -DOSMESA_LIBRARY=$EBROOTXORG/lib/libOSMesa.so '
+configopts += '-DPARAVIEW_BUILD_QT_GUI=OFF '
+configopts += '-DBUILD_SHARED_LIBS=ON '
+configopts += '-DCMAKE_BUILD_TYPE=Debug '
+configopts += '-DVTK_USE_X=OFF -DVTK_USE_OFFSCREEN=ON '
+configopts += '-DVTK_USE_SYSTEM_HDF5=ON '
+configopts += '-DCMAKE_C_FLAGS=-DID_64 '
+configopts += '-DCMAKE_CXX_FLAGS=-DID_64 '
+configopts += '-DVTK_USE_64BIT_IDS=ON '
+configopts += '-DVTK_USE_LARGE_DATA=ON '
+configopts += '-DPARAVIEW_USE_ICE_T=ON '
+configopts += '-DPARAVIEW_USE_MPI=ON -DPARAVIEW_USE_MPI_SSEND=OFF '
+configopts += '-DPARAVIEW_ENABLE_PYTHON=ON '
+configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON'
+configopts += '-DPARAVIEW_USE_VISITBRIDGE=ON '
+configopts += '-DBoost_INCLUDE_DIR=$EBROOTBOOST/include '
+configopts += '-DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF'
+configopts += '-DCTEST_TEST_TIMEOUT=10800'
+configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '
+configopts += '-DBUILD_DOCUMENTATION=OFF '
+
+moduleclass = 'vis'

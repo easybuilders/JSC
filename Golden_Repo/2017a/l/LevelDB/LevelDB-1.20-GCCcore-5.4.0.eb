@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MakeCp'
+
+name = 'LevelDB'
+version = '1.20'
+
+homepage = 'https://github.com/google/leveldb'
+description = """LevelDB is a fast key-value storage library written at Google that provides an
+ ordered mapping from string keys to string values.
+
+"""
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+sources = ['v%(version)s.tar.gz']
+source_urls = ['https://github.com/google/leveldb/archive/']
+
+builddependencies = [
+    ('binutils', '2.28'),
+]
+
+files_to_copy = [
+   (['out-shared/libleveldb.%s.%%(version)s' % SHLIB_EXT, 'out-static/libleveldb.a'], 'lib'),
+   (['include/leveldb/*.h'], 'include/leveldb')
+]
+
+postinstallcmds = [
+   'cd %(installdir)s/lib; ln -s libleveldb.so.%(version)s libleveldb.so.%(version_major)s',
+   'cd %%(installdir)s/lib; ln -s libleveldb.so.%%(version)s libleveldb.%s' % SHLIB_EXT,
+]
+
+
+sanity_check_paths = {
+    'files': ['include/leveldb/cache.h', 'include/leveldb/table.h',
+              'lib/libleveldb.a', 'lib/libleveldb.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

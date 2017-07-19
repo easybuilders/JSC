@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+easyblock = 'CMakeMake'
+
+name = "PnMPI"
+version = "1.5.0"
+
+homepage = 'https://scalability.llnl.gov/pnmpi/'
+description = """MPI Tool Virtualization and Interoperability library.
+ 
+"""
+
+toolchain = {'name': 'ipsmpi', 'version': '2016b'}
+
+# https://doc.itc.rwth-aachen.de/download/attachments/7373495/pnmpi-release-for-gti-1.4.0.tgz?version=1&modificationDate=1427730737000&api=v2
+#source_urls = ['https://doc.itc.rwth-aachen.de/display/CCP/Project+MUST']
+source_urls = ['https://doc.itc.rwth-aachen.de/download/attachments/7373495']
+sources = ['%(namelower)s-for-must-%(version)s.tgz']
+
+builddependencies = [('CMake', '3.6.2')]
+
+configopts  = ' -DCMAKE_BUILD_TYPE=Release -DBFD_FOUND=False -DPNMPI_HAVE_BFD=False'
+#configopts  = ' -DCMAKE_BUILD_TYPE=Release -DBFD_LIBRARIES="/usr/lib64/libbfd.a;/usr/lib64/libz.so"'
+
+separate_build_dir = True
+
+skipsteps = ['build']
+
+parallel = 1
+
+sanity_check_paths = {
+    'files': ["bin/pnmpi-patch", "include/pnmpi.h", "lib/libpnmpi.a"],
+    'dirs': [],
+}
+
+moduleclass = 'perf'

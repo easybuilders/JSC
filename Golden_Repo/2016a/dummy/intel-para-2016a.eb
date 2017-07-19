@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'intel-para'
+version = '2016a'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = "Intel Cluster Toolkit Compiler Edition provides Intel C/C++ and Fortran compilers, Intel MPI & Intel MKL."
+
+toolchain = {'version': '', 'name': 'dummy'}
+
+dependencies = [
+    ('iccifort', '2016.2.181', '-GCC-4.9.3-2.25'),
+    ('icc', '2016.2.181', '-GCC-4.9.3-2.25'),
+    ('ifort', '2016.2.181', '-GCC-4.9.3-2.25'),
+    ('psmpi', '5.1.5-1', '', ('iccifort', '2016.2.181-GCC-4.9.3-2.25')),
+    ('imkl', '11.3.2.181', '', ('ipsmpi', version)),
+]
+
+
+moduleclass = 'toolchain'

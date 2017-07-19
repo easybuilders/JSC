@@ -1,0 +1,13 @@
+diff -ruN ospray-1.2.1.old/cmake/configure_embree.cmake ospray-1.2.1/cmake/configure_embree.cmake
+--- ospray-1.2.1.old/cmake/configure_embree.cmake	2017-03-13 17:24:45.000000000 +0100
++++ ospray-1.2.1/cmake/configure_embree.cmake	2017-03-18 17:42:57.485106169 +0100
+@@ -81,7 +81,8 @@
+   ENDIF()
+ ENDIF()
+ 
+-IF(NOT EMBREE_ISA_SUPPORTS_SSE4)
++IF(NOT EMBREE_ISA_SUPPORTS_SSE4 AND NOT EMBREE_ISA_SUPPORTS_AVX
++        AND NOT EMBREE_ISA_SUPPORTS_AVX2 AND NOT EMBREE_ISA_SUPPORTS_AVX512)
+     MESSAGE(FATAL_ERROR
+             "Your Embree build needs to support at least SSE4.1!")
+ ENDIF()

@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'damageproto'
+version = '1.2.1'
+
+homepage = "http://www.freedesktop.org/wiki/Software/xlibs"
+description = "Damage protocol and ancillary headers"
+
+toolchain = {'name': 'GCCcore', 'version': '4.9.3'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['http://xorg.freedesktop.org/archive/individual/proto/']
+
+builddependencies = [
+    ('binutils', '2.25'),
+]
+
+sanity_check_paths = {
+    'files': ['include/X11/extensions/%s' % x for x in ['damageproto.h', 'damagewire.h']],
+    'dirs': []
+}
+
+moduleclass = 'devel'

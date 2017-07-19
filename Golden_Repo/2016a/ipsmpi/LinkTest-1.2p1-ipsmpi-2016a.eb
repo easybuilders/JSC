@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "MakeCp"
+name = 'LinkTest'
+version = "1.2p1"
+homepage = 'http://www.fz-juelich.de/ias/jsc/EN/Expertise/Support/Software/LinkTest/linktest-download_node.html'
+
+toolchain = {'name': 'ipsmpi', 'version': '2016a'}
+
+description = """The mpilinktest program is a parallel ping-pong 
+test between all connections of a machine. Output of this program is a full
+communication matrix which shows the bandwidth between each processor
+pair and a report including the minimum bandwidth. The linktest runs
+for n processors in n steps where in each step n/2 pairs of processors
+will perform the MPI pingpong test (3 iterations, 128 kB
+messages). The selection of the pairs is random but after running all
+steps all possible pairs are covered."""
+
+source_urls = ['http://apps.fz-juelich.de/jsc/linktest//log/tmpfull0007/']
+
+sources = ['fzjlinktest-%s.tar' % version]
+
+prebuildopts = ['cd src ;']
+buildopts = '-f Makefile_LINUX SIONLIB_INST=$EBROOTSIONLIB CC=$CC'
+dependencies = [('SIONlib' , '1.6.1') ]
+
+files_to_copy = [(['src/mpilinktest','src/pingponganalysis'],'bin')]
+
+sanity_check_paths = {
+    'files': ["bin/mpilinktest", "bin/pingponganalysis"],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

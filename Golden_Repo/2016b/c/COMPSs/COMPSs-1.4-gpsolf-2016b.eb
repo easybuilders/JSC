@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+#             Jorge Ejarque <jorge.ejarque@bsc.es>
+# License::   New BSD
+#
+##
+easyblock='PackedBinary'
+
+name = "COMPSs"
+version = "1.4"
+
+homepage = 'https://www.bsc.es/computer-sciences/grid-computing/comp-superscalar'
+description = """COMP Superscalar (COMPSs) is a task-based programming model and runtime which aims to ease the development and execution of parallel applications for distributed infrastructures, such as Clusters, Grids and Clouds. (Version for Jureca)
+
+"""
+
+toolchain = {'name': 'gpsolf', 'version': '2016b' }
+
+sources = ['COMPSs_%s_jureca.tar.gz' % version]
+source_urls = ['http://compss.bsc.es/repo/sc/stable/']
+
+install_cmd = "cd COMPSs && ./install %(installdir)s"
+
+dependencies = [
+    ('Python', '2.7.12'),
+    ('zlib', '1.2.8'),
+    ('Java', '1.8.0_102', '', ('dummy', 'dummy')),
+    ('netcdf4-python', '1.2.4', '-Python-2.7.12'),
+]
+
+builddependencies = [
+    ('Boost', '1.61.0', '-Python-2.7.12'),
+    ('Perl', '5.24.0'),
+    ('PAPI', '5.5.0'),
+    ('Autotools', '20150215'),
+]
+
+sanity_check_paths = {
+    'files': ["COMPSs/compssenv", "COMPSs/Runtime/compss-engine.jar", 
+              "COMPSs/Runtime/scripts/user/runcompss", "COMPSs/Bindings/c/bin/gsbuild" ],
+    'dirs': []
+}
+
+modextrapaths = {
+    'IT_HOME': 'COMPSs/Runtime/',
+    'CLASSPATH': 'COMPSs/Runtime/compss-engine.jar',
+    'PATH': [ 'COMPSs/Runtime/scripts/user', 'COMPSs/Bindings/c/bin' ],
+    'PYTHONPATH': 'COMPSs/Bindings/python'
+}
+
+moduleclass = 'lang'

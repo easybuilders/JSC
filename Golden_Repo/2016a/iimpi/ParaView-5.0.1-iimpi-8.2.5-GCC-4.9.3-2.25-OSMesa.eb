@@ -1,0 +1,63 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ParaView'
+version = '5.0.1'
+versionsuffix = '-OSMesa'
+
+homepage = "http://www.paraview.org"
+description = "Paraview is a scientific parallel visualizer."
+
+toolchain = {'name': 'iimpi', 'version': '8.2.5-GCC-4.9.3-2.25'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+download_suffix = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=all&downloadFile='
+source_urls = ['http://www.paraview.org/paraview-downloads/%s' % download_suffix]
+sources = ["ParaView-v%(version)s-source.tar.gz"]
+
+python = 'Python'
+pyver = '2.7.11'
+pysuff = '-%s-%s' % (python,pyver)
+dependencies = [
+    (python, pyver),
+    ('Boost', '1.60.0', pysuff),
+    ('Python', '2.7.11'),
+    ('Mesa', '11.1.2'),
+    ('libGLU', '9.0.0'),
+    ('libXt', '1.1.5'),
+    ('libXext', '1.3.3'),
+    ('libX11', '1.6.3'),
+    ('zlib', '1.2.8'),
+    ('HDF5', '1.8.16'),
+]
+
+builddependencies = [('CMake', '3.4.3')]
+
+separate_build_dir = True
+
+maxparallel = 4 
+
+configopts = '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON -DVTK_OPENGL_HAS_OSMESA=ON '
+configopts += '-DOPENGL_INCLUDE_DIR=$EBROOTMESA/include -DOPENGL_gl_LIBRARY=$EBROOTMESA/lib/libGL.so '
+configopts += '-DOSMESA_INCLUDE_DIR=$EBROOTMESA/include -DOSMESA_LIBRARY=$EBROOTMESA/lib/libOSMesa.so '
+configopts += '-DPARAVIEW_BUILD_QT_GUI=OFF '
+configopts += '-DBUILD_SHARED_LIBS=ON '
+configopts += '-DCMAKE_BUILD_TYPE=Debug '
+configopts += '-DVTK_USE_X=OFF -DVTK_USE_OFFSCREEN=ON '
+configopts += '-DVTK_USE_SYSTEM_HDF5=ON '
+configopts += '-DCMAKE_C_FLAGS=-DID_64 '
+configopts += '-DCMAKE_CXX_FLAGS=-DID_64 '
+configopts += '-DVTK_USE_64BIT_IDS=ON '
+configopts += '-DVTK_USE_LARGE_DATA=ON '
+configopts += '-DPARAVIEW_USE_ICE_T=ON '
+configopts += '-DPARAVIEW_USE_MPI=ON -DPARAVIEW_USE_MPI_SSEND=OFF '
+configopts += '-DPARAVIEW_ENABLE_PYTHON=ON '
+configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON'
+configopts += '-DPARAVIEW_USE_VISITBRIDGE=ON '
+configopts += '-DBoost_INCLUDE_DIR=$EBROOTBOOST/include '
+configopts += '-DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF'
+configopts += '-DCTEST_TEST_TIMEOUT=10800'
+configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '
+configopts += '-DBUILD_DOCUMENTATION=OFF '
+
+moduleclass = 'vis'

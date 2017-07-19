@@ -1,0 +1,18 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+name = 'libctl'
+version = '3.2.2'
+
+homepage = 'http://ab-initio.mit.edu/libctl'
+description = """libctl is a free Guile-based library implementing flexible control files for scientific simulations."""
+toolchain = {'name': 'iccifort', 'version': '2016.2.181-GCC-4.9.3-2.25'}
+toolchainopts = {'optarch': True}
+
+source_urls = ['http://ab-initio.mit.edu/libctl/']
+sources = [SOURCELOWER_TAR_GZ]
+
+dependencies = [
+    ('guile', '1.8.8')
+]
+
+moduleclass = 'chem'

@@ -1,0 +1,39 @@
+--- fsl.orig/src/fdt/CUDA/xfibres_gpu.cuh	2016-05-30 14:13:03.276454000 +0200
++++ fsl/src/fdt/CUDA/xfibres_gpu.cuh	2016-05-30 23:28:01.673267000 +0200
+@@ -67,8 +67,8 @@
+     innovation@isis.ox.ac.uk quoting reference DE/9564. */
+ 
+ #include "newimage/newimageall.h"
+-#include <host_vector.h>
+-#include <device_vector.h> 
++#include <thrust/host_vector.h>
++#include <thrust/device_vector.h> 
+ 
+ #include "fibre_gpu.h"
+ 
+--- fsl.orig/src/fdt/CUDA/xfibres_gpu.cu	2016-05-30 14:13:03.281831000 +0200
++++ fsl/src/fdt/CUDA/xfibres_gpu.cu	2016-05-30 23:28:20.332145000 +0200
+@@ -76,8 +76,8 @@
+ #include "samples.h"
+ #include "options.h"
+ 
+-#include <host_vector.h>
+-#include <device_vector.h> 
++#include <thrust/host_vector.h>
++#include <thrust/device_vector.h> 
+ 
+ #include <time.h>
+ #include <sys/time.h>
+--- fsl.orig/src/fdt/CUDA/runmcmc.cu	2016-05-30 14:13:03.268815000 +0200
++++ fsl/src/fdt/CUDA/runmcmc.cu	2016-05-30 23:28:48.649466000 +0200
+@@ -71,8 +71,8 @@
+ #include "runmcmc_kernels.cu"
+ #include "sync_check.h"
+ 
+-#include <host_vector.h>
+-#include <device_vector.h> 
++#include <thrust/host_vector.h>
++#include <thrust/device_vector.h> 
+ 
+ #include <time.h>
+ #include <sys/time.h>

@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'g2lib'
+version = '1.4.0'
+
+homepage = 'http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/'
+description = """Library contains GRIB2 encoder/decoder and search/indexing routines.
+
+"""
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+toolchainopts = {'opt': True}
+
+sources = [SOURCE_TAR]
+source_urls = [homepage]
+
+patches = [
+    'fix_makefile.patch',
+    'g2clib-1.6.0_no_inmem_jasper.patch'
+]
+
+builddependencies = [('binutils', '2.28')]
+
+dependencies = [
+    ('JasPer', '2.0.12'),
+    ('libpng', '1.6.28'),
+    ('zlib', '1.2.11'),
+]
+
+# parallel build tends to fail
+parallel = 1
+
+moduleclass = 'data'

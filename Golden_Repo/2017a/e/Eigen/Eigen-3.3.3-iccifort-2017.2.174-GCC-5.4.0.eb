@@ -1,0 +1,16 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Eigen'
+version = '3.3.3'
+
+homepage = 'http://eigen.tuxfamily.org/index.php?title=Main_Page'
+description = """Eigen is a C++ template library for linear algebra:
+ matrices, vectors, numerical solvers, and related algorithms.
+
+"""
+
+toolchain = {'name': 'iccifort', 'version': '2017.2.174-GCC-5.4.0'}
+
+source_urls = ['http://bitbucket.org/%(namelower)s/%(namelower)s/get']
+sources = ['%(version)s.tar.bz2']
+
+moduleclass = 'math'

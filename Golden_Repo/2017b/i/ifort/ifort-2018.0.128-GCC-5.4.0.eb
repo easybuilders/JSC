@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ifort'
+version = '2018.0.128'
+
+homepage = 'http://software.intel.com/en-us/intel-compilers/'
+description = """Fortran compiler from Intel
+"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+sources = ['parallel_studio_xe_%(version_major)s_composer_edition_for_fortran.tgz']
+
+checksums = ['597718bf752a52e043675102c6c03971be5dd3400a2e849bc295094395beef89']
+
+gccver = '5.4.0'
+binutilsver = '2.29'
+versionsuffix = '-GCC-%s' % gccver
+
+dependencies = [
+    ('GCCcore', gccver),
+    ('binutils', binutilsver, '', ('GCCcore', gccver)),
+]
+
+# list of regex for components to install
+# full list of components can be obtained from pset/mediaconfig.xml in unpacked sources
+# cfr. https://software.intel.com/en-us/articles/intel-composer-xe-2015-silent-installation-guide
+components = ['intel-comp', 'intel-fcomp', 'intel-ifort', 'intel-openmp', 'intel-ipsf?_']
+
+dontcreateinstalldir = 'True'
+
+# disable data collection
+modextravars = {
+    'INTEL_DISABLE_ISIP': '1'
+}
+
+moduleclass = 'compiler'

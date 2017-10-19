@@ -1,0 +1,29 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'FreeSurfer'
+version = '6.0.0'
+#versionsuffix = '-centos6_x86_64'
+
+homepage = 'http://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferWiki'
+description = """
+FreeSurfer is a set of tools for analysis and visualization of structural and functional brain imaging data.
+FreeSurfer contains a fully automatic structural imaging stream for processing cross sectional and longitudinal data.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+sources = ['%(namelower)s-Linux-centos6_x86_64-stable-pub-v%(version)s.tar.gz']
+source_urls = ['ftp://surfer.nmr.mgh.harvard.edu/pub/dist/%(namelower)s/%(version)s']
+
+dependencies = [
+    ('X11', '20170314'),
+    ('Mesa', '13.0.6'),
+    ('nvidia', 'driver', '', True),
+    ('VirtualGL', 'default'),
+]
+
+license_text = """email@example.com
+00000
+g1bb3r1sh"""
+
+moduleclass = 'bio'

@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'Blender'
+version = '2.79'
+versionsuffix = '-binary'
+
+homepage = 'https://www.blender.org'
+description = """
+Blender is the free and open source 3D creation suite. It supports the entirety of the 3D pipeline,
+modeling, rigging, animation, simulation, rendering, compositing and motion tracking, even video 
+editing and game creation. 
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+pkg_name = '%(namelower)s-%(version)s-linux-glibc219-x86_64'
+sources = ['%s.tar.bz2' % pkg_name]
+source_urls = ['http://ftp.nluug.nl/pub/graphics/blender/release/%(name)s%(version)s/']
+
+dependencies = [
+    ('Mesa', '13.0.6'),
+    ('nvidia', 'driver', '', True),
+    ('VirtualGL', 'default'),
+]
+
+preinstallopts = 'rm %%(builddir)s/%s/lib/libGL.* && rm %%(builddir)s/%s/lib/libGLU.*' % (pkg_name, pkg_name)
+
+modextravars = {
+    'CUDA_VISIBLE_DEVICES': '0,1,2,3'
+}
+
+sanity_check_paths = {
+    'files': ["blender"],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'cppcheck'
+version = '1.81'
+
+homepage = 'http://cppcheck.sourceforge.net/'
+description = """Cppcheck is a static analysis tool for C/C++ code
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources = ['%(name)s-%(version)s.tar.bz2']
+
+dependencies = [
+    ('binutils', '2.29'),
+    ('Qt5', '5.8.0'),
+    ('PCRE', '8.41'),
+]
+
+have_rules = True
+build_gui = True
+
+moduleclass = 'lang'

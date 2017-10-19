@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = "IDL"
+version = "8.5.1"
+
+homepage = "http://www.exelisvis.com"
+description = """IDL is the trusted scientific programming language used across disciplines to extract meaningful visualizations from complex numerical data.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+builddependencies = [
+    ('binutils', '2.29'),
+]
+
+dependencies = [
+    ('X11', '20170314'),
+]
+
+sources = ['idl85envi53sp1linux.x86_64.tar.gz']
+
+sanity_check_paths = {
+    'files' : [],
+    'dirs' : ['idl/bin']
+}
+
+modextravars = {
+    'IDL_DIR': '%(installdir)s/idl',
+}
+
+moduleclass = "vis"

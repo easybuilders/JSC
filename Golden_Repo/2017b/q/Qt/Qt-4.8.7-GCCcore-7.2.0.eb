@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Qt'
+version = '4.8.7'
+
+homepage = 'http://qt.io/'
+description = """Qt is a comprehensive cross-platform C++ application framework.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
+toolchainopts = {'cstd': 'gnu++03'}
+
+#QScintilla
+qscintilla = 'QScintilla'
+qscintilla_version = '2.9.3'
+
+source_urls = [
+    'http://download.qt.io/official_releases/qt/%(version_major_minor)s/%(version)s/',
+    'http://download.qt.io/archive/qt/%(version_major_minor)s/%(version)s/',
+    #Qscintilla
+    'http://sourceforge.net/projects/pyqt/files/QScintilla2/%s-%s/' % (qscintilla, qscintilla_version),
+]
+sources = [
+    '%(namelower)s-everywhere-opensource-src-%(version)s.tar.gz',
+    '%s_gpl-%s.tar.gz' % (qscintilla, qscintilla_version),
+]
+
+patches = ['Qt-%(version)s_phonon-export.patch']
+
+builddependencies = [
+    ('binutils', '2.29'),
+]
+
+dependencies = [
+    ('GLib', '2.54.1'),
+    ('X11', '20170314'),
+    ('Mesa', '13.0.6'),
+    ('libpng', '1.6.32'),
+    ('libGLU', '9.0.0'),
+]
+
+# Install QScintilla (needed by Octave) by brute force
+installqscintilla = "cd %(builddir)s &&"
+installqscintilla += "cd %s_gpl-%s/Qt4Qt5 &&" % (qscintilla, qscintilla_version)
+installqscintilla += "%(installdir)s/bin/qmake qscintilla.pro && make && make install"
+postinstallcmds = [installqscintilla]
+
+moduleclass = 'devel'

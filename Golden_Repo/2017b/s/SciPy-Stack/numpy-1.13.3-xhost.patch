@@ -1,0 +1,24 @@
+diff -ruN numpy-1.13.3.orig/numpy/distutils/fcompiler/intel.py numpy-1.13.3/numpy/distutils/fcompiler/intel.py
+--- numpy-1.13.3.orig/numpy/distutils/fcompiler/intel.py	2017-09-25 02:47:22.000000000 +0200
++++ numpy-1.13.3/numpy/distutils/fcompiler/intel.py	2017-10-17 15:57:45.503964889 +0200
+@@ -61,7 +61,7 @@
+         return ['-fp-model strict -O1 -{}'.format(mpopt)]
+ 
+     def get_flags_arch(self):
+-        return []
++        return ['-xHost']
+ 
+     def get_flags_linker_so(self):
+         opt = FCompiler.get_flags_linker_so(self)
+diff -ruN numpy-1.13.3.orig/numpy/distutils/intelccompiler.py numpy-1.13.3/numpy/distutils/intelccompiler.py
+--- numpy-1.13.3.orig/numpy/distutils/intelccompiler.py	2017-09-25 02:47:22.000000000 +0200
++++ numpy-1.13.3/numpy/distutils/intelccompiler.py	2017-10-17 15:57:05.955281200 +0200
+@@ -61,7 +61,7 @@
+         v = self.get_version()
+         mpopt = 'openmp' if v and v < '15' else 'qopenmp'
+         self.cc_exe = ('icc -m64 -fPIC -fp-model strict -O3 '
+-                       '-fomit-frame-pointer -{}').format(mpopt)
++                       '-fomit-frame-pointer -xHost -{}').format(mpopt)
+         compiler = self.cc_exe
+ 
+         if platform.system() == 'Darwin':

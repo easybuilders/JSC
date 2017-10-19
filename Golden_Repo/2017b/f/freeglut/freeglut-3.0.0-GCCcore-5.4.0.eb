@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'freeglut'
+version = '3.0.0'
+
+homepage = 'http://freeglut.sourceforge.net/'
+description = """freeglut is a completely OpenSourced alternative to the OpenGL Utility Toolkit (GLUT) library.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['http://prdownloads.sourceforge.net/%(name)s']
+
+builddependencies = [
+    ('binutils', '2.29'),
+    ('CMake', '3.9.4'),
+]
+
+
+dependencies = [
+    ('X11', '20170314'),
+    ('libGLU', '9.0.0'),
+    ('Mesa', '13.0.6'),
+]
+
+sanity_check_paths = {
+    'files': [('lib/libglut.a', 'lib64/libglut.a'), ('lib/libglut.%s' % SHLIB_EXT, 'lib64/libglut.%s' % SHLIB_EXT)],
+    'dirs': ['include/GL'],
+}
+
+moduleclass = 'lib'

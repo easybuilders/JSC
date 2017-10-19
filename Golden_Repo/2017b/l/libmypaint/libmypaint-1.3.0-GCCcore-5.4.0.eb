@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libmypaint'
+version = '1.3.0'
+
+homepage = 'http://mypaint.org/'
+description = """
+ libmypaint, a.k.a. "brushlib", is a library for making brushstrokes which is used by MyPaint and other projects.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
+
+source_urls = ['https://github.com/mypaint/libmypaint/releases/download/v%s' % version]
+sources = [SOURCELOWER_TAR_XZ]
+
+dependencies = [
+    ('babl','0.1.34'),
+    ('GEGL','0.3.20'),
+    ('GObject-Introspection','1.54.1'),
+    ('GLib','2.54.1'),
+    ('JSON-C','0.12.1-20160607'),
+    ('intltool','0.51.0','-Perl-5.26.1'),
+]
+
+builddependencies = [
+    ('binutils','2.29'),
+]
+
+configopts = '--enable-gegl '
+
+sanity_check_paths = {
+    'files': ['lib/libmypaint.%s' % SHLIB_EXT, 'lib/libmypaint-gegl.%s' % SHLIB_EXT],
+    'dirs': []
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,29 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'JSON-C'
+version = '0.12.1-20160607'
+
+homepage = 'https://github.com/json-c/json-c/wiki'
+description = """
+ JSON-C implements a reference counting object model that allows you to easily construct JSON objects in C, output them as JSON formatted strings and parse JSON formatted strings back into the C representation of JSON objects. It aims to conform to RFC 7159
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
+
+source_urls = ['https://github.com/json-c/json-c/archive']
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('binutils','2.29'),
+]
+
+preconfigopts = 'CFLAGS="$CFLAGS -Werror=implicit-fallthrough=0" && '
+
+sanity_check_paths = {
+    'files': ['include/json-c/json.h','lib/libjson-c.%s' % SHLIB_EXT],
+    'dirs': []
+}
+
+moduleclass = 'vis'

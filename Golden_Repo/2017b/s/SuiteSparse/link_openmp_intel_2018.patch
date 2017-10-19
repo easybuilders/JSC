@@ -1,0 +1,12 @@
+diff -ruN SuiteSparse.orig/SuiteSparse_config/SuiteSparse_config.mk SuiteSparse/SuiteSparse_config/SuiteSparse_config.mk
+--- SuiteSparse.orig/SuiteSparse_config/SuiteSparse_config.mk	2017-04-01 02:30:39.000000000 +0200
++++ SuiteSparse/SuiteSparse_config/SuiteSparse_config.mk	2017-10-12 14:22:11.980974747 +0200
+@@ -115,7 +115,7 @@
+             CC = icc -D_GNU_SOURCE
+             CXX = $(CC)
+             CFOPENMP = -qopenmp -I$(MKLROOT)/include
+-	    LDFLAGS += -openmp
++            LDFLAGS += -qopenmp
+         endif
+         ifneq ($(shell which ifort 2>/dev/null),)
+             # use the Intel ifort compiler for Fortran codes

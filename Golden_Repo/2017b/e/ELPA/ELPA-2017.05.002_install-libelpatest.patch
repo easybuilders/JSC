@@ -1,0 +1,55 @@
+--- elpa-2017.05.002/Makefile.am	2017-09-01 08:54:37.000000000 +0200
++++ elpa-2017.05.002_ok/Makefile.am	2017-10-11 10:19:32.067022210 +0200
+@@ -453,7 +453,7 @@
+ test_program_fcflags = $(AM_FCFLAGS) $(FC_MODOUT)test_modules $(FC_MODINC)test_modules $(FC_MODINC)modules $(FC_MODINC)private_modules
+ 
+ # library with shared sources for the test files
+-noinst_LTLIBRARIES += libelpatest@SUFFIX@.la
++lib_LTLIBRARIES += libelpatest@SUFFIX@.la
+ libelpatest@SUFFIX@_la_FCFLAGS = $(test_program_fcflags)
+ libelpatest@SUFFIX@_la_SOURCES = \
+   test/shared/test_util.F90 \
+--- elpa-2017.05.002/test/Fortran/Makefile_examples_pure	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2017.05.002_ok/test/Fortran/Makefile_examples_pure	2017-10-11 14:36:42.521557000 +0200
+@@ -0,0 +1,19 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90secure = mpif90 -O0 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90FREE = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90OPT = mpif90 -O4 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -I$(ELPA_INCLUDE)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -I$(ELPA_INCLUDE)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)
+--- elpa-2017.05.002/test/Fortran/Makefile_examples_hybrid	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2017.05.002_ok/test/Fortran/Makefile_examples_hybrid	2017-10-11 14:35:58.323431000 +0200
+@@ -0,0 +1,19 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90secure = mpif90 -O0 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90FREE = mpif90 -O3 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90OPT = mpif90 -O4 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpatest_openmp -lelpa_openmp $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -I$(ELPA_INCLUDE)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -I$(ELPA_INCLUDE)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)

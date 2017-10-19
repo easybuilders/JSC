@@ -60,6 +60,10 @@ exts_list = [
     ('pbr', '1.4.0', {
         'source_urls': ['https://pypi.python.org/packages/source/p/pbr/'],
     }),
+    ('pytz', '2017.2', {
+        'source_tmpl': '%(name)s-%(version)s.zip',
+        'source_urls': ['https://pypi.python.org/packages/source/p/pytz/'],
+    }),
     # required for python-novaclient
     ('Babel', '2.0', {
         'source_urls': ['https://pypi.python.org/packages/source/B/Babel/'],

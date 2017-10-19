@@ -89,6 +89,11 @@ end
 setenv("EASYBUILD_ROBOT", gr_path)
 setenv("EASYBUILD_ROBOT_PATHS", gr_path)
 
+-- Fail if there are EB related modules loaded
+setenv("EASYBUILD_DETECT_LOADED_MODULES", "error")
+-- Whitelist GC3Pie and EasyBuild itself
+setenv("EASYBUILD_ALLOW_LOADED_MODULES", "GC3Pie,EasyBuild")
+
 -- Set optarch options for easybuild
 local architecture = os.getenv("ARCHITECTURE")
 if architecture == "KNL" then
@@ -172,10 +177,10 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "libGLU,libICE,libSM,libX11,libXau,libXaw,libXcursor,libXdamage,libXdmcp,libXext,libXfixes,libXfont,libXft,libXi,"..
 "libXinerama,libXmu,libXpm,libXrandr,libXrender,libXt,libXtst,libcerf,libcroco,libctl,libdap,libdrm,libdwarf,libelf,"..
 "libepoxy,libevent,libffi,libfontenc,libgd,libgeotiff,libglade,libidn,libjpeg-turbo,libmatheval,libmypaint,libpng,"..
-"libpciaccess,libpthread-stubs,libreadline,librsvg,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
+"libpciaccess,libpthread-stubs,libreadline,librsvg,libsndfile,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
 "libxslt,libyuv,"..
 "M4,Mesa,makedepend,motif,msgpack-c,"..
-"NASM,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
+"NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
 "OPARI2,OTF2,"..
 "PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,"..
 "Qhull,Qt,Qt5,qrupdate,"..

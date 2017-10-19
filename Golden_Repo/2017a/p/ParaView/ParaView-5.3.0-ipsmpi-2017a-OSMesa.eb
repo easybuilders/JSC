@@ -120,6 +120,10 @@ configopts += '-DModule_vtkRenderingOSPRay=ON '
 configopts += '-DPARAVIEW_ENABLE_FFMPEG=ON '
 configopts += '-DModule_vtkIOFFMPEG=ON '
 
+### --- ParaView Plugin Autoload --- ###
+configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_AnalyzeNIfTIIO=ON '
+configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_SurfaceLIC=ON '
+
 ### --- coupling --- ###
 configopts += '-DPARAVIEW_USE_VISITBRIDGE=ON '
 configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '

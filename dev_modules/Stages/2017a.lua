@@ -6,27 +6,16 @@ if old_stage == nil then
     old_stage = "current"
 end
 
--- Get architecture currently used
+-- Get software root
 local softwareroot = os.getenv("SOFTWAREROOT")
 if softwareroot == nil then
     local systemname = capture("cat /etc/FZJ/systemname")
-    --local architecture = capture("cat /etc/FZJ/architecture")
-    local architecture = ""
-    --Sanitize old_architecture
-    architecture = string.gsub(architecture, "\n", "")
-    if architecture == "knl" then
-        softwareroot = pathJoin("/usr/local/software", systemname..architecture)
-    -- Juropa3
-    elseif architecture == "sandybridge" then
-        softwareroot = pathJoin("/usr/local/software", systemname)
-    -- Jureca
-    elseif architecture == "haswell" then
-        softwareroot = pathJoin("/usr/local/software", systemname)
-    -- Jureca for the time being
-    elseif architecture == "" then
-        softwareroot = pathJoin("/usr/local/software", systemname)
+    --Sanitize systemname
+    systemname = string.gsub(systemname, "\n", "")
+    if systemname == "" or systemname == nil then
+        LmodError("Can't read the system name!")
     else
-        LmodError("Architecture not supported: "..architecture)
+        softwareroot = pathJoin("/usr/local/software", systemname)
     end
 end
 

@@ -11,7 +11,7 @@ description = """Python Neuroimaging is a collection of open source software for
 
 This bundle contains future, xvfbwrapper, nibabel, dipy, scikit-learn, nilearn, traits, networkx,
 webencodings, html5lib, rdflib, SPARQLWrapper, isodate, prov, simplejson, configparser, nipype, nipy, seaborn,
-mne, argcomplete, grako, mot, mdt, PyWavelets, Pillow and scikit-image
+mne, argcomplete, grako, mot, mdt, PyWavelets, Pillow, scikit-image and tifffile
 
 """
 
@@ -122,6 +122,17 @@ exts_list = [
     ('scikit-image', '0.13.0', {
         'source_urls': ['https://pypi.python.org/packages/source/s/scikit-image'],
         'modulename': 'skimage',
+    }),
+    ('tifffile', '0.12.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/tifffile'],
+    }),
+    ('scikit-learn', '0.18.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scikit-learn'],
+        'modulename': 'sklearn',
+    }),
+    ('pysptools', '0.14.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pysptools'],
+        'modulename': 'pysptools.util'
     }),
 ]
 

@@ -10,9 +10,9 @@ numpyversion = '1.12.0'
 homepage = 'http://www.scipy.org'
 description = """SciPy Stack is a collection of open source software for scientific computing in Python.
 
-This bundle contains Cycler, mpmath, numpy, scipy, sympy, pandas, subprocess32, matplotlib, ipython_genutils, traitlets,
-ptyprocess, scandir, pathlib2, pickleshare, pexpect, simplegeneric, ipython, ipykernel, jupyter_client, jupyter_core,
-pyzmq, backports_abc, certifi, singledispatch, tornado, futures and ipyparallel
+This bundle contains Cycler, mpmath, numpy, scipy, sympy, pandas, subprocess32, functools32, matplotlib,
+ipython_genutils, traitlets, ptyprocess, scandir, pathlib2, pickleshare, pexpect, simplegeneric, ipython, ipykernel,
+jupyter_client, jupyter_core  pyzmq, backports_abc, certifi, singledispatch, tornado, futures and ipyparallel
 
 """
 
@@ -70,6 +70,9 @@ exts_list = [
     }),
     ('subprocess32', '3.2.7', {
         'source_urls': ['https://pypi.python.org/packages/source/s/subprocess32'],
+    }),
+    ('functools32', '3.2.3-2', {
+        'source_urls': ['https://pypi.python.org/packages/source/f/functools32'],
     }),
     ('matplotlib', '2.0.0', {
         'source_urls': ['https://pypi.python.org/packages/source/m/matplotlib'],

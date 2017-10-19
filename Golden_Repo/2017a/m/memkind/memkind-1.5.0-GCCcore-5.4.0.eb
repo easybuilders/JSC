@@ -23,11 +23,9 @@ builddependencies = [
 ]
 
 dependencies = [
+    ('numactl', '2.0.11'),
     ('tbb', '2017.4.174', '', True), # optional, to enable the tbb heap manager
 ]
-
-# This can be also an EB dependency, but seems unnecesary
-osdependencies = [('numactl-devel', 'libnuma-devel ')]
 
 preconfigopts = './build_jemalloc.sh && ./autogen.sh && '
 

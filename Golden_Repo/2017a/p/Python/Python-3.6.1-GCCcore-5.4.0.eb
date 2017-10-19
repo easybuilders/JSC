@@ -5,7 +5,7 @@ version = '3.6.1'
 homepage = 'http://python.org/'
 description = """Python is a programming language that lets you work more quickly and integrate your systems more effectively.
 
-This bundle contains six, pyparsing, packaging, appdirs, setuptools, pip, nose, blist, paycheck, pbr, lockfile, Cython, dateutil, deap, decorator, arff, pycrypto, ecdsa, pyasnl, cryptography, paramiko, netifaces, netaddr, pytz, lxml, xlsxwriter, pycparser, cffi, Pygments, backports.shutil_get_terminal_size, prompt_toolkit, PyYAML, psycopg2, protobuf and gflags
+This bundle contains six, pyparsing, packaging, appdirs, setuptools, pip, nose, blist, paycheck, pbr, lockfile, Cython, dateutil, deap, decorator, arff, pycrypto, ecdsa, pyasnl, pycparser, cffi, enum34, ipaddress, asn1crypto, idna, cryptography, paramiko, netifaces, netaddr, pytz, lxml, xlsxwriter, Pygments, backports.shutil_get_terminal_size, wcwidth, prompt_toolkit, PyYAML, psycopg2, protobuf and gflags
 
 """
 
@@ -115,6 +115,25 @@ exts_list = [
     ('pyasn1', '0.2.3', {
         'source_urls': ['https://pypi.python.org/packages/source/p/pyasn1/'],
     }),
+    ('pycparser', '2.17', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pycparser'],
+    }),
+    ('cffi', '1.10.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/cffi'],
+    }),
+    ('enum34', '1.1.6', {
+        'modulename': 'enum',
+        'source_urls': ['https://pypi.python.org/packages/source/e/enum34'],
+    }),
+    ('ipaddress', '1.0.18', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/ipaddress/'],
+    }),
+    ('asn1crypto', '0.22.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/a/asn1crypto/'],
+    }),
+    ('idna', '2.5', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/idna/'],
+    }),
     ('cryptography', '1.8.1', {
         'source_urls': ['https://pypi.python.org/packages/source/c/cryptography/'],
     }),
@@ -138,18 +157,15 @@ exts_list = [
         'modulename': 'xlsxwriter',
         'source_urls': ['https://pypi.python.org/packages/source/x/xlsxwriter'],
     }),
-    ('pycparser', '2.17', {
-        'source_urls': ['https://pypi.python.org/packages/source/p/pycparser'],
-    }),
-    ('cffi', '1.10.0', {
-        'source_urls': ['https://pypi.python.org/packages/source/c/cffi'],
-    }),
     ('Pygments', '2.2.0', {
         'source_urls': ['https://pypi.python.org/packages/source/p/Pygments/'],
         'modulename': 'pygments',
     }),
     ('backports.shutil_get_terminal_size', '1.0.0', {
         'source_urls': ['https://pypi.python.org/packages/source/b/backports.shutil_get_terminal_size/'],
+    }),
+    ('wcwidth', '0.1.7', {
+        'source_urls': ['https://pypi.python.org/packages/source/w/wcwidth/'],
     }),
     ('prompt_toolkit', '1.0.14', {
         'source_urls': ['https://pypi.python.org/packages/source/p/prompt_toolkit/'],

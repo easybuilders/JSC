@@ -10,7 +10,7 @@ description = """C, C++ and Fortran compilers from The Portland Group - PGI
 
 """
 
-toolchain = {'name': 'dummy', 'version': 'dummy'}
+toolchain = {'name': 'dummy', 'version': ''}
 
 sources = ['pgilinux-20%(version_major)s-%(version_major)s%(version_minor)s-x86_64.tar.gz']
 

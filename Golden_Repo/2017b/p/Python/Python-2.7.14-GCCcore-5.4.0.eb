@@ -197,6 +197,34 @@ exts_list = [
         'source_urls': ['https://pypi.python.org/packages/source/p/python-gflags/'],
         'modulename': 'gflags',
     }),
+    ('click', '6.7', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/click'],
+    }),
+    ('itsdangerous', '0.24', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/itsdangerous'],
+    }),
+    ('Werkzeug', '0.12.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/w/werkzeug'],
+    }),
+    ('MarkupSafe', '1.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/markupsafe'],
+    }),
+    ('Jinja2', '2.9.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/j/jinja2'],
+    }),
+    ('Flask', '0.12.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/f/flask'],
+    }),
+    ('Mako', '1.0.7', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mako'],
+        'modulename': 'mako'
+    }),
+    ('py', '1.4.34', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/py'],
+    }),
+    ('pytest', '3.2.3', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pytest'],
+    }),
 ]
 
 modextrapaths = {'PYTHONPATH': [

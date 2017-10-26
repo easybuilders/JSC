@@ -1,0 +1,11 @@
+diff -ruN caffe2-0.8.1.orig/cmake/Dependencies.cmake caffe2-0.8.1/cmake/Dependencies.cmake
+--- caffe2-0.8.1.orig/cmake/Dependencies.cmake	2017-08-08 19:57:43.000000000 +0200
++++ caffe2-0.8.1/cmake/Dependencies.cmake	2017-10-26 16:30:55.309269566 +0200
+@@ -34,7 +34,6 @@
+   find_package(OpenBLAS REQUIRED)
+   include_directories(SYSTEM ${OpenBLAS_INCLUDE_DIR})
+   list(APPEND Caffe2_DEPENDENCY_LIBS ${OpenBLAS_LIB})
+-  list(APPEND Caffe2_DEPENDENCY_LIBS cblas)
+ elseif(BLAS STREQUAL "MKL")
+   find_package(MKL REQUIRED)
+   include_directories(SYSTEM ${MKL_INCLUDE_DIR})

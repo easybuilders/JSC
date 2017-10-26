@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013-2016 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# Authors::   Damian Alvarez <d.alvarez@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+easyblock = 'CMakeMake'
+
+name = "GTI"
+version = "1.5.0"
+
+homepage = 'https://doc.itc.rwth-aachen.de/display/CCP/Project+MUST'
+description = """A Generic Tools Infrastructure for Event-Based Tools in Parallel Systems."""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2017b'}
+toolchainopts = {'cstd': 'gnu++03'}
+
+
+# https://doc.itc.rwth-aachen.de/download/attachments/7373495/gti-release-1.4.0.tgz?version=1&modificationDate=1427730709000&api=v2
+#source_urls = ['https://doc.itc.rwth-aachen.de/display/CCP/Project+MUST']
+source_urls = ['https://doc.itc.rwth-aachen.de/download/attachments/7373495']
+sources = ['%(namelower)s-for-must-%(version)s.tgz']
+
+builddependencies = [('CMake', '3.9.4')]
+
+dependencies = [
+    ('PnMPI', '1.5.0'),
+    ('libxml2', '2.9.6'),
+]
+
+configopts  = '-DCMAKE_BUILD_TYPE=Release -DPnMPI_INSTALL_PREFIX=${EBROOTPNMPI}'
+
+separate_build_dir = True
+
+skipsteps = ['build']
+
+sanity_check_paths = {
+    'files': ["bin/weaver", "include/I_Profiler.h"],
+    'dirs': [],
+}
+
+moduleclass = 'perf'

@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Copyright:: Copyright 2016 Forschungszentrum Juelich GmbH
+# Authors:: Damian Alvarez <d.alvarez@fz-juelich.de>
+# License:: MIT/GPL
+#
+##
+easyblock = 'ConfigureMake'
+
+name = 'GLEW'
+version = '2.1.0'
+
+homepage = 'http://glew.sourceforge.net/'
+description = """
+The OpenGL Extension Wrangler Library (GLEW) is a cross-platform open-source C/C++ extension loading library. GLEW provides efficient run-time mechanisms for determining which OpenGL extensions are supported on the target platform.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
+toolchainopts = {'opt': True, 'pic': True}
+
+sources = [SOURCELOWER_TGZ]
+source_urls = [SOURCEFORGE_SOURCE]
+
+builddependencies = [
+    ('binutils', '2.29'),
+]
+
+buildopts = 'GLEW_DEST=%(installdir)s CC=$CC'
+
+installopts = 'GLEW_DEST=%(installdir)s'
+
+skipsteps = ['configure']
+
+sanity_check_paths = {
+    'files': ['include/GL/%(namelower)s.h', 'lib64/libGLEW.so'],
+    'dirs': [],
+}
+
+moduleclass = 'lib'

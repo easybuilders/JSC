@@ -26,7 +26,7 @@ source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
 sources = ['petsc-lite-%s.tar.gz' % version]
 
 patches = [
-    'PETSc-3.8.0-intel-para-2017b-complex.patch',
+    'PETSc-3.8.0-intel-2018-complex.patch',
 ]
 
 builddependencies = [

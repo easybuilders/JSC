@@ -5,8 +5,7 @@ name = 'YAXT'
 version = '0.5.1'
 
 homepage = 'https://www.dkrz.de/redmine/projects/yaxt'
-description = """Yet Another eXchange Tool
- """
+description = """Yet Another eXchange Tool"""
 
 
 toolchain = {'name': 'ipsmpi', 'version': '2017b'}

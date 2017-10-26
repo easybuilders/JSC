@@ -1,0 +1,57 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013-2016 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# Authors::   Damian Alvarez <d.alvarez@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+
+easyblock = 'ConfigureMake'
+
+name = "Extrae"
+version = "3.5.2"
+
+homepage = 'http://www.bsc.es/computer-sciences/performance-tools'
+description = """Extrae is the core instrumentation package developed by the Performance Tools
+ group at BSC. Extrae is capable of instrumenting applications based on MPI, OpenMP, pthreads,
+ CUDA1, OpenCL1, and StarSs1 using different instrumentation approaches. The information gathered
+ by Extrae typically includes timestamped events of runtime calls, performance counters and source
+ code references. Besides, Extrae provides its own API to allow the user to manually instrument his
+ or her application.
+"""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2017b'}
+toolchainopts = {"usempi": True}
+
+source_urls = ['https://ftp.tools.bsc.es/extrae/']
+sources = ['extrae-%s-src.tar.bz2' % version]
+
+# With Dyninst
+#configopts = '--with-libgomp-version=4.9 --with-binutils=$EBROOTBINUTILS --with-sionlib=$EBROOTSIONLIB --with-papi=$EBROOTPAPI --with-boost=$EBROOTBOOST --with-dyninst=$EBROOTDYNINST --with-dwarf=$EBROOTLIBDWARF --with-unwind=$EBROOTLIBUNWIND --with-libz=$EBROOTZLIB --enable-openmp-intel --enable-sampling --with-mpi=$EBROOTIMPI '
+
+# Without Dyninst
+#configopts = '--enable-posix-clock --with-libgomp-version=4.9 --with-binutils=$EBROOTBINUTILS --with-sionlib=$EBROOTSIONLIB --with-papi=$EBROOTPAPI --with-boost=$EBROOTBOOST --without-dyninst --with-dwarf=$EBROOTLIBDWARF --with-unwind=$EBROOTLIBUNWIND --with-libz=$EBROOTZLIB --enable-openmp --enable-sampling --with-mpi=$EBROOTPSMPI '
+
+# Without Dyninst and without SIONlib
+configopts = '--enable-posix-clock --with-libgomp-version=4.9 --enable-openmp --enable-sampling '
+configopts += '--with-binutils=$EBROOTBINUTILS --with-boost=$EBROOTBOOST --with-dwarf=$EBROOTLIBDWARF '
+configopts += '--with-mpi=$EBROOTPSMPI --with-papi=$EBROOTPAPI --with-unwind=$EBROOTLIBUNWIND --with-libz=$EBROOTZLIB '
+configopts += '--without-dyninst'
+
+# compiler toolchain depencies
+dependencies = [
+    #('Dyninst', '9.1.0'),
+    ('libunwind', '1.2.1'),
+    ('libxml2', '2.9.6'),
+    ('PAPI', '5.5.1'),
+    ('Boost', '1.65.1', '-Python-2.7.14'),
+    ('libdwarf', '20170709'),
+#    ('SIONlib','1.7.1'),
+    ('zlib', '1.2.11'),
+]
+
+moduleclass = 'perf'

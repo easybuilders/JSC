@@ -56,7 +56,7 @@ patches = [
 ]
 
 builddependencies = [
-    ('Automake', '1.15'),
+    ('Autotools', '201502115'),
 ]
 
 preconfigopts = 'autoreconf && '

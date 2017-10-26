@@ -26,6 +26,10 @@ builddependencies = [
 
 hidden = True
 
+patches = [
+    'sionlib_gcc7.patch'
+]
+
 configopts = '--disable-mic --disable-cxx --disable-fortran --disable-ompi'
 
 sanity_check_paths = {

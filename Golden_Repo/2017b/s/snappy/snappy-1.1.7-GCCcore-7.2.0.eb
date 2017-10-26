@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'snappy'
+version = '1.1.7'
+
+homepage = 'https://github.com/google/snappy'
+description = """Snappy is a compression/decompression library. It does not aim
+for maximum compression, or compatibility with any other compression library;
+instead, it aims for very high speeds and reasonable compression.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
+
+source_urls = ['https://github.com/google/snappy/archive/']
+sources = ['%(version)s.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.29'),
+    ('CMake', '3.9.4'),
+]
+
+separate_build_dir = True
+
+configopts = '-DBUILD_SHARED_LIBS=ON '
+# Due to bug in CMake setup
+configopts += ' -DSNAPPY_MAJOR=%s -DSNAPPY_MINOR=%s -DSNAPPY_PATCHLEVEL=%s' % (version.split('.')[0], version.split('.')[1], version.split('.')[2])
+
+sanity_check_paths = {
+    'files': ['lib64/libsnappy.%s' % SHLIB_EXT],
+    'dirs': ['include']
+}
+
+moduleclass = 'lib'

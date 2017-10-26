@@ -1,0 +1,161 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Python-Neuroimaging'
+version = '2017b'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = ''
+description = """Python Neuroimaging is a collection of open source software for neuroimaging using Python."""
+
+
+toolchain = {'name': 'gpsolf', 'version': '2017b'}
+toolchainopts = { 'pic' : True }
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+
+dependencies = [
+    ('Python', '2.7.14'),
+    ('SciPy-Stack', '2017b', '-Python-%(pyver)s'),
+    ('h5py', '2.7.1', '-Python-%(pyver)s'),
+    ('PyOpenCL', '2017.2', '-Python-%(pyver)s'),
+    ('libjpeg-turbo', '1.5.2'),
+]
+
+# Needed to make sure that the sanity check of mdt works
+unwanted_env_vars = ['CUDA_VISIBLE_DEVICES']
+
+grakover = '3.99.9'
+
+exts_list = [
+    ('future', '0.16.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/f/future'],
+    }),
+    ('xvfbwrapper', '0.2.9', {
+        'source_urls': ['https://pypi.python.org/packages/source/x/xvfbwrapper'],
+    }),
+    ('nibabel', '2.2.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nibabel'],
+    }),
+    ('dipy', '0.13.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/d/dipy'],
+    }),
+    ('scikit-learn', '0.19.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scikit-learn'],
+        'modulename': 'sklearn',
+    }),
+    ('nilearn', '0.3.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nilearn'],
+    }),
+    ('traits', '4.6.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/traits'],
+    }),
+    ('networkx', '2.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/networkx'],
+        'source_tmpl': '%(name)s-%(version)s.zip',
+    }),
+    ('webencodings', '0.5.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/w/webencodings'],
+    }),
+    ('html5lib', '1.0b10', {
+        'source_urls': ['https://pypi.python.org/packages/source/h/html5lib'],
+    }),
+    ('isodate', '0.6.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/isodate'],
+    }),
+    ('rdflib', '4.2.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/r/rdflib'],
+    }),
+    ('SPARQLWrapper', '1.8.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/SPARQLWrapper'],
+        'modulename': 'SPARQLWrapper',
+    }),
+    ('isodate', '0.6.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/isodate'],
+    }),
+    ('prov', '1.5.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/prov'],
+    }),
+    ('simplejson', '3.11.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/simplejson'],
+    }),
+    ('configparser', '3.5.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/configparser'],
+    }),
+    ('pydotplus', '2.0.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pydotplus'],
+    }),
+    ('nipype', '0.13.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipype'],
+    }),
+    ('nipy', '0.4.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipy'],
+        'source_tmpl': '%(name)s-%(version)s.zip',
+    }),
+    ('seaborn', '0.8.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/seaborn'],
+    }),
+    ('mne', '0.15', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mne'],
+    }),
+    ('argcomplete', '1.9.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/a/argcomplete'],
+    }),
+    ('grako', grakover, {
+        'source_urls': ['https://pypi.python.org/packages/source/g/grako'],
+        'source_tmpl': '%(name)s-%(version)s.zip',
+    }),
+    # 0.3.1 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mot', '0.3.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mot'],
+    }),
+    # 0.9.38 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mdt', '0.9.37', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mdt'],
+    }),
+    ('PyWavelets', '0.5.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/PyWavelets'],
+        'modulename': 'pywt',
+    }),
+    ('olefile', '0.44', {
+        'source_urls': ['https://pypi.python.org/packages/source/o/olefile'],
+        'source_tmpl': '%(name)s-%(version)s.zip',
+    }),
+    ('Pillow', '4.3.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pillow'],
+        'modulename': 'PIL',
+    }),
+    ('scikit-image', '0.13.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scikit-image'],
+        'modulename': 'skimage',
+    }),
+    ('tifffile', '0.12.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/tifffile'],
+    }),
+    ('scikit-learn', '0.19.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scikit-learn'],
+        'modulename': 'sklearn',
+    }),
+    ('pysptools', '0.14.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pysptools'],
+        'modulename': 'pysptools.util'
+    }),
+]
+
+postinstallcmds = [
+    'chmod o+r %%(installdir)s/lib/python%%(pyshortver)s/site-packages/grako-%s-py%%(pyshortver)s-linux-x86_64.egg/EGG-INFO/entry_points.txt' % grakover
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'vis'

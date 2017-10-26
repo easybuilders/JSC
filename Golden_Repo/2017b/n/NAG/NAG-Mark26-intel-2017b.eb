@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'NAG'
+version = 'Mark26'
+
+
+homepage = 'http://www.nag.com/numeric/numerical_libraries.asp'
+description = """NAG (Numerical Algorithms Group) FORTRAN Library Mark 26 (double
+precisions). NAG FORTRAN Mark 26 offers hundreds of user-callable routines to solve
+mathematical and statistical problems.
+
+To enhance the performance, the BLAS and LAPACK routines of the MKL are used.
+
+The complete documentation is available online with
+
+http://www.nag.com/numeric/fl/nagdoc_fl26/html/FRONTMATTER/manconts.html
+"""
+
+usage = """
+The library is licensed. The necessary licence is provided through the
+environment variable NAG_KUSARI_FILE. By default the resource manager exports
+all variables to the compute nodes, if you disable this behaviour you will need
+to make the environment variable known to the compute nodes by adding: 
+
+  --exports=NAG_KUSARI_FILE
+
+in the srun statement.
+
+Compiling and linking can be done in the following manner:
+
+ifort -I$EBROOTNAG/nag_interface_blocks driver.f -L$MKLPATH\
+ -lnag -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread
+"""
+
+examples = """To see how to use a special NAG routine please call the script nag_example, e.g.:
+
+ nag_example e04ucf
+
+An example program and the input data (if necessary) are copied to the current 
+directory. The example program is compiled, linked and executed. 
+"""
+
+
+toolchain = {'name': 'intel', 'version': '2017b'}
+sources = [SOURCELOWER_TAR_GZ]
+
+modextravars={
+    'NAG_KUSARI_FILE': '/usr/local/software/licenses/NAG/Mark26/license.lic',
+}
+
+modluafooter='setenv("MKLPATH", pathJoin(os.getenv("MKLROOT"),"lib/intel64"))'
+
+moduleclass = 'numlib'

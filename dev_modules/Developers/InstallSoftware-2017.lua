@@ -65,6 +65,7 @@ if mode()=="load" then
     LmodMessage(green.."** LOADING DEVELOPER CONFIGURATION **"..normal.."\n"..
                 "Preparing the environment for software installation via EasyBuild into stage "..stage.."\n"..
                 "\n"..
+                "  - Unloading preloaded modules \n"..
                 "  - Adding our license servers to LM_LICENSE_FILE \n"..
                 "  - Setting environment variables for group installations\n"..
                 "    (EASYBUILD_SET_GID_BIT, EASYBUILD_STICKY_BIT, EASYBUILD_UMASK, EASYBUILD_GROUP_WRITABLE_INSTALLDIR)\n"..
@@ -82,6 +83,11 @@ if mode()=="load" then
                 "  - Setting the robot path just to our golden repository\n"..
                 "    (EASYBUILD_ROBOT)\n")
 end
+
+-- Unload some modules for convenience
+unload("binutils")
+unload("GCCcore")
+unload("StdEnv")
 
 -- EASYBUILD ENVIRONMENT
 
@@ -168,7 +174,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "ETSF_IO,Exiv2,eudev,expat,"..
 "FFmpeg,FLTK,FTGL,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
 "GCCcore,GDAL,GEGL,GL2PS,GLEW,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
-"g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,gperf,guile,grib_api,gsettings-desktop-schemas,gettext,"..
+"g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,grib_api,gsettings-desktop-schemas,gettext,"..
 "HarfBuzz,"..
 "icc,ifort,inputproto,intltool,itstool,"..
 "JUnit,JSON-C,JSON-GLib,JasPer,jhbuild,"..
@@ -182,7 +188,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "M4,Mesa,makedepend,motif,msgpack-c,"..
 "NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
 "OPARI2,OTF2,"..
-"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,"..
+"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,pybind11,"..
 "Qhull,Qt,Qt5,qrupdate,"..
 "randrproto,recordproto,renderproto,"..
 "S-Lang,SCons,SIP,SQLite,SWIG,Serf,Szip,scrollkeeper,snappy,"..

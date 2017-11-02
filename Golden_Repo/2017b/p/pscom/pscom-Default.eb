@@ -25,6 +25,10 @@ sanity_check_paths = {
     'dirs': [],
 }
 
-modextravars = {'PSCOMVERSION': '%s' % realversion}
+modextravars = {
+    'PSCOMVERSION': '%s' % realversion,
+    # Needed for PSM and harmless for InfiniBand
+    'HFI_NO_CPUAFFINITY': 'YES'
+}
 
 moduleclass = 'tools'

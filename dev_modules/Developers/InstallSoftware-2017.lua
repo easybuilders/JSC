@@ -100,18 +100,27 @@ setenv("EASYBUILD_DETECT_LOADED_MODULES", "error")
 -- Whitelist GC3Pie and EasyBuild itself
 setenv("EASYBUILD_ALLOW_LOADED_MODULES", "GC3Pie,EasyBuild")
 
+-- Limit the number of threads
+local nproc = capture("nproc")
+-- Sanitize input
+nproc = string.gsub(nproc, "\n", "")
+if tonumber(nproc) > 64 then
+    -- Limit the number of threads, to don't go crazy and use 256+
+    local maxparallel = "64"
+    pushenv("EASYBUILD_PARALLEL", maxparallel)
+    if mode()=="load" then
+        LmodMessage(yellow.."   - Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
+    end
+end
+
 -- Set optarch options for easybuild
 local architecture = os.getenv("ARCHITECTURE")
 if architecture == "KNL" then
     local opt="GCC:march=knl -mtune=knl;Intel:xMIC-AVX512"
-    -- Limit the number of cores, to don't go crazy and use 256+ threads
-    local maxparallel = "64"
     if mode()=="load" then
         LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-        LmodMessage(yellow.."  - Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
     end
     pushenv("EASYBUILD_OPTARCH", opt)
-    pushenv("EASYBUILD_PARALLEL", maxparallel)
 
     -- Prepend the overlay
     local knl_suffix = "_knl"
@@ -188,7 +197,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "M4,Mesa,makedepend,motif,msgpack-c,"..
 "NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
 "OPARI2,OTF2,"..
-"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,pybind11,"..
+"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,patchelf,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,pybind11,"..
 "Qhull,Qt,Qt5,qrupdate,"..
 "randrproto,recordproto,renderproto,"..
 "S-Lang,SCons,SIP,SQLite,SWIG,Serf,Szip,scrollkeeper,snappy,"..
@@ -269,7 +278,7 @@ if not isloaded("GC3Pie") then
                     "Please note that execution nodes are *not* connected to the internet so\n"..
                     "software that requires internet access will not build on the back-end.")
     end
-    load("GC3Pie")
+--    load("GC3Pie")
     setenv("EASYBUILD_JOB_BACKEND", "GC3Pie")
     -- The backend are regular nodes. We have to be careful, some packages might need to be compiled on KNL nodes
     setenv("EASYBUILD_JOB_BACKEND_CONFIG", "/path/to/gc3pie.cfg")

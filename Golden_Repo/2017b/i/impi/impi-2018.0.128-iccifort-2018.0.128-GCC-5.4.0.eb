@@ -32,12 +32,14 @@ modluafooter = 'family("mpi")'
 dontcreateinstalldir = 'True'
 # set up all the mpi commands to work as expected
 set_mpi_wrappers_all = 'True'
-#
-#modextravars = {
+
+modextravars = {
 #    'I_MPI_OFA_TRANSLATION_CACHE': '0',
 #    'I_MPI_DAPL_TRANSLATION_CACHE': '0',
-#}
-#
+    # Needed for PSM and harmless for InfiniBand. For ParaStation it is set on the pscom module
+    'HFI_NO_CPUAFFINITY': 'YES'
+}
+
 #modloadmsg =  '    This version of Intel MPI have the DAPL and OFA translation caches disabled by default.
 '
 #modloadmsg += 'You can enable them at your own risk with:

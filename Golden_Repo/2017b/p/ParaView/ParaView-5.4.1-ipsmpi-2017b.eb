@@ -1,0 +1,157 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ParaView'
+version = '5.4.1'
+
+homepage = "http://www.paraview.org"
+description = """Paraview is a scientific parallel visualizer."""
+
+
+toolchain = {'name': 'ipsmpi', 'version': '2017b'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+download_suffix = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=all&downloadFile='
+source_urls = ['http://www.paraview.org/paraview-downloads/%s' % download_suffix]
+sources = ["ParaView-v%(version)s.tar.gz"]
+
+builddependencies = [
+    ('CMake', '3.9.4')
+]
+
+dependencies = [
+    ('Python', '2.7.14'),
+    ('tbb', '2018.0.128', '', True),
+    ('Boost', '1.65.1', '-Python-%(pyver)s'),
+    ('X11', '20170314'),
+    ('libGLU','9.0.0'),
+    # Qt5 needs OpenGL interface 2 as VTK backend. For MESA builds it doesn't matter
+    ('Qt', '4.8.7'), # Need to keep in sync with configopts
+    ('bzip2', '1.0.6'),
+    ('HDF5', '1.8.19'),
+    ('FFmpeg', '3.4'),
+    ('OSPRay', '1.4.0'),
+    ('libpng', '1.6.32'),
+    ('expat', '2.2.4'),
+    ('freetype', '2.8.1'),
+    ('libjpeg-turbo', '1.5.2'),
+    ('libxml2', '2.9.6', '-Python-%(pyver)s'),
+    ('LibTIFF', '4.0.8'),
+    ('zlib', '1.2.11'),
+    ('netCDF', '4.4.1.1'),
+    ('netCDF-C++4', '4.3.0'), # Need to keep in sync with configopts
+    ('netCDF-Fortran', '4.4.4'),
+    ('mpi4py', '2.0.0', '-Python-%(pyver)s'),
+#    ('Mesa', '13.0.6'),
+    ('VirtualGL', 'default'),
+    ('nvidia', 'driver', '', True),
+]
+
+separate_build_dir = True
+
+maxparallel = 12
+
+### --- general settings --- ###
+configopts  = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DCMAKE_CXX_STANDARD=11 '
+configopts += '-DCXX_STANDARD_REQUIRED=ON '
+configopts += '-DCMAKE_CXX_EXTENSIONS=OFF ' # eg.-std=c++11 rather than -std=gnu++11
+configopts += '-DVTK_USE_CXX11_FEATURES=ON '
+configopts += '-DPARAVIEW_QT_VERSION=4 ' # Need to keep in sync with Qt version
+
+configopts += '-DCMAKE_BUILD_TYPE=Release '
+# These options should be correctly set by the easyblock. -DNDEBUG should be set by -DCMAKE_BUILD_TYPE
+#configopts += '-DCMAKE_C_FLAGS_RELEASE="$CFLAGS -DNDEBUG" '
+#configopts += '-DCMAKE_CXX_FLAGS_RELEASE="$CXXFLAGS -DNDEBUG" '
+# Intel 17.0 compiler bugs :
+# # Setting '-O0'
+# The following has been solved in 2017.2
+# #  https://software.intel.com/en-us/forums/intel-c-compiler/topic/701563
+# The following needs a patch on paraview
+# #  https://software.intel.com/en-us/forums/intel-c-compiler/topic/702934
+
+configopts += '-DBUILD_SHARED_LIBS=ON '
+configopts += '-DPARAVIEW_ENABLE_PYTHON=ON '
+configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON '
+
+### --- parallel (on-node) --- ###
+configopts += '-DVTK_SMP_IMPLEMENTATION_TYPE=TBB ' # https://blog.kitware.com/simple-parallel-computing-with-vtksmptools-2/
+# TBB settings (cmake-autodetect fails and finds libs in OSPRay subdir)
+configopts += "-DTBB_ROOT=$EBROOTTBB/tbb "
+configopts += '-DTBB_LIBRARY=$EBROOTTBB/tbb/lib/libtbb.so.2 '
+configopts += '-DTBB_LIBRARY_DEBUG=$EBROOTTBB/tbb/lib/libtbb_debug.so.2 '
+configopts += '-DTBB_LIBRARY_MALLOC=$EBROOTTBB/tbb/lib/libtbbmalloc.so.2 '
+configopts += '-DTBB_LIBRARY_MALLOC_DEBUG=$EBROOTTBB/tbb/lib/libtbbmalloc_debug.so.2 '
+
+### --- parallel (distributed) --- ###
+configopts += '-DPARAVIEW_USE_ICE_T=ON '
+configopts += '-DPARAVIEW_USE_MPI=ON -DPARAVIEW_USE_MPI_SSEND=OFF '
+
+### --- IO --- ###
+configopts += '-DXDMF_BUILD_MPI=ON '
+configopts += '-DPARAVIEW_ENABLE_XDMF3=ON '
+
+### --- large data --- ###
+configopts += '-DVTK_USE_64BIT_IDS=ON '
+configopts += '-DVTK_USE_LARGE_DATA=ON '
+
+### --- rendering --- ###
+configopts += '-DVTK_RENDERING_BACKEND:STRING=OpenGL ' # "OpenGL2" segfaults with VirtualGL => fallback to "OpenGL", "OpenGL2" needed for NVIDIA IndeX plugin (depends on libvtkRenderingVolumeOpenGL2-pv*)
+# OpenGL (hardware)
+configopts += '-DPARAVIEW_BUILD_QT_GUI=ON '
+configopts += '-DOPENGL_gl_LIBRARY=$NVIDIALIBDIR/libGL.so '
+configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF ' # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+configopts += '-DVTK_USE_X=ON -DVTK_USE_OFFSCREEN=OFF '
+configopts += '-DOSMESA_INCLUDE_DIR=IGNORE -DOSMESA_LIBRARY=IGNORE '
+# OSMesa (software)
+#configopts += '-DPARAVIEW_BUILD_QT_GUI=OFF '
+#configopts += '-DVTK_OPENGL_HAS_OSMESA=ON ' # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+#configopts += '-DVTK_USE_X=OFF -DVTK_USE_OFFSCREEN=ON '
+#configopts += '-DOPENGL_INCLUDE_DIR=IGNORE -DOPENGL_gl_LIBRARY=IGNORE -DOPENGL_glu_LIBRARY=IGNORE -DOPENGL_xmesa_INCLUDE_DIR=IGNORE '
+#configopts += '-DOSMESA_INCLUDE_DIR=$EBROOTMESA/include -DOSMESA_LIBRARY=$EBROOTMESA/lib/libOSMesa.so '
+# OSPRay
+configopts += '-DPARAVIEW_USE_OSPRAY=ON ' # https://blog.kitware.com/kitware-and-intel-further-maximize-rendering-efficiency/
+configopts += "-DOSPRAY_INSTALL_DIR=$EBROOTOSPRAY "
+configopts += '-DModule_vtkRenderingOSPRay=ON '
+
+### --- extra libs --- ###
+configopts += '-DPARAVIEW_ENABLE_FFMPEG=ON '
+configopts += '-DModule_vtkIOFFMPEG=ON '
+
+### --- ParaView Plugin Autoload --- ###
+configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_AnalyzeNIfTIIO=ON '
+configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_SurfaceLIC=ON '
+
+### --- coupling --- ###
+configopts += '-DPARAVIEW_USE_VISITBRIDGE=ON '
+configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '
+
+### --- development & testing --- ###
+configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON '
+configopts += '-DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF '
+configopts += '-DCTEST_TEST_TIMEOUT=10800 '
+configopts += '-DExternalData_TIMEOUT_INACTIVITY=0 '
+configopts += '-DBUILD_DOCUMENTATION=OFF '
+
+### --- XDMF options --- ###
+configopts += '-DXDMF_USE_BZIP2=ON '
+configopts += '-DXDMF_USE_GZIP=ON '
+
+### --- VTK external libraries --- ###
+configopts += '-DVTK_USE_SYSTEM_EXPAT=ON '
+configopts += '-DVTK_USE_SYSTEM_FREETYPE=ON '
+configopts += '-DVTK_USE_SYSTEM_HDF5=ON '
+configopts += '-DVTK_USE_SYSTEM_JPEG=ON '
+configopts += '-DVTK_USE_SYSTEM_LIBXML2=ON '
+configopts += '-DVTK_USE_SYSTEM_MPI4PY=ON '
+configopts += '-DVTK_USE_SYSTEM_NETCDF=ON '
+configopts += '-DVTK_USE_SYSTEM_PNG=ON '
+configopts += '-DVTK_USE_SYSTEM_PYGMENTS=ON '
+configopts += '-DVTK_USE_SYSTEM_SIX=ON '
+configopts += '-DVTK_USE_SYSTEM_TIFF=ON '
+configopts += '-DVTK_USE_SYSTEM_ZLIB=ON '
+configopts += '-DNETCDF_CXX_ROOT=$EBROOTNETCDFMINCPLUSPLUS4 ' # Need to keep in sync with netCDF-C++
+configopts += '-DNETCDF_F77_ROOT=$EBROOTNETCDFMINFORTRAN '
+configopts += '-DNETCDF_F90_ROOT=$EBROOTNETCDFMINFORTRAN '
+
+moduleclass = 'vis'

@@ -232,6 +232,9 @@ exts_list = [
     ('pytest', '3.2.3', {
         'source_urls': ['https://pypi.python.org/packages/source/p/pytest'],
     }),
+    ('ply', '3.10', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/ply'],
+    }),
 ]
 
 modextrapaths = {'PYTHONPATH': [

@@ -1,0 +1,28 @@
+make CMake script for CHOLMOD and UMFPACK consider SUITESPARSECONFIG_DIR when looking for libsuitesparseconfig.a
+required because of changes made in SuiteSparse 4.3.0
+cfr. https://github.com/FEniCS/dolfin/issues/2
+author: Kenneth Hoste (HPC-UGent)
+diff -ruN dolfin-2016.2.0.orig/cmake/modules/FindCHOLMOD.cmake dolfin-2016.2.0/cmake/modules/FindCHOLMOD.cmake
+--- dolfin-2016.2.0.orig/cmake/modules/FindCHOLMOD.cmake	2016-11-30 18:07:13.000000000 +0100
++++ dolfin-2016.2.0/cmake/modules/FindCHOLMOD.cmake	2017-08-10 11:53:32.350584371 +0200
+@@ -84,7 +84,7 @@
+ 
+ # Check for SUITESPARSECONFIG library
+ find_library(SUITESPARSECONFIG_LIBRARY suitesparseconfig
+-  HINTS ${CHOLMOD_DIR}/lib ${CCOLAMD_DIR}/lib $ENV{CHOLMOD_DIR}/lib
++  HINTS ${SUITESPARSECONFIG_DIR} ${CHOLMOD_DIR}/lib ${CCOLAMD_DIR}/lib $ENV{CHOLMOD_DIR}/lib
+   $ENV{CCOLAMD_DIR}/lib ${PETSC_LIBRARY_DIRS} $ENV{PETSC_DIR}/lib
+   DOC "The SUITESPARSECONFIG library")
+ 
+diff -ruN dolfin-2016.2.0.orig/cmake/modules/FindUMFPACK.cmake dolfin-2016.2.0/cmake/modules/FindUMFPACK.cmake
+--- dolfin-2016.2.0.orig/cmake/modules/FindUMFPACK.cmake	2016-11-30 18:07:13.000000000 +0100
++++ dolfin-2016.2.0/cmake/modules/FindUMFPACK.cmake	2017-08-10 11:52:47.493778159 +0200
+@@ -36,7 +36,7 @@
+ 
+ # Check for SUITESPARSECONFIG library
+ find_library(SUITESPARSECONFIG_LIBRARY suitesparseconfig
+-  HINTS ${UMFPACK_DIR}/lib $ENV{UMFPACK_DIR}/lib ${PETSC_LIBRARY_DIRS} $ENV{PETSC_DIR}/lib
++  HINTS ${SUITESPARSECONFIG_DIR} ${UMFPACK_DIR}/lib $ENV{UMFPACK_DIR}/lib ${PETSC_LIBRARY_DIRS} $ENV{PETSC_DIR}/lib
+   DOC "The SUITESPARSE library")
+ mark_as_advanced(SUITESPARSECONFIG_LIBRARY)
+ 

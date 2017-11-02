@@ -32,14 +32,31 @@ import os
 from distutils.version import LooseVersion
 
 from easybuild.easyblocks.p.python import EB_Python
+from easybuild.tools.build_log import EasyBuildError
+from easybuild.tools.filetools import symlink
+from easybuild.tools.modules import get_software_version
 from easybuild.tools.run import run_cmd
 from easybuild.tools.systemtools import get_shared_lib_ext
 
 class EB_SciPy_minus_Stack(EB_Python):
     """Support for building/installing SciPy-Stack"""
 
+    def install_step(self):
+        """Extend make install to make sure that the 'python' command is present."""
+        super(EB_Python, self).install_step()
+
+        python_binary_path = os.path.join(self.installdir, 'bin', 'python')
+        if not os.path.isfile(python_binary_path):
+            if os.path.isfile(python_binary_path+'2'):
+                pyver = '2'
+            elif os.path.isfile(python_binary_path+'3'):
+                pyver = '3'
+            else:
+                raise EasyBuildError("Can't find a python binary in %s", os.path.join(self.installdir, 'bin'))
+            symlink(python_binary_path + pyver, python_binary_path)
+
     def sanity_check_step(self):
-        """Custom sanity check for Python."""
+        """Custom sanity check for SciPy-Stack."""
 
         pyver = 'python' + '.'.join(self.version.split('.')[:2])
         shlib_ext = get_shared_lib_ext()

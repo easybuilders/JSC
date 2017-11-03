@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Authors::  Inge Gutheil <i.gutheil@fz-juelich.de>
+# $Id$
+#
+# This work implements the librsb library
+# http://sourceforge.net/projects/librsb/?source=typ_redirect
+##
+
+easyblock = 'ConfigureMake'
+name = 'librsb'
+version = '1.2.0-rc7'
+
+homepage = 'http://sourceforge.net/projects/librsb/?source=typ_redirect'
+description = """librsb A shared memory parallel sparse matrix computations library.
+
+It is installed in $EBROOTLIBRSB
+"""
+
+
+toolchain = {'name': 'iccifort', 'version': '2017.5.239-GCC-5.4.0'}
+toolchainopts = {'opt': True, 'optarch': True, 'openmp': True}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+
+configopts = '--enable-fortran-examples --enable-sparse-blas-interface --disable-debug  --enable-matrix-types="double,double complex" '
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ["include", "lib"],
+}
+
+postinstallcmds = ["cp README %(installdir)s/", "cp NEWS %(installdir)s/", "cp COPYING %(installdir)s/"]
+
+modextravars = {'LIBRSB_ROOT': '%(installdir)s', 'LIBRSB_LIB': '%(installdir)s/lib/', 'LIBRSB_INCLUDE': '%(installdir)s/include/'}
+
+moduleclass = 'math'

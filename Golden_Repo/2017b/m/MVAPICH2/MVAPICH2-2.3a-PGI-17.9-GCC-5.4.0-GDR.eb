@@ -1,0 +1,83 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Rpm'
+
+name = 'MVAPICH2'
+version = '2.3a'
+versionsuffix = '-GDR'
+
+homepage = 'http://mvapich.cse.ohio-state.edu/overview/mvapich2/'
+description = """This is an MPI 3.0 implementation. It is based on MPICH2 and MVICH.
+This module loads the following environment:
+MVAPICH2 %(version)s MPI tools and libraries for parallel computing.
+MVAPICH2 uses the launcher of Parastation MPI.
+Compiled with threading support (--enable-threads=runtime).
+To avoid conflicting thread/process pinning of the Parastation
+launcher and MVAPICH the affinity setting of
+MVAPICH2 has been deactivated by setting MV2_ENABLE_AFFINITY=0
+CUDA support has been enabled by setting MV2_USE_CUDA=1
+"""
+
+
+cudaversion = '9.0.176'
+compilerversion = '17.9'
+
+toolchain = {'name': 'PGI', 'version': '%s-GCC-5.4.0' % compilerversion}
+
+sources = ['%s%s-mcast.cuda%s_384.81.mofed4.0.pgi%s-%s_pre-1.el7.centos.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cudaversion, compilerversion, version)]
+
+dependencies = [
+    ('CUDA',cudaversion, '', True)
+]
+
+builddependencies = [
+    ('rpmrebuild','2.11', '', True)
+]
+
+# SLURM exports env vars by default so this is sufficient on JURECA
+modextravars = {
+    'MV2_PATH':'%(installdir)s',
+    'MV2_ENABLE_AFFINITY':'0',
+    'MV2_USE_CUDA':'1',
+    'MV2_USE_GPUDIRECT_GDRCOPY':'0',
+}
+
+# Ugly hack
+installdir = '%(installdir)s'
+
+postinstallcmds = [
+    # Move to bin/ lib64/ include/ libexec/ and share/ to the correct directory
+    "mv %s/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s/* %s" % (installdir, version, cudaversion, compilerversion, installdir),
+    # Clean the unneded opt/
+    "rm -Rf %s/opt " % installdir,
+    # Fix paths inside the wrappers
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpicc"   % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpicxx"  % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpic++"  % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpif77"  % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpif90"  % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/opt/mvapich2/gdr/%s_pre/mcast/cuda%s_384.81/mofed4.0/mpirun/pgi%s#%s#g %s/bin/mpifort" % (version, cudaversion, compilerversion, installdir, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpicc"   % (cudaversion, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpicxx"  % (cudaversion, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpic++"  % (cudaversion, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpif77"  % (cudaversion, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpif90"  % (cudaversion, installdir),
+    "sed -i s#/cm/extra/apps/CUDA/%s_384.81#$EBROOTCUDA#g %s/bin/mpifort" % (cudaversion, installdir),
+    # Fix leaked FFLAGS inside the wrappers
+    "sed -i s#'-g  $PROFILE_INCPATHS -ta=tesla:nordc -noswitcherror -g'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpicc",
+    "sed -i s#'$PROFILE_INCPATHS -noswitcherror -fPIC -g'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpicxx",
+    "sed -i s#'$PROFILE_INCPATHS -noswitcherror -fPIC -g'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpic++",
+    "sed -i s#'$PROFILE_INCPATHS -noswitcherror'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpif77",
+    "sed -i s#'$PROFILE_INCPATHS -noswitcherror'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpif90",
+    "sed -i s#'$PROFILE_INCPATHS -noswitcherror'#'$PROFILE_INCPATHS'#g %(installdir)s/bin/mpifort",
+    # Remove launchers
+    "rm %(installdir)s/bin/mpiexec* %(installdir)s/bin/mpirun*",
+]
+
+
+# Add a family for our naming scheme
+modluafooter = """
+family("mpi")
+add_property("arch","gpu")
+"""
+
+moduleclass = 'mpi'

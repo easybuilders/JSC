@@ -22,7 +22,4 @@ dependencies = [
 # also build boost_mpi
 boost_mpi = True
 
-# Set BOOST_ROOT for those using CMake
-modextravars = {'BOOST_ROOT': '%(installdir)s'}
-
 moduleclass = 'devel'

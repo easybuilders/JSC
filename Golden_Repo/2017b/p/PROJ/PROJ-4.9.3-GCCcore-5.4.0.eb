@@ -19,7 +19,7 @@ geographic longitude and latitude coordinates into cartesian coordinates
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'pic': True}
+toolchainopts = { 'pic': True}
 
 source_urls = ['http://download.osgeo.org/proj/']
 sources = [SOURCELOWER_TAR_GZ]

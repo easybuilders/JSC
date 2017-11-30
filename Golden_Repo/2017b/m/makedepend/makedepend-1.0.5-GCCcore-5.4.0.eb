@@ -10,7 +10,6 @@ description = """The makedepend package contains a C-preprocessor like utility t
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'optarch': True}
 
 sources = [SOURCE_TAR_GZ]
 source_urls = [XORG_UTIL_SOURCE]

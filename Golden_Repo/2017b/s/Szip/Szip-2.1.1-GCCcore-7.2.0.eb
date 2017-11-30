@@ -10,7 +10,7 @@ description = """Szip compression software, providing lossless compression of sc
 
 
 toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
-toolchainopts = {'optarch': True, 'pic': True}
+toolchainopts = { 'pic': True}
 
 source_urls = ['http://www.hdfgroup.org/ftp/lib-external/szip/%(version)s/src']
 sources = [SOURCELOWER_TAR_GZ]

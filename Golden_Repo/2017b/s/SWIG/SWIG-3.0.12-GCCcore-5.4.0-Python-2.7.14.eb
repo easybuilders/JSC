@@ -10,7 +10,7 @@ description = """SWIG is a software development tool that connects programs writ
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'pic': True, 'opt': True, 'optarch': True}
+toolchainopts = {'pic': True, 'opt': True}
 
 source_urls = [SOURCEFORGE_SOURCE]
 sources = [SOURCELOWER_TAR_GZ]

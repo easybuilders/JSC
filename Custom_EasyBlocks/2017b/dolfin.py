@@ -51,9 +51,53 @@ class EB_DOLFIN(CMakePythonPackage):
         """Initialize class variables."""
         super(EB_DOLFIN, self).__init__(*args, **kwargs)
 
-        self.boost_dir = None
+        self.depsdict = {}
         self.saved_configopts = None
         self.cfg['separate_build_dir'] = True
+
+    def get_deps(self):
+        """
+        Find which dependencies are included and add them to the dependencies dictionary used by configure_step and
+        make_module_extra
+        """
+        # make sure that required dependencies are loaded
+        deps = ['Boost', 'CGAL', 'Python', 'SCOTCH', 'SuiteSparse', 'zlib']
+        #deps = ['Boost', 'CGAL', 'PETSc', 'Python', 'SCOTCH', 'SLEPc', 'SuiteSparse', 'Trilinos', 'zlib']
+
+        # ParMETIS can be included in PETSc. Check if it is a separate dependency or if we should check in PETSc
+        parmetis_as_dep = get_software_root('ParMETIS')
+        if parmetis_as_dep:
+            deps.append('ParMETIS')
+
+        scipy_stack = get_software_root('SciPy-Stack')
+        if scipy_stack:
+            deps.append('SciPy-Stack')
+
+        if LooseVersion(self.version) < LooseVersion('1.1'):
+            deps.append('MTL4')
+
+        # Armadillo was replaced by Eigen in v1.3
+        if LooseVersion(self.version) < LooseVersion('1.3'):
+            deps.append('Armadillo')
+        else:
+            deps.append('Eigen')
+
+        # UFC has been integrated into FFC in v1.4, cfr. https://bitbucket.org/fenics-project/ufc-deprecated
+        if LooseVersion(self.version) < LooseVersion('1.4'):
+            deps.append('UFC')
+
+        # PLY, petsc4py, slepc4py are required since v1.5
+        #if LooseVersion(self.version) >= LooseVersion('1.5'):
+        #    #deps.extend(['petsc4py', 'PLY', 'slepc4py'])
+        #    # PLY is included in our Python package. slepc4py doesn't seem to be required
+        #    deps.extend(['petsc4py'])
+
+        for dep in deps:
+            deproot = get_software_root(dep)
+            if not deproot:
+                raise EasyBuildError("Dependency %s not available.", dep)
+            else:
+                self.depsdict.update({dep:deproot})
 
     def configure_step(self):
         """Set DOLFIN-specific configure options and configure with CMake."""
@@ -99,51 +143,11 @@ class EB_DOLFIN(CMakePythonPackage):
         # save config options to reuse them later (e.g. for sanity check commands)
         self.saved_configopts = self.cfg['configopts']
 
-        # make sure that required dependencies are loaded
-        deps = ['Boost', 'CGAL', 'Python',
-                'SCOTCH', 'SuiteSparse', 'zlib']
-        #deps = ['Boost', 'CGAL', 'PETSc', 'Python',
-                #'SCOTCH', 'SLEPc', 'SuiteSparse', 'Trilinos', 'zlib']
-
-        # ParMETIS can be included in PETSc. Check if it is a separate dependency or if we should check in PETSc
-        parmetis_as_dep = get_software_root('ParMETIS')
-        if parmetis_as_dep:
-            deps.append('ParMETIS')
-
-        scipy_stack = get_software_root('SciPy-Stack')
-        if scipy_stack:
-            deps.append('SciPy-Stack')
-
-        if LooseVersion(self.version) < LooseVersion('1.1'):
-            deps.append('MTL4')
-
-        # Armadillo was replaced by Eigen in v1.3
-        if LooseVersion(self.version) < LooseVersion('1.3'):
-            deps.append('Armadillo')
-        else:
-            deps.append('Eigen')
-
-        # UFC has been integrated into FFC in v1.4, cfr. https://bitbucket.org/fenics-project/ufc-deprecated
-        if LooseVersion(self.version) < LooseVersion('1.4'):
-            deps.append('UFC')
-
-        # PLY, petsc4py, slepc4py are required since v1.5
-        #if LooseVersion(self.version) >= LooseVersion('1.5'):
-        #    #deps.extend(['petsc4py', 'PLY', 'slepc4py'])
-        #    # PLY is included in our Python package. slepc4py doesn't seem to be required
-        #    deps.extend(['petsc4py'])
-
-        depsdict = {}
-        for dep in deps:
-            deproot = get_software_root(dep)
-            if not deproot:
-                raise EasyBuildError("Dependency %s not available.", dep)
-            else:
-                depsdict.update({dep:deproot})
+        self.get_deps()
 
         # zlib
-        self.cfg.update('configopts', '-DZLIB_INCLUDE_DIR=%s' % os.path.join(depsdict['zlib'], "include"))
-        self.cfg.update('configopts', '-DZLIB_LIBRARY=%s' % os.path.join(depsdict['zlib'], "lib", "libz.a"))
+        self.cfg.update('configopts', '-DZLIB_INCLUDE_DIR=%s' % os.path.join(self.depsdict['zlib'], "include"))
+        self.cfg.update('configopts', '-DZLIB_LIBRARY=%s' % os.path.join(self.depsdict['zlib'], "lib", "libz.a"))
 
         # set correct openmp options
         openmp = self.toolchain.get_flag('openmp')
@@ -151,30 +155,29 @@ class EB_DOLFIN(CMakePythonPackage):
         self.cfg.update('configopts', '-DOpenMP_C_FLAGS="%s"' % openmp)
 
         # Boost config parameters
-        self.cfg.update('configopts', "-DBOOST_INCLUDEDIR=%s/include" % depsdict['Boost'])
-        self.cfg.update('configopts', "-DBoost_DEBUG=ON -DBOOST_ROOT=%s" % depsdict['Boost'])
-        self.boost_dir = depsdict['Boost']
+        self.cfg.update('configopts', "-DBOOST_INCLUDEDIR=%s/include" % self.depsdict['Boost'])
+        self.cfg.update('configopts', "-DBoost_DEBUG=ON -DBOOST_ROOT=%s" % self.depsdict['Boost'])
 
         # UFC and Armadillo config params
-        if 'UFC' in depsdict:
-            self.cfg.update('configopts', "-DUFC_DIR=%s" % depsdict['UFC'])
-        if 'Armadillo' in depsdict:
-            self.cfg.update('configopts', "-DARMADILLO_DIR:PATH=%s " % depsdict['Armadillo'])
+        if 'UFC' in self.depsdict:
+            self.cfg.update('configopts', "-DUFC_DIR=%s" % self.depsdict['UFC'])
+        if 'Armadillo' in self.depsdict:
+            self.cfg.update('configopts', "-DARMADILLO_DIR:PATH=%s " % self.depsdict['Armadillo'])
 
         # Eigen config params
-        if 'Eigen' in depsdict:
-            self.cfg.update('configopts', "-DEIGEN3_INCLUDE_DIR=%s " % os.path.join(depsdict['Eigen'], 'include'))
+        if 'Eigen' in self.depsdict:
+            self.cfg.update('configopts', "-DEIGEN3_INCLUDE_DIR=%s " % os.path.join(self.depsdict['Eigen'], 'include'))
 
         # specify Python paths
         (outtxt, _) = run_cmd("which python", log_all=True)
         # Check if the scipy stack includes the interpreter
         python_in_scipy = re.search("SciPy-Stack",outtxt)
-        if scipy_stack and python_in_scipy:
-            python = depsdict['SciPy-Stack']
+        if python_in_scipy:
+            python = self.depsdict['SciPy-Stack']
             (outtxt, _) = run_cmd("python --version 2>&1 | awk '{print $2}'", log_all=True)
             pyver = '.'.join(outtxt.split('.')[:2])
         else:
-            python = depsdict['Python']
+            python = self.depsdict['Python']
             pyver = '.'.join(get_software_version('Python').split('.')[:2])
         self.cfg.update('configopts', "-DPYTHON_INCLUDE_PATH=%s/include/python%s" % (python, pyver))
         if pyver.split('.')[0] == '2':
@@ -183,7 +186,7 @@ class EB_DOLFIN(CMakePythonPackage):
             self.cfg.update('configopts', "-DPYTHON_LIBRARY=%s/lib/libpython%sm.%s" % (python, pyver, shlib_ext))
 
         # SuiteSparse config params
-        suitesparse = depsdict['SuiteSparse']
+        suitesparse = self.depsdict['SuiteSparse']
         umfpack_params = [
             '-DUMFPACK_DIR="%(sp)s/UMFPACK"',
             '-DUMFPACK_INCLUDE_DIRS="%(sp)s/UMFPACK/include;%(sp)s/UFconfig"',
@@ -199,21 +202,21 @@ class EB_DOLFIN(CMakePythonPackage):
         self.cfg.update('configopts', ' '.join(umfpack_params) % {'sp':suitesparse})
 
         # ParMETIS and SCOTCH
-        if 'ParMETIS' in depsdict:
-            self.cfg.update('configopts', '-DPARMETIS_DIR="%s"' % depsdict['ParMETIS'])
-        elif 'PETSc' in depsdict:
+        if 'ParMETIS' in self.depsdict:
+            self.cfg.update('configopts', '-DPARMETIS_DIR="%s"' % self.depsdict['ParMETIS'])
+        elif 'PETSc' in self.depsdict:
             # We'll try our luck and see if PETSc has ParMETIS included
-            self.cfg.update('configopts', '-DPARMETIS_DIR="%s"' % depsdict['PETSc'])
-        self.cfg.update('configopts', '-DSCOTCH_DIR="%s" -DSCOTCH_DEBUG:BOOL=ON' % depsdict['SCOTCH'])
+            self.cfg.update('configopts', '-DPARMETIS_DIR="%s"' % self.depsdict['PETSc'])
+        self.cfg.update('configopts', '-DSCOTCH_DIR="%s" -DSCOTCH_DEBUG:BOOL=ON' % self.depsdict['SCOTCH'])
 
         # BLACS and LAPACK
         self.cfg.update('configopts', '-DBLAS_LIBRARIES:PATH="%s"' % os.getenv('LIBBLAS'))
         self.cfg.update('configopts', '-DLAPACK_LIBRARIES:PATH="%s"' % os.getenv('LIBLAPACK'))
 
         # CGAL
-        self.cfg.update('configopts', '-DCGAL_DIR:PATH="%s"' % depsdict['CGAL'])
+        self.cfg.update('configopts', '-DCGAL_DIR:PATH="%s"' % self.depsdict['CGAL'])
 
-        if 'PETSc' in depsdict:
+        if 'PETSc' in self.depsdict:
             # PETSc
             # need to specify PETSC_ARCH explicitely (env var alone is not sufficient)
             for env_var in ["PETSC_DIR", "PETSC_ARCH"]:
@@ -221,9 +224,9 @@ class EB_DOLFIN(CMakePythonPackage):
                 if val:
                     self.cfg.update('configopts', '-D%s=%s' % (env_var, val))
 
-        if 'MTL4' in depsdict:
+        if 'MTL4' in self.depsdict:
             # MTL4
-            self.cfg.update('configopts', '-DMTL4_DIR:PATH="%s"' % depsdict['MTL4'])
+            self.cfg.update('configopts', '-DMTL4_DIR:PATH="%s"' % self.depsdict['MTL4'])
 
         # configure
         out = super(EB_DOLFIN, self).configure_step()
@@ -340,12 +343,14 @@ class EB_DOLFIN(CMakePythonPackage):
     def make_module_extra(self):
         """Set extra environment variables for DOLFIN."""
 
+        # If this is a module-only run, regenerate the dictionary
+        if not self.depsdict:
+            self.get_deps()
+
         txt = super(EB_DOLFIN, self).make_module_extra()
 
         # Dolfin needs to find Boost
-        # check whether boost_dir is defined for compatibility with --module-only
-        if self.boost_dir:
-            txt += self.module_generator.set_environment('BOOST_DIR', self.boost_dir)
+        txt += self.module_generator.set_environment('BOOST_DIR', self.depsdict['Boost'])
 
         envvars = ['I_MPI_CXX', 'I_MPI_CC']
         for envvar in envvars:

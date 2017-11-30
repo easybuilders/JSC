@@ -12,7 +12,7 @@ description = """The Ncurses (new curses) library is a free software emulation o
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'optarch': True, 'pic': True}
+toolchainopts = { 'pic': True}
 
 source_urls = [GNU_SOURCE]
 sources = [SOURCE_TAR_GZ]

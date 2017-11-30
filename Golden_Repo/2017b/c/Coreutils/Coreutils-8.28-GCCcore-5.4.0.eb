@@ -11,7 +11,7 @@ description = """The GNU Core Utilities are the basic file, shell and text manip
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'optarch': True, 'pic': True}
+toolchainopts = { 'pic': True}
 
 source_urls = [GNU_SOURCE]
 sources = [SOURCELOWER_TAR_XZ]

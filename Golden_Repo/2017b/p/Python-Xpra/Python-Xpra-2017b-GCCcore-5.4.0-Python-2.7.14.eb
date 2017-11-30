@@ -10,7 +10,7 @@ description = """Python Xpra is a bundle with several python dependencies for Xp
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'pic': True, 'opt': True, 'optarch': True}
+toolchainopts = {'pic': True, 'opt': True}
 
 # python needs bzip2 to build the bz2 package
 dependencies = [

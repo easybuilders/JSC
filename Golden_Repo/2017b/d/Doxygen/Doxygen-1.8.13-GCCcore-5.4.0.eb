@@ -13,6 +13,8 @@ toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
 sources = ['%(namelower)s-%(version)s.src.tar.gz']
 source_urls = ['http://ftp.stack.nl/pub/users/dimitri/']
 
+patches = ['doxygen_segfault.patch']
+
 builddependencies = [
     ('binutils', '2.29'),
     ('CMake', '3.9.4'),

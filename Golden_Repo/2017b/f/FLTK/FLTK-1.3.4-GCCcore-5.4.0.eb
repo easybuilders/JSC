@@ -15,7 +15,7 @@ description = """FLTK is a cross-platform C++ GUI toolkit for UNIX/Linux (X11), 
 
 
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
-toolchainopts = {'optarch': True, 'pic': True}
+toolchainopts = { 'pic': True}
 
 sources = ['%(namelower)s-%(version)s-source.tar.gz']
 source_urls = ['http://fltk.org/pub/%(namelower)s/%(version)s/']

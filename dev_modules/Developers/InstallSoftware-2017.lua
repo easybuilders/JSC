@@ -113,25 +113,40 @@ if tonumber(nproc) > 64 then
     end
 end
 
+-- Read systemname to know if we should prepend an overlay
+local systemname = capture("cat /etc/FZJ/systemname")
+--Sanitize systemname
+systemname = string.gsub(systemname, "\n", "")
+
 -- Set optarch options for easybuild
 local architecture = os.getenv("ARCHITECTURE")
-if architecture == "KNL" then
-    local opt="GCC:march=knl -mtune=knl;Intel:xMIC-AVX512"
+-- Booster
+if architecture == "KNL" or systemname == "jurecabooster" then
+    local opt="GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
     if mode()=="load" then
         LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
     end
     pushenv("EASYBUILD_OPTARCH", opt)
 
     -- Prepend the overlay
-    local knl_suffix = "_knl"
-    prepend_path("EASYBUILD_ROBOT", gr_path..knl_suffix)
-    prepend_path("EASYBUILD_ROBOT_PATHS", gr_path..knl_suffix)
+    gr_overlay_path = pathJoin(gr_path, "knl_overlay")
+    prepend_path("EASYBUILD_ROBOT", gr_overlay_path)
+    prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
+-- Juropa3
 elseif architecture == "SandyBridge" then
     local opt="GCC:march=sandybridge -mtune=sandybridge;Intel:xAVX"
     if mode()=="load" then
         LmodMessage(yellow.."   - Setting EASYBUILD_OPTARCH to "..opt..normal)
     end
     pushenv("EASYBUILD_OPTARCH", opt)
+-- Jureca
+elseif architecture == "Haswell" then
+    local opt="GCC:march=haswell -mtune=haswell;Intel:xCORE-AVX2"
+    if mode()=="load" then
+        LmodMessage(yellow.."   - Setting EASYBUILD_OPTARCH to "..opt..normal)
+    end
+    pushenv("EASYBUILD_OPTARCH", opt)
+-- Default
 else
     if mode()=="load" then
         LmodMessage("  - "..yellow.."No particular architecture loaded. Unsetting EASYBUILD_OPTARCH (if set)\n"..normal)
@@ -182,7 +197,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "DB,DBus,DocBook-XML,Dyninst,dbus-glib,damageproto,"..
 "ETSF_IO,Exiv2,eudev,expat,"..
 "FFmpeg,FLTK,FTGL,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
-"GCCcore,GDAL,GEGL,GL2PS,GLEW,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
+"GCCcore,GDAL,GEGL,GL2PS,GLEW,GLM,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
 "g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,grib_api,gsettings-desktop-schemas,gettext,"..
 "HarfBuzz,"..
 "icc,ifort,inputproto,intltool,itstool,"..
@@ -194,7 +209,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "libepoxy,libevent,libffi,libfontenc,libgd,libgeotiff,libglade,libidn,libjpeg-turbo,libmatheval,libmypaint,libpng,"..
 "libpciaccess,libpthread-stubs,libreadline,librsvg,libsndfile,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
 "libxslt,libyuv,"..
-"M4,Mesa,makedepend,motif,msgpack-c,"..
+"M4,MATIO,Mesa,makedepend,motif,msgpack-c,"..
 "NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
 "OPARI2,OTF2,"..
 "PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,patchelf,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,pybind11,"..

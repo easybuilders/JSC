@@ -9,7 +9,7 @@ description = """qrupdate is a Fortran library for fast updates of QR and Choles
 
 
 toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
-toolchainopts = {'pic': True}
+toolchainopts = { 'pic': True}
 
 sources = [SOURCE_TAR_GZ]
 source_urls = [SOURCEFORGE_SOURCE]

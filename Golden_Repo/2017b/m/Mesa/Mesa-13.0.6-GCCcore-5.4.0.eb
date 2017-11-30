@@ -21,7 +21,6 @@ Mesa is an open-source implementation of the OpenGL specification -
 toolchain = {'name': 'GCCcore', 'version': '5.4.0'}
 # swr detects and builds parts specific for AVX and AVX2. If we use
 # -xHost, this always gets overwritten and will fail.
-toolchainopts = {'optarch': False}
 
 sources = [SOURCELOWER_TAR_XZ]
 source_urls = [

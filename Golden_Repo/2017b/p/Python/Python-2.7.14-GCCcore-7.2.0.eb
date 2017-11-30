@@ -9,7 +9,7 @@ description = """Python is a programming language that lets you work more quickl
 
 
 toolchain = {'name': 'GCCcore', 'version': '7.2.0'}
-toolchainopts = {'pic': True, 'opt': True, 'optarch': True}
+toolchainopts = {'pic': True, 'opt': True}
 
 source_urls = ['http://www.python.org/ftp/%(namelower)s/%(version)s/']
 sources = [SOURCE_TGZ]
@@ -205,15 +205,19 @@ exts_list = [
     }),
     ('Werkzeug', '0.12.2', {
         'source_urls': ['https://pypi.python.org/packages/source/w/werkzeug'],
+        'modulename': 'werkzeug'
     }),
     ('MarkupSafe', '1.0', {
         'source_urls': ['https://pypi.python.org/packages/source/m/markupsafe'],
+        'modulename': 'markupsafe'
     }),
     ('Jinja2', '2.9.6', {
         'source_urls': ['https://pypi.python.org/packages/source/j/jinja2'],
+        'modulename': 'jinja2'
     }),
     ('Flask', '0.12.2', {
         'source_urls': ['https://pypi.python.org/packages/source/f/flask'],
+        'modulename': 'flask'
     }),
     ('Mako', '1.0.7', {
         'source_urls': ['https://pypi.python.org/packages/source/m/mako'],
@@ -222,11 +226,88 @@ exts_list = [
     ('py', '1.4.34', {
         'source_urls': ['https://pypi.python.org/packages/source/p/py'],
     }),
+    ('setuptools_scm', '1.15.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/setuptools_scm'],
+    }),
     ('pytest', '3.2.3', {
         'source_urls': ['https://pypi.python.org/packages/source/p/pytest'],
     }),
+    ('pytest-runner', '3.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pytest-runner'],
+        'modulename': 'ptr'
+    }),
     ('ply', '3.10', {
         'source_urls': ['https://pypi.python.org/packages/source/p/ply'],
+    }),
+    ('ipython_genutils', '0.2.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/ipython_genutils'],
+    }),
+    ('traitlets', '4.3.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/traitlets'],
+    }),
+    ('ptyprocess', '0.5.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/ptyprocess'],
+    }),
+    ('scandir', '1.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scandir'],
+    }),
+    ('pathlib2', '2.3.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pathlib2'],
+    }),
+    ('pickleshare', '0.7.4', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pickleshare'],
+    }),
+    ('pexpect', '4.2.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pexpect'],
+    }),
+    ('simplegeneric', '0.8.1', {
+        'source_tmpl': 'simplegeneric-0.8.1.zip',
+        'source_urls': ['https://pypi.python.org/packages/source/s/simplegeneric'],
+    }),
+    # 6.x just works on Python 3.6+
+    ('ipython', '5.4.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/i/ipython'],
+        'modulename': 'IPython',
+    }),
+    # Prereqs for jupyterhub
+    ('certifi', '2017.7.27.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/certifi'],
+    }),
+    ('urllib3', '1.22', {
+        'source_urls': ['https://pypi.python.org/packages/source/u/urllib3'],
+    }),
+    ('chardet', '3.0.4', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/chardet'],
+    }),
+    ('requests', '2.18.4', {
+        'source_urls': ['https://pypi.python.org/packages/source/r/requests'],
+    }),
+    ('SQLAlchemy', '1.2.0b3', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/SQLAlchemy'],
+        'modulename': 'sqlalchemy',
+    }),
+    ('python-editor', '1.0.3', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/python-editor'],
+        'modulename': 'editor',
+    }),
+    ('alembic', '0.9.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/a/alembic'],
+    }),
+    ('subprocess32', '3.2.7', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/subprocess32'],
+    }),
+    ('functools32', '3.2.3-2', {
+        'source_urls': ['https://pypi.python.org/packages/source/f/functools32'],
+    }),
+    ('vcversioner', '2.16.0.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/v/vcversioner'],
+    }),
+    ('jsonschema', '2.6.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/j/jsonschema'],
+    }),
+    ('python-oauth2', '1.0.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/python-oauth2'],
+        'modulename': 'oauth2',
     }),
 ]
 

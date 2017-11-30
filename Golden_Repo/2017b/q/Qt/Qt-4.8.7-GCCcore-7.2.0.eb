@@ -39,6 +39,8 @@ dependencies = [
     ('libGLU', '9.0.0'),
 ]
 
+configopts = '-xmlpatterns'
+
 # Install QScintilla (needed by Octave) by brute force
 installqscintilla = "cd %(builddir)s &&"
 installqscintilla += "cd %s_gpl-%s/Qt4Qt5 &&" % (qscintilla, qscintilla_version)

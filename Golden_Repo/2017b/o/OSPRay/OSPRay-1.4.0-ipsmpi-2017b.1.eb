@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OSPRay'
+version = '1.4.0'
+
+homepage = 'http://www.ospray.org/'
+description = """
+OSPRay is an open source, scalable, and portable ray tracing engine for
+high-performance, high-fidelity visualization on Intel® Architecture CPUs.
+"""
+
+
+toolchain = {'name': 'ipsmpi', 'version': '2017b.1'}
+toolchainopts = {'pic': True}
+
+# http://github.com/ospray/OSPRay/archive/v1.1.1.tar.gz
+source_urls = ['https://github.com/ospray/OSPRay/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('ispc','1.9.1','',True),
+    ('CMake', '3.9.4'),
+    ('Doxygen','1.8.13')
+]
+
+dependencies = [
+    ('freeglut','3.0.0'),
+    ('libGLU','9.0.0'),
+    ('X11','20170314'),
+    ('Qt','4.8.7'),
+    ('Mesa','13.0.6'),
+    ('tbb','2018.1.163','',True),
+    ('Embree','2.17.0')
+]
+
+separate_build_dir = True
+
+configopts  = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DOSPRAY_TASKING_SYSTEM=TBB '
+configopts += '-DOSPRAY_INSTALL_DEPENDENCIES=OFF '
+configopts += '-DOSPRAY_BUILD_ISA=AVX ' # Important to select the proper architecture
+configopts += '-DCMAKE_BUILD_TYPE=Release '
+
+sanity_check_paths = {
+    'dirs': ['bin', 'include/ospray/ospcommon',
+             'lib64/cmake/%(namelower)s-%(version)s', 'share/doc/OSPRay'],
+    'files': ['bin/ospBenchmark', 'include/ospray/version.h',
+              'lib64/libospray.so',
+              'share/doc/OSPRay/README.md'],
+}
+
+moduleclass = 'vis'

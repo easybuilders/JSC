@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'petsc4py'
+version = '3.8.0'
+
+homepage = 'https://bitbucket.org/petsc/petsc4py'
+description = "petsc4py are Python bindings for PETSc, the Portable, Extensible Toolchain for Scientific Computation."
+
+toolchain = {'name': 'intel', 'version': '2017b.1'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+
+pyver = '3.6.3'
+versionsuffix = '-Python-%s' % pyver
+
+dependencies = [
+    ('Python', pyver),
+    ('PETSc', '3.8.0'),
+    ('SciPy-Stack', '2017b.1', versionsuffix)
+]
+
+pyshortver = '.'.join(pyver.split('.')[:2])
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%s/site-packages' % pyshortver],
+}
+
+moduleclass = 'tools'

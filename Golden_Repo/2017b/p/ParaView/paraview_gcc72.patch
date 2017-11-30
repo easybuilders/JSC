@@ -1,0 +1,11 @@
+diff -ruN ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt
+--- ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt	2017-08-18 15:39:19.000000000 +0200
++++ ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt	2017-11-17 12:03:26.642272133 +0100
+@@ -25,7 +25,6 @@
+   VsAttribute.C
+   VsFile.C
+   VsReader.C
+-  VsStaggeredField.C
+   HighOrderUnstructuredData.C
+   )
+ 

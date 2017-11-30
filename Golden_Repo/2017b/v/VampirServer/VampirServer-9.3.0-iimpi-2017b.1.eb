@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+easyblock='Binary'
+
+name = "VampirServer"
+version = "9.3.0"
+
+homepage = 'http://www.vampir.eu'
+description = """The VAMPIR software tool provides an easy-to-use framework that enables
+ developers to quickly display and analyze arbitrary program behavior at any level of detail.
+ The tool suite implements optimized event analysis algorithms and customizable displays that
+ enable fast and interactive rendering of very complex performance monitoring data.
+"""
+
+
+toolchain = {'name': 'iimpi', 'version': '2017b.1'}
+
+toolchainopts = {"usempi": True}
+
+sources = ['vampirserver-%s-linux-x86_64-setup.bin' % (version)]
+
+install_cmd = './vampirserver-%(version)s-linux-x86_64-setup.bin --silent --instdir=%(installdir)s && %(installdir)s/bin/vampirserver config --silent'
+
+sanity_check_paths = {
+    'files': ["bin/vampirserver", "doc/vampirserver-manual.pdf"],
+    'dirs': []
+}
+
+
+modextravars = {
+}
+
+moduleclass = 'perf'

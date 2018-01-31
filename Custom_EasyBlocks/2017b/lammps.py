@@ -793,10 +793,8 @@ class EB_LAMMPS(MakeCp):
                     makesubs = [
                         (r'^(LMP_INC.*)-DLAMMPS_JPEG', r'\1-DLAMMPS_PNG'),
                         (r'^(JPG_LIB.*)-ljpeg', r'\1-lpng'),
-                        (r'^(JPG_INC\s*=\s*).*(
-)', r'\1%s/include\2' % libpngroot),
-                        (r'^(JPG_PATH\s*=\s*).*(
-)', r'\1-L%s/lib\2' % libpngroot),
+                        (r'^(JPG_INC\s*=\s*).*(\n)', r'\1%s/include\2' % libpngroot),
+                        (r'^(JPG_PATH\s*=\s*).*(\n)', r'\1-L%s/lib\2' % libpngroot),
                     ]
                 else:
                     raise EasyBuildError("Unable to find libpng root -- module not loaded?")
@@ -808,16 +806,20 @@ class EB_LAMMPS(MakeCp):
 
         cflags = os.getenv('CFLAGS')
         linkflags = os.getenv('LDFLAGS')
+        libs = ''
 
         tbbroot = get_software_root('tbb')
         if tbbroot:
+            cflags = ' '.join([cflags, '-tbb'])
             linkflags = ' '.join([linkflags, '-ltbbmalloc'])
+            libs = '-ltbbmalloc'
         else:
             raise EasyBuildError("Can't find tbb! Please make sure it is listed as a dependency.")
 
         makesubs.extend([
             (r'^(CCFLAGS\s*=\s*)(.*)$', r'\1%s \2' % cflags),
             (r'^(LINKFLAGS\s*=\s*)(.*)$', r'\1%s \2' % linkflags),
+            (r'^(LIB\s*=\s*)$', r'LIB=%s' % '\t' + libs + '\n'),
         ])
         apply_regex_substitutions(os.path.join(makedir, 'Makefile.{0}'.format(makearg)), makesubs)
 
@@ -825,6 +827,11 @@ class EB_LAMMPS(MakeCp):
         cmd = "{0} make {1} {2}".format(self.cfg['prebuildopts'], makearg, self.cfg['buildopts'])
         (main_make_output, _) = run_cmd(cmd, path=path, log_all=True, simple=False, log_output=verbose)
         out += main_make_output
+        # If we have python as a dep let's create the shared lib too for the bindings
+        if get_software_root('python'):
+            cmd = "{0} make {1} {2} mode=shlib".format(self.cfg['prebuildopts'], makearg, self.cfg['buildopts'])
+            (main_make_output, _) = run_cmd(cmd, path=path, log_all=True, simple=False, log_output=verbose)
+            out += main_make_output
 
         return out
 

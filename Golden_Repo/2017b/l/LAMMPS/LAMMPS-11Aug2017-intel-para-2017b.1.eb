@@ -27,6 +27,7 @@ patches = ['lammps_intel_2018.1.patch']
 
 dependencies = [
     ('Python', '2.7.14'),
+    ('mpi4py', '2.0.0', '-Python-2.7.14'), # used at runtime for the python interface
     ('libpng', '1.6.32'),
     ('tbb', '2018.1.163', '', True),
 ]
@@ -48,13 +49,19 @@ use_srd = True
 use_intel = True
 use_lb = True
 use_mc = True
+#use_misc = True
 use_user_misc = True
 use_molecule = True
 use_manybody = True
 use_kspace = True
 
 # Install executables
-files_to_copy = [(["src/lmp_*"], "bin")]
+files_to_copy = [(["src/lmp_*"], "bin"),
+                 (["src/*.so"], "lib"),
+                 (["python/lammps.py"], "lib/python%(pyshortver)s/site-packages")]
+
+# Add the pythonpath
+modextrapaths = {'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages'}
 
 # Don't name the executable specifically, as what if there are
 # multiple lmp_ executables?

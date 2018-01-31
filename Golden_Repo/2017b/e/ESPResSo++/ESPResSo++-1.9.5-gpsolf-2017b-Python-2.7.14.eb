@@ -4,7 +4,6 @@ easyblock = 'CMakePythonPackage'
 name = 'ESPResSo++'
 version = '1.9.5'
 versionsuffix = '-Python-2.7.14'
-#versionsuffix = '-Python-2.7.14-instrumented'
 
 homepage = 'http://espressopp.github.io/'
 description = """ESPResSo++ is an extensible, flexible, fast and parallel simulation software for soft matter research. It is a highly
@@ -24,7 +23,6 @@ builddependencies = [
 ]
 
 dependencies = [
-#    ('Score-P', '3.1'),
     ('FFTW', '3.3.6'), # Can't figure out how to get it to accept MKL instead
     ('Python', '2.7.14'),
     ('Boost', '1.65.1', '-Python-2.7.14'),

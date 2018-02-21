@@ -50,7 +50,7 @@ GCCCORE = 'GCCcore'
 # note: names in keys are ordered alphabetically
 COMP_NAME_VERSION_TEMPLATES = {
     'icc,ifort': ('intel', '%(icc)s'),
-    'Clang,GCC': ('Clang-GCC', '%(Clang)s-%(GCC)s'),
+    'Clang,GCC': ('Clang-GCC', '%(Clang)s-%(GCCcore)s'),
     'CUDA,GCC': ('GCC-CUDA', '%(GCC)s-%(CUDA)s'),
     'xlc,xlf': ('xlcxlf', '%(xlc)s'),
 }

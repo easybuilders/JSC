@@ -88,8 +88,9 @@ class CustomHierarchicalMNS(HierarchicalMNS):
         tc_comps = det_toolchain_compilers(ec)
         tc_comp_info = self.det_toolchain_compilers_name_version(tc_comps)
         # determine prefix based on type of toolchain used
-        if tc_comp_info is None:
+        if tc_comp_info is None or ec['name'] in ['Clang']:
             # no compiler in toolchain, dummy toolchain => Core module
+            # For Clang we make an exception so that it appears in the same place as the other compilers
             subdir = CORE
         else:
             tc_comp_name, tc_comp_ver = tc_comp_info

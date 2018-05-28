@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ipp'
+version = '2018.2.199'
+
+homepage = 'http://software.intel.com/en-us/articles/intel-ipp/'
+description = """Intel Integrated Performance Primitives (Intel IPP) is an extensive library
+ of multicore-ready, highly optimized software functions for multimedia, data processing,
+ and communications applications. Intel IPP offers thousands of optimized functions
+ covering frequently used fundamental algorithms.
+"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+sources = ['l_ipp_%(version)s.tgz']
+
+dontcreateinstalldir = True
+
+requires_runtime_license = False
+
+modextravars = {
+    'IPPROOT': '%(installdir)s/ipp',
+}
+
+moduleclass = 'perf'

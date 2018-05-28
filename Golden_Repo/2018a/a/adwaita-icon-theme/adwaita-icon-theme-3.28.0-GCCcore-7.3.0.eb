@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'adwaita-icon-theme'
+version = '3.28.0'
+
+homepage = 'https://github.com/GNOME/adwaita-icon-theme'
+description = """
+ Default icon them for GNOME
+ """
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.3.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('binutils', '2.30'),
+    ('pkg-config', '0.29.2'),
+]
+
+#dependencies = [
+#    ('GTK+', '3.22.1'),
+#    ('libcroco', '0.6.11'),
+#    ('librsvg', '2.40.16'),
+#]
+
+modextrapaths = {
+    'XDG_DATA_DIRS': 'share',
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['share'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Copyright:: Copyright 2013-2014 The Cyprus Institute
+# Authors:: Thekla Loizou <t.loizou@cyi.ac.cy>
+# License:: MIT/GPL
+#
+##
+
+easyblock = 'ConfigureMake'
+
+name = 'ABINIT'
+version = '8.6.3'
+
+homepage = 'http://www.abinit.org/'
+description = """
+ABINIT is a package whose main program allows one to find the total energy, charge density and electronic structure of
+systems made of electrons and nuclei (molecules and periodic  solids) within Density Functional Theory (DFT), using
+pseudopotentials and a planewave or wavelet basis.
+"""
+
+examples = """An example input and the corresponding submission scripts are given in
+
+ $EBROOTABINIT/examples/
+
+Detailed information about this input file can be found in the ABINIT tutorial
+ http://www.abinit.org/doc/helpfiles/for-v8.4/tutorial/lesson_basepar.html#4
+
+To run the example copy this directory into a local directory and submit the job with
+
+ sbatch job_abinit_example_par1_XXX.sh
+"""
+
+
+toolchain = {'name': 'intel-para', 'version': '2018a'}
+toolchainopts = {'usempi': True, 'openmp': True}
+
+# eg. http://ftp.abinit.org/abinit-7.0.5_x86_64_linux_gnu4.5.bz2
+source_urls = [
+    'http://ftp.abinit.org/',
+    'https://www.abinit.org/sites/default/files/packages/'
+]
+
+sources = [
+    SOURCELOWER_TAR_GZ,
+    'abinit_examples.tar.gz'
+]
+
+preconfigopts = 'export FCFLAGS="-ffree-line-length-none $FCFLAGS" && '
+
+configopts = '--enable-mpi --enable-mpi-io --with-mpi-prefix=$EBROOTPSMPI --enable-fallbacks '
+configopts += '--with-netcdf-incs="-I$EBROOTNETCDF/include -I$EBROOTNETCDFMINFORTRAN/include" --with-netcdf-libs="-L$EBROOTNETCDF/lib -L$EBROOTNETCDFMINFORTRAN/lib -lnetcdf -lnetcdff" '
+configopts += '--with-fft-libs="-L$EBROOTFFTW/lib -lfftw3_omp -lfftw3 -lfftw3f_omp -lfftw3f" --with-fft-flavor=fftw3-threads '
+configopts += '--with-trio-flavor="netcdf" '
+configopts += '--with-etsf-io-libs="-L$EBROOTETSF_IO/lib -letsf_io_utils -letsf_io -letsf_io_low_level" --with-etsf-io-incs="-I$EBROOTETSF_IO/include/intel" '
+configopts += '--with-linalg-flavor="mkl" --with-linalg-libs="-L$EBROOTIMKL/mkl/lib/intel64 -lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -lpthread" '
+configopts += '--with-math-flavor="gsl" --with-math-incs="-I$EBROOTGSL/include" --with-math-libs="-L$EBROOTGSL/lib -lgsl -lgslcblas" '
+configopts += '--with-dft-flavor="libxc" --with-libxc-incs="-I$EBROOTLIBXC/include" --with-libxc-libs="-L$EBROOTLIBXC/lib -lxc -lxcf90" '
+configopts += '--enable-gw-dpc --enable-openmp '
+
+dependencies = [
+    ('netCDF', '4.6.1'),
+    ('netCDF-Fortran', '4.4.4'),
+    ('FFTW', '3.3.7'),
+    ('Libxc', '3.0.1'),
+    ('GSL', '2.4'),
+]
+
+postinstallcmds = [
+    'cp -Rf %(builddir)s/examples %(installdir)s/ ',
+]
+
+sanity_check_paths = {
+    'files': ["bin/abinit"],
+    'dirs': []
+}
+
+moduleclass = 'chem'

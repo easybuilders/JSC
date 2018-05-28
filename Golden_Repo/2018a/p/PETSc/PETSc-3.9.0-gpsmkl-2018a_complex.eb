@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = "PETSc"
+version = "3.9.0"
+versionsuffix = '_complex'
+
+homepage = 'http://www.mcs.anl.gov/petsc'
+description = """PETSc, pronounced PET-see (the S is silent), is a suite
+of data structures and routines for the scalable (parallel) solution
+of scientific applications modeled by partial differential equations.
+
+This version is configured with several downloads of other libraries,
+with --with-large-file-io and no debugging. It is a C and Fortran
+version with complex numbers only and with default 4-Byte integer values.
+
+For more information see $PETSC_DIR/lib/petsc/conf/configure.log.
+"""
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2018a'}
+
+toolchainopts = {'usempi': True, 'pic': True}
+
+downloadinstall = True
+
+source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
+sources = ['petsc-lite-%s.tar.gz' % version]
+
+#patches = [
+#    'PETSc-3.8.0-intel-2018-complex.patch',
+#]
+
+builddependencies = [
+    ('CMake', '3.10.3')
+]
+
+download_deps = [
+    'triangle',
+]
+
+download_deps_static = [
+    'metis',
+    'parmetis',
+    'spooles',
+    'superlu',
+    'superlu_dist',
+    'mumps',
+    'chaco',
+    'parms',
+    'hdf5',
+]
+
+configopts = '--with-large-file-io --with-scalar-type=complex'
+
+postinstallcmds = [
+    "cp $EASYBUILD_SOURCEPATH/p/PETSc/extraincludes_%(version)s/* %(installdir)s/include/petsc/private",
+]
+
+moduleclass = 'numlib'

@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'meld'
+version = '3.16.4'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://meldmerge.org'
+description = """
+ Meld is a visual diff and merge tool targeted at developers. Meld helps you compare files, directories,
+ and version controlled projects
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.5.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('intltool', '0.51.0','-Perl-5.26.1'),
+    ('itstool', '2.0.4'),
+]
+
+dependencies = [
+    ('Python', '2.7.14'),
+    ('PyGObject', '3.28.2', versionsuffix),
+    ('GTK+', '3.22.29'),
+    ('GtkSourceView', '3.24.7'),
+    ('gsettings-desktop-schemas', '3.28.0'),
+    ('adwaita-icon-theme', '3.28.0'),
+    ('GLib', '2.56.0'),
+]
+
+modextrapaths = {
+    'XDG_DATA_DIRS': 'share',
+}
+
+moduleclass = 'tools'

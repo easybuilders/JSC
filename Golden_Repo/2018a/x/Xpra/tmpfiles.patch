@@ -1,0 +1,11 @@
+--- setup.py.old	2017-05-10 11:10:50.149275898 +0200
++++ setup.py	2017-05-10 11:10:58.233398710 +0200
+@@ -1928,7 +1928,7 @@
+         add_packages("xpra.platform.xposix")
+         remove_packages("xpra.platform.win32", "xpra.platform.darwin")
+         #not supported by all distros, but doesn't hurt to install it anyway:
+-        add_data_files("/usr/lib/tmpfiles.d", ["tmpfiles.d/xpra.conf"])
++        #add_data_files("/usr/lib/tmpfiles.d", ["tmpfiles.d/xpra.conf"])
+ 
+     #gentoo does weird things, calls --no-compile with build *and* install
+     #then expects to find the cython modules!? ie:

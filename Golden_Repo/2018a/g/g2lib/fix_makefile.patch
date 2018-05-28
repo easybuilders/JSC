@@ -1,0 +1,30 @@
+--- g2lib-3.1.0.orig/makefile	2017-10-11 18:42:27.259459096 +0200
++++ g2lib-3.1.0/makefile	2017-10-11 18:56:01.474558217 +0200
+@@ -111,7 +111,7 @@
+ CPP=cpp -P -C
+ MODDIR=.
+ CFLAGS=-O3 $(DEFS) $(INCDIR)
+-FFLAGS=-O3 -g -I $(MODDIR)
++FFLAGS=-O3 -g -I$(MODDIR)
+ 
+ #
+ #--------------------------------------
+diff -ruN g2lib-3.1.0.orig/makefile g2lib-3.1.0/makefile
+--- g2lib-3.1.0.orig/makefile	2017-10-11 18:42:27.259459096 +0200
++++ g2lib-3.1.0/makefile	2017-10-11 18:56:01.474558217 +0200
+@@ -161,6 +161,7 @@
+ 	$(LIB)(gribinfo.o) \
+ 	$(LIB)(mkieee.o) \
+ 	$(LIB)(rdieee.o) \
++        $(LIB)(intmath.o) \
+ 	$(LIB)(simpack.o) \
+ 	$(LIB)(simunpack.o) \
+ 	$(LIB)(cmplxpack.o) \
+@@ -196,7 +197,6 @@
+ 	$(LIB)(params.o) \
+         $(LIB)(params_ecmwf.o) \
+ 	$(LIB)(getidx.o) \
+-        $(LIB)(intmath.o) \
+ 	$(LIB)(gdt2gds.o)
+ 
+ .F.f:

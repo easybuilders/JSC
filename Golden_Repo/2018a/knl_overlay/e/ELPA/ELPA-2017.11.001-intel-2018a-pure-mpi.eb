@@ -1,0 +1,120 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Authors::   Inge Gutheil <i.gutheil@fz-juelich.de>, Alan O'Cais <a.ocais@fz-juelich.de>
+# License::   MIT/GPL
+# $Id$
+#
+##
+
+easyblock = 'ConfigureMake'
+
+name = 'ELPA'
+version = '2017.11.001'
+versionsuffix = '-pure-mpi'
+
+
+
+homepage = 'http://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications. ELPA has been installed as module in
+$EBROOTELPA ($ELPA_ROOT is also defined). This installation is the pure MPI version.
+
+Several assembly kernels have been compiled. They can be chosen at runtime when calling the library or
+with the environment variables REAL_ELPA_KERNEL or COMPLEX_ELPA_KERNEL.
+
+An example is
+export REAL_ELPA_KERNEL=REAL_ELPA_KERNEL_GENERIC
+which chooses the generic real kernel for elpa2.
+"""
+
+usage = """You can get an overview over the available kernels by loading ELPA and then submitting a batch job with
+
+srun --ntasks=1 $EBROOTELPA/bin/elpa2_print_kernels
+
+Programs using this ELPA library have to be compiled with
+
+-I$ELPA_INCLUDE/ -I$ELPA_INCLUDE/elpa -I$ELPA_MODULES
+
+and linked with
+
+-L$EBROOTELPA/lib -lelpa -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -lmkl_intel_lp64
+-lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
+"""
+
+examples = 'Examples can be found in $EBROOTELPA/examples'
+
+
+toolchain = {'name': 'intel', 'version': '2018a'}
+toolchainopts = {'optarch': True, 'usempi': True, 'openmp': False}
+
+source_urls = ['http://elpa.mpcdf.mpg.de/html/Releases/%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = [
+    'ELPA-%(version)s_install-libelpatest.patch',
+]
+
+builddependencies = [
+    ('Autotools', '20170619'),
+]
+
+preconfigopts = 'autoreconf && '
+
+common_configopts = 'FCFLAGS="-I$EBROOTIMKL/mkl/include/intel64/lp64 $FCFLAGS" '
+common_configopts += 'LIBS="$LIBSCALAPACK" '
+common_configopts += '--enable-avx512 '
+
+# Keep just pure mpi
+configopts = [
+    common_configopts,
+]
+
+buildopts = ' V=1 '
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/examples/C/driver/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/C/driver/legacy_interface/*.c %(installdir)s/examples/C/driver/legacy_interface/',
+    'mkdir -p %(installdir)s/examples/C/elpa1/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/C/elpa1/legacy_interface/*.c %(installdir)s/examples/C/elpa1/legacy_interface/',
+    'mkdir -p %(installdir)s/examples/C/elpa2/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/C/elpa2/legacy_interface/*.c %(installdir)s/examples/C/elpa2/legacy_interface/',
+    'mkdir %(installdir)s/examples/Fortran',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/*.F90 %(installdir)s/examples/Fortran/',
+    'mkdir -p %(installdir)s/examples/Fortran/driver/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/driver/legacy_interface/*.F90 %(installdir)s/examples/Fortran/driver/legacy_interface/',
+    'mkdir -p %(installdir)s/examples/Fortran/elpa1/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/elpa1/legacy_interface/*.F90 %(installdir)s/examples/Fortran/elpa1/legacy_interface/',
+    'mkdir %(installdir)s/examples/Fortran/elpa2',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/elpa2/*.F90 %(installdir)s/examples/Fortran/elpa2/',
+    'mkdir %(installdir)s/examples/Fortran/elpa2/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/elpa2/legacy_interface/*.F90 %(installdir)s/examples/Fortran/elpa2/legacy_interface/',
+    'cp config.h config-f90.h %(installdir)s/include/elpa-%(version)s/elpa/',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/driver/legacy_interface/Makefile_examples_pure %(installdir)s/examples/Fortran/driver/legacy_interface',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/assert.h %(installdir)s/examples/Fortran',
+    'cp %(builddir)s/elpa-%(version)s/private_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+    'cp %(builddir)s/elpa-%(version)s/test_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+]
+
+sanity_check_paths = {
+    'files': [
+        'lib/libelpa.a', 'lib/libelpa.%s' % SHLIB_EXT,
+        'lib/libelpatest.a', 'lib/libelpatest.%s' % SHLIB_EXT,
+        'include/elpa-%(version)s/elpa/config.h',
+        'include/elpa-%(version)s/elpa/config-f90.h',
+    ],
+    'dirs': [
+        'bin', 'include/elpa-%(version)s/elpa',
+        'include/elpa-%(version)s/modules', 'lib/pkgconfig',
+    ],
+}
+
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules'
+}
+
+moduleclass = 'math'

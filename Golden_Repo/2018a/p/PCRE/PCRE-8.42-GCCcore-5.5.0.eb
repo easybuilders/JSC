@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'PCRE'
+version = '8.42'
+
+homepage = 'http://www.pcre.org/'
+description = """
+ The PCRE library is a set of functions that implement regular expression pattern matching using the same syntax
+ and semantics as Perl 5.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.5.0'}
+toolchainopts = { 'pic': True}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [('binutils', '2.30')]
+
+configopts = "--with-pic --disable-cpp --enable-utf --enable-unicode-properties"
+
+moduleclass = 'devel'

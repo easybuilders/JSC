@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Copyright:: Copyright 2012-2014 Uni.Lu/LCSB, NTUA
+# Authors::   Fotis Georgatos <fotis@cern.ch>
+# License::   MIT/GPL
+# $Id$
+##
+
+easyblock = 'ConfigureMake'
+
+name = 'LZO'
+version = '2.10'
+
+homepage = 'http://www.oberhumer.com/opensource/lzo/'
+description = """LZO: Portable lossless data compression library"""
+
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = [homepage + 'download/']
+
+toolchain = {'name': 'GCCcore', 'version': '5.5.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.30')
+]
+
+runtest = 'test'
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib', 'include']
+}
+
+moduleclass = 'devel'

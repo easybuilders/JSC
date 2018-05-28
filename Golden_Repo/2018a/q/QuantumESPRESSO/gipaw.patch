@@ -1,0 +1,24 @@
+diff -ruN qe-gipaw-6.2.orig/src/Makefile-gpu.in qe-gipaw-6.2/src/Makefile-gpu.in
+--- qe-gipaw-6.2.orig/src/Makefile-gpu.in	2017-10-27 10:57:50.000000000 +0200
++++ qe-gipaw-6.2/src/Makefile-gpu.in	2018-04-27 14:56:39.796800134 +0200
+@@ -29,7 +29,7 @@
+ 
+ gipaw-gpu.x: $(GIPAW_OBJS) $(PWOBJS) $(QEMODS) $(LIBOBJS) 
+ 	$(LD) $(LDFLAGS) -o $@ $(GIPAW_OBJS) $(PWOBJS) $(QEMODS) $(LIBOBJS) $(LIBS)
+-	(cd ../bin; ln -sf ../src/gipaw-gpu.x .)
++	(cd ../../bin; ln -sf ../src/gipaw-gpu.x .)
+ 
+ clean:
+ 	-/bin/rm -f gipaw-gpu.x *.o *.F90 *__genmod.f90 *.d *.mod *.i *.L
+diff -ruN qe-gipaw-6.2.orig/src/Makefile.in qe-gipaw-6.2/src/Makefile.in
+--- qe-gipaw-6.2.orig/src/Makefile.in	2017-10-27 10:57:50.000000000 +0200
++++ qe-gipaw-6.2/src/Makefile.in	2018-04-27 14:56:26.642586726 +0200
+@@ -37,7 +37,7 @@
+ 
+ gipaw.x: $(GIPAW_OBJS) $(PWOBJS) $(QEMODS) $(LIBOBJS) 
+ 	$(LD) $(LDFLAGS) -o $@ $(GIPAW_OBJS) $(PWOBJS) $(QEMODS) $(LIBOBJS) $(LIBS)
+-	(cd ../bin; ln -sf ../src/gipaw.x .)
++	(cd ../../bin; ln -sf ../src/gipaw.x .)
+ 
+ clean:
+ 	-/bin/rm -f gipaw.x *.o *.F90 *__genmod.f90 *.d *.mod *.i *.L

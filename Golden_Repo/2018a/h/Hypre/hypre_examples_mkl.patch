@@ -1,0 +1,38 @@
+--- hypre-2.10.1/src/examples/Makefile.orig	2015-09-11 19:57:56.000000000 +0200
++++ hypre-2.10.1/src/examples/Makefile	2016-04-19 09:39:55.309032000 +0200
+@@ -5,7 +5,8 @@
+ F77       = mpif77
+ CXX       = mpicxx
+ F90       = mpif90
+-HYPRE_DIR = ../hypre
++HYPRE_DIR = $(EBROOTHYPRE)
++BLASLAPACKLIB = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread
+ 
+ ########################################################################
+ # Compiling and linking options
+@@ -27,7 +28,7 @@
+ 
+ 
+ LINKOPTS  = $(COPTS)
+-LIBS      = -L$(HYPRE_DIR)/lib -lHYPRE -lm
++LIBS      = -L$(HYPRE_DIR)/lib -lHYPRE $(BLASLAPACKLIB) -lm
+ LFLAGS    = $(LINKOPTS) $(LIBS) -lstdc++
+ LFLAGS_B =\
+  -L${HYPRE_DIR}/lib\
+--- hypre-2.14.0/src/FEI_mv/fei-hypre/LLNL_FEI_LSCore.h	2018-03-16 23:14:09.000000000 +0100
++++ hypre-2.14.0_ok/src/FEI_mv/fei-hypre/LLNL_FEI_LSCore.h	2018-04-26 11:52:35.820207000 +0200
+@@ -22,10 +22,10 @@
+ #define _LLNL_FEI_LSCORE_H_
+ 
+ //New FEI 2.23.02
+-#include "FEI_mv/fei-base/fei_defs.h"
+-#include "FEI_mv/fei-base/fei_Data.hpp"
+-#include "FEI_mv/fei-base/fei_Lookup.hpp"
+-#include "FEI_mv/fei-base/fei_LinearSystemCore.hpp"
++#include "fei_defs.h"
++#include "fei_Data.hpp"
++#include "fei_Lookup.hpp"
++#include "fei_LinearSystemCore.hpp"
+ #include "cfei_hypre.h"
+ 
+ typedef enum {

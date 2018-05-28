@@ -1,0 +1,49 @@
+--- elpa-2017.11.001/Makefile.am	2018-01-10 11:54:13.000000000 +0100
++++ elpa-2017.11.001_ok/Makefile.am	2018-03-14 14:12:32.304621933 +0100
+@@ -522,7 +522,7 @@
+ test_program_fcflags = $(AM_FCFLAGS) $(FC_MODOUT)test_modules $(FC_MODINC)test_modules $(FC_MODINC)modules $(FC_MODINC)private_modules
+ 
+ # library with shared sources for the test files
+-noinst_LTLIBRARIES += libelpatest@SUFFIX@.la
++lib_LTLIBRARIES += libelpatest@SUFFIX@.la
+ libelpatest@SUFFIX@_la_FCFLAGS = $(test_program_fcflags)
+ libelpatest@SUFFIX@_la_SOURCES = \
+   test/shared/test_util.F90 \
+--- elpa-2017.11.001/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2017.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid	2018-03-14 14:23:24.266557000 +0100
+@@ -0,0 +1,16 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90secure = mpif90 -O0 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90FREE = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++F90OPT = mpif90 -O4 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpatest_openmp -lelpa_openmp $(SCALAPACK_LIB) $(MKL)
++
++all: legacy_real_driver legacy_complex_driver
++
++legacy_real_driver: legacy_real_driver.F90
++	$(F90) -DWITH_MPI -o $@ legacy_real_driver.F90 $(LIBS)
++
++legacy_complex_driver: legacy_complex_driver.F90
++	$(F90) -DWITH_MPI -o $@ legacy_complex_driver.F90 $(LIBS)
+--- elpa-2017.11.001/test/Fortran/driver/legacy_interface/Makefile_examples_pure	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2017.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_pure	2018-03-14 16:20:48.390840000 +0100
+@@ -0,0 +1,16 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90secure = mpif90 -O0 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90FREE = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++F90OPT = mpif90 -O4 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpatest -lelpa $(SCALAPACK_LIB) $(MKL)
++
++all: legacy_real_driver legacy_complex_driver
++
++legacy_real_driver: legacy_real_driver.F90
++	$(F90) -DWITH_MPI -o $@ legacy_real_driver.F90 $(LIBS)
++
++legacy_complex_driver: legacy_complex_driver.F90
++	$(F90) -DWITH_MPI -o $@ legacy_complex_driver.F90 $(LIBS)

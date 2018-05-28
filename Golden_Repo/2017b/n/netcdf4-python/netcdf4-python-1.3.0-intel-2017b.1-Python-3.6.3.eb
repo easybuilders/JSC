@@ -17,7 +17,7 @@ patches = ['netcdf4-python-1.1.8-avoid-diskless-test.patch']
 
 dependencies = [
     ('Python', '3.6.3'),
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
     ('HDF5', '1.8.19'),
     ('netCDF', '4.4.1.1'),
     ('cURL', '7.56.0'),

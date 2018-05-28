@@ -293,7 +293,10 @@ class EB_LAMMPS(MakeCp):
         """
         Build the misc package
         """
-        raise EasyBuildError("No instructions yet for building the misc package.")
+        os.chdir(os.path.join(self.cfg['start_dir'], 'src'))
+        cmd = "make yes-misc"
+        (misc_src_output, _) = run_cmd(cmd, path=path, log_all=True, simple=False, log_output=verbose)
+        return misc_src_output
 
     def build_molecule(self, verbose=False, path=None):
         """

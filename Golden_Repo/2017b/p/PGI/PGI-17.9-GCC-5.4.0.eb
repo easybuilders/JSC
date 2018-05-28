@@ -31,5 +31,9 @@ modluafooter = 'family("compiler")'
 # Always do a recursive unload on compilers
 recursive_module_unload = True
 
+postinstallcmds = [
+    'echo "switch -pthread is replace(-lpthread) positional(linker);" >> %(installdir)s/linux86-64/%(version)s/bin/siterc',
+]
+
 # this bundle serves as a compiler-only toolchain, so it should be marked as compiler (important for HMNS)
 moduleclass = 'compiler'

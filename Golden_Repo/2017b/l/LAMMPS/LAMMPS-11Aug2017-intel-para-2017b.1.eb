@@ -48,6 +48,7 @@ use_srd = True
 use_intel = True
 use_lb = True
 use_mc = True
+use_misc = True
 use_user_misc = True
 use_molecule = True
 use_manybody = True

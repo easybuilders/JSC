@@ -18,7 +18,7 @@ versionsuffix = '-Python-%s' % pyver
 dependencies = [
     ('Python', pyver),
     ('PETSc', '3.8.0'),
-    ('SciPy-Stack', '2017b.1', versionsuffix)
+    ('SciPy-Stack', '2017b', versionsuffix)
 ]
 
 pyshortver = '.'.join(pyver.split('.')[:2])

@@ -122,7 +122,7 @@ systemname = string.gsub(systemname, "\n", "")
 local architecture = os.getenv("ARCHITECTURE")
 -- Booster
 if architecture == "KNL" or systemname == "jurecabooster" then
-    local opt="GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
+    local opt="GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
     if mode()=="load" then
         LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
     end
@@ -141,7 +141,7 @@ elseif architecture == "SandyBridge" then
     pushenv("EASYBUILD_OPTARCH", opt)
 -- Jureca
 elseif architecture == "Haswell" then
-    local opt="GCC:march=haswell -mtune=haswell;Intel:xCORE-AVX2"
+    local opt="GCCcore:march=haswell -mtune=haswell;GCC:march=haswell -mtune=haswell;Intel:xCORE-AVX2"
     if mode()=="load" then
         LmodMessage(yellow.."   - Setting EASYBUILD_OPTARCH to "..opt..normal)
     end
@@ -196,7 +196,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "CUSP,Coreutils,cairo,configurable-http-proxy,"..
 "DB,DBus,DocBook-XML,Dyninst,dbus-glib,damageproto,"..
 "ETSF_IO,Exiv2,eudev,expat,"..
-"FFmpeg,FLTK,FTGL,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
+"FFmpeg,FLTK,FTGL,FoX,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
 "GCCcore,GDAL,GEGL,GL2PS,GLEW,GLM,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
 "g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,grib_api,gsettings-desktop-schemas,gettext,"..
 "HarfBuzz,"..
@@ -277,6 +277,11 @@ setenv("EASYBUILD_MINIMAL_TOOLCHAINS", "1")
 -- multiple exist, the picked up one depends on the order of the paths in MODULEPATH (typically, toolchains higher in
 -- the hierarchy will have "preference")
 setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
+
+-- Set up the hooks to automatically refresh the cache and stop waiting for the cronjob to do it
+--if user == "swmanage" then
+--    setenv("EASYBUILD_HOOKS", "/usr/local/software/FZJ/eb_hooks.py")
+--end
 
 -- Let's set things up to use the job submission system to install the software
 if not isloaded("GC3Pie") then

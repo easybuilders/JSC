@@ -55,7 +55,7 @@ dependencies = [
     ('Qt', '4.8.7'),
 
     # Keep SciPy-Stack at the end, to ensure the interpreter is picked from there
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
 ]
 
 # supply path to libsuitesparseconfig.a for CHOLMOD/UMFPACK, see also patch file

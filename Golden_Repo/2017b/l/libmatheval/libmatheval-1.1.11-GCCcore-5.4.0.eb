@@ -17,7 +17,8 @@ sources = [SOURCELOWER_TAR_GZ]
 source_urls = [GNU_SOURCE]
 
 patches = [
-    '003-guile2.0.patch'
+    '003-guile2.0.patch',
+    'libmatheval-1.1.11_fix-matheval-test.patch'
 ]
 
 builddependencies = [

@@ -44,4 +44,8 @@ dependencies = [
     ('Boost', '1.65.1', '-Python-2.7.14')
 ]
 
+mpiexec = 'srun'
+mpiexec_numproc_flag = '-n'
+mpi_numprocs = '24'
+
 moduleclass = 'bio'

@@ -310,6 +310,9 @@ exts_list = [
         'source_urls': ['https://pypi.python.org/packages/source/p/python-oauth2'],
         'modulename': 'oauth2',
     }),
+    ('wheel', '0.30.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/w/wheel'],
+    }),
 ]
 
 modextrapaths = {'PYTHONPATH': [

@@ -19,7 +19,7 @@ sources = [SOURCELOWER_TAR_GZ]
 
 dependencies = [
     ('Python', '2.7.14'),
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
 ]
 
 # Needed to import "FIAT" instead of "fiat"

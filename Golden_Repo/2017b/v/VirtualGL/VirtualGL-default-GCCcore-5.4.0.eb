@@ -19,7 +19,8 @@ source_urls = ['https://github.com/VirtualGL/virtualgl/archive/']
 sources = ['%s.tar.gz' % realversion]
 
 patches = [
-    'virtualgl_cmake_lib_path.patch'
+    'virtualgl_cmake_lib_path.patch',
+    'seg_fault.patch'
 ]
 
 builddependencies = [

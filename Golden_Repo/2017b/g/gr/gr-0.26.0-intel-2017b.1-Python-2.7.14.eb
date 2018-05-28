@@ -23,7 +23,7 @@ dependencies = [
     ('Ghostscript', '9.22'),
     ('Qt', '4.8.7'),
     ('Python', '2.7.14'),
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
 ]
 
 sanity_check_paths = {

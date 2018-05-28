@@ -19,7 +19,7 @@ source_urls = ['https://bitbucket.org/fenics-project/instant/downloads']
 sources = [SOURCELOWER_TAR_GZ]
 
 dependencies = [
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
     ('SWIG', '3.0.12', versionsuffix),
 ]
 

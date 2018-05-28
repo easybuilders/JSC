@@ -26,7 +26,7 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('SciPy-Stack', '2017b.1', '-Python-%(pyver)s'),
+    ('SciPy-Stack', '2017b', '-Python-%(pyver)s'),
     ('Python', '2.7.14'),
     ('zlib', '1.2.11'),
     ('FFmpeg', '3.4'),

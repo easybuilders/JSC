@@ -21,7 +21,7 @@ exts_filter = ('python -c "import %(ext_name)s"', '')
 dependencies = [
     ('Python', '2.7.14'),
     ('LLVM', '4.0.1'),
-    ('SciPy-Stack','2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
 ]
 
 prebuildopts = 'export LDSHARED="$CC -shared" && '

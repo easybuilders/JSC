@@ -19,7 +19,7 @@ exts_filter = ('python -c "import %(ext_name)s"', '')
 
 dependencies = [
     ('Python', '2.7.14'),
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
 ]
 
 exts_list = [

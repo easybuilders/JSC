@@ -27,7 +27,7 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('SciPy-Stack', '2017b.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
     ('UFL', version, versionsuffix),
     ('FIAT', version, versionsuffix),
     ('Instant', version, versionsuffix),

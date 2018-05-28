@@ -27,7 +27,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '2.7.14'),
-    ('SciPy-Stack', '2017b.1', versionsuffix), # numpy required
+    ('SciPy-Stack', '2017b', versionsuffix), # numpy required
     ('mpi4py', '2.0.0', versionsuffix),  # required for MPI support
     ('HDF5', '1.8.19'),
 ]

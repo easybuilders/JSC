@@ -22,7 +22,7 @@ dependencies = [
     ('freeglut','3.0.0'),
     ('freetype','2.8.1'),
     ('libpng','1.6.32'),
-    ('SciPy-Stack','2017b.1', versionsuffix),
+    ('SciPy-Stack','2017b', versionsuffix),
     ('Pmw','2.0.1', versionsuffix),
     ('GLEW','2.1.0'),
     ('msgpack-c','2.1.5'),

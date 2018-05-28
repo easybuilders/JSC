@@ -192,6 +192,9 @@ exts_list = [
         'source_urls': ['https://pypi.python.org/packages/source/p/python-gflags/'],
         'modulename': 'gflags',
     }),
+    ('wheel', '0.30.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/w/wheel'],
+    }),
 ]
 
 modextrapaths = {'PYTHONPATH': [

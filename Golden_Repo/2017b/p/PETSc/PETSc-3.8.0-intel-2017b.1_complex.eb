@@ -52,7 +52,7 @@ download_deps_static = [
 configopts = '--with-large-file-io --with-scalar-type=complex'
 
 postinstallcmds = [
-    "cp /usr/local/software/sources/p/PETSc/extraincludes_%(version)s/* %(installdir)s/include/petsc/private",
+    "cp $EASYBUILD_SOURCEPATH/p/PETSc/extraincludes_%(version)s/* %(installdir)s/include/petsc/private",
 ]
 
 moduleclass = 'numlib'

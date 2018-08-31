@@ -37,7 +37,10 @@ threaded = True
 configopts  = ' --with-pscom-builtin=psm2'
 configopts += '--with-profile=use --with-profdir=%(builddir)s/profile'
 
-modextravars = {'PSP_READAHEAD': '4096'}
+modextravars = {
+    'PSP_READAHEAD': '4096',
+    'HFI_NO_CPUAFFINITY': '1'
+}
 
 # use a more explicit module name to help our naming scheme
 modaltsoftname = 'ParaStationMPI'

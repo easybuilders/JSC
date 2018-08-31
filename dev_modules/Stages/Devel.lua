@@ -1,5 +1,4 @@
 -- This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
-
 -- Get stage currently used
 local old_stage = os.getenv("STAGE")
 if old_stage == nil then

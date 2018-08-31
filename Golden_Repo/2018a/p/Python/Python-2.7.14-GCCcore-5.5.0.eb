@@ -30,6 +30,7 @@ dependencies = [
     ('PostgreSQL', '10.3'),
     ('protobuf', '3.5.1'),
     ('gflags', '2.2.1'),
+    ('libspatialindex', '1.8.5'), # Needed for rtree
     #   ('OpenSSL', '1.0.1q'),  # OS dependency should be preferred if the os version is more recent then this version, it's
     #   nice to have an up to date openssl for security reasons
 ]
@@ -330,6 +331,9 @@ exts_list = [
     }),
     ('wheel', '0.30.0', {
         'source_urls': ['https://pypi.python.org/packages/source/w/wheel'],
+    }),
+    ('Rtree', '0.8.3', {
+        'source_urls': ['https://pypi.python.org/packages/source/r/rtree'],
     }),
 ]
 

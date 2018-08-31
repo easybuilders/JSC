@@ -48,3 +48,4 @@ sanity_check_paths = {
 modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
 
 moduleclass = 'lib'
+

@@ -95,12 +95,9 @@ class EB_jhbuild(EasyBlock):
             self.log.info('Appending "%s" to %s' % (tarballdir, self.cfg['jhbuildrc_file']))
             with open(self.cfg['jhbuildrc_file'], "a") as conf_file:
                 if pythonpath != None:
-                    conf_file.write("addpath('PYTHONPATH', '%s')
-" % pythonpath)
-                conf_file.write("os.environ['PYTHON'] = '%s/bin/python'
-" % python_root)
-                conf_file.write(tarballdir + "
-")
+                    conf_file.write("addpath('PYTHONPATH', '%s')\n" % pythonpath)
+                conf_file.write("os.environ['PYTHON'] = '%s/bin/python'\n" % python_root)
+                conf_file.write(tarballdir + "\n")
         except OSError, err:
             raise EasyBuildError("Can't append to %s: %s", self.cfg['jhbuildrc_file'], err)
 

@@ -5,12 +5,7 @@ version = '3.4.1'
 homepage = 'http://mpip.sourceforge.net/'
 name = "mpiP"
 
-description = """mpiP is a lightweight profiling library for MPI applications. Because it only collects statistical information about MPI functions, mpiP generates considerably less overhead and much less data than tracing tools. All the information captured by mpiP is task-local. It only uses communication during report generation, typically at the end of the experiment, to merge results from all of the tasks into one output file.  
-
-Example usage (take special note of the order, the mpiP library has to appear AFTER your code):
-    mpifort -g -o mpitest mpitest.f90 -lmpiP -lm -lbfd -liberty -lunwind -lz
-
-"""
+description = """mpiP is a lightweight profiling library for MPI applications. Because it only collects statistical information about MPI functions, mpiP generates considerably less overhead and much less data than tracing tools. All the information captured by mpiP is task-local. It only uses communication during report generation, typically at the end of the experiment, to merge results from all of the tasks into one output file.  \n\nExample usage (take special note of the order, the mpiP library has to appear AFTER your code):\n    mpifort -g -o mpitest mpitest.f90 -lmpiP -lm -lbfd -liberty -lunwind -lz\n\n"""
 
 toolchain = {'name': 'ipsmpi', 'version': '2016a'}
 toolchainopts = {'usempi': True}

@@ -44,8 +44,7 @@ dependencies = [
 modloadmsg = "nvcc uses g++ as the default host compiler. If you want to use icpc as a host compiler "
 modloadmsg += "you can load the compiler module and use nvcc_icpc (or -ccbin=icpc). For completeness "
 modloadmsg += "and convenience nvcc_g++ is also provided. Please note that CUDA 8 is not compatible with Intel 2017/2018 "
-modloadmsg += "and PGI 17 compilers
-"
+modloadmsg += "and PGI 17 compilers\n"
 
 modluafooter = 'add_property("arch","gpu")'
 

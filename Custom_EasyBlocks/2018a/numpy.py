@@ -72,8 +72,7 @@ class EB_numpy(FortranPythonPackage):
         """Configure numpy build by composing site.cfg contents."""
 
         # see e.g. https://github.com/numpy/numpy/pull/2809/files
-        self.sitecfg = '
-'.join([
+        self.sitecfg = '\n'.join([
             "[DEFAULT]",
             "library_dirs = %(libs)s",
             "include_dirs= %(includes)s",
@@ -85,15 +84,13 @@ class EB_numpy(FortranPythonPackage):
             if self.toolchain.comp_family() == toolchain.GCC:
                 # see https://software.intel.com/en-us/articles/numpyscipy-with-intel-mkl,
                 # section Building with GNU Compiler chain
-                extrasiteconfig = '
-'.join([
+                extrasiteconfig = '\n'.join([
                     "[mkl]",
                     "lapack_libs = ",
                     "mkl_libs = mkl_rt",
                 ])
             else:
-                extrasiteconfig = '
-'.join([
+                extrasiteconfig = '\n'.join([
                     "[mkl]",
                     "lapack_libs = %(lapack)s",
                     "mkl_libs = %(blas)s",
@@ -104,8 +101,7 @@ class EB_numpy(FortranPythonPackage):
             # using only the [blas] and [lapack] sections results in sub-optimal builds that don't provide _dotblas.so;
             # it does require a CBLAS interface to be available for the BLAS library being used
             # e.g. for ACML, the CBLAS module providing a C interface needs to be used
-            extrasiteconfig = '
-'.join([
+            extrasiteconfig = '\n'.join([
                 "[atlas]",
                 "atlas_libs = %(lapack)s",
                 "[lapack]",
@@ -179,9 +175,7 @@ class EB_numpy(FortranPythonPackage):
                                      "but it's not loaded.")
 
         if fft:
-            extrasiteconfig += "
-[fftw]
-libraries = %s" % fft
+            extrasiteconfig += "\n[fftw]\nlibraries = %s" % fft
 
         suitesparseroot = get_software_root('SuiteSparse')
         if suitesparseroot:
@@ -192,8 +186,7 @@ libraries = %s" % fft
                 raise EasyBuildError("Expected SuiteSparse subdirectories are not both there: %s, %s",
                                      amddir, umfpackdir)
             else:
-                extrasiteconfig += '
-'.join([
+                extrasiteconfig += '\n'.join([
                     "[amd]",
                     "library_dirs = %s" % os.path.join(amddir, 'Lib'),
                     "include_dirs = %s" % os.path.join(amddir, 'Include'),
@@ -204,8 +197,7 @@ libraries = %s" % fft
                     "umfpack_libs = umfpack",
                 ])
 
-        self.sitecfg = '
-'.join([self.sitecfg, extrasiteconfig])
+        self.sitecfg = '\n'.join([self.sitecfg, extrasiteconfig])
 
         self.sitecfg = self.sitecfg % {
             'blas': blas,

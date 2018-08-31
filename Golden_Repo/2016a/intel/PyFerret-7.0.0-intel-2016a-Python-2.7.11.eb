@@ -99,11 +99,11 @@ postinstallcmds = [
 
     # pyferret script
     'echo \"#!/bin/sh\" > %(installdir)s/bin/pyferret',
-    'echo \"if [ -z \"\${FER_LIBS}\" ]; then\" >> %(installdir)s/bin/pyferret',
+    'echo \"if [ -z \\"\${FER_LIBS}\\" ]; then\" >> %(installdir)s/bin/pyferret',
     'echo \"    echo \"**ERROR: Ferret environment variables are not defined\"\" >> %(installdir)s/bin/pyferret',
     'echo \"    exit 1\" >> %(installdir)s/bin/pyferret',
     'echo \"fi\" >> %(installdir)s/bin/pyferret',
-    'echo \"python -i -c \"import sys; import pyferret; (errval, errmsg) = pyferret.init(sys.argv[1:], True)\" \$*\" >> %(installdir)s/bin/pyferret',
+    'echo \"python -i -c \\"import sys; import pyferret; (errval, errmsg) = pyferret.init(sys.argv[1:], True)\\" \$*\" >> %(installdir)s/bin/pyferret',
     'chmod +x %(installdir)s/bin/pyferret',
 
     # Get and decompress the dataset
@@ -113,14 +113,14 @@ postinstallcmds = [
 
     # Wrapper to compensate for the lack of function definition (defined when sourcing a PyFerret script)
     'echo \"#!/bin/sh\" > %(installdir)s/bin/Faddpath',
-    'echo \"if [ -n \"\$*\" ]\" >> %(installdir)s/bin/Faddpath',
+    'echo \"if [ -n \\"\$*\\" ]\" >> %(installdir)s/bin/Faddpath',
     'echo \"then\" >> %(installdir)s/bin/Faddpath',
-    'echo \"    export FER_GO=\"\$FER_GO \$*\"\" >> %(installdir)s/bin/Faddpath',
-    'echo \"    export FER_DATA=\"\$FER_DATA \$*\"\" >> %(installdir)s/bin/Faddpath',
-    'echo \"    export FER_DESCR=\"\$FER_DESCR \$*\"\" >> %(installdir)s/bin/Faddpath',
-    'echo \"    export FER_GRIDS=\"\$FER_GRIDS \$*\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_GO=\\"\$FER_GO \$*\\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_DATA=\\"\$FER_DATA \$*\\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_DESCR=\\"\$FER_DESCR \$*\\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    export FER_GRIDS=\\"\$FER_GRIDS \$*\\"\" >> %(installdir)s/bin/Faddpath',
     'echo \"else\" >> %(installdir)s/bin/Faddpath',
-    'echo \"    echo \"    Usage: Faddpath new_directory_1 ...\"\" >> %(installdir)s/bin/Faddpath',
+    'echo \"    echo \\"    Usage: Faddpath new_directory_1 ...\\"\" >> %(installdir)s/bin/Faddpath',
     'echo \"fi\" >> %(installdir)s/bin/Faddpath',
     'chmod +x %(installdir)s/bin/Faddpath',
 ]

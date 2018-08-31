@@ -169,14 +169,11 @@ class EB_WRF(EasyBlock):
              }
         no_qa = [
                  "testing for fseeko and fseeko64",
-                 r"If you wish to change the default options, edit the file:[\s
-]*arch/configure_new.defaults"
+                 r"If you wish to change the default options, edit the file:[\s\n]*arch/configure_new.defaults"
                 ]
         std_qa = {
                   # named group in match will be used to construct answer
-                  r"%s.*
-(.*
-)*Enter selection\s*\[[0-9]+-[0-9]+\]\s*:" % build_type_question: "%(nr)s",
+                  r"%s.*\n(.*\n)*Enter selection\s*\[[0-9]+-[0-9]+\]\s*:" % build_type_question: "%(nr)s",
                  }
 
         run_cmd_qa(cmd, qa, no_qa=no_qa, std_qa=std_qa, log_all=True, simple=True)

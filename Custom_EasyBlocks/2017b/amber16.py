@@ -50,8 +50,7 @@ class EB_AMBER16(ConfigureMake):
         super(EB_AMBER16,self).__init__(*args,**kwargs)
         self.build_in_installdir = True
         env.setvar('AMBERHOME', self.installdir+"/amber16")
-        sys.stdout.write("AMBERHOME set to %s/amber16
-"%self.installdir)
+        sys.stdout.write("AMBERHOME set to %s/amber16\n"%self.installdir)
         
     @staticmethod
     def extra_options():
@@ -77,17 +76,14 @@ class EB_AMBER16(ConfigureMake):
     def patch_step(self):
         """Patch AMBER before configuring and thereby avoid interactive configure."""
         if self.cfg['skip_patches'] :
-            sys.stdout.write("Skipping over patching step because of explicit easyconfig setting
-")
+            sys.stdout.write("Skipping over patching step because of explicit easyconfig setting\n")
             return None
 
-        sys.stdout.write("Patching AMBER outside configure script...
-")
+        sys.stdout.write("Patching AMBER outside configure script...\n")
         retcd = call(["./update_amber", "--check-updates"])
         if retcd==2 : 
             self.log.info("Updates available. Downloading and applying patches...")
-            sys.stdout.write("Updates available. Downloading and applying patches...
-")
+            sys.stdout.write("Updates available. Downloading and applying patches...\n")
             sys.stdout.flush()
             while retcd==2:
                 retcd2=call(["./update_amber","--update"])
@@ -117,9 +113,7 @@ class EB_AMBER16(ConfigureMake):
         configopts=os.path.expandvars(configopts)
         preconfigopts=os.path.expandvars(preconfigopts)
 
-        print "Building AMBER serial ...
-First, let's configure for the serial part...
-"
+        print "Building AMBER serial ...\nFirst, let's configure for the serial part...\n"
         print "./configure -noX11 --no-updates ",pythonopt,compstr
         configcmd = ["./configure","-noX11","--no-updates", pythonopt, compstr]
         retcd = call(configcmd)
@@ -128,17 +122,14 @@ First, let's configure for the serial part...
             raise RuntimeError
 
         print "Configuring AMBER serial was successful. Setting environment variables ..."
-        print "Inserting {instpath}/bin to PATH 
-and {instpath}/lib to LD_LIBRARY_PATH".format(instpath=os.environ['AMBERHOME'])
+        print "Inserting {instpath}/bin to PATH \nand {instpath}/lib to LD_LIBRARY_PATH".format(instpath=os.environ['AMBERHOME'])
         env.setvar('PATH',"{old}:{instpath}/bin".format(old=os.environ['PATH'],instpath=os.environ['AMBERHOME']))
         env.setvar('LD_LIBRARY_PATH',"{old}:{instpath}/lib".format(old=os.environ['LD_LIBRARY_PATH'],instpath=os.environ['AMBERHOME']))
         print "Executing build steps for AMBER serial..."
         outb0 = super(EB_AMBER16,self).build_step()
 
         if self.cfg['build_mpi_parts'] :
-            print "Building AMBER MPI ...
-Run configure again with -mpi
-"
+            print "Building AMBER MPI ...\nRun configure again with -mpi\n"
             print "./configure -noX11 -no-updates -mpi ",pythonopt,compstr
             configcmd = ["./configure","-noX11","--no-updates", "-mpi", pythonopt, compstr]
             retcd = call(configcmd)
@@ -151,8 +142,7 @@ Run configure again with -mpi
             outb1 = super(EB_AMBER16,self).build_step()
         
         if self.cfg['build_cuda_parts'] :
-            print "Building AMBER CUDA support ...
-"
+            print "Building AMBER CUDA support ...\n"
             tmpcudahome=os.environ.get("EBROOTCUDA")
             if not tmpcudahome:
                 self.log.error("Expecting EBROOTCUDA to be set to the CUDA tools directory")
@@ -160,8 +150,7 @@ Run configure again with -mpi
 
             print "Setting CUDA_HOME to %(ebcuda)s" % {'ebcuda':tmpcudahome}
             env.setvar('CUDA_HOME',tmpcudahome)
-            print "Run configure again with -cuda
-"
+            print "Run configure again with -cuda\n"
             print "./configure -noX11 --no-updates -cuda ",pythonopt,compstr
             configcmd = ["./configure","-noX11","--no-updates", "-cuda", pythonopt, compstr]
             retcd = call(configcmd)
@@ -174,10 +163,8 @@ Run configure again with -mpi
             outb1 = super(EB_AMBER16,self).build_step()
 
             if self.cfg['build_mpi_parts'] :
-                print "Building AMBER CUDA support for MPI parallel programs...
-"
-                print "Run configure again with -cuda -mpi
-"
+                print "Building AMBER CUDA support for MPI parallel programs...\n"
+                print "Run configure again with -cuda -mpi\n"
                 print "./configure -noX11 --no-updates -cuda -mpi",pythonopt,compstr
                 configcmd = ["./configure","-noX11","--no-updates", "-cuda", "-mpi", pythonopt, compstr]
                 retcd = call(configcmd)
@@ -189,8 +176,7 @@ Run configure again with -mpi
                 print "Executing build steps for AMBER CUDA+MPI ..."
                 outb1 = super(EB_AMBER16,self).build_step()
 
-        sys.stdout.write("Reached the end of the build function
-")
+        sys.stdout.write("Reached the end of the build function\n")
 
 
     def test_step(self):
@@ -207,3 +193,4 @@ Run configure again with -mpi
     def sanity_check_step(self):
         """Custom sanity check for AMBER."""
         return None
+

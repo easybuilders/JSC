@@ -55,3 +55,4 @@ postinstallcmds = [
 ]
 
 moduleclass = 'numlib'
+

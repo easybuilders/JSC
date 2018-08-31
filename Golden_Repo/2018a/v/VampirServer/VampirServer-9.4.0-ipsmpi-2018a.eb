@@ -34,6 +34,12 @@ sanity_check_paths = {
 }
 
 
+# Remove Cray-specific 'ap' launcher,
+# use SLURM launcher as MPI launcher and default
+postinstallcmds = [
+    'cd %(installdir)s/etc/server/launcher && rm ap mpi && cp custom/slurm mpi',
+]
+
 modextravars = {
 }
 

@@ -162,3 +162,4 @@ class EB_MUMPS(ConfigureMake):
         }
 
         super(EB_MUMPS, self).sanity_check_step(custom_paths=custom_paths)
+

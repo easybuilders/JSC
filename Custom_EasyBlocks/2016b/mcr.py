@@ -76,8 +76,7 @@ class EB_MCR(EasyBlock):
             config = re.sub(r"^# agreeToLicense=.*", "agreeToLicense=Yes", config, re.M)
             config = re.sub(r"^# mode=.*", "mode=silent", config, re.M)
         else:
-            config = '
-'.join([
+            config = '\n'.join([
                 "destinationFolder=%s" % self.installdir,
                 "agreeToLicense=Yes",
                 "mode=silent",
@@ -85,8 +84,7 @@ class EB_MCR(EasyBlock):
 
         write_file(configfile, config)
 
-        self.log.debug("configuration file written to %s:
- %s", configfile, config)
+        self.log.debug("configuration file written to %s:\n %s", configfile, config)
 
     def build_step(self):
         """No building of MCR, no sources available."""

@@ -137,8 +137,7 @@ class EB_Boost(EasyBlock):
                 if self.toolchain.PRGENV_MODULE_NAME_SUFFIX == 'gnu':
                     craympichdir = os.getenv('CRAY_MPICH2_DIR')
                     craygccversion = os.getenv('GCC_VERSION')
-                    txt = '
-'.join([    
+                    txt = '\n'.join([    
                         'local CRAY_MPICH2_DIR =  %s ;' % craympichdir,
                         'using gcc ',
                         ': %s' % craygccversion,
@@ -259,3 +258,4 @@ class EB_Boost(EasyBlock):
         txt = super(EB_Boost, self).make_module_extra()
         txt += self.module_generator.set_environment('BOOST_ROOT', self.installdir)
         return txt
+

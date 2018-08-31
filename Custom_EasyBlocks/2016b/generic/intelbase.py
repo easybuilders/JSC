@@ -272,8 +272,7 @@ class IntelBase(EasyBlock):
             raise EasyBuildError("Unknown type of activation specified: %s (known :%s)",
                                  self.cfg['license_activation'], ACTIVATION_TYPES)
 
-        silent = '
-'.join([
+        silent = '\n'.join([
             "%(activation_name)s=%(activation)s",
             lic_file_entry,
             "%(install_dir_name)s=%(install_dir)s",
@@ -295,25 +294,21 @@ class IntelBase(EasyBlock):
         if self.install_components is not None:
             if len(self.install_components) == 1 and self.install_components[0] in [COMP_ALL, COMP_DEFAULTS]:
                 # no quotes should be used for ALL or DEFAULTS
-                silent += 'COMPONENTS=%s
-' % self.install_components[0]
+                silent += 'COMPONENTS=%s\n' % self.install_components[0]
             elif self.install_components:
                 # a list of components is specified (needs quotes)
                 components = ';'.join(self.install_components)
                 if LooseVersion(self.version) >= LooseVersion('2017'):
                     # for versions 2017.x and newer, double quotes should not be there...
-                    silent += 'COMPONENTS=%s
-' % components
+                    silent += 'COMPONENTS=%s\n' % components
                 else:
-                    silent += 'COMPONENTS="%s"
-' % components
+                    silent += 'COMPONENTS="%s"\n' % components
             else:
                 raise EasyBuildError("Empty list of matching components obtained via %s", self.cfg['components'])
 
         if silent_cfg_extras is not None:
             if isinstance(silent_cfg_extras, dict):
-                silent += '
-'.join("%s=%s" % (key, value) for (key, value) in silent_cfg_extras.iteritems())
+                silent += '\n'.join("%s=%s" % (key, value) for (key, value) in silent_cfg_extras.iteritems())
             else:
                 raise EasyBuildError("silent_cfg_extras needs to be a dict")
 
@@ -325,8 +320,7 @@ class IntelBase(EasyBlock):
             f.close()
         except:
             raise EasyBuildError("Writing silent cfg, failed", silent)
-        self.log.debug("Contents of %s:
-%s" % (silentcfg, silent))
+        self.log.debug("Contents of %s:\n%s" % (silentcfg, silent))
 
         # workaround for mktmp: create tmp dir and use it
         tmpdir = os.path.join(self.cfg['start_dir'], 'mytmpdir')

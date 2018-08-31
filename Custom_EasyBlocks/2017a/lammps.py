@@ -793,10 +793,8 @@ class EB_LAMMPS(MakeCp):
                     makesubs = [
                         (r'^(LMP_INC.*)-DLAMMPS_JPEG', r'\1-DLAMMPS_PNG'),
                         (r'^(JPG_LIB.*)-ljpeg', r'\1-lpng'),
-                        (r'^(JPG_INC\s*=\s*).*(
-)', r'\1%s/include\2' % libpngroot),
-                        (r'^(JPG_PATH\s*=\s*).*(
-)', r'\1-L%s/lib\2' % libpngroot),
+                        (r'^(JPG_INC\s*=\s*).*(\n)', r'\1%s/include\2' % libpngroot),
+                        (r'^(JPG_PATH\s*=\s*).*(\n)', r'\1-L%s/lib\2' % libpngroot),
                     ]
                 else:
                     raise EasyBuildError("Unable to find libpng root -- module not loaded?")

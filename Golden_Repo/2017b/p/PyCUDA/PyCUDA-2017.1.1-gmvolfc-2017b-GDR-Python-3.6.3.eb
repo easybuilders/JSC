@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'PyCUDA'
+version = '2017.1.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://pypi.python.org/pypi/pycuda'
+description = """Python wrapper for Nvidia CUDA. PyCUDA lets you access Nvidia's CUDA parallel computation API from
+Python.
+"""
+
+
+toolchain = {'version': '2017b-GDR', 'name': 'gmvolfc'}
+
+#sources = [SOURCELOWER_TAR_GZ]
+#source_urls = [PYPI_LOWER_SOURCE]
+
+dependencies = [
+    ('Python', '3.6.3'),
+    ('Boost', '1.65.1', versionsuffix),
+    ('SciPy-Stack', '2017b', versionsuffix),
+]
+
+prebuildopts = 'export LDSHARED="$CC -shared" && '
+preinstallopts = prebuildopts
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+
+exts_list = [
+    ('pytools', '2017.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pytools'],
+    }),
+    ('pycuda', version, {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pycuda'],
+    }),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = False
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+modluafooter = 'add_property("arch","gpu")'
+
+moduleclass = 'devel'

@@ -70,11 +70,15 @@ exts_list = [
     ('pandas', '0.22.0', dict(common_opts.items() + [
         ('source_urls', ['https://pypi.python.org/packages/source/p/pandas']),
     ])),
+    ('kiwisolver', '1.0.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/k/kiwisolver']),
+    ])),
     ('matplotlib', '2.2.2', dict(common_opts.items() + [
         ('source_urls', ['https://pypi.python.org/packages/source/m/matplotlib']),
     ])),
-    ('jupyter_client', '5.1.0', dict(common_opts.items() + [
+    ('jupyter_client', '5.2.3', dict(common_opts.items() + [
         ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter-client']),
+        ('use_pip', True),
     ])),
     ('pyzmq', '17.0.0', dict(common_opts.items() + [
         ('source_urls', ['https://pypi.python.org/packages/source/p/pyzmq']),
@@ -110,6 +114,9 @@ exts_list = [
     ('absl-py', '0.2.0', dict(common_opts.items() + [
         ('source_urls', ['https://pypi.python.org/packages/source/a/absl-py']),
         ('modulename', 'absl'),
+    ])),
+    ('xarray', '0.10.8', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/x/xarray']),
     ])),
 ]
 

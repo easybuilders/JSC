@@ -157,8 +157,7 @@ def det_pylibdir(plat_specific=False, python_cmd=None):
     log.debug("Determining Python library directory using command '%s'", cmd)
 
     out, ec = run_cmd(cmd, simple=False, force_in_dry_run=True)
-    txt = out.strip().split('
-')[-1]
+    txt = out.strip().split('\n')[-1]
 
     # value obtained should start with specified prefix, otherwise something is very wrong
     if not txt.startswith(prefix):

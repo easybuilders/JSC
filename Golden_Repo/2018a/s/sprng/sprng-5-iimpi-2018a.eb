@@ -39,10 +39,10 @@ postinstallcmds = [
     "cp AUTHORS %(installdir)s",
     "cp COPYING %(installdir)s",
     "cp LICENSE %(installdir)s",
-    "cp /usr/local/software/sources/s/sprng/Makefile_cxxexamples %(installdir)s/EXAMPLES/Makefile",
-    "cp /usr/local/software/sources/s/sprng/Makefile_F77examples %(installdir)s/EXAMPLES/F77/Makefile",
-    "cp /usr/local/software/sources/s/sprng/Makefile_mpi_cxxexamples %(installdir)s/EXAMPLES/mpisprng/Makefile",
-    "cp /usr/local/software/sources/s/sprng/Makefile_mpi_F77examples %(installdir)s/EXAMPLES/mpisprng/F77/Makefile"
+    "cp $EASYBUILD_SOURCEPATH/s/sprng/Makefile_cxxexamples %(installdir)s/EXAMPLES/Makefile",
+    "cp $EASYBUILD_SOURCEPATH/s/sprng/Makefile_F77examples %(installdir)s/EXAMPLES/F77/Makefile",
+    "cp $EASYBUILD_SOURCEPATH/s/sprng/Makefile_mpi_cxxexamples %(installdir)s/EXAMPLES/mpisprng/Makefile",
+    "cp $EASYBUILD_SOURCEPATH/s/sprng/Makefile_mpi_F77examples %(installdir)s/EXAMPLES/mpisprng/F77/Makefile"
 ]
 
 modextravars = {

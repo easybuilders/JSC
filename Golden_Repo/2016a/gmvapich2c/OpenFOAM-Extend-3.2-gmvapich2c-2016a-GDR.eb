@@ -60,9 +60,9 @@ prebuildopts = "export CUDA_ARCH=compute_37   && (wcleanAll || echo 'all is fine
 
 parallel = 12
 
-modloadmsg = "This module only resolves module dependencies.\n"
-modloadmsg += "Prior to running OpenFOAM-Extend solvers, utilities, tools the OpenFOAM-Extend environment must be initiated via:\n"
-modloadmsg += ". $FOAM_BASH\n"
+modloadmsg = "This module only resolves module dependencies.\\n"
+modloadmsg += "Prior to running OpenFOAM-Extend solvers, utilities, tools the OpenFOAM-Extend environment must be initiated via:\\n"
+modloadmsg += ". $FOAM_BASH\\n"
 
 # Add GPU property
 modluafooter = """

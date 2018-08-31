@@ -29,3 +29,4 @@ modextrapaths = {
 modluafooter = 'execute {cmd=\'eval "$(jube complete)"\',modeA={"load"}}'
 
 moduleclass = 'tools'
+

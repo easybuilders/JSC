@@ -37,22 +37,18 @@ modextravars = {
 #    'I_MPI_OFA_TRANSLATION_CACHE': '0',
 #    'I_MPI_DAPL_TRANSLATION_CACHE': '0',
     # Needed for PSM and harmless for InfiniBand. For ParaStation it is set on the pscom module
-    'HFI_NO_CPUAFFINITY': 'YES'
+    'HFI_NO_CPUAFFINITY': 'YES',
+    # The default algorithms hang for large core counts
+    'I_MPI_ADJUST_GATHER': '1',
+    'I_MPI_ADJUST_GATHERV': '3',
 }
 
-#modloadmsg =  '    This version of Intel MPI have the DAPL and OFA translation caches disabled by default.
-'
-#modloadmsg += 'You can enable them at your own risk with:
-'
-#modloadmsg += ' -export I_MPI_OFA_TRANSLATION_CACHE=1
-'
-#modloadmsg += ' -export I_MPI_DAPL_TRANSLATION_CACHE=1
-'
-#modloadmsg += 'Please note that doing so might result in MPI messages with the wrong content, depending on the memory
-'
-#modloadmsg += 'allocation functions used by the compiler. Fortran codes seem to be particularly sensitive to this
-'
-#modloadmsg += 'problem
-'
+#modloadmsg =  '    This version of Intel MPI have the DAPL and OFA translation caches disabled by default.\n'
+#modloadmsg += 'You can enable them at your own risk with:\n'
+#modloadmsg += ' -export I_MPI_OFA_TRANSLATION_CACHE=1\n'
+#modloadmsg += ' -export I_MPI_DAPL_TRANSLATION_CACHE=1\n'
+#modloadmsg += 'Please note that doing so might result in MPI messages with the wrong content, depending on the memory\n'
+#modloadmsg += 'allocation functions used by the compiler. Fortran codes seem to be particularly sensitive to this\n'
+#modloadmsg += 'problem\n'
 
 moduleclass = 'mpi'

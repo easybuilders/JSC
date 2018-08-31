@@ -77,3 +77,4 @@ postinstallcmds = [
 parallel = 1
 
 moduleclass = 'math'
+

@@ -406,8 +406,7 @@ class EB_GCC(ConfigureMake):
                                 cmd += "--with-ppl=%s " % stage2prefix
                             else:
                                 errormsg = "PPL only supported with CLooG-PPL v0.15.x (detected v%s)" % self.cloogver
-                                errormsg += "
-Neither using PPL or ISL-based ClooG, I'm out of options..."
+                                errormsg += "\nNeither using PPL or ISL-based ClooG, I'm out of options..."
                                 raise EasyBuildError(errormsg)
 
                         # make sure GMP is found

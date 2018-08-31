@@ -26,8 +26,7 @@ files_to_copy = [
 # put script in place for 7z, since it *must* be called full path, to ensure that 7z.so is found in the same directory
 # see also http://sourceforge.net/p/p7zip/discussion/383044/thread/5e4085ab/
 postinstallcmds = [
-    "echo '#!/bin/sh
-%(installdir)s/libexec/7z $@' > %(installdir)s/bin/7z",
+    "echo '#!/bin/sh\n%(installdir)s/libexec/7z $@' > %(installdir)s/bin/7z",
     "chmod +x %(installdir)s/bin/7z",  # set execution bits according to current umask
 ]
 

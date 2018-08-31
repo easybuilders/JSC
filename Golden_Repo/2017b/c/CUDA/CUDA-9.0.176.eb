@@ -43,8 +43,7 @@ dependencies = [
 modloadmsg = "nvcc uses g++ as the default host compiler. If you want to use icpc as a host compiler "
 modloadmsg += "you can load the compiler module and use nvcc_icpc (or -ccbin=icpc). For completeness "
 modloadmsg += "and convenience nvcc_g++ is also provided. Please note that CUDA 9 is not compatible with "
-modloadmsg += "Intel 2018 compilers
-"
+modloadmsg += "Intel 2018 compilers\n"
 
 modluafooter = '''
 add_property("arch","gpu")

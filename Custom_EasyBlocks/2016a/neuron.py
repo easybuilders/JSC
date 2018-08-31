@@ -88,8 +88,7 @@ class EB_NEURON(ConfigureMake):
         cmd = "./config.guess"
         (out, ec) = run_cmd(cmd, simple=False)
 
-        self.hostcpu = out.split('
-')[0].split('-')[0]
+        self.hostcpu = out.split('\n')[0].split('-')[0]
         self.log.debug("Determined host CPU type as %s" % self.hostcpu)
 
         # determine Python lib dir
@@ -152,8 +151,7 @@ class EB_NEURON(ConfigureMake):
                 self.log.debug("Loading fake module failed: %s" % err)
 
             # test NEURON demo
-            inp = '
-'.join([
+            inp = '\n'.join([
                              "demo(3) // load the pyramidal cell model.",
                              "init()  // initialise the model",
                              "t       // should be zero",
@@ -165,9 +163,7 @@ class EB_NEURON(ConfigureMake):
                             ])
             (out, ec) = run_cmd("neurondemo", simple=False, log_all=True, log_output=True, inp=inp)
 
-            validate_regexp = re.compile("^\s+-65\s*
-\s+5\s*
-\s+-68.134337", re.M)
+            validate_regexp = re.compile("^\s+-65\s*\n\s+5\s*\n\s+-68.134337", re.M)
             if ec or not validate_regexp.search(out):
                 raise EasyBuildError("Validation of NEURON demo run failed.")
             else:

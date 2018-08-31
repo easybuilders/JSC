@@ -44,8 +44,7 @@ hidden = True
 modloadmsg = 'WARNING: You are loading a python module (Python/.2.7.12-bare), possibly as a dependency for another package. '
 modloadmsg += 'This module is intended to be used by auxiliary tools, not for heavy computing. Please make sure '
 modloadmsg += 'you are not using this module to perform simulations or analyze data. If in doubt check the loaded modules '
-modloadmsg += 'with "module load" or simply reload python with "module load Python/2.7.12" or "module load Python/3.5.2"
-'
+modloadmsg += 'with "module load" or simply reload python with "module load Python/2.7.12" or "module load Python/3.5.2"\n'
 
 # bare installation to be used by auxiliary tools and python visualization libraries
 exts_list = [

@@ -1,5 +1,4 @@
 -- This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
-
 help([[
 This module will load the environment you need to install new software with EasyBuild in a hierarchy.
 ]])
@@ -180,7 +179,7 @@ setenv("EASYBUILD_INSTALLPATH", stage_path)
 setenv("EASYBUILD_BUILDPATH", pathJoin("/dev/shm", user, architecture))
 
 -- We add our custom Toolchains directory, it must be appended so as not to interfere with the EasyBuild installation
-setenv("EASYBUILD_INCLUDE_TOOLCHAINS", pathJoin(custom_toolchains_path, "\*.py"))
+setenv("EASYBUILD_INCLUDE_TOOLCHAINS", pathJoin(custom_toolchains_path, "\*.py")..','..pathJoin(custom_toolchains_path, "fft", "\*.py"))
 
 -- Finally we add our custom EasyBlock directory, it must be appended so as not to interfere with the EasyBuild installation
 setenv("EASYBUILD_INCLUDE_EASYBLOCKS", pathJoin(custom_easyblocks_path, "\*.py")..","..
@@ -216,7 +215,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "Qhull,Qt,Qt5,qrupdate,"..
 "randrproto,recordproto,renderproto,"..
 "S-Lang,SCons,SIP,SQLite,SWIG,Serf,Szip,scrollkeeper,snappy,"..
-"Tcl,Tk,texinfo,"..
+"Tk,texinfo,"..
 "UDUNITS,util-linux,"..
 "vpx,"..
 "wxPropertyGrid,wxWidgets,"..
@@ -279,9 +278,9 @@ setenv("EASYBUILD_MINIMAL_TOOLCHAINS", "1")
 setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 
 -- Set up the hooks to automatically refresh the cache and stop waiting for the cronjob to do it
---if user == "swmanage" then
---    setenv("EASYBUILD_HOOKS", "/usr/local/software/FZJ/eb_hooks.py")
---end
+if user == "swmanage" then
+    setenv("EASYBUILD_HOOKS", "/usr/local/software/FZJ/eb_hooks.py")
+end
 
 -- Let's set things up to use the job submission system to install the software
 if not isloaded("GC3Pie") then

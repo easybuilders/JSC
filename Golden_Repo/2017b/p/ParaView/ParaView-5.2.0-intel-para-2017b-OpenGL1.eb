@@ -196,3 +196,4 @@ configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_SurfaceLIC=ON '
 #modextravars = {'QT_XKB_CONFIG_ROOT': '$EBROOTX11/share/X11/xkb'}
 
 moduleclass = 'vis'
+

@@ -40,22 +40,14 @@ class EB_IDL(EasyBlock):
 
         if self.cfg['answer_file'] is None:
             file_handle = open('idl_answer_file',"w")
-            file_handle.write("y
-")
-            file_handle.write("%s
-" % (self.installdir))
-            file_handle.write("y
-")
-            file_handle.write("n
-")
-            file_handle.write("y
-")
-            file_handle.write("n
-")
-            file_handle.write("y
-")
-            file_handle.write("n
-")
+            file_handle.write("y\n")
+            file_handle.write("%s\n" % (self.installdir))
+            file_handle.write("y\n")
+            file_handle.write("n\n")
+            file_handle.write("y\n")
+            file_handle.write("n\n")
+            file_handle.write("y\n")
+            file_handle.write("n\n")
             file_handle.close()
             self.cfg['answer_file'] = 'idl_answer_file'
 
@@ -74,3 +66,4 @@ class EB_IDL(EasyBlock):
         txt += super(EB_IDL, self).make_module_extra()
         self.log.debug("make_module_extra added this: %s" % txt)
         return txt
+

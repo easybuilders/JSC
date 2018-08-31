@@ -21,10 +21,18 @@ preconfigopts = "../mkl-dnn-%(version)s/scripts/prepare_mkl.sh && "
 
 configopts = "-DFAIL_WITHOUT_MKL=1"
 
-runtest = 'test'
+#runtest = 'test'
+
+postinstallcmds = [
+    'cp %(builddir)s/%(name)s-%(version)s/external/mklml_lnx_2018.0.2.20180127/license.txt %(installdir)s',
+    'cp %(builddir)s/%(name)s-%(version)s/external/mklml_lnx_2018.0.2.20180127/lib/* %(installdir)s/lib',
+    'cp %(builddir)s/%(name)s-%(version)s/external/mklml_lnx_2018.0.2.20180127/include/* %(installdir)s/include',
+]
 
 sanity_check_paths = {
-    'files': ['include/mkldnn.h', 'include/mkldnn.hpp', 'include/mkldnn_types.h', 'lib/libmkldnn.%s' % SHLIB_EXT],
+    'files': ['include/mkldnn.h', 'include/mkldnn.hpp', 'include/mkldnn_types.h',
+              'lib/libiomp5.%s' % SHLIB_EXT, 'lib/libmklml_intel.%s' % SHLIB_EXT, 'lib/libmklml_gnu.%s' % SHLIB_EXT,
+              'lib/libmkldnn.%s' % SHLIB_EXT],
     'dirs': [],
 }
 

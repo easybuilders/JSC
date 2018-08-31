@@ -33,10 +33,10 @@ host_compilers = [ 'pgc++', 'g++' ]
 
 # Be careful and have a message consistent with the wrappers present
 modloadmsg = "nvcc uses g++ as the default host compiler. If you want to use pgc++ as a host compiler you can use"
-modloadmsg += " nvcc_pgc++, or nvcc -ccbin=pgc++. For completeness and convenience nvcc_g++ is also provided\n"
+modloadmsg += " nvcc_pgc++, or nvcc -ccbin=pgc++. For completeness and convenience nvcc_g++ is also provided\\n"
 
 # Warn that once linked against CUDA applications can only be run on GPU enabled nodes
-modloadmsg += '\nWARNING - Applications linked against CUDA (including MVAPICH2) will only be able to execute on nodes with GPUs!!\n'
+modloadmsg += '\\nWARNING - Applications linked against CUDA (including MVAPICH2) will only be able to execute on nodes with GPUs!!\\n'
 
 modluafooter = '''
 add_property("arch","gpu")

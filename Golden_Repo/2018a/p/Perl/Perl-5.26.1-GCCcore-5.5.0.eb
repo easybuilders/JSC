@@ -1616,6 +1616,14 @@ exts_list = [
         'source_tmpl': 'XML-LibXML-%(version)s.tar.gz',
         'source_urls': ['http://search.cpan.org/CPAN/authors/id/S/SH/SHLOMIF'],
     }),
+    ('Date::Calc', '6.4', {
+        'source_tmpl': 'Date-Calc-%(version)s.tar.gz',
+        'source_urls': ['http://search.cpan.org/CPAN/authors/id/S/ST/STBEY'],
+    }),
+    ('Carp::Clan', '6.06', {
+        'source_tmpl': 'Carp-Clan-%(version)s.tar.gz',
+        'source_urls': ['http://search.cpan.org/CPAN/authors/id/K/KE/KENTNL'],
+    }),
 
 ]
 

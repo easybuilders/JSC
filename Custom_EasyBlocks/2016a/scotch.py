@@ -85,11 +85,11 @@ class EB_SCOTCH(EasyBlock):
         try:
             for line in fileinput.input(dst, inplace=1, backup='.orig.easybuild'):
                 # use $CC and the likes since we're at it.
-                line = re.sub(r"^CCS\s*=.*$", "CCS	= $(CC)", line)
-                line = re.sub(r"^CCP\s*=.*$", "CCP	= $(MPICC)", line)
-                line = re.sub(r"^CCD\s*=.*$", "CCD	= $(MPICC)", line)
+                line = re.sub(r"^CCS\s*=.*$", "CCS\t= $(CC)", line)
+                line = re.sub(r"^CCP\s*=.*$", "CCP\t= $(MPICC)", line)
+                line = re.sub(r"^CCD\s*=.*$", "CCD\t= $(MPICC)", line)
                 # append -lpthread to LDFLAGS
-                line = re.sub(r"^LDFLAGS\s*=(?P<ldflags>.*$)", "LDFLAGS	=\g<ldflags> -lpthread", line)
+                line = re.sub(r"^LDFLAGS\s*=(?P<ldflags>.*$)", "LDFLAGS\t=\g<ldflags> -lpthread", line)
                 sys.stdout.write(line)
         except IOError, err:
             raise EasyBuildError("Can't modify/write Makefile in 'Makefile.inc': %s", err)

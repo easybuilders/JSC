@@ -151,19 +151,18 @@ class EB_QuantumESPRESSO(ConfigureMake):
         try:
             for line in fileinput.input(fn, inplace=1, backup='.orig.eb'):
                 for (k, v, keep) in repls:
-                    # need to use [ 	]* instead of \s*, because vars may be undefined as empty,
+                    # need to use [ \t]* instead of \s*, because vars may be undefined as empty,
                     # and we don't want to include newlines
                     if keep:
-                        line = re.sub(r"^(%s\s*=[ 	]*)(.*)$" % k, r"\1\2 %s" % v, line)
+                        line = re.sub(r"^(%s\s*=[ \t]*)(.*)$" % k, r"\1\2 %s" % v, line)
                     else:
-                        line = re.sub(r"^(%s\s*=[ 	]*).*$" % k, r"\1%s" % v, line)
+                        line = re.sub(r"^(%s\s*=[ \t]*).*$" % k, r"\1%s" % v, line)
 
                 # fix preprocessing directives for .f90 files in make.sys if required
                 if self.toolchain.comp_family() in [toolchain.GCC]:
                     line = re.sub(r"\$\(MPIF90\) \$\(F90FLAGS\) -c \$<",
-                                  "$(CPP) -C $(CPPFLAGS) $< -o $*.F90
-" +
-                                  "	$(MPIF90) $(F90FLAGS) -c $*.F90 -o $*.o",
+                                  "$(CPP) -C $(CPPFLAGS) $< -o $*.F90\n" +
+                                  "\t$(MPIF90) $(F90FLAGS) -c $*.F90 -o $*.o",
                                   line)
 
                 sys.stdout.write(line)
@@ -213,9 +212,8 @@ class EB_QuantumESPRESSO(ConfigureMake):
                     # fix preprocessing directives for .f90 files in make.sys if required
                     if self.toolchain.comp_family() in [toolchain.GCC]:
                         line = re.sub("@f90rule@",
-                                      "$(CPP) -C $(CPPFLAGS) $< -o $*.F90
-" +
-                                      "	$(MPIF90) $(F90FLAGS) -c $*.F90 -o $*.o",
+                                      "$(CPP) -C $(CPPFLAGS) $< -o $*.F90\n" +
+                                      "\t$(MPIF90) $(F90FLAGS) -c $*.F90 -o $*.o",
                                       line)
 
                     sys.stdout.write(line)

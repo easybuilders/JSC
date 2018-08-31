@@ -58,7 +58,7 @@ modextravars = {
     'WM_THIRD_PARTY_DIR': '%(installdir)s/ThirdParty-%(version)s',
 }  # OpenFOAM requires 64 bit METIS using 32 bit indexes (array indexes)
 
-modloadmsg = "This module provides only a minimal environment to run %(name)s executables.\nThe full environment can be initiated via:\n. $FOAM_BASH\n"
+modloadmsg = "This module provides only a minimal environment to run %(name)s executables.\\nThe full environment can be initiated via:\\n. $FOAM_BASH\\n"
 modextrapaths = {
     'LD_LIBRARY_PATH': ['%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib/dummy', '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib', '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/lib/mpi'],
     'PATH': '%(name)s-%(version)s/platforms/linux64IccDPInt32Opt/bin',

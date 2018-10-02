@@ -1,0 +1,20 @@
+The table below shows the details of the toolchains in the 2018b stage:
+
+| Toolchain name |     Toolchain version     | Underlying GCC |     Compiler     |          MPI           |   CUDA   | Math libraries |  Includes software from   |                          Notes                           |
+|----------------|---------------------------|----------------|------------------|------------------------|----------|----------------|---------------------------|----------------------------------------------------------|
+| GCCcore        | 8.2.0                     | 8.2.0          |                  |                        |          |                |                           | Used for boostrapping other compilers and basic software |
+| GCCcore        | 7.3.0                     | 7.3.0          |                  |                        |          |                |                           | Used for boostrapping other compilers and basic software |
+| GCC            | 8.2.0                     | 8.2.0          | GCC 8.2.0        |                        |          |                | GCCcore                   | Compiler toolchain                                       |
+| GCC            | 7.3.0                     | 7.3.0          | GCC 7.3.0        |                        |          |                | GCCcore                   | Compiler toolchain                                       |
+| iccifort       | 2019.0.XXX-GCC-7.3.0      | 7.3.0          | Intel 2019.0.XXX |                        |          |                | GCCcore                   | Compiler toolchain                                       |
+| PGI            | 18.7-GCC-7.3.0            | 7.3.0          | PGI 18.7         |                        |          |                | GCCcore                   | Compiler toolchain                                       |
+| gpsmpi         | 2018b                     | 8.2.0          | GCC 8.2.0        | ParaStationMPI 5.2.1-1 |          |                | GCCcore, GCC              | Compiler+MPI toolchain                                   |
+| iimpi          | 2018b                     | 7.3.0          | Intel 2019.0.XXX | IntelMPI 2019.0.XXX    |          |                | GCCcore, iccifort         | Compiler+MPI toolchain                                   |
+| ipsmpi         | 2018b                     | 7.3.0          | Intel 2019.0.XXX | ParaStationMPI 5.2.1-1 |          |                | GCCcore, iccifort         | Compiler+MPI toolchain                                   |
+| gmvapich2c     | 2018b                     | 7.3.0          | GCC 7.3.0        | MVAPICH2 2.3rc1-GDR    | 10.0.130 |                | GCCcore, GCC              | Compiler+MPI+CUDA toolchain                              |
+| pmvapich2c     | 2018b                     | 7.3.0          | PGI 18.7         | MVAPICH2 2.3rc1-GDR    | 10.0.130 |                | GCCcore, PGI              | Compiler+MPI+CUDA toolchain                              |
+| gpsmkl         | 2018b                     | 8.2.0          | GCC 8.2.0        | ParaStationMPI 5.2.1-1 |          | MKL 2019.0.XXX | GCCcore, GCC, gpsmpi      | Compiler+MPI+Math toolchain                              |
+| intel-para     | 2018b                     | 7.3.0          | Intel 2019.0.XXX | ParaStationMPI 5.2.1-1 |          | MKL 2019.0.XXX | GCCcore, iccifort, ipsmpi | Compiler+MPI+Math toolchain                              |
+| intel          | 2018b                     | 7.3.0          | Intel 2019.0.XXX | IntelMPI 2019.0.XXX    |          | MKL 2019.0.XXX | GCCcore, iccifort, iimpi  | Compiler+MPI+Math toolchain                              |
+| gmvmklc        | 2018b                     | 7.3.0          | GCC 7.3.0        | MVAPICH2 2.3rc1 -GDR   | 10.0.130 | MKL 2019.0.XXX | GCCcore, GCC, gmvapich2c  | Compiler+MPI+CUDA+Math toolchain                         |
+| pmvmklc        | 2018b                     | 7.3.0          | PGI 18.7         | MVAPICH2 2.3rc1 -GDR   | 10.0.130 | MKL 2019.0.XXX | GCCcore, PGI, pmvapich2c  | Compiler+MPI+CUDA+Math toolchain                         |

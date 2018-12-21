@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libXp'
+version = '1.0.3'
+
+homepage = "http://www.freedesktop.org/wiki/Software/xlibs"
+description = """libXp provides the X print library."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.5.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [XORG_LIB_SOURCE]
+
+builddependencies = [
+    ('printproto', '1.0.5'),
+    ('binutils', '2.30'),
+]
+
+dependencies = [
+    ('X11', '20180131'),
+]
+
+sanity_check_paths = {
+    'files': ['lib/%s' % x for x in ['libXp.a', 'libXp.%s' % SHLIB_EXT]],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

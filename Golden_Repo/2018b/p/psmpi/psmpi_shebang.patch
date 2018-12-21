@@ -1,0 +1,36 @@
+diff -ruN psmpi-5.2.0-1.old/mpich2/src/env/mpicc.bash.in psmpi-5.2.0-1/mpich2/src/env/mpicc.bash.in
+--- psmpi-5.2.0-1.old/mpich2/src/env/mpicc.bash.in	2017-03-08 20:47:13.159276458 +0100
++++ psmpi-5.2.0-1/mpich2/src/env/mpicc.bash.in	2017-03-08 20:47:48.430966270 +0100
+@@ -1,4 +1,4 @@
+-#! @BASH_SHELL@
++#!/usr/bin/env bash
+ # 
+ # (C) 2006 by Argonne National Laboratory.
+ #     See COPYRIGHT in top-level directory.
+diff -ruN psmpi-5.2.0-1.old/mpich2/src/env/mpicxx.bash.in psmpi-5.2.0-1/mpich2/src/env/mpicxx.bash.in
+--- psmpi-5.2.0-1.old/mpich2/src/env/mpicxx.bash.in	2017-03-08 20:47:13.160276506 +0100
++++ psmpi-5.2.0-1/mpich2/src/env/mpicxx.bash.in	2017-03-08 20:47:51.549115658 +0100
+@@ -1,4 +1,4 @@
+-#! @BASH_SHELL@
++#!/usr/bin/env bash
+ # 
+ # (C) 2006 by Argonne National Laboratory.
+ #     See COPYRIGHT in top-level directory.
+diff -ruN psmpi-5.2.0-1.old/mpich2/src/env/mpif77.bash.in psmpi-5.2.0-1/mpich2/src/env/mpif77.bash.in
+--- psmpi-5.2.0-1.old/mpich2/src/env/mpif77.bash.in	2017-03-08 20:47:13.160276506 +0100
++++ psmpi-5.2.0-1/mpich2/src/env/mpif77.bash.in	2017-03-08 20:47:55.148288103 +0100
+@@ -1,4 +1,4 @@
+-#! @BASH_SHELL@
++#!/usr/bin/env bash
+ #
+ # (C) 2006 by Argonne National Laboratory.
+ #     See COPYRIGHT in top-level directory.
+diff -ruN psmpi-5.2.0-1.old/mpich2/src/env/mpifort.bash.in psmpi-5.2.0-1/mpich2/src/env/mpifort.bash.in
+--- psmpi-5.2.0-1.old/mpich2/src/env/mpifort.bash.in	2017-03-08 20:47:13.160276506 +0100
++++ psmpi-5.2.0-1/mpich2/src/env/mpifort.bash.in	2017-03-08 20:48:08.913947609 +0100
+@@ -1,4 +1,4 @@
+-#! @BASH_SHELL@
++#!/usr/bin/env bash
+ #
+ # (C) 2006 by Argonne National Laboratory.
+ #     See COPYRIGHT in top-level directory.

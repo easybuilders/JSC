@@ -1,0 +1,101 @@
+diff -ruN abinit-8.10.1.orig/src/98_main/Makefile.in abinit-8.10.1/src/98_main/Makefile.in
+--- abinit-8.10.1.orig/src/98_main/Makefile.in	2018-10-15 23:48:38.000000000 +0200
++++ abinit-8.10.1/src/98_main/Makefile.in	2018-10-26 16:58:00.561647204 +0200
+@@ -1789,6 +1789,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_yaml_libs@ \
+@@ -2135,6 +2137,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_psml_libs@ \
+@@ -2244,6 +2248,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_psml_libs@ \
+@@ -2496,6 +2502,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_psml_libs@ \
+@@ -2609,6 +2617,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_yaml_libs@ \
+ 	@lib_libxc_libs@ \
+@@ -2905,6 +2915,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_fft_libs@ \
+ 	@lib_netcdf_libs@ \
+@@ -3113,6 +3125,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_fft_libs@ \
+ 	@lib_netcdf_libs@ \
+@@ -3223,6 +3237,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_psml_libs@ \
+ 	@lib_yaml_libs@ \
+@@ -3471,6 +3487,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_yaml_libs@ \
+@@ -3565,6 +3583,8 @@
+ 	$(LIB_10_DUMPINFO) \
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
++	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_bigdft_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_libxc_libs@ \
+@@ -3674,6 +3694,7 @@
+ 	$(LIB_10_DEFS) \
+ 	$(LIB_02_CLIB) \
+ 	$(LIB_01_GSL_EXT) \
++	@lib_math_libs@ \
+ 	@lib_netcdf_libs@ \
+ 	@lib_psml_libs@ \
+ 	@lib_yaml_libs@ \

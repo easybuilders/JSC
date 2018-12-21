@@ -1,0 +1,42 @@
+diff -ruN julia-0.6.2.orig/Make.inc julia-0.6.2/Make.inc
+--- julia-0.6.2.orig/Make.inc	2017-12-13 20:01:57.000000000 +0100
++++ julia-0.6.2/Make.inc	2018-09-17 18:21:28.654825315 +0200
+@@ -34,7 +34,7 @@
+ USE_SYSTEM_BLAS:=0
+ USE_SYSTEM_LAPACK:=0
+ USE_SYSTEM_FFTW:=0
+-USE_SYSTEM_GMP:=0
++USE_SYSTEM_GMP:=1
+ USE_SYSTEM_MPFR:=0
+ USE_SYSTEM_ARPACK:=0
+ USE_SYSTEM_SUITESPARSE:=0
+@@ -42,7 +42,7 @@
+ USE_SYSTEM_UTF8PROC:=0
+ USE_SYSTEM_MBEDTLS:=0
+ USE_SYSTEM_LIBSSH2:=0
+-USE_SYSTEM_CURL:=0
++USE_SYSTEM_CURL:=1
+ USE_SYSTEM_LIBGIT2:=0
+ USE_SYSTEM_PATCHELF:=0
+ 
+@@ -51,9 +51,9 @@
+ 
+ ## Settings for various Intel tools
+ # Set to 1 to use MKL
+-USE_INTEL_MKL ?= 0
++USE_INTEL_MKL ?= 1
+ # Set to 1 to use MKL FFT
+-USE_INTEL_MKL_FFT ?= 0
++USE_INTEL_MKL_FFT ?= 1
+ # Set to 1 to use Intel LIBM
+ USE_INTEL_LIBM ?= 0
+ # Set to 1 to enable profiling with Intel VTune Amplifier
+@@ -130,6 +130,8 @@
+ include $(BUILDROOT)/Make.user
+ endif
+ 
++MARCH=haswell
++
+ # disable automatic Makefile rules
+ .SUFFIXES:
+ 

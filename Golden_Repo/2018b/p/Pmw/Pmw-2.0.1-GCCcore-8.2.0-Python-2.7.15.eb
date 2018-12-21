@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# more: 
+#   http://easybuild.readthedocs.io/en/latest/Writing_easyconfig_files.html
+#   http://easybuild.readthedocs.io/en/latest/version-specific/generic_easyblocks.html#cmakemake
+#
+easyblock = 'PythonPackage'
+
+name = 'Pmw'
+version = '2.0.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://pypi.python.org/pypi/Pmw/'
+description = """
+Pmw is a toolkit for building high-level compound widgets, or megawidgets, constructed using other widgets as component parts.
+It promotes consistent look and feel within and between graphical applications, is highly configurable to your needs and is easy to use.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.2.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [PYPI_SOURCE]
+
+download_dep_fail = True
+
+builddependencies = [
+    ('binutils', '2.31.1'),
+]
+
+dependencies = [
+    ('Python', '2.7.15'),
+]
+
+options = {'modulename': 'Pmw'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+moduleclass = 'lib'
+

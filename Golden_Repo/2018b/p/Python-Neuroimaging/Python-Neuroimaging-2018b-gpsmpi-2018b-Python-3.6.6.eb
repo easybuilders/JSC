@@ -1,0 +1,91 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Python-Neuroimaging'
+version = '2018b'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = ''
+description = """Python Neuroimaging is a collection of open source software for neuroimaging using Python."""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2018b'}
+toolchainopts = { 'pic' : True }
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+gcccoremkl_toolchain = ('gcccoremkl', '8.2.0-2019.0.117')
+
+dependencies = [
+    ('Python', '3.6.6'),
+    ('SciPy-Stack', '2018b', '-Python-%(pyver)s', gcccoremkl_toolchain),
+    ('scikit', '2018b', '-Python-%(pyver)s', gcccoremkl_toolchain),
+    ('h5py', '2.8.0', '-Python-%(pyver)s'),
+    ('PyOpenCL', '2018.2.1', '-Python-%(pyver)s', gcccoremkl_toolchain),
+]
+
+# Needed to make sure that the sanity check of mdt works
+unwanted_env_vars = ['CUDA_VISIBLE_DEVICES']
+
+prebuildopts = 'export LDSHARED="$CC -shared" && '
+
+exts_list = [
+    # requires scipy
+    ('seaborn', '0.9.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/seaborn'],
+    }),
+    # Versions 2018.x break in the setup with Python 2, and the API might be different
+    ('tifffile', '0.15.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/tifffile'],
+    }),
+    ('nibabel', '2.3.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nibabel'],
+    }),
+    ('dipy', '0.14.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/d/dipy'],
+    }),
+    ('nilearn', '0.4.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nilearn'],
+    }),
+    ('neurdflib', '5.0.0.post1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/neurdflib'],
+        'modulename': 'rdflib'
+    }),
+    ('nipype', '1.1.5', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipype'],
+    }),
+    ('nipy', '0.4.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipy'],
+    }),
+    ('mne', '0.16.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mne'],
+    }),
+    # 0.3.1 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mot', '0.8.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mot'],
+    }),
+    # 0.9.38 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mdt', '0.17.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mdt'],
+    }),
+    ('pysptools', '0.15.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pysptools'],
+        'modulename': 'pysptools.util'
+    }),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'vis'
+

@@ -1,0 +1,12 @@
+diff -ruN locfit/src/lf_adap.c locfit.noopt/src/lf_adap.c
+--- locfit/src/lf_adap.c	2013-04-20 08:56:26.000000000 +0200
++++ locfit.noopt/src/lf_adap.c	2018-10-25 16:14:54.337786925 +0200
+@@ -104,6 +104,7 @@
+   each iteration.
+ */
+ 
++#pragma optimize ("", off)
+ double aband2(lfd,sp,dv,des,h0)
+ lfdata *lfd;
+ smpar *sp;
+Binary files locfit/src/lf_adap.o and locfit.noopt/src/lf_adap.o differ

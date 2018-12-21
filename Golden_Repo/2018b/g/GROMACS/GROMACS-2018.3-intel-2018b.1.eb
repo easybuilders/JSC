@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
+#
+# Copyright:: Copyright 2012-2016 University of Luxembourg / LCSB, Cyprus Institute / CaSToRC,
+#                                 Ghent University / The Francis Crick Institute
+# Authors::
+# * Wiktor Jurkowski <wiktor.jurkowski@gmail.com>
+# * Fotis Georgatos <fotis@cern.ch>
+# * George Tsouloupas <g.tsouloupas@cyi.ac.cy>
+# * Kenneth Hoste <kenneth.hoste@ugent.be>
+# * Adam Huffman <adam.huffman@crick.ac.uk>
+# License::   MIT/GPL
+##
+
+name = 'GROMACS'
+version = '2018.3'
+
+homepage = 'http://www.gromacs.org'
+description = """
+GROMACS is a versatile package to perform molecular dynamics,
+ i.e. simulate the Newtonian equations of motion for systems with hundreds to millions of particles.
+"""
+
+
+toolchain = {'name': 'intel', 'version': '2018b.1'}
+toolchainopts = {'openmp': True, 'usempi': True}
+
+source_urls = ['ftp://ftp.gromacs.org/pub/gromacs/']
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('CMake', '3.12.3'),
+    ('libxml2', '2.9.7','-Python-2.7.15')
+]
+
+dependencies = [
+    ('hwloc', '1.11.11'),
+    ('Boost', '1.68.0', '-Python-2.7.15'),
+    ('CUDA', '9.2.88', '', True)
+]
+
+configopts = "-DCUDA_HOST_COMPILER=$EBROOTGCCCORE/bin/gcc -DCUDA_PROPAGATE_HOST_FLAGS=OFF -DCUDA_NVCC_FLAGS='-std=c++11' "
+configopts += '-DMPIEXEC_MAX_NUMPROCS="24"'
+
+mpiexec = 'srun'
+mpiexec_numproc_flag = '-n'
+mpi_numprocs = '24'
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'bio'

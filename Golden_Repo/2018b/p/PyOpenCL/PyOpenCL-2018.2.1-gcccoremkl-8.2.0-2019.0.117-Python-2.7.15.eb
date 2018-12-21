@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'PyOpenCL'
+version = '2018.2.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = "https://pypi.python.org/pypi/pyopencl/"
+description = """Python wrapper for OpenCL. PyOpenCL lets you access GPUs and other massively parallel compute devices
+from Python.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.2.0-2019.0.117'}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+
+dependencies = [
+    ('Python', '2.7.15'),
+    ('pybind11', '2.2.4', versionsuffix),
+    ('SciPy-Stack', '2018b', versionsuffix),
+    ('CUDA', '9.2.88', '', ('dummy', 'dummy')),
+]
+
+common_opts = {
+    'req_py_majver': '2',
+    'req_py_minver': '7'
+}
+
+exts_download_dep_fail = True
+
+exts_list = [
+    ('pytools', '2018.5.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pytools']),
+    ])),
+    ('pyopencl', version, dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pyopencl']),
+    ])),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'lib'
+

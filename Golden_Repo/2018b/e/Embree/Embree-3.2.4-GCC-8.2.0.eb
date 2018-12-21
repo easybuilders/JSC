@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Embree'
+version = '3.2.4'
+
+homepage = 'http://www.ospray.org/'
+description = """
+Embree is a collection of high-performance ray tracing kernels, developed at Intel. The target user of Embree are
+graphics application engineers that want to improve the performance of their application by leveraging the optimized ray
+tracing kernels of Embree. The kernels are optimized for photo-realistic rendering on the latest Intel processors with
+support for SSE, AVX, AVX2, and AVX512.
+"""
+
+
+toolchain = {'name': 'GCC', 'version': '8.2.0'}
+# optarch interferes with embree's build system, where -xAVX (or similar is specified)
+toolchainopts = {'optarch': False, 'pic': True}
+
+source_urls = ['https://github.com/embree/embree/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('CMake', '3.12.3'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('ispc','1.9.2','',True), # I am not actually sure if it is runtime or compile time dependency
+    ('freeglut','3.0.0'),
+    ('X11','20180604'),
+    ('Mesa','18.1.9'),
+    ('libpng', '1.6.35'),
+    ('libjpeg-turbo','1.5.3'),
+    ('ImageMagick','7.0.7-39'), # 7.x doesn't have MaxRGB, which is needed by Embree 2.17
+    ('OpenEXR','2.2.1'),
+    ('tbb','2019.0.117','',True),
+]
+
+separate_build_dir = True
+
+configopts  = '-DCMAKE_BUILD_TYPE=Release ' # Default
+configopts += '-DEMBREE_ISPC_SUPPORT=ON ' # Default
+configopts += '-DEMBREE_TASKING_SYSTEM=TBB ' # Default
+configopts += '-DEMBREE_TBB_ROOT=$EBROOTTBB/tbb '
+configopts += '-DEMBREE_TUTORIALS=OFF '
+
+sanity_check_paths = {
+    'dirs': ['bin/embree3', 'include/embree3'],
+    'files': ['lib64/libembree3.so']
+}
+
+modextrapaths = {'PATH': 'bin/embree2'}
+
+moduleclass = 'vis'

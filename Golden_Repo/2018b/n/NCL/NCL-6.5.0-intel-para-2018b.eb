@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'NCL'
+version = "6.5.0"
+
+homepage = 'http://www.ncl.ucar.edu'
+description = 'NCL is an interpreted language designed specifically for scientific data analysis and visualization.'
+
+
+toolchain = {'name': 'intel-para', 'version': '2018b'}
+toolchainopts = {'cstd': 'c99', 'openmp': True, 'pic': True}
+
+source_urls = ['https://www.earthsystemgrid.org/dataset/ncl.650.src/file/']
+sources = ['%(namelower)s_ncarg-%(version)s.tar.gz']
+
+patches = ['NCL-6.4.0_fix-types.patch']
+
+dependencies = [
+    ('cURL', '7.61.1'),
+    ('libdap', '3.19.1'),
+    ('netCDF', '4.6.1'),
+    ('netCDF-Fortran', '4.4.4'),
+    ('freetype', '2.9.1'),
+    ('JasPer', '2.0.14'),
+    ('g2lib', '3.1.0'),
+    ('zlib', '1.2.11'),
+    ('ESMF', '7.1.0r'),
+    ('bzip2', '1.0.6'),
+    ('GSL', '2.5'),
+    ('GDAL', '2.3.2'),
+    ('HDF5', '1.8.20'),
+    ('HDF', '4.2.13'),
+    ('g2clib', '1.6.0'),
+    ('Szip', '2.1.1'),
+    ('UDUNITS', '2.2.26'),
+    ('cairo', '1.15.10'),
+    ('Bison', '3.1'),
+    ('flex', '2.6.4'),
+]
+
+moduleclass = 'data'

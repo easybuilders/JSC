@@ -1,0 +1,13 @@
+--- build_visit2_13_3.orig	2018-11-28 16:56:52.946804000 +0100
++++ build_visit2_13_3	2018-11-28 18:08:46.734015053 +0100
+@@ -9339,9 +9339,7 @@
+                $DYLD_LIBRARY_PATH
+         SOARG="--enable-shared"
+     else
+-        export LD_LIBRARY_PATH="$VISITDIR/hdf5/$HDF5_VERSION/$VISITARCH/lib":\
+-               "$VISITDIR/szip/$SZIP_VERSION/$VISITARCH/lib":\
+-               $LD_LIBRARY_PATH
++        export LD_LIBRARY_PATH="$VISITDIR/hdf5/$HDF5_VERSION/$VISITARCH/lib:$VISITDIR/szip/$SZIP_VERSION/$VISITARCH/lib:$LD_LIBRARY_PATH"
+         SOARG=""
+     fi
+     if [[ "$FC_COMPILER" == "no" ]] ; then

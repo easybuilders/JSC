@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Ghostscript'
+version = '9.23'
+
+homepage = 'http://ghostscript.com'
+description = """Ghostscript is a versatile processor for PostScript data with the ability to render PostScript to
+ different targets. It used to be part of the cups printing stack, but is no longer used for that.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.2.0'}
+# lowopt (-O1) is used to avoid internal compiler error that is hit when -O2 is used
+toolchainopts = {'pic': True}
+
+source_urls = ["https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs%(version_major)s%(version_minor)s/"]
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('binutils', '2.31.1'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('zlib', '1.2.11'),
+    ('libpng', '1.6.35'),
+    ('freetype', '2.9.1'),
+    ('X11', '20180604'),
+    ('GLib', '2.56.0'),
+    ('libjpeg-turbo', '1.5.3'),  # note: libjpeg-turbo 1.4.[01] doesn't work
+    ('expat', '2.2.6'),
+    ('cairo', '1.15.10'),
+    ('LibTIFF', '4.0.9'),
+]
+
+# Remove copies of old libraries
+preconfigopts = 'rm -r freetype jpeg libpng &&' 
+configopts = "--with-system-libtiff --disable-compile-inits --enable-dynamic"
+
+moduleclass = 'tools'

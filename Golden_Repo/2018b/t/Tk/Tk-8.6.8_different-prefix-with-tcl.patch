@@ -1,0 +1,23 @@
+diff -ruN tk8.6.8.orig/generic/tkWindow.c tk8.6.8/generic/tkWindow.c
+--- tk8.6.8.orig/generic/tkWindow.c	2017-12-06 16:25:08.000000000 +0100
++++ tk8.6.8/generic/tkWindow.c	2018-03-26 15:07:54.077034321 +0200
+@@ -954,6 +954,7 @@
+ 
+     Tcl_SetVar2(interp, "tk_patchLevel", NULL, TK_PATCH_LEVEL, TCL_GLOBAL_ONLY);
+     Tcl_SetVar2(interp, "tk_version",    NULL, TK_VERSION,     TCL_GLOBAL_ONLY);
++    Tcl_SetVar2(interp, "tk_library",    NULL, TK_LIBRARY,     TCL_GLOBAL_ONLY);
+ 
+     tsdPtr->numMainWindows++;
+     return tkwin;
+diff -ruN tk8.6.8.orig/unix/Makefile.in tk8.6.8/unix/Makefile.in
+--- tk8.6.8.orig/unix/Makefile.in	2017-12-21 20:48:19.000000000 +0100
++++ tk8.6.8/unix/Makefile.in	2018-03-26 15:08:31.714837462 +0200
+@@ -1026,7 +1026,7 @@
+ 	$(CC) -c $(CC_SWITCHES) $(GENERIC_DIR)/tkVisual.c
+ 
+ tkWindow.o: $(GENERIC_DIR)/tkWindow.c
+-	$(CC) -c $(CC_SWITCHES) $(GENERIC_DIR)/tkWindow.c
++	$(CC) -c $(CC_SWITCHES) -DTK_LIBRARY=\"${TK_LIBRARY}\" $(GENERIC_DIR)/tkWindow.c
+ 
+ tkButton.o: $(GENERIC_DIR)/tkButton.c
+ 	$(CC) -c $(CC_SWITCHES) $(GENERIC_DIR)/tkButton.c

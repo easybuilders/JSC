@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Authors::  Inge Gutheil <i.gutheil@fz-juelich.de> D.Alvarez <d.alvarez@fz-juelich.de>
+#
+# This work implements Elemental 0.87.7
+#
+#  https://computation.llnl.gov/casc/Elemental/main.html
+#
+##
+easyblock = 'CMakeMake'
+
+name = 'Elemental'
+version = '0.87.7'
+
+homepage = 'http://libelemental.org/download/'
+description = """Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and
+and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C
+and Python.
+
+The hybrid version uses a combination of MPI and OpenMP.
+Version 0.87.7 has been installed as module in $EBROOTELEMENTAL"""
+
+examples = """Examples can be found in $EBROOTELEMENTAL/examples"""
+
+
+toolchain = {'name': 'intel-para', 'version': '2018b'}
+toolchainopts = {'optarch': True, 'usempi': True, 'openmp': True}
+
+sources = [SOURCE_TGZ]
+source_urls = ['http://libelemental.org/pub/releases']
+
+patches = [
+    'elemental-0.87.7_rangehermitianeig.patch'
+]
+
+builddependencies = [
+    ('CMake', '3.12.3'),
+]
+
+dependencies = [
+    ('ParMETIS', '4.0.3'),
+]
+
+separate_build_dir = 'True'
+
+configopts = '-DEL_EXAMPLES=ON -DEL_TESTS=ON -DMATH_LIBS="$LIBLAPACK_MT" -DINSTALL_PYTHON_PACKAGE=OFF -DEL_HYBRID=ON '
+configopts += '-DPARMETIS_LIB_DIR=$EBROOTPARMETIS/lib -DPARMETIS_INCLUDE_DIR=$EBROOTPARMETIS/include '
+
+postinstallcmds = [
+    "cp -r %(builddir)s/%(name)s-%(version)s/examples %(installdir)s/examples",
+    "chmod 755 %(installdir)s/examples",
+    "chmod 755 %(installdir)s/examples/*",
+    "chmod 644 %(installdir)s/examples/blas_like/*",
+    "chmod 644 %(installdir)s/examples/core/*",
+    "chmod 644 %(installdir)s/examples/interface/*",
+    "chmod 644 %(installdir)s/examples/io/*",
+    "chmod 644 %(installdir)s/examples/lapack_like/*",
+    "chmod 644 %(installdir)s/examples/matrices/*",
+    "chmod 644 %(installdir)s/examples/optimization/*",
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['include', 'lib64'],
+}
+
+modextravars = {
+    'ELEMENTAL_INCLUDE': '%(installdir)s/include',
+    'ELEMENTAL_LIB': '%(installdir)s/lib',
+    'ELEMENTAL_ROOT': '%(installdir)s',
+}
+
+moduleclass = 'math'

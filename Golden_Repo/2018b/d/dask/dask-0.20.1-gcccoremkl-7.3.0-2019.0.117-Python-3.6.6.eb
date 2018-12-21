@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'dask'
+version = '0.20.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://github.com/dask/dask/'
+description = """Dask provides multi-core execution on larger-than-memory datasets using blocked algorithms
+ and task scheduling."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '7.3.0-2019.0.117'}
+
+source_urls = ['https://github.com/dask/dask/archive/']
+sources = ['%(version)s.tar.gz']
+
+download_dep_fail = True
+
+dependencies = [
+    ('Python', '3.6.6'),
+    ('SciPy-Stack', '2018b', versionsuffix),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'data'

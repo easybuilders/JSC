@@ -1,0 +1,167 @@
+diff -ruN papi-5.6.0.orig/src/libpfm4/lib/pfmlib_perf_event_pmu.c papi-5.6.0/src/libpfm4/lib/pfmlib_perf_event_pmu.c
+--- papi-5.6.0.orig/src/libpfm4/lib/pfmlib_perf_event_pmu.c	2017-12-19 18:14:29.000000000 +0100
++++ papi-5.6.0/src/libpfm4/lib/pfmlib_perf_event_pmu.c	2018-11-05 22:32:49.000000000 +0100
+@@ -64,17 +64,19 @@
+ 	int		numasks;		/* number of unit masls */
+ 	int		ngrp;			/* number of umasks groups */
+ 	unsigned long	umask_ovfl_idx;		/* base index of overflow unit masks */
++	int		flags;			/* evnet flags */
+ 	perf_umask_t	umasks[PERF_MAX_UMASKS];/* first unit masks */
+ } perf_event_t;
+ 
+ /*
+- * umask options: uflags
++ * event/umask flags
+  */
+ #define PERF_FL_DEFAULT	0x1	/* umask is default for group */
++#define PERF_FL_PRECISE	0x2	/* support precise sampling */
+ 
+ #define PERF_INVAL_OVFL_IDX ((unsigned long)-1)
+ 
+-#define PCL_EVT(f, t, m)	\
++#define PCL_EVT(f, t, m, fl)	\
+ 	{ .name = #f,		\
+ 	  .id = (f),		\
+ 	  .type = (t),		\
+@@ -83,10 +85,11 @@
+ 	  .numasks = 0,		\
+ 	  .modmsk = (m),	\
+ 	  .ngrp = 0,		\
++	  .flags = fl,		\
+ 	  .umask_ovfl_idx = PERF_INVAL_OVFL_IDX,\
+ 	}
+ 
+-#define PCL_EVTA(f, t, m, a)	\
++#define PCL_EVTA(f, t, m, a, fl)\
+ 	{ .name = #f,		\
+ 	  .id = a,		\
+ 	  .type = t,		\
+@@ -95,13 +98,15 @@
+ 	  .numasks = 0,		\
+ 	  .modmsk = m,		\
+ 	  .ngrp = 0,		\
++	  .flags = fl,		\
+ 	  .umask_ovfl_idx = PERF_INVAL_OVFL_IDX,\
+ 	}
+ 
+-#define PCL_EVT_HW(n) PCL_EVT(PERF_COUNT_HW_##n, PERF_TYPE_HARDWARE, PERF_ATTR_HW)
+-#define PCL_EVT_SW(n) PCL_EVT(PERF_COUNT_SW_##n, PERF_TYPE_SOFTWARE, PERF_ATTR_SW)
+-#define PCL_EVT_AHW(n, a) PCL_EVTA(n, PERF_TYPE_HARDWARE, PERF_ATTR_HW, PERF_COUNT_HW_##a)
+-#define PCL_EVT_ASW(n, a) PCL_EVTA(n, PERF_TYPE_SOFTWARE, PERF_ATTR_SW, PERF_COUNT_SW_##a)
++#define PCL_EVT_HW(n) PCL_EVT(PERF_COUNT_HW_##n, PERF_TYPE_HARDWARE, PERF_ATTR_HW, 0)
++#define PCL_EVT_SW(n) PCL_EVT(PERF_COUNT_SW_##n, PERF_TYPE_SOFTWARE, PERF_ATTR_SW, 0)
++#define PCL_EVT_AHW(n, a) PCL_EVTA(n, PERF_TYPE_HARDWARE, PERF_ATTR_HW, PERF_COUNT_HW_##a, 0)
++#define PCL_EVT_ASW(n, a) PCL_EVTA(n, PERF_TYPE_SOFTWARE, PERF_ATTR_SW, PERF_COUNT_SW_##a, 0)
++#define PCL_EVT_HW_FL(n, fl) PCL_EVT(PERF_COUNT_HW_##n, PERF_TYPE_HARDWARE, PERF_ATTR_HW, fl)
+ 
+ #ifndef MAXPATHLEN
+ #define MAXPATHLEN	1024
+@@ -323,6 +328,7 @@
+ 	int reuse_event = 0;
+ 	int numasks;
+ 	char *tracepoint_name;
++	int retlen;
+ 
+ 	err = get_debugfs_mnt();
+ 	if (err == -1)
+@@ -346,7 +352,10 @@
+ 		if (!strcmp(d1->d_name, ".."))
+ 			continue;
+ 
+-		snprintf(d2path, MAXPATHLEN, "%s/%s", debugfs_mnt, d1->d_name);
++		retlen = snprintf(d2path, MAXPATHLEN, "%s/%s", debugfs_mnt, d1->d_name);
++		/* ensure generated d2path string is valid */
++		if (retlen <= 0 || MAXPATHLEN <= retlen)
++			continue;
+ 
+ 		/* fails if d2path is not a directory */
+ 		dir2 = opendir(d2path);
+@@ -393,10 +402,18 @@
+ 				continue;
+ 
+ #ifdef HAS_OPENAT
+-                        snprintf(idpath, MAXPATHLEN, "%s/id", d2->d_name);
++			retlen = snprintf(idpath, MAXPATHLEN, "%s/id", d2->d_name);
++			/* ensure generated d2path string is valid */
++			if (retlen <= 0 || MAXPATHLEN <= retlen)
++			continue;
++
+                         fd = openat(dir2_fd, idpath, O_RDONLY);
+ #else
+-                        snprintf(idpath, MAXPATHLEN, "%s/%s/id", d2path, d2->d_name);
++                        retlen = snprintf(idpath, MAXPATHLEN, "%s/%s/id", d2path, d2->d_name);
++			/* ensure generated d2path string is valid */
++			if (retlen <= 0 || MAXPATHLEN <= retlen)
++			continue;
++
+                         fd = open(idpath, O_RDONLY);
+ #endif
+ 			if (fd == -1)
+@@ -747,7 +764,7 @@
+ 	info->type = PFM_ATTR_UMASK;
+ 	info->ctrl = PFM_ATTR_CTRL_PMU;
+ 
+-	info->is_precise = 0;
++	info->is_precise =  !!(um->uflags & PERF_FL_PRECISE);
+ 	info->is_dfl = 0;
+ 	info->idx = attr_idx;
+ 	info->dfl_val64 = 0;
+@@ -765,7 +782,7 @@
+ 	info->equiv = perf_pe[idx].equiv;
+ 	info->idx   = idx;
+ 	info->pmu   = pmu->pmu;
+-	info->is_precise = 0;
++	info->is_precise =  !!(perf_pe[idx].flags & PERF_FL_PRECISE);
+ 
+ 	/* unit masks + modifiers */
+ 	info->nattrs  = perf_pe[idx].numasks;
+diff -ruN papi-5.6.0.orig/src/libpfm4/perf_examples/syst_count.c papi-5.6.0/src/libpfm4/perf_examples/syst_count.c
+--- papi-5.6.0.orig/src/libpfm4/perf_examples/syst_count.c	2017-12-19 18:14:29.000000000 +0100
++++ papi-5.6.0/src/libpfm4/perf_examples/syst_count.c	2018-11-05 22:32:49.000000000 +0100
+@@ -112,12 +112,19 @@
+ {
+         char path[MAX_PATH+1];
+         char mnt[MAX_PATH+1];
+-        int cfd;
++        int cfd = -1;
++	int retlen;
+ 
+         if (cgroupfs_find_mountpoint(mnt, MAX_PATH+1))
+                 errx(1, "cannot find cgroup fs mount point");
+ 
+-        snprintf(path, MAX_PATH, "%s/%s", mnt, name);
++	retlen = snprintf(path, MAX_PATH, "%s/%s", mnt, name);
++
++	/* ensure generated d2path string is valid */
++	if (retlen <= 0 || MAX_PATH <= retlen) {
++		warn("Unable to generate path name %s/%s\n", mnt, name);
++		return cfd;
++	}
+ 
+         cfd = open(path, O_RDONLY);
+         if (cfd == -1)
+diff -ruN papi-5.6.0.orig/src/libpfm4/perf_examples/syst_smpl.c papi-5.6.0/src/libpfm4/perf_examples/syst_smpl.c
+--- papi-5.6.0.orig/src/libpfm4/perf_examples/syst_smpl.c	2017-12-19 18:14:29.000000000 +0100
++++ papi-5.6.0/src/libpfm4/perf_examples/syst_smpl.c	2018-11-05 22:32:49.000000000 +0100
+@@ -278,12 +278,19 @@
+ {
+         char path[MAX_PATH+1];
+         char mnt[MAX_PATH+1];
+-        int cfd;
++        int cfd = -1;
++	int retlen;
+ 
+         if (cgroupfs_find_mountpoint(mnt, MAX_PATH+1))
+                 errx(1, "cannot find cgroup fs mount point");
+ 
+-        snprintf(path, MAX_PATH, "%s/%s", mnt, name);
++	retlen = snprintf(path, MAX_PATH, "%s/%s", mnt, name);
++
++	/* ensure generated d2path string is valid */
++	if (retlen <= 0 || MAX_PATH <= retlen) {
++		warn("Unable to generate path name %s/%s\n", mnt, name);
++		return cfd;
++	}
+ 
+         cfd = open(path, O_RDONLY);
+         if (cfd == -1)

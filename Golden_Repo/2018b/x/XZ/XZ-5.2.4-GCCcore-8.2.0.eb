@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'XZ'
+version = '5.2.4'
+
+homepage = 'http://tukaani.org/xz/'
+description = """xz: XZ utilities """
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.2.0'}
+
+sources = [SOURCELOWER_TAR_BZ2]
+source_urls = ['http://tukaani.org/xz/']
+
+builddependencies = [
+    ('Autotools', '20180311'),
+    ('gettext', '0.19.8.1', '', True),
+    ('binutils', '2.31.1'),
+]
+
+patches = [
+    'XZ-5.2.2_compat-libs.patch'
+]
+
+# may become useful in non-x86 archs
+#configopts = ' --disable-assembler '
+
+sanity_check_paths = {
+    'files': ["bin/xz", "bin/lzmainfo"],
+    'dirs': []
+}
+
+moduleclass = 'tools'

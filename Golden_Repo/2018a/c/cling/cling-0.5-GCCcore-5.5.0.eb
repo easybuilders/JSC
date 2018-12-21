@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'cling'
+version = '0.5'
+
+homepage = "https://root.cern.ch/cling"
+description = """Cling is an interactive C++ interpreter, built on the top of LLVM and Clang libraries.
+Its advantages over the standard interpreters are that it has command line prompt and uses just-in-time (JIT) compiler for compilation.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '5.5.0'}
+toolchainopts = {'pic': True}
+
+source_urls = [ 'https://github.com/root-project/cling/archive' ]
+sources = [ 'v%s.tar.gz' % version ]
+
+builddependencies = [
+    ('CMake', '3.10.3'),
+    ('binutils', '2.30', ''),
+    ('Python', '3.6.5'),
+]
+
+separate_build_dir = True
+srcdir = "%(builddir)s/easybuild_obj/cling-src"
+
+# first: get the source (and build)
+preconfigopts = "%(builddir)s/cling-%(version)s/tools/packaging/cpt.py --check-requirements && "
+preconfigopts += "%(builddir)s/cling-%(version)s/tools/packaging/cpt.py --tarball-tag v%(version)s --with-workdir=%(builddir)s/easybuild_obj/ && "
+preconfigopts += "mkdir %(builddir)s/easybuild_obj/2nd_step && cd %(builddir)s/easybuild_obj/2nd_step && "
+
+# second: rebuild with patched sources
+prebuildopts = "cd %(builddir)s/easybuild_obj/2nd_step && "
+
+# third: install the patched cling
+preinstallopts = "cd %(builddir)s/easybuild_obj/2nd_step && "
+
+sanity_check_paths = {
+     'files': [],
+     'dirs': ['bin','include','lib','share'],
+}
+
+moduleclass = 'tools'

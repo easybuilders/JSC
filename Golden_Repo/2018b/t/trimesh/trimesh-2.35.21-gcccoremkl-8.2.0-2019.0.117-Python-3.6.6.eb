@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'trimesh'
+version = '2.35.21'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://trimsh.org/'
+description = """Trimesh is a Python (2.7- 3.3+) library for loading and using triangular meshes with an emphasis on
+watertight meshes. The goal of the library is to provide a fully featured Trimesh object which allows for easy
+manipulation and analysis, in the style of the excellent Polygon object in the Shapely library."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.2.0-2019.0.117'}
+
+common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+dependencies = [
+    ('Python', '3.6.6'),
+    ('SciPy-Stack', '2018b', versionsuffix), # numpy required
+]
+
+exts_list = [
+    ('networkx', '2.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/n/networkx']),
+        ('source_tmpl', '%(name)s-%(version)s.zip')
+    ])),
+    ('trimesh', version, dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/t/trimesh']),
+    ])),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'lib'

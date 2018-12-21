@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'ASE'
+version = '3.16.2'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://wiki.fysik.dtu.dk/ase/'
+description = """ASE is a python package providing an open source Atomic Simulation Environment in the Python scripting
+language."""
+
+
+toolchain = {'name': 'iimpi', 'version': '2018b.1'}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+dependencies = [
+    ('Python', '2.7.15'),
+    ('SciPy-Stack', '2018b', versionsuffix, ('gcccoremkl', '7.3.0-2019.0.117')),
+]
+
+exts_list = [
+    ('ase', version, {
+        'source_urls': ['https://pypi.python.org/packages/source/a/ase'],
+    }),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+sanity_check_paths = {
+    'files': ['bin/ase-build', 'bin/ase-db', 'bin/ase-gui', 'bin/ase-info', 'bin/ase-run'],
+    'dirs': [''],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'chem'

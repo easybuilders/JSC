@@ -1,0 +1,27 @@
+diff -ruN petsc-3.10.2.orig/src/mat/impls/aij/mpi/fdmpiaij.c petsc-3.10.2/src/mat/impls/aij/mpi/fdmpiaij.c
+--- petsc-3.10.2.orig/src/mat/impls/aij/mpi/fdmpiaij.c	2018-09-12 15:14:52.000000000 +0200
++++ petsc-3.10.2/src/mat/impls/aij/mpi/fdmpiaij.c	2018-11-14 13:28:22.008350773 +0100
+@@ -82,6 +82,7 @@
+       ierr = VecGetArray(w3,&w3_array);CHKERRQ(ierr);
+       if (ctype == IS_COLORING_GLOBAL) w3_array -= cstart; /* shift pointer so global index can be used */
+       if (coloring->htype[0] == 'w') {
++        #pragma novector
+         for (l=0; l<ncolumns[k]; l++) {
+           col            = i + bs*coloring->columns[k][l];  /* local column (in global index!) of the matrix we are probing for */
+           w3_array[col] += 1.0/dx;
+@@ -244,6 +245,7 @@
+         ierr = VecGetArray(w3,&w3_array);CHKERRQ(ierr);
+         if (ctype == IS_COLORING_GLOBAL) w3_array -= cstart; /* shift pointer so global index can be used */
+         if (coloring->htype[0] == 'w') {
++          #pragma novector
+           for (l=0; l<ncolumns[k+i]; l++) {
+             col = coloring->columns[k+i][l]; /* local column (in global index!) of the matrix we are probing for */
+             w3_array[col] += 1.0/dx;
+@@ -304,6 +306,7 @@
+       ierr = VecGetArray(w3,&w3_array);CHKERRQ(ierr);
+       if (ctype == IS_COLORING_GLOBAL) w3_array -= cstart; /* shift pointer so global index can be used */
+       if (coloring->htype[0] == 'w') {
++        #pragma novector
+         for (l=0; l<ncolumns[k]; l++) {
+           col = coloring->columns[k][l]; /* local column (in global index!) of the matrix we are probing for */
+           w3_array[col] += 1.0/dx;

@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'HarfBuzz'
+version = '1.7.6'
+
+homepage = 'http://www.freedesktop.org/wiki/Software/HarfBuzz'
+description = """HarfBuzz is an OpenType text shaping engine.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.2.0'}
+
+source_urls = ['http://www.freedesktop.org/software/harfbuzz/release/']
+sources = [SOURCELOWER_TAR_BZ2]
+
+builddependencies = [
+    ('binutils', '2.31.1'),
+    ('Coreutils', '8.29'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('X11', '20180604'),
+    ('GLib', '2.56.0'),
+    ('cairo', '1.15.10'),
+    ('freetype', '2.9.1'),
+    ('GObject-Introspection', '1.56.0')
+]
+
+configopts = "--enable-introspection=yes --with-gobject=yes --enable-static --enable-shared --with-cairo "
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib/girepository-1.0',
+    'XDG_DATA_DIRS': 'share',
+}
+
+sanity_check_paths = {
+    'files': ['lib/libharfbuzz.%s' % SHLIB_EXT, 'bin/hb-view'],
+    'dirs': []
+}
+
+moduleclass = 'vis'

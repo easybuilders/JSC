@@ -1,0 +1,10 @@
+--- node-v8.11.1.fix/src/node_crypto.cc	2018-04-29 13:44:06.480120000 +0200
++++ node-v8.11.1/src/node_crypto.cc	2018-04-29 13:41:24.991790000 +0200
+@@ -42,6 +42,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <vector>
++#include <cmath>
+ 
+ #define THROW_AND_RETURN_IF_NOT_STRING_OR_BUFFER(val, prefix)                  \
+   do {                                                                         \

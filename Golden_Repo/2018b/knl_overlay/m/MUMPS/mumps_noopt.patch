@@ -1,0 +1,11 @@
+diff -ruN MUMPS_5.1.2.orig/src/zsol_aux.F MUMPS_5.1.2/src/zsol_aux.F
+--- MUMPS_5.1.2.orig/src/zsol_aux.F	2018-10-25 16:37:38.387210823 +0200
++++ MUMPS_5.1.2/src/zsol_aux.F	2018-10-25 16:36:43.996618247 +0200
+@@ -604,6 +604,7 @@
+       SUBROUTINE ZMUMPS_ELTYD( MTYPE, N, NELT, ELTPTR, 
+      &                     LELTVAR, ELTVAR, NA_ELT8, A_ELT,
+      &                     SAVERHS, X, Y, W, K50 )
++      !DIR$ OPTIMIZE:1
+       IMPLICIT NONE
+       INTEGER N, NELT, K50, MTYPE, LELTVAR
+       INTEGER(8) :: NA_ELT8

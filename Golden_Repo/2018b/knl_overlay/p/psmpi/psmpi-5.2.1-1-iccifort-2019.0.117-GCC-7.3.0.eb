@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.2.1-1'
+pscom_version = '5.2.7-1'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+"""
+
+
+compiler = 'iccifort'
+comp_version = '2019.0.117-GCC-7.3.0'
+
+toolchain = {'name': compiler, 'version': comp_version}
+
+sources = [
+    '%(version)s.tar.gz',
+    'pscom-%s.zip' % pscom_version, # pscom has to be downloaded and renamed manually, since the filename can be the same as psmpi
+    'profile_%%(version)s_%s-%s.tar.gz' % (compiler, comp_version)
+]
+source_urls = ['https://github.com/ParaStation/psmpi/archive/']
+
+pscom_allin_path = '%%(builddir)s/pscom-%s ' % pscom_version
+
+#dependencies = [
+#    ('pscom', 'Default', '', True),
+#]
+
+patches = [
+    'psmpi_shebang.patch'
+]
+
+mpich_opts = '--enable-static'
+
+threaded = False
+
+configopts  = ' --with-pscom-builtin=psm2'
+configopts += ' --with-profile=use --with-profdir=%%(builddir)s/profile_%%(version)s_%s-%s' % (compiler, comp_version)
+#configopts += ' --with-profile=gen --with-profdir=%%(builddir)s/profile_%%(version)s_%s-%s' % (compiler, comp_version)
+
+modextravars = {
+    'PSP_READAHEAD': '4096',
+    'HFI_NO_CPUAFFINITY': '1'
+}
+
+# use a more explicit module name to help our naming scheme
+modaltsoftname = 'ParaStationMPI'
+
+# Add a family for our naming scheme
+modluafooter = 'family("mpi")'
+
+moduleclass = 'mpi'

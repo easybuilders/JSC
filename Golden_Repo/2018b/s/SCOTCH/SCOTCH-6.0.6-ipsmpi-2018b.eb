@@ -1,0 +1,22 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'SCOTCH'
+version = '6.0.6'
+
+homepage = 'http://gforge.inria.fr/projects/scotch/'
+description = """Software package and libraries for sequential and parallel graph partitioning,
+static mapping, and sparse matrix block ordering, and sequential mesh and hypergraph partitioning.
+"""
+
+
+toolchain = {'name': 'ipsmpi', 'version': '2018b'}
+toolchainopts = {'pic': True}
+
+source_urls = ['http://gforge.inria.fr/frs/download.php/file/37622/']
+sources = ['%(namelower)s_%(version)s.tar.gz']
+
+threadedmpi = False
+# Use threaded MPI version
+#versionsuffix ='-threaded'
+#threadedmpi = True
+
+moduleclass = 'math'

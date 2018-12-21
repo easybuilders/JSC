@@ -1,0 +1,12 @@
+diff -ruN qe-6.3.orig/install/make.inc.in qe-6.3/install/make.inc.in
+--- qe-6.3.orig/install/make.inc.in	2018-07-06 17:36:48.000000000 +0200
++++ qe-6.3/install/make.inc.in	2018-10-30 21:23:09.402906575 +0100
+@@ -95,7 +95,7 @@
+ # preprocessing flags must include DFLAGS and IFLAGS
+ 
+ CPP            = @cpp@
+-CPPFLAGS       = @cppflags@ $(DFLAGS) $(IFLAGS)
++CPPFLAGS       = @cppflags@ $(DFLAGS) $(IFLAGS) -fopenmp
+ 
+ # compiler flags: C, F90, F77
+ # C flags must include DFLAGS and IFLAGS

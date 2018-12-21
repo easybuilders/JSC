@@ -44,7 +44,7 @@ local user = capture("id -u -n")
 user = string.gsub(user, "\n", "")
 
 if mode()=="load" then
-    if user ~= "authorized_user" then
+    if user ~= "swmanage" and user ~="gorbet1" then
         if not userInGroup("software") then
             LmodError(yellow.."Sorry but we only allow installations from users in the software group!\n"..
                       "If you would like to be included in that group please contact: "..
@@ -80,7 +80,9 @@ if mode()=="load" then
                 "  - To keep module view clean, hiding some dependencies (GCCcore is made invisible with modulerc)\n"..
                 "    (EASYBUILD_HIDE_DEPS)\n"..
                 "  - Setting the robot path just to our golden repository\n"..
-                "    (EASYBUILD_ROBOT)\n")
+                "    (EASYBUILD_ROBOT)\n"..
+                "  - Setting the filter to don't include irrelevant environment information in test reports\n"..
+                "    (EASYBUILD_TEST_REPORT_ENV_FILTER)\n")
 end
 
 -- Unload some modules for convenience
@@ -192,26 +194,26 @@ setenv("EASYBUILD_REPOSITORYPATH", pathJoin(stage_path, "eb_repo"))
 -- Always hide the following dependencies to keep 'module avail' clean
 local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Automake,adwaita-icon-theme,ant,assimp,"..
 "Bison,babl,binutils,byacc,bzip2,"..
-"CUSP,Coreutils,cairo,configurable-http-proxy,"..
+"CUSP,Coreutils,cairo,cling,configurable-http-proxy,"..
 "DB,DBus,DocBook-XML,Dyninst,dbus-glib,damageproto,"..
 "ETSF_IO,Exiv2,eudev,expat,"..
 "FFmpeg,FLTK,FTGL,FoX,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
 "GCCcore,GDAL,GEGL,GL2PS,GLEW,GLM,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
-"g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,grib_api,gsettings-desktop-schemas,gettext,"..
+"g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,gsettings-desktop-schemas,gettext,gzip,"..
 "HarfBuzz,"..
 "icc,ifort,inputproto,intltool,itstool,"..
 "JUnit,JSON-C,JSON-GLib,JasPer,jhbuild,"..
 "kbproto,"..
 "LMDB,LZO,LevelDB,LibTIFF,LibUUID,Libint,LittleCMS,"..
 "libGLU,libICE,libSM,libX11,libXau,libXaw,libXcursor,libXdamage,libXdmcp,libXext,libXfixes,libXfont,libXft,libXi,"..
-"libXinerama,libXmu,libXpm,libXrandr,libXrender,libXt,libXtst,libcerf,libcroco,libctl,libdap,libdrm,libdwarf,libelf,"..
+"libXinerama,libXmu,libXp,libXpm,libXrandr,libXrender,libXt,libXtst,libcerf,libcroco,libctl,libdap,libdrm,libdwarf,libelf,"..
 "libepoxy,libevent,libffi,libfontenc,libgd,libgeotiff,libglade,libidn,libjpeg-turbo,libmatheval,libmypaint,libpng,"..
-"libpciaccess,libpthread-stubs,libreadline,librsvg,libsndfile,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
+"libpciaccess,libpthread-stubs,libreadline,librsvg,libsndfile,libspatialindex,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
 "libxslt,libyuv,"..
 "M4,MATIO,Mesa,makedepend,motif,msgpack-c,"..
 "NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
 "OPARI2,OTF2,"..
-"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,patchelf,pixman,pkg-config,pkgconfig,popt,protobuf,pscom,pybind11,"..
+"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,patchelf,pixman,pkg-config,pkgconfig,popt,printproto,protobuf,pscom,pybind11,"..
 "Qhull,Qt,Qt5,qrupdate,"..
 "randrproto,recordproto,renderproto,"..
 "S-Lang,SCons,SIP,SQLite,SWIG,Serf,Szip,scrollkeeper,snappy,"..
@@ -222,7 +224,7 @@ local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Au
 "XML-Parser,XZ,XKeyboardConfig,"..
 "x264,x265,xbitmaps,xcb-proto,xcb-util,xcb-util-image,xcb-util-keysyms,xcb-util-renderutil,xcb-util-wm,xextproto,"..
 "xineramaproto,xorg-macros,xprop,xproto,xtrans,"..
-"YAXT,Yasm,"..
+"Yasm,"..
 "zlib"
 
 setenv("EASYBUILD_HIDE_DEPS", hidden_deps)
@@ -279,8 +281,11 @@ setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 
 -- Set up the hooks to automatically refresh the cache and stop waiting for the cronjob to do it
 if user == "swmanage" then
-    setenv("EASYBUILD_HOOKS", "/usr/local/software/FZJ/eb_hooks.py")
+    setenv("EASYBUILD_HOOKS", "/path/to/configuration_or_licenses/FZJ/eb_hooks.py")
 end
+
+-- Filter for test reports
+setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", "\\*PS1\\*|PROMPT\\*|\\*LICENSE\\*")
 
 -- Let's set things up to use the job submission system to install the software
 if not isloaded("GC3Pie") then

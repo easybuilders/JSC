@@ -4,7 +4,7 @@ easyblock = 'ConfigureMake'
 name = 'pscom'
 # Create drop-in replacement version that ensures over-riding behaviour
 version = "Default"
-realversion = "5.2.3-1"
+realversion = "5.2.6-1"
 homepage = 'http://www.par-tec.com'
 description = """ParaStation is a robust and efficient cluster middleware, consisting of a high-performance
 communication layer (MPI) and a sophisticated management layer.

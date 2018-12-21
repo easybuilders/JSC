@@ -335,6 +335,11 @@ exts_list = [
     ('Rtree', '0.8.3', {
         'source_urls': ['https://pypi.python.org/packages/source/r/rtree'],
     }),
+    # Keep in sync with OSs version
+    ('ClusterShell', '1.8', {
+        'modulename': 'ClusterShell',
+        'source_urls': ['https://pypi.python.org/packages/source/c/ClusterShell'],
+    }),
 ]
 
 modextrapaths = {'PYTHONPATH': [

@@ -4,8 +4,6 @@ name = 'scikit'
 version = '2018b'
 versionsuffix = '-Python-%(pyver)s'
 
-numpyversion = '1.15.2'
-
 homepage = 'https://www.scipy.org/scikits.html'
 description = """SciKits (short for SciPy Toolkits), are add-on packages for SciPy, hosted and developed separately and
 independently from the main SciPy distribution."""

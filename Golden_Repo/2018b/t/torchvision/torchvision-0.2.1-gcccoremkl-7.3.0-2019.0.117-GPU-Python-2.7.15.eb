@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'torchvision'
+version = '0.2.1'
+pysuffix = '-Python-%(pyver)s'
+versionsuffix = '-GPU%s' % pysuffix
+
+homepage = 'http://pytorch.org/'
+description = """The torchvision package consists of popular datasets, model architectures, and common image
+transformations for computer vision."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '7.3.0-2019.0.117'}
+
+download_dep_fail = True
+
+source_urls = [
+    'https://github.com/pytorch/vision/archive',
+]
+sources = [
+    'v%(version)s.tar.gz'
+]
+
+dependencies = [
+    ('Python', '2.7.15'),
+    ('SciPy-Stack', '2018b', pysuffix),
+    ('PyTorch', '1.0.0', versionsuffix),
+]
+
+options = {'modulename': 'torchvision'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+# Add a property
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'devel'

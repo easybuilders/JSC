@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+# Author: Bart Verleye
+# Center for eResearch, Auckland
+easyblock = 'ConfigureMakePythonPackage'
+
+name = 'SIP'
+version = '4.19.12'
+
+homepage = 'http://www.riverbankcomputing.com/software/sip/'
+description = """SIP is a tool that makes it very easy to create Python bindings for C and C++ libraries."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.3.0'}
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = ['http://sourceforge.net/projects/pyqt/files/sip/sip-%(version)s']
+
+versionsuffix = '-Python-%(pyver)s'
+
+builddependencies = [('binutils', '2.31.1')]
+
+dependencies = [('Python', '2.7.15')]
+
+configopts = "configure.py --bindir %(installdir)s/bin --incdir %(installdir)s/include "
+configopts += "--destdir %(installdir)s/lib/python%(pyshortver)s/site-packages --sip-module PyQt4.sip"
+
+modextrapaths = {
+    'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages/PyQt4'
+}
+
+sanity_check_paths = {
+    'files': ['bin/sip', 'include/sip.h'] +
+             ['lib/python%%(pyshortver)s/site-packages/%s' % x
+              for x in ['PyQt4/sip.%s' % SHLIB_EXT, 'sipconfig.py', 'sipdistutils.py']],
+    'dirs': [],
+}
+
+moduleclass = 'lang'

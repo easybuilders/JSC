@@ -41,7 +41,7 @@ modextravars = {
     'I_MPI_ADJUST_GATHERV': '3',
 }
 
-modloadmsg =  'This version of Intel MPI have issues with certain collective functions at large core counts.\n'
-modloadmsg += 'If you are affected by such issues and need to use Intel MPI, please switch to the 2018a stage\n'
+modloadmsg =  'This version of Intel MPI have serious issues. Particularly with certain collective functions at large\n'
+modloadmsg += 'core counts. Please load version 2018.4 instead'
 
 moduleclass = 'mpi'

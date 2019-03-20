@@ -40,7 +40,7 @@ description = """TotalView breaks down barriers to understanding what's going on
 toolchain = {'name': 'dummy', 'version': 'dummy'}
 
 sources = [
-    '%(namelower)s_%(version)s_linux_x86-64.tar',
+    '%(namelower)s.%(version)s-linux-x86-64.tar',
     '%(namelower)s.%(version)s-doc.tar',
 ]
 

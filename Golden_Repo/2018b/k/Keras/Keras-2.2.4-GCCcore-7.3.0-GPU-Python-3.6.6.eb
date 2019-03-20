@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Keras'
+version = '2.2.4'
+pysuffix = '-Python-%(pyver)s'
+versionsuffix = '-GPU%s' % pysuffix
+
+homepage = 'https://keras.io/'
+description = """Keras is a minimalist, highly modular neural networks library, written in Python and
+capable of running on top of either TensorFlow or Theano."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '7.3.0'}
+
+builddependencies = [
+    ('binutils', '2.31.1'),
+]
+
+dependencies = [
+    ('Python', '3.6.6'),
+    ('TensorFlow', '1.12.0', versionsuffix),
+    ('h5py', '2.8.0', '-serial%s' % pysuffix),
+]
+
+use_pip = True
+
+exts_download_dep_fail = True
+
+exts_list = [
+    (name, version, {
+        'source_urls': ['https://pypi.python.org/packages/source/K/Keras'],
+        'checksums': ['90b610a3dbbf6d257b20a079eba3fdf2eed2158f64066a7c6f7227023fd60bc9'],
+    }),
+]
+
+moduleclass = 'math'

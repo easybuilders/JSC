@@ -420,10 +420,13 @@ exts_list = [
         'source_tmpl': '%(name)s-%(version)s.zip',
         'source_urls': ['https://pypi.python.org/packages/source/t/tatsu'],
     }),
+    ('psutil', '5.6.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/psutil'],
+    }),
 ]
 
 postinstallcmds = [
-    'chmod o+r %%(installdir)s/lib/python%%(pyshortver)s/site-packages/grako-%s-py%%(pyshortver)s-linux-x86_64.egg/EGG-INFO/entry_points.txt' % grakover
+    'chmod o+r %%(installdir)s/lib/python3.6/site-packages/grako-%s-py3.6-linux-x86_64.egg/EGG-INFO/entry_points.txt' % grakover
 ]
 
 modextrapaths = {'PYTHONPATH': [

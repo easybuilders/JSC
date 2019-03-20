@@ -35,6 +35,7 @@ dependencies = [
     ('libXt', '1.1.5'),
     ('cairo', '1.14.6'),
     ('netCDF', '4.4.0'),
+    ('Pango', '1.39.0'),
 ]
 
 name_tmpl = '%(name)s_%(version)s.tar.gz'

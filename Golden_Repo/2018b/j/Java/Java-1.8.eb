@@ -1,7 +1,7 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'Java'
 version = '1.8'
-realversion = '1.8.0_181'
+realversion = '1.8.0_192'
 
 homepage = 'http://java.com/'
 description = """Java Platform, Standard Edition (Java SE) lets you develop and deploy
@@ -14,6 +14,6 @@ toolchain = {'name': 'dummy', 'version': 'dummy'}
 (vp, vs) = realversion.split('_')
 altver = '%su%s' % (vp.split('.')[1], vs)
 sources = ['jdk-%s-linux-x64.tar.gz' % altver]
-checksums = ['1845567095bfbfebd42ed0d09397939796d05456290fb20a83c476ba09f991d3']
+checksums = ['6d34ae147fc5564c07b913b467de1411c795e290356538f22502f28b76a323c2']
 
 moduleclass = 'lang'

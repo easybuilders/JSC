@@ -69,6 +69,13 @@ postinstallcmds = [
     "sed -i s#'-mtune=generic'#'-mtune=haswell'#g %(installdir)s/bin/mpif77",
     "sed -i s#'-mtune=generic'#'-mtune=haswell'#g %(installdir)s/bin/mpif90",
     "sed -i s#'-mtune=generic'#'-mtune=haswell'#g %(installdir)s/bin/mpifort",
+    # Add -lnvidia-ml inside the wrappers to avoid undefined references in libmpi.so
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpicc",
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpicxx",
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpic++",
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpif77",
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpif90",
+    "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpifort",
     # Remove launchers
     "rm %(installdir)s/bin/mpiexec* %(installdir)s/bin/mpirun*",
 ]

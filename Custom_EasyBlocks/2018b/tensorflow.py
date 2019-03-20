@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2017-2018 Ghent University
+# Copyright 2017-2019 Ghent University
 #
 # This file is part of EasyBuild,
 # originally created by the HPC team of Ghent University (http://ugent.be/hpc/en),
@@ -321,7 +321,9 @@ class EB_TensorFlow(PythonPackage):
                     self.log.info("Patching %s", full_path)
                     apply_regex_substitutions(full_path, regex_subs)
 
-        tmpdir = tempfile.mkdtemp(suffix='-bazel-build')
+        tmpdir = '/tmp/easybuild/artificially/extended/path/to/workaround/certain/bazel/bug/'
+        mkdir(tmpdir, parents=True)
+        tmpdir = tempfile.mkdtemp(dir=tmpdir)
         user_root_tmpdir = tempfile.mkdtemp(suffix='-user_root')
 
         # compose "bazel build" command with all its options...

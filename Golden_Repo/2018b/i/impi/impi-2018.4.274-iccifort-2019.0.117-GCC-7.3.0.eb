@@ -46,7 +46,17 @@ modextravars = {
     'I_MPI_FABRICS': 'shm:ofa',
 }
 
-#modloadmsg =  'This version of Intel MPI have issues with certain collective functions at large core counts.\n'
-#modloadmsg += 'If you are affected by such issues and need to use Intel MPI, please switch to the 2018a stage\n'
+modloadmsg = 'WARNING: Intel MPI version 2018 (all minor releases) and 2019 have unresolved, known issues\n'
+modloadmsg += 'affecting collective operations. Since not all applications are impaired, JSC has\n'
+modloadmsg += 'decided not to fully retract the MPI version 2018 (other than version 2019).\n'
+modloadmsg += 'However, we warn users about potential problems with hanging applications due to stalls\n'
+modloadmsg += 'or very slow progress in collectives.\n'
+modloadmsg += 'In particular affected are:\n'
+modloadmsg += '    * MPI_Scatter/MPI_Scatterv\n'
+modloadmsg += '    * Collectives executed with 3000+ tasks\n'
+modloadmsg += 'Larger jobs are more likely affected than smaller ones.\n'
+modloadmsg += 'Please consider ParaStation MPI as an alternative option, when experiencing problems\n'
+modloadmsg += 'with this Intel MPI version. Irrespectively, please contact sc@fz-juelich.de and report\n'
+modloadmsg += 'your problem.'
 
 moduleclass = 'mpi'

@@ -11,6 +11,7 @@ description = """
 
 
 toolchain = {'name': 'dummy', 'version': ''}
+toolchainopts = {'pic': True}
 
 sources = [SOURCE_TAR_GZ]
 source_urls = [GNU_SOURCE]

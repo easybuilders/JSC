@@ -47,6 +47,8 @@ mpiexec = 'srun'
 mpiexec_numproc_flag = '"--gres=gpu:1 -n"'
 mpi_numprocs = '24'
 
+runtest = False
+
 modluafooter = '''
 add_property("arch","gpu")
 '''

@@ -19,6 +19,18 @@ description = """The VAMPIR software tool provides an easy-to-use framework that
  enable fast and interactive rendering of very complex performance monitoring data.
 """
 
+usage = """
+To start VampirServer
+module load Vampir VampirServer
+vampir &
+BATCH_OPT="--account=<budget> --partition=<partition>" vampirserver start -n 4 mpi
+(note server + port + server_id)
+- Use it
+Vampir GUI-> open other -> remote file -> server + port
+- To stop VampirServer
+vampirserver stop <server_id>
+"""
+
 
 toolchain = {'name': 'ipsmpi', 'version': '2018b'}
 
@@ -36,7 +48,9 @@ sanity_check_paths = {
 # Remove Cray-specific 'ap' launcher,
 # use SLURM launcher as MPI launcher and default
 postinstallcmds = [
-    'cd %(installdir)s/etc/server/launcher && rm ap mpi && cp custom/slurm mpi',
+    'rm %(installdir)s/etc/server/launcher/ap',
+    '''sed -i s/'BATCH_OPT=""'/'#BATCH_OPT=""'/g %(installdir)s/etc/server/launcher/custom/slurm''',
+    'cp %(installdir)s/etc/server/launcher/custom/slurm %(installdir)s/etc/server/launcher/mpi',
 ]
 
 modextravars = {

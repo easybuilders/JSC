@@ -11,8 +11,8 @@ description = """This module simply prepends the libraries provided by NVIDIA's 
 
 toolchain = {'name': 'dummy', 'version': 'dummy'}
 
-modextrapaths = {'LD_LIBRARY_PATH': '/usr/lib64/nvidia:/usr/lib64/libglvnd'}
+#modextrapaths = {'LD_LIBRARY_PATH': '/usr/lib64/nvidia:/usr/lib64/libglvnd'}
 
-modextravars = {'NVIDIALIBDIR': '/usr/lib64/libglvnd'}
+modextravars = {'LD_PRELOAD': '/usr/lib64/libGL.so.1'}
 
 moduleclass = 'vis'

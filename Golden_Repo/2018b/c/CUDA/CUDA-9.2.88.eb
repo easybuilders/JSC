@@ -48,6 +48,10 @@ dependencies = [
 #modloadmsg += "and convenience nvcc_g++ is also provided. Please note that CUDA 9.1 is not compatible with "
 #modloadmsg += "Intel 2018 compilers\n"
 
+postinstallcmds = [
+    'cd %(installdir)s/samples && make SMS="35 37"'
+]
+
 modluafooter = '''
 add_property("arch","gpu")
 '''

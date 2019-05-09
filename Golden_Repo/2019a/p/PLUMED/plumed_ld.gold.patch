@@ -1,0 +1,12 @@
+diff -ruN plumed2-2.4.3.orig/configure plumed2-2.4.3/configure
+--- plumed2-2.4.3.orig/configure	2018-10-15 14:19:18.282735508 +0200
++++ plumed2-2.4.3/configure	2018-10-15 14:19:33.824067213 +0200
+@@ -8785,7 +8785,7 @@
+ 
+ LD_RO=
+ if test "$ld_r" == true ; then
+-for test_LD_RO in "$($CXX --print-prog-name=ld) -r -o" "$CXX -Wl,-r -o" "ld -r -o"
++for test_LD_RO in "$($CXX --print-prog-name=ld.gold) -r -o" "$CXX -Wl,-r -o" "ld -r -o"
+ do
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ objects can be grouped with $test_LD_RO" >&5
+ $as_echo_n "checking whether C++ objects can be grouped with $test_LD_RO... " >&6; }

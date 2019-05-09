@@ -1,0 +1,223 @@
+--- MUMPS_5.1.2/README	2017-10-02 09:37:01.000000000 +0200
++++ MUMPS_5.1.2_ok/README	2018-04-26 16:29:07.000000000 +0200
+@@ -59,3 +59,4 @@
+ SCILAB   contains a SCILAB interface to the sequential version of MUMPS
+          (only tested with scilab version 4)
+ 
++Nothing, just make diff happy
+--- MUMPS_5.1.2/examples/Makefile_built	2018-04-26 16:25:57.432924000 +0200
++++ MUMPS_5.1.2_ok/examples/Makefile_built	2018-04-26 16:00:42.000000000 +0200
+@@ -0,0 +1,105 @@
++#
++#  This file is part of MUMPS 5.1.2, released
++#  on Mon Oct  2 07:37:01 UTC 2017
++#
++
++CC = mpicc
++FC = mpif77
++FL = mpif77
++
++LIBBLAS = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread
++SCALAP=-lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LIBPAR = $(SCALAP) $(LIBBLAS)
++
++#Preprocessor defs for calling Fortran from C (-DAdd_ or -DAdd__ or -DUPPER)
++CDEFS   = -DAdd_
++
++#Begin Optimized options
++OPTF    = -O -nofor_main -qopenmp -Dintel_ -DALLOW_NON_INIT
++OPTL    = -O -nofor_main -qopenmp
++OPTC    = -O -qopenmp
++#End Optimized options
++
++default: d
++
++.PHONY: default all s d c z multi clean
++.SECONDEXPANSION:
++
++all:	c z s d multi
++
++c:	csimpletest 
++z:	zsimpletest 
++s:	ssimpletest 
++d:	dsimpletest   c_example
++multi:	multiple_arithmetics_example
++
++SCOTCHDIR=$(EBROOTSCOTCH)
++LMETISDIR=$(EBROOTPARMETIS)
++LMETIS=-L$(EBROOTPARMETIS)/lib -lparmetis -lmetis
++LSCOTCH=-L$(EBROOTSCOTCH)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr
++LPORD=-L$(MUMPS_LIB) -lpord
++
++LIBMUMPS_COMMON = -L$(MUMPS_LIB) -lmumps_common
++
++LORDERINGS=$(LMETIS) $(LPORD) $(LSCOTCH)
++
++LIBSMUMPS = -L$(MUMPS_LIB) -lsmumps $(LIBMUMPS_COMMON)
++
++ssimpletest:   $$@.o
++	$(FL) -o $@ $(OPTL) ssimpletest.o  $(LIBSMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBDMUMPS = -L$(MUMPS_LIB) -ldmumps $(LIBMUMPS_COMMON)
++
++dsimpletest:  $$@.o 
++	$(FL) -o $@ $(OPTL) dsimpletest.o  $(LIBDMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBCMUMPS = -L$(MUMPS_LIB) -lcmumps $(LIBMUMPS_COMMON)
++
++csimpletest:  $$@.o
++	$(FL) -o $@ $(OPTL) csimpletest.o  $(LIBCMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBZMUMPS = -L$(MUMPS_LIB) -lzmumps $(LIBMUMPS_COMMON)
++
++zsimpletest:  $$@.o
++	$(FL) -o $@ $(OPTL) zsimpletest.o  $(LIBZMUMPS) $(LORDERINGS) $(LIBPAR)
++
++c_example:  $$@.o
++	$(FL) -o $@ $(OPTL) $@.o $(LIBDMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++multiple_arithmetics_example:	$$@.o
++	$(FL) -o $@ $(OPTL) $@.o $(LIBSMUMPS) $(LIBDMUMPS) $(LIBCMUMPS) $(LIBZMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++.SUFFIXES: .c .F .o
++.F.o:
++	$(FC) $(OPTF) $(INCS) -I. -I$(MUMPS_INCLUDE) -c $*.F -o $*.o
++.c.o:
++	$(CC) $(OPTC) $(INCS) $(CDEFS) -I. -I$(MUMPS_INCLUDE) -c $*.c -o $*.o
++
++
++$(libdir)/libsmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libdmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libcmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libzmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(LIBMUMPS_COMMON):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++clean:
++	$(RM) *.o [sdcz]simpletest c_example multiple_arithmetics_example     
+--- MUMPS_5.1.2/examples/Makefile_built_gpsmkl	1970-01-01 01:00:00.000000000 +0100
++++ MUMPS_5.1.2_ok/examples/Makefile_built_gpsmkl	2019-04-16 11:39:03.520513000 +0200
+@@ -0,0 +1,105 @@
++#
++#  This file is part of MUMPS 5.1.2, released
++#  on Mon Oct  2 07:37:01 UTC 2017
++#
++
++CC = mpicc
++FC = mpif77
++FL = mpif77
++
++LIBBLAS = -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
++SCALAP=-lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LIBPAR = $(SCALAP) $(LIBBLAS)
++
++#Preprocessor defs for calling Fortran from C (-DAdd_ or -DAdd__ or -DUPPER)
++CDEFS   = -DAdd_
++
++#Begin Optimized options
++OPTF    = -O -fopenmp 
++OPTL    = -O -fopenmp
++OPTC    = -O -fopenmp
++#End Optimized options
++
++default: d
++
++.PHONY: default all s d c z multi clean
++.SECONDEXPANSION:
++
++all:	c z s d multi
++
++c:	csimpletest 
++z:	zsimpletest 
++s:	ssimpletest 
++d:	dsimpletest   c_example
++multi:	multiple_arithmetics_example
++
++SCOTCHDIR=$(EBROOTSCOTCH)
++LMETISDIR=$(EBROOTPARMETIS)
++LMETIS=-L$(EBROOTPARMETIS)/lib -lparmetis -lmetis
++LSCOTCH=-L$(EBROOTSCOTCH)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr
++LPORD=-L$(MUMPS_LIB) -lpord
++
++LIBMUMPS_COMMON = -L$(MUMPS_LIB) -lmumps_common
++
++LORDERINGS=$(LMETIS) $(LPORD) $(LSCOTCH)
++
++LIBSMUMPS = -L$(MUMPS_LIB) -lsmumps $(LIBMUMPS_COMMON)
++
++ssimpletest:   $$@.o
++	$(FL) -o $@ $(OPTL) ssimpletest.o  $(LIBSMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBDMUMPS = -L$(MUMPS_LIB) -ldmumps $(LIBMUMPS_COMMON)
++
++dsimpletest:  $$@.o 
++	$(FL) -o $@ $(OPTL) dsimpletest.o  $(LIBDMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBCMUMPS = -L$(MUMPS_LIB) -lcmumps $(LIBMUMPS_COMMON)
++
++csimpletest:  $$@.o
++	$(FL) -o $@ $(OPTL) csimpletest.o  $(LIBCMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++LIBZMUMPS = -L$(MUMPS_LIB) -lzmumps $(LIBMUMPS_COMMON)
++
++zsimpletest:  $$@.o
++	$(FL) -o $@ $(OPTL) zsimpletest.o  $(LIBZMUMPS) $(LORDERINGS) $(LIBPAR)
++
++c_example:  $$@.o
++	$(FL) -o $@ $(OPTL) $@.o $(LIBDMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++multiple_arithmetics_example:	$$@.o
++	$(FL) -o $@ $(OPTL) $@.o $(LIBSMUMPS) $(LIBDMUMPS) $(LIBCMUMPS) $(LIBZMUMPS) $(LORDERINGS) $(LIBPAR)
++
++
++.SUFFIXES: .c .F .o
++.F.o:
++	$(FC) $(OPTF) $(INCS) -I. -I$(MUMPS_INCLUDE) -c $*.F -o $*.o
++.c.o:
++	$(CC) $(OPTC) $(INCS) $(CDEFS) -I. -I$(MUMPS_INCLUDE) -c $*.c -o $*.o
++
++
++$(libdir)/libsmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libdmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libcmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(libdir)/libzmumps$(PLAT)$(LIBEXT):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++$(LIBMUMPS_COMMON):
++	@echo 'Error: you should build the library' $@ 'first'
++	exit 1
++
++clean:
++	$(RM) *.o [sdcz]simpletest c_example multiple_arithmetics_example     

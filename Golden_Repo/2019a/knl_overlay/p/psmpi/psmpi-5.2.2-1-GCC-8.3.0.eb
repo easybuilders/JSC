@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.2.2-1'
+pscom_version = '5.2.9-1'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+"""
+
+
+compiler = 'GCC'
+comp_version = '8.3.0'
+
+toolchain = {'name': compiler, 'version': comp_version}
+
+source_urls = [
+    'https://github.com/ParaStation/psmpi/archive/',
+    'https://github.com/ParaStation/pscom/archive/'
+]
+sources = [
+    '%(version)s.tar.gz',
+    {
+        'filename': 'pscom-%s.zip' % pscom_version,
+        'download_filename': '%s.zip' % pscom_version
+    }
+]
+
+pscom_allin_path = '%%(builddir)s/pscom-%s ' % pscom_version
+pgo = True
+
+patches = [
+    'psmpi_shebang.patch'
+]
+
+builddependencies = [
+    ('popt', '1.16', '', True)
+]
+
+mpich_opts = '--enable-static'
+
+threaded = False
+
+configopts  = ' --with-pscom-builtin=psm2'
+
+modextravars = {
+    'PSP_READAHEAD': '4096',
+    'HFI_NO_CPUAFFINITY': '1'
+}
+
+# use a more explicit module name to help our naming scheme
+modaltsoftname = 'ParaStationMPI'
+
+# Add a family for our naming scheme
+modluafooter = 'family("mpi")'
+
+moduleclass = 'mpi'

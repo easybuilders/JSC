@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'texlive'
+version = '2018'
+
+homepage = 'http://tug.org/texlive/'
+description = """TeX Live is an easy way to get up and running with the TeX
+document production system."""
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = ['ftp://tug.org/historic/systems/texlive/%(version)s/']
+sources = ['install-tl-unx.tar.gz']
+checksums = [('sha256', '82c13110852af162c4c5ef1579fa2f4f51c2040850ec02fb7f97497da45eb446')]
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('Perl', '5.28.1'),
+]
+
+extract_sources = True
+
+install_cmd =  "echo '# texlive.profile for installation'                     > texlive.profile && "
+install_cmd += "echo 'selected_scheme scheme-full'                            >> texlive.profile && "
+install_cmd += "echo 'TEXDIR         %(installdir)s/%(version)s'              >> texlive.profile && "
+install_cmd += "echo 'TEXMFLOCAL     %(installdir)s/texmf-local'              >> texlive.profile && "
+install_cmd += "echo 'TEXMFSYSCONFIG %(installdir)s/%(version)s/texmf-config' >> texlive.profile && "
+install_cmd += "echo 'TEXMFSYSVAR    %(installdir)s/%(version)s/texmf-var'    >> texlive.profile && "
+install_cmd += "echo 'TEXMFHOME     ~/texmf'                                  >> texlive.profile && "
+install_cmd += "echo 'TEXMFCONFIG   ~/.texlive%(version)s/texmf-config'       >> texlive.profile && "
+install_cmd += "echo 'TEXMFVAR      ~/.texlive%(version)s/texmf-var'          >> texlive.profile && "
+install_cmd += "echo 'binary_x86_64-linux 1'                                  >> texlive.profile && "
+install_cmd += "echo 'instopt_adjustpath 0'                                   >> texlive.profile && "
+install_cmd += "echo 'instopt_adjustrepo 1'                                   >> texlive.profile && "
+install_cmd += "echo 'instopt_letter 0'                                       >> texlive.profile && "
+install_cmd += "echo 'instopt_portable 0'                                     >> texlive.profile && "
+install_cmd += "echo 'instopt_write18_restricted 1'                           >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_autobackup 1'                                  >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_backupdir tlpkg/backups'                       >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_create_formats 1'                              >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_desktop_integration 1'                         >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_file_assocs 1'                                 >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_generate_updmap 0'                             >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_install_docfiles 1'                            >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_install_srcfiles 1'                            >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_post_code 1'                                   >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_sys_bin /usr/local/bin'                        >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_sys_info /usr/local/share/info'                >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_sys_man /usr/local/share/man'                  >> texlive.profile && "
+install_cmd += "echo 'tlpdbopt_w32_multi_user 1'                              >> texlive.profile && "
+
+install_cmd += "./install-tl -profile texlive.profile -repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/%(version)s/tlnet-final"
+
+prepend_to_path = '2018/bin/x86_64-linux'
+
+modextrapaths = {'MANPATH':  ['%(version)s/texmf-dist/doc/man']}
+modextrapaths = {'INFOPATH': ['%(version)s/texmf-dist/doc/info']}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['2018/bin/x86_64-linux'],
+}
+
+moduleclass = 'tools'

@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'ATK'
+version = '2.32.0'
+
+homepage = 'https://developer.gnome.org/ATK/stable/'
+description = """
+ ATK provides the set of accessibility interfaces that are implemented by other
+ toolkits and applications. Using the ATK interfaces, accessibility tools have
+ full access to view and control running applications.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('GObject-Introspection', '1.60.0'),
+    ('Meson', '0.50.0', '-Python-3.6.8'),
+    ('Ninja', '1.9.0')
+]
+
+dependencies = [
+    ('GLib', '2.60.0'),
+]
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib64/girepository-1.0',
+    'XDG_DATA_DIRS': 'share',
+}
+
+sanity_check_paths = {
+    'files': ['lib64/libatk-1.0.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

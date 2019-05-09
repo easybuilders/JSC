@@ -1,0 +1,12 @@
+diff -ruN gdk-pixbuf-2.38.1/build-aux/post-install.sh gdk-pixbuf-2.38.1.patched/build-aux/post-install.sh
+--- gdk-pixbuf-2.38.1/build-aux/post-install.sh	2019-02-28 17:22:57.000000000 +0100
++++ gdk-pixbuf-2.38.1.patched/build-aux/post-install.sh	2019-04-08 17:05:34.131234734 +0200
+@@ -5,7 +5,7 @@
+ 
+ if [ -z "$DESTDIR" ]; then
+         mkdir -p "$libdir/gdk-pixbuf-2.0/$binary_version"
+-        gdk-pixbuf-query-loaders > "$libdir/gdk-pixbuf-2.0/$binary_version/loaders.cache"
++        ./gdk-pixbuf/gdk-pixbuf-query-loaders > "$libdir/gdk-pixbuf-2.0/$binary_version/loaders.cache"
+ else
+         echo "***"
+         echo "*** Warning: loaders.cache not built"

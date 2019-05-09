@@ -1,0 +1,72 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Octave'
+version = '5.1.0'
+
+homepage = 'http://www.gnu.org/software/octave/'
+description = """GNU Octave is a high-level interpreted language, primarily intended for numerical computations."""
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2019a'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('Bison', '3.3.2'),
+    ('flex', '2.6.4'),
+    ('pkg-config', '0.29.2'),
+    ('texinfo', '6.6'),
+    ('gperf', '3.1'),
+    ('Autotools', '20180311'),
+]
+
+dependencies = [
+    ('X11', '20190311'),
+    ('PCRE', '8.43'),
+    ('ncurses', '6.1'),
+    ('libreadline', '8.0'),
+    ('ARPACK-NG', '3.7.0'),
+    ('cURL', '7.64.1'),
+    ('FLTK', '1.3.5'),
+    ('fontconfig', '2.13.1'),
+    ('freetype', '2.10.0'),
+    ('GLPK', '4.65'),
+    ('GL2PS', '1.4.0'),
+    ('gnuplot', '5.2.6'),
+    ('Java', '1.8', '', True),
+    ('Mesa', '19.0.1'),
+    ('libGLU', '9.0.0'),
+    ('zlib', '1.2.11'),
+    ('Qhull', '2015.2'),
+    ('Qt5', '5.12.2'),
+    ('HDF5', '1.10.5'),
+    ('qrupdate', '1.1.2'),
+    ('SuiteSparse', '5.4.0', '-METIS-5.1.0'),
+    ('GraphicsMagick', '1.3.31'),
+    ('FFTW', '3.3.8'),
+]
+
+# This is an OS dep because texinfo requires tex (and tex is too much to port to EB).
+# There is a texinfo in the EB repo but this doesn't really work as it requires an additional step to install
+# the necessary texinfo.tex files in the main tex installation. If tex is coming from the system and not
+# EB then this additional step can't be done...so better to push everything back to the OS
+osdependencies = ['texinfo-tex']
+
+configopts = 'MOC=$EBROOTQT5/bin/moc '
+configopts += 'UIC=$EBROOTQT5/bin/uic '
+configopts += 'RCC=$EBROOTQT5/bin/rcc '
+configopts += 'LRELEASE=$EBROOTQT5/bin/lrelease '
+configopts += '--with-blas="$LIBBLAS" --with-lapack="$LIBLAPACK" --disable-docs '
+# correct for both GCC and Intel compilers
+configopts += '--enable-fortran-calling-convention=gfortran '
+
+sanity_check_paths = {
+    'files': ['bin/octave'],
+    'dirs': []
+}
+
+sanity_check_commands = [('octave', '--eval "1+2"')]
+
+moduleclass = 'math'

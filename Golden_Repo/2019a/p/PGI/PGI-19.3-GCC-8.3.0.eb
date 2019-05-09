@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'PGI'
+version = '19.3'
+binutilsver = '2.32'
+gccver = '8.3.0'
+versionsuffix = '-GCC-%s' % gccver
+
+homepage = 'http://www.pgroup.com/'
+description = """C, C++ and Fortran compilers from The Portland Group - PGI"""
+
+
+toolchain = {'name': 'dummy', 'version': ''}
+
+sources = ['pgilinux-20%(version_major)s-%(version_major)s%(version_minor)s-x86-64.tar.gz']
+
+dependencies = [
+    ('GCCcore', gccver),
+    ('binutils', binutilsver, '', ('GCCcore', gccver)),
+    # This is necessary to avoid cases where just libnuma.so.1 is present in the system and -lnuma fails
+    ('numactl', '2.0.12', '', ('GCCcore', gccver)),
+]
+
+install_amd = False
+install_managed = True
+install_nvidia = True
+install_java = True
+
+# We use a HMNS, so let's enforce a unique compiler
+modluafooter = 'family("compiler")'
+
+# Always do a recursive unload on compilers
+recursive_module_unload = True
+
+#postinstallcmds = [
+#    'echo "switch -pthread is replace(-lpthread) positional(linker);" >> %(installdir)s/linux86-64/%(version)s/bin/siterc',
+#]
+
+# this bundle serves as a compiler-only toolchain, so it should be marked as compiler (important for HMNS)
+moduleclass = 'compiler'

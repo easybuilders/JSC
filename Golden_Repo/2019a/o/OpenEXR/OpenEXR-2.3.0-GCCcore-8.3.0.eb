@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'OpenEXR'
+version = '2.3.0'
+
+homepage = 'http://www.openexr.com/'
+description = """OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic
+ for use in computer imaging applications"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = ['https://github.com/openexr/openexr/releases/download/v%(version)s/']
+
+builddependencies = [
+    ('binutils', '2.32'),
+]
+
+configopts = '--enable-avx'
+
+default_easyblock = 'ConfigureMake'
+
+default_component_specs = {
+    'sources': [SOURCELOWER_TAR_GZ],
+    'start_dir': '%(namelower)s-%(version)s',
+}
+
+components = [
+    ('IlmBase', version),
+    ('OpenEXR', version, {
+        'configopts': '--enable-avx'
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['lib/libHalf.so'],
+    'dirs': ['bin', 'include/OpenEXR', 'share'],
+}
+
+moduleclass = 'vis'

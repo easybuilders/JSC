@@ -1,0 +1,66 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'OpenFOAM'
+version = '6'
+#versionsuffix = '-scorep'
+#debug = True
+#profile = True
+#scorep = True
+#itac = True
+
+homepage = 'http://www.openfoam.org/'
+description = """OpenFOAM is a free, open source CFD software package. 
+ OpenFOAM has an extensive range of features to solve anything from complex fluid flows
+ involving chemical reactions, turbulence and heat transfer, 
+ to solid dynamics and electromagnetics.
+
+OpenFOAM %(version)s%(versionsuffix)s is installed in
+$EBROOTOPENFOAM
+and the corresponding module
+OpenFOAM/%(version)s%(versionsuffix)s
+provides settings to run its solvers and utilities.
+
+The full OpenFOAM environment can be initiated via
+. $FOAM_BASH
+"""
+toolchain = {'name': 'intel', 'version': '2018a'}
+toolchainopts = {'opt': True, 'cstd': 'c++11', 'debug': True}
+
+source_urls = ['https://github.com/OpenFOAM/OpenFOAM-%(version_major)s/archive']
+sources = ['version-%(version)s.tar.gz']
+patches = [
+     'OpenFOAM-%(version)s-cleanup.patch',
+     'OpenFOAM-%(version)s-SLURM.patch'
+     ]
+checksums = [
+    '32a6af4120e691ca2df29c5b9bd7bc7a3e11208947f9bccf6087cfff5492f025',  # version-6.0.tar.gz
+    'b7f7428203687a5031f8d6f3b8a4c8d9d9d0d0d2af24b453c9a389303c9e4c40',  # OpenFOAM-6.0-cleanup.patch
+    '0c97373dd13403b0c3eee7e13118ae0bfe11a89bb0379be9e39c318e27c43a97'   # OpenFOAM-6.0-SLURM.patch
+]
+
+builddependencies = [
+    ('CMake', '3.11.1'),
+    ('Bison', '3.0.4'),
+    ('flex', '2.6.4'),
+]
+
+dependencies = [
+    ('libreadline', '7.0'),
+    ('ncurses', '6.0'),
+    # OpenFOAM requires 64 bit METIS using 32 bit indexes (array indexes)
+    ('METIS', '5.1.0'),
+    ('SCOTCH', '6.0.4'),
+    #('CGAL', '4.11.1', '-Python-2.7.14'),
+    ('ParaView', '5.4.1', '-OSMesa')
+]
+
+parallel = 32
+
+modextravars = {
+    'MPI_BUFFER_SIZE': '40000000'
+}
+
+modloadmsg = "This module provides only a minimal environment to run %(name)s executables.\n"
+modloadmsg += "The full environment can be initiated via:\n"
+modloadmsg += ". $FOAM_BASH\n"
+
+moduleclass = 'cae'

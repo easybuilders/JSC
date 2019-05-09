@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'PyMOL'
+version = '2.3.0'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = "http://www.pymol.org"
+description = """PyMOL is a user-sponsored molecular visualization system on an open-source foundation."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.3.0-2019.3.199'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python','3.6.8'),
+    ('X11','20190311'),
+    ('freeglut','3.0.0'),
+    ('freetype','2.10.0'),
+    ('libpng','1.6.36'),
+    ('SciPy-Stack','2019a', versionsuffix),
+    ('GLEW','2.1.0'),
+    ('GLM','0.9.9.5'),
+    ('VirtualGL','2.6.1'),
+    ('nvidia','418.40.04','', True),
+]
+
+common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+exts_list = [
+    ('Pmw', '2.0.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/P/Pmw']),
+        ('source_tmpl', '%(name)s-%(version)s.tar.gz'),
+        ('modulename', 'Pmw'),
+    ])),
+    (name, version, dict(common_opts.items() + [
+        ('source_urls', ['https://github.com/schrodinger/pymol-open-source/archive/']),
+        ('source_tmpl', 'v%(version)s.tar.gz'),
+        ('configopts', '--use-msgpackc=no'),
+    ])),
+]
+
+sanity_check_paths = {
+    'files': ['bin/pymol'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'vis'

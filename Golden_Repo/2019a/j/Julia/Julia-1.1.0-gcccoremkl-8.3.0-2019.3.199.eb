@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+name = 'Julia'
+version = '1.1.0'
+
+homepage = 'https://julialang.org/'
+description = """
+Julia was designed from the beginning for high performance. Julia programs compile to efficient native code for multiple
+platforms via LLVM
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.3.0-2019.3.199'}
+toolchainopts = { 'pic' : True }
+
+source_urls = ['https://github.com/JuliaLang/julia/releases/download/v%(version)s/']
+sources = ['julia-%(version)s-full.tar.gz']
+patches = ['julia-1.0.1-Make.inc.patch']
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('git', '2.21.0'),
+]
+
+dependencies = [
+    ('GMP', '6.1.2'),
+    # CMake is a dependency and not a build dependency, because Julia's package manager relies on it to allow users
+    # to install new packages on their own
+    ('CMake','3.14.0'),
+]
+
+osdependencies = [('openssl')]
+
+skipsteps = ['configure']
+installopts = "prefix=%(installdir)s "
+
+sanity_check_paths = {
+     'files': [],
+     'dirs': ['lib'],
+}
+
+moduleclass = 'tools'

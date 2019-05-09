@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'PyGObject'
+version = '3.32.0'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://www.pygtk.org/'
+description = """Python Bindings for GLib/GObject/GIO/GTK+
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('pkg-config', '0.29.2'),
+    ('GObject-Introspection', '1.60.0'),
+    ('Meson', '0.50.0', '-Python-3.6.8'),
+    ('Ninja', '1.9.0'),
+]
+
+dependencies = [
+    ('X11', '20190311'),
+    ('Python', '3.6.8'),
+    ('GLib', '2.60.0'),
+    ('PyCairo', '1.18.0', versionsuffix),
+]
+
+# without this, pkg-config can't find gio-2.0, because libselinux.pc is not found at the end of the dependency chain
+preconfigopts = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib64/pkgconfig '
+
+modextrapaths = {
+    'PYTHONPATH': [
+        'lib/python%(pyshortver)s/site-packages',
+        'lib/python%(pyshortver)s/site-packages/gtk-2.0',
+    ],
+}
+
+sanity_check_paths = {
+    'files': ['include/pygobject-%(version_major)s.0/pygobject.h'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+sanity_check_commands = [
+    ('python', "-c 'import gi'"),
+]
+
+moduleclass = 'vis'

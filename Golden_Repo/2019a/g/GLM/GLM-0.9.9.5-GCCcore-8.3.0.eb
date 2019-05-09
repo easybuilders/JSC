@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'GLM'
+version = '0.9.9.5'
+
+homepage = 'https://github.com/g-truc/glm'
+description = """OpenGL Mathematics (GLM) is a header only C++ mathematics library for graphics software based on
+ the OpenGL Shading Language (GLSL) specifications."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = ['https://github.com/g-truc/glm/archive/']
+sources = ['%(version)s.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('CMake', '3.14.0'),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['include/glm/', 'include/glm/gtc', 'include/glm/gtx'],
+}
+
+moduleclass = 'lib'

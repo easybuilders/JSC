@@ -1,0 +1,18 @@
+diff -ruN nwchem-6.8.1.orig/src/config/makefile.h nwchem-6.8.1/src/config/makefile.h
+--- nwchem-6.8.1.orig/src/config/makefile.h	2018-06-15 00:12:00.000000000 +0200
++++ nwchem-6.8.1/src/config/makefile.h	2019-04-10 13:36:04.118232356 +0200
+@@ -2565,12 +2565,12 @@
+ 	PYTHONCONFIGDIR=config
+ endif
+ ifdef USE_PYTHON64
+-	CORE_LIBS += $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/$(PYTHONCONFIGDIR)/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
++	CORE_LIBS += $(shell python-config --configdir)/libpython$(PYTHONVERSION)$(PYTHONABIFLAGS).$(PYTHONLIBTYPE)
+ else
+   ifeq ($(GOTMINGW32),1)
+   CORE_LIBS += $(PYTHONHOME)/libs/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
+   else
+-  CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/$(PYTHONCONFIGDIR)/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
++  CORE_LIBS += $(shell python-config --configdir)/libpython$(PYTHONVERSION)$(PYTHONABIFLAGS).$(PYTHONLIBTYPE)
+   endif
+ endif
+ endif

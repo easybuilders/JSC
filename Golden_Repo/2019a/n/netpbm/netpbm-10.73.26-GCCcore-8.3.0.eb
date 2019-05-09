@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'EB_Netpbm'
+
+name = 'netpbm'
+version = '10.73.26'
+
+homepage = 'https://sourceforge.net/projects/netpbm/'
+description = """
+A whole bunch of utilities for primitive manipulation of graphic images. Wide array of converters from one graphics
+format to another. E.g.  from g3 fax format to jpeg. Many basic graphics editing tools such as magnifying and cropping.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+toolchainopts = {'pic': True}
+
+# This works just for "super stable" versions. "Stable" versions need to be checked out directly out of the svn server
+sources = [SOURCE_TAR_GZ]
+source_urls = [SOURCEFORGE_SOURCE]
+
+builddependencies = [('binutils', '2.32')]
+
+dependencies = [
+    ('libjpeg-turbo', '2.0.2'),
+    ('LibTIFF', '4.0.10'),
+    ('libpng', '1.6.36'),
+    ('zlib', '1.2.11'),
+    ('X11', '20190311'),
+    ('libxml2', '2.9.9'),
+    ('Ghostscript', '9.27'),
+    ('flex', '2.6.4'),
+    ('Perl', '5.28.1'),
+    ('pkg-config', '0.29.2'),
+    ('JasPer', '2.0.16'),
+]
+
+maxparallel = 1
+
+moduleclass = 'vis'

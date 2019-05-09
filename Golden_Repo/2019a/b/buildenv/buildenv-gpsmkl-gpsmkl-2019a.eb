@@ -1,0 +1,17 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'BuildEnv'
+
+name = 'buildenv'
+
+toolchain = {'name': 'gpsmkl', 'version': '2019a'}
+
+version = toolchain['name']
+
+homepage = 'None'
+description = """This module sets a group of environment variables for compilers, linkers, maths libraries, etc., that
+ you can use to easily transition between toolchains when building your software. To query the variables being set
+ please use: module show <this module name>
+"""
+
+
+moduleclass = 'devel'

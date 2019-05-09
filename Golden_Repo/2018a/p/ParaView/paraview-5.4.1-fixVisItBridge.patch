@@ -1,0 +1,441 @@
+diff -ruN ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt
+--- ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt	2017-08-18 15:39:19.000000000 +0200
++++ ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/CMakeLists.txt	2017-11-26 19:24:31.966766445 +0100
+@@ -25,7 +25,6 @@
+   VsAttribute.C
+   VsFile.C
+   VsReader.C
+-  VsStaggeredField.C
+   HighOrderUnstructuredData.C
+   )
+ 
+diff -ruN ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.C ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.C
+--- ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.C	2017-08-18 15:39:19.000000000 +0200
++++ ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.C	1970-01-01 01:00:00.000000000 +0100
+@@ -1,268 +0,0 @@
+-/*
+- * VsStaggeredField.cpp
+- *
+- *  Created on: Apr 23, 2013
+- *      Author: pletzer
+- */
+-
+-#include "VsStaggeredField.h"
+-#include "VsLog.h"
+-#include "VsSchema.h"
+-#include <valarray>
+-
+-template<class TYPE>
+-VsStaggeredField<TYPE>::VsStaggeredField(size_t subRes) {
+-
+-  this->subRes = subRes;
+-  this->oriDataPtr = 0;
+-  this->totNumOriCells = 0;
+-  this->totNumNewCells = 0;
+-  this->totNumOriVals = 0;
+-  this->totNumNewVals = 0;
+-  this->twoPowSubRes = 0;
+-  this->numNeighbors = 0;
+-  this->numTopoDims = 0;
+-  this->indexComp = -1;
+-  this->indexOrder = VsSchema::compMajorCKey;
+-  this->centering = VsSchema::nodalCenteringKey;
+-
+-  this->oriCellDims.clear();
+-  this->oriCellDimProd.clear();
+-  this->newCellDims.clear();
+-  this->newCellDimProd.clear();
+-}
+-
+-template<class TYPE>
+-VsStaggeredField<TYPE>::~VsStaggeredField() {  
+-}
+-
+-template<class TYPE>
+-void
+-VsStaggeredField<TYPE>::setDataPtr(const TYPE* dataPtr, 
+-                                   size_t numDims, 
+-                                   const int dims[], 
+-                                   const std::string& indexOrder, 
+-                                   const std::string& centering) {
+-
+-  this->oriDataPtr = dataPtr;
+-  this->numTopoDims = numDims - 1; // assume dims also contains the number of components
+-  this->indexOrder = indexOrder;
+-  this->centering = centering;
+-
+-  this->indexComp = 0; 
+-  if (indexOrder == VsSchema::compMinorCKey || 
+-      indexOrder == VsSchema::compMinorFKey) {
+-    this->indexComp = numDims - 1;
+-  }
+-  
+-  this->twoPowSubRes = 1;
+-  for (size_t i = 0; i < this->subRes; ++i) {
+-    this->twoPowSubRes *= 2;
+-  }
+-
+-  this->numNeighbors = 1;
+-  for (size_t i = 0; i < this->numTopoDims; ++i) {
+-    this->numNeighbors *= 2;
+-  }
+-
+-  this->oriCellDims.resize(this->numTopoDims);
+-  size_t offset = 0;
+-  for (size_t i = 0; i < numDims; ++i) {
+-    if (i != this->indexComp) {
+-      this->oriCellDims[i] = dims[i + offset];
+-    }
+-    else {
+-      offset = 1;
+-    }
+-  }
+-
+-  this->newCellDims.resize(this->numTopoDims);
+-  for (size_t i = 0; i < this->numTopoDims; ++i) {
+-    this->newCellDims[i] = this->oriCellDims[i] * this->twoPowSubRes;
+-  }
+-  
+-  this->oriCellDimProd.resize(this->numTopoDims);
+-  this->oriCellDimProd[this->numTopoDims - 1] = 1;
+-  this->newCellDimProd.resize(this->numTopoDims);
+-  this->newCellDimProd[this->numTopoDims - 1] = 1;
+-  for (int i = this->numTopoDims - 2; i >= 0; --i) {
+-    this->oriCellDimProd[i] = this->oriCellDimProd[i + 1] * this->oriCellDims[i + 1];
+-    this->newCellDimProd[i] = this->newCellDimProd[i + 1] * this->newCellDims[i + 1];
+-  }
+-
+-  this->totNumOriCells = 1;
+-  this->totNumNewCells = 1;
+-  this->totNumOriVals = 1;
+-  this->totNumNewVals = 1;
+-  for (size_t i = 0; i < this->numTopoDims; ++i) {
+-    this->totNumOriCells *= this->oriCellDims[i];
+-    this->totNumNewCells *= this->newCellDims[i];
+-    this->totNumOriVals *= (this->oriCellDims[i] + 1);
+-    this->totNumNewVals *= (this->newCellDims[i] + 1);
+-  }
+-  
+-}
+-
+-template <class TYPE>
+-std::vector<int>
+-VsStaggeredField<TYPE>::getNewNodalDataDims() const {
+-  std::vector<int> dims(this->numTopoDims + 1);
+-  int offset = 0;
+-  for (int i = 0; i < this->numTopoDims + 1; ++i) {
+-    if (i != this->indexComp) {
+-      dims[i] = this->newCellDims[i - offset] + 1; // data always have dimension of nodal data
+-    }
+-    else {
+-      offset = 1;
+-    }
+-  }
+-  return dims;
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::getNewNodalData(TYPE* dataPtr) const 
+-{
+-  std::vector< std::valarray<TYPE> > neighVals(this->numNeighbors);
+-  std::vector< std::valarray<int> > sigmaVals(this->numNeighbors);
+-  for (size_t bigIndx = 0; bigIndx < this->totNumOriCells; ++bigIndx) {
+-    std::valarray<int> oriCellInds = this->getOriCellIndexSet(bigIndx);
+-    for (size_t n = 0; n < this->numNeighbors; ++n) {
+-      sigmaVals[n] = this->getOriDisplacements(n);
+-      size_t bigIndxNeigh = this->getOriBigIndex(oriCellInds + sigmaVals[n]);
+-      neighVals[n] = this->getOriFieldVals(bigIndxNeigh);
+-    }
+-
+-    // iterate over subgrid
+-    for (size_t subBigIndx = 0; subBigIndx < this->numNeighbors; ++subBigIndx) {
+-      std::valarray<int> subCellInds = this->getSubCellIndexSet(subBigIndx);
+-      std::valarray<int> newCellInds = oriCellInds*this->numNeighbors + subCellInds;
+-      size_t newBigIndx = this->getNewBigIndex(newCellInds);
+-      std::valarray<TYPE> xi = std::valarray<TYPE>(subCellInds) / this->twoPowSubRes;
+-      this->setNewFieldVals(newBigIndx, xi, sigmaVals, neighVals, dataPtr);
+-    }
+-  }
+-}
+-
+-template <class TYPE>
+-std::valarray<int>
+-VsStaggeredField<TYPE>::getOriCellIndexSet(size_t bigIndex) const {
+-  return (bigIndex / this->oriCellDimProd) % this->oriCellDims;
+-}
+-
+-template <class TYPE>
+-std::valarray<int>
+-VsStaggeredField<TYPE>::getOriDisplacements(size_t subBigIndex) const {
+-  return (subBigIndex / this->twoPowSubRes) % 2;
+-}
+-
+-template <class TYPE>
+-size_t
+-VsStaggeredField<TYPE>::getOriBigIndex(const std::valarray<int>& indx) const {
+-  size_t res = 0;
+-  for (size_t i = 0; i < this->numTopoDims; ++i) {
+-    res += indx[i] * this->dimCellProd[i];
+-  }
+-  return res;
+-}
+-
+-template <class TYPE>
+-std::valarray<TYPE>
+-VsStaggeredField<TYPE>::getOriFieldVals(size_t bigInx) const {
+-  std::valarray<TYPE> res(this->numComps);
+-  if (this->compIndex == 0) {
+-    for (size_t j = 0; j < this->numComps; ++j) {
+-      res[j] = this->oriData[j*this->totNumOriVals + bigInx];
+-    }
+-  }
+-  else {
+-    for (size_t j = 0; j < this->numComps; ++j) {
+-      res[j] = this->oriData[bigInx*this->numComps + j];
+-    }
+-  }
+-  return res;
+-}
+-
+-template <class TYPE>
+-std::valarray<int>
+-VsStaggeredField<TYPE>::getSubCellIndexSet(size_t subBigIndex) const {
+-  return (subBigIndex / this->subCellDimProd) % this->twoPowSubRes;
+-}
+-
+-template <class TYPE>
+-size_t
+-VsStaggeredField<TYPE>::getNewBigIndex(const std::valarray<int>& newCellInds) const {
+-  size_t res = 0;
+-  for (size_t i = 0; i < this->numTopoDims; ++i) {
+-    res += newCellInds[i] * this->newCellDimProd[i];
+-  }
+-  return res;
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::fillNewVals(size_t newBigIndx, 
+-                                    const std::valarray<TYPE>& xiVals,
+-                                    const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                    const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                    TYPE* dataPtr)  const {
+-  switch (this->centering) {
+-  case 'n':
+-    this->setNodalInterpFieldVals(newBigIndx, xiVals, sigmaVals, neighVals, dataPtr);
+-    break;
+-  case 'e':
+-    this->setEdgeInterpFieldVals(newBigIndx, xiVals, sigmaVals, neighVals, dataPtr);
+-    break;
+-  case 'f':
+-    this->setFaceInterpFieldVals(newBigIndx, xiVals, sigmaVals, neighVals, dataPtr);
+-    break;
+-  default:
+-    this->setZonalInterpFieldVals(newBigIndx, xiVals, sigmaVals, neighVals, dataPtr);
+-  }
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::setNodalInterpFieldVals(size_t newBigIndx, 
+-                                                const std::valarray<TYPE>& xiVals, 
+-                                                const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                                const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                                TYPE* dataPtr) const {
+-  // TO IMPLEMENT
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::setEdgeInterpFieldVals(size_t newBigIndx, 
+-                                               const std::valarray<TYPE>& xiVals, 
+-                                               const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                               const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                               TYPE* dataPtr) const {
+-  // TO IMPLEMENT
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::setFaceInterpFieldVals(size_t newBigIndx, 
+-                                               const std::valarray<TYPE>& xiVals, 
+-                                               const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                               const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                               TYPE* dataPtr) const {
+-  // TO IMPLEMENT
+-}
+-
+-template <class TYPE>
+-void
+-VsStaggeredField<TYPE>::setZonalInterpFieldVals(size_t newBigIndx, 
+-                                                const std::valarray<TYPE>& xiVals, 
+-                                                const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                                const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                                TYPE* dataPtr) const {
+-  // TO IMPLEMENT
+-}
+-
+-// explicit instantiations
+-//template class VsStaggeringField<double>;
+-//template class VsStaggeringField<float>;
+-//template class VsStaggeringField<int>;
+-
+diff -ruN ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.h ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.h
+--- ParaView-v5.4.1.orig/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.h	2017-08-18 15:39:19.000000000 +0200
++++ ParaView-v5.4.1/Utilities/VisItBridge/databases/readers/Vs/VsStaggeredField.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,154 +0,0 @@
+-/**
+- * @file VsStaggeredField.h
+- *      
+- *  @class VsStaggeredField
+- *  @brief Represents staggered fields in memory
+- *  
+- *  Created on: Apr 23, 2013
+- *      Author: pletzer
+- */
+-
+-#ifndef VS_STAGGERED_FIELD_H_
+-#define VS_STAGGERED_FIELD_H_
+-
+-#include <string>
+-#include "VsObject.h"
+-#include <vector>
+-#include <valarray>
+-
+-template <class TYPE>
+-class VsStaggeredField {
+-
+-public:
+-
+-  /**
+-   * Constructor
+-   * @param subRes sub-grid resolution, number of sub-cells is 2^subRes in each direction
+-   */
+-  VsStaggeredField(size_t subRes);
+-
+-  /** 
+-   * Destructor
+-   */
+-  virtual ~VsStaggeredField();
+-
+-  /**
+-   * Set the data pointer
+-   * @param dataPtr data pointer
+-   * @param numDims number of dimensions (incl. components)
+-   * @param dims dimensions along each axis (incl. component axis)
+-   * @param indexOrder index order (e.g. VsSchema::compMajorFKey)
+-   * @param centering (e.g. VsSchema::faceCenteringKey)
+-   */
+-   void setDataPtr(const TYPE* dataPtr, size_t numDims, const int dims[], 
+-                   const std::string& indexOrder, const std::string& centering);
+-
+-   /**
+-    * Get the interpolated field dimensions
+-    * @return dimensions along each axis (incl. component axis)
+-    */
+-   std::vector<int> getNewNodalDataDims() const;
+-
+-   /**
+-    * Get the new field data values
+-    * @param pointer to the new data, caller is responsible to allocating and freeing
+-    */
+-   void getNewNodalData(TYPE* dataPtr) const;
+-
+-  
+-private:
+-
+-   std::valarray<int> getOriCellIndexSet(size_t bigIndx) const;
+-   std::valarray<int> getOriDisplacements(size_t subBigIndx) const;
+-   size_t getOriBigIndex(const std::valarray<int>& indx) const;
+-   std::valarray<TYPE> getOriFieldVals(size_t bigInx) const;
+-   std::valarray<int> getSubCellIndexSet(size_t subBigIndex) const;
+-   size_t getNewBigIndex(const std::valarray<int>& newCellInds) const;
+-
+-   /**
+-    * Fill interpolated values 
+-    * @param newBigInd big (flat) index of the new data array
+-    * @param sigmaVals displacements (array of 1s and 0s) from the original cells
+-    * @param neighVals field values corresponding to the sigmaVals displacements
+-    * @param dataPtr pointer to the new data, some values will be filled in
+-    */
+-   void fillNewVals(size_t newBigIndx, 
+-                    const std::valarray<TYPE>& xiVals,
+-                    const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                    const std::vector< std::valarray<TYPE> >& neighVals, 
+-                    TYPE* dataPtr) const; 
+-
+-
+-   void setNodalInterpFieldVals(size_t newBigIndx, 
+-                                const std::valarray<TYPE>& xiVals, 
+-                                const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                TYPE* dataPtr) const;
+-   void setEdgeInterpFieldVals(size_t newBigIndx, 
+-                               const std::valarray<TYPE>& xiVals, 
+-                               const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                               const std::vector< std::valarray<TYPE> >& neighVals, 
+-                               TYPE* dataPtr) const;
+-   void setFaceInterpFieldVals(size_t newBigIndx, 
+-                               const std::valarray<TYPE>& xiVals, 
+-                               const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                               const std::vector< std::valarray<TYPE> >& neighVals, 
+-                               TYPE* dataPtr) const;
+-   void setZonalInterpFieldVals(size_t newBigIndx, 
+-                                const std::valarray<TYPE>& xiVals, 
+-                                const std::vector< std::valarray<TYPE> >& sigmaVals,
+-                                const std::vector< std::valarray<TYPE> >& neighVals, 
+-                                TYPE* dataPtr) const;
+-   
+-
+-   /** number of sub-cells is 2^subRes in each topological direction */
+-  size_t subRes;
+-
+-  /** pointer to the original data, assumed to have dimension nodal data times number of components */
+-  TYPE* oriDataPtr;
+-
+-  /** total number of original grid cells */
+-  size_t totNumOriCells;
+-  
+-  /** total number of new grid cells */
+-  size_t totNumNewCells;
+-
+-  /** total number of data values (number of nodes times number of components) */
+-  size_t totNumOriVals;
+-
+-  /** total number of new data values (number of nodes times number of components) */
+-  size_t totNumNewVals;
+-
+-  /** 2^subRes */
+-  size_t twoPowSubRes;
+-
+-  /** number neighbors forming a cell (2^d) */
+-  size_t numNeighbors;
+-
+-  /** number of topological dimensions */
+-  size_t numTopoDims;
+-  
+-  /** component index */
+-  int indexComp;
+-
+-  /** index order, see VsSchema */
+-  std::string indexOrder;
+-
+-  /** type of field centering (nodal, edge, ...) */
+-  std::string centering;
+-  
+-  /** number of cells along each direction for the original data */
+-  std::valarray<int> oriCellDim;
+-
+-  /** number of cells along each direction for the new data */
+-  std::valarray<int> newCellDims;
+-
+-  /** array to map big index to index set for original data */
+-  std::valarray<int> oriCellDimProd;
+-
+-  /** array to map big index to index set for new data */
+-  std::valarray<int> newCellDimProd;
+-
+-};
+-
+-#endif /* VS_STAGGERED_FIELD_H_ */

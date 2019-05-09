@@ -1,0 +1,393 @@
+--- elpa-2018.11.001/Makefile.am	2018-11-30 20:44:00.000000000 +0100
++++ elpa-2018.11.001_ok/Makefile.am	2019-02-07 11:31:23.000000000 +0100
+@@ -537,7 +537,7 @@
+ test_program_fcflags = $(AM_FCFLAGS) $(FC_MODOUT)test_modules $(FC_MODINC)test_modules $(FC_MODINC)modules $(FC_MODINC)private_modules
+ 
+ # library with shared sources for the test files
+-noinst_LTLIBRARIES += libelpatest@SUFFIX@.la
++lib_LTLIBRARIES += libelpatest@SUFFIX@.la
+ libelpatest@SUFFIX@_la_FCFLAGS = $(test_program_fcflags)
+ libelpatest@SUFFIX@_la_SOURCES = \
+   test/shared/test_util.F90 \
+--- elpa-2018.11.001/test_project_1stage/src/Makefile_hybrid	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test_project_1stage/src/Makefile_hybrid	2019-02-14 08:25:05.000000000 +0100
+@@ -0,0 +1,14 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB =
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa_openmp -lelpatest_openmp $(SCALAPACK_LIB) $(MKL)
++CC            = mpicc -O3
++
++all: test_real_e1 test_real_e2
++
++test_real_e1: test_real_e1.F90
++	$(F90) -DWITH_OPENMP -o $@ test_real_e1.F90 $(LIBS)
++
++test_real_e2: test_real_e2.F90
++	$(F90) -DWITH_OPENMP -o $@ test_real_e2.F90 $(LIBS)
+--- elpa-2018.11.001/test_project_1stage/src/Makefile_hybrid_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test_project_1stage/src/Makefile_hybrid_cuda	2019-02-14 08:25:16.000000000 +0100
+@@ -0,0 +1,14 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB =
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa_openmp -lelpatest_openmp $(SCALAPACK_LIB) $(MKL) -lcudart
++CC            = mpicc -O3
++
++all: test_real_e1 test_real_e2
++
++test_real_e1: test_real_e1.F90
++	$(F90) -DWITH_OPENMP -DCUDA -o $@ test_real_e1.F90 $(LIBS)
++
++test_real_e2: test_real_e2.F90
++	$(F90) -DWITH_OPENMP -DCUDA -o $@ test_real_e2.F90 $(LIBS)
+--- elpa-2018.11.001/test_project_1stage/src/Makefile_pure	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test_project_1stage/src/Makefile_pure	2019-02-07 09:51:51.000000000 +0100
+@@ -0,0 +1,14 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB =
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL)
++CC            = mpicc -O3
++
++all: test_real_e1 test_real_e2
++
++test_real_e1: test_real_e1.F90
++	$(F90) -o $@ test_real_e1.F90 $(LIBS)
++
++test_real_e2: test_real_e2.F90
++	$(F90) -o $@ test_real_e2.F90 $(LIBS)
+--- elpa-2018.11.001/test_project_1stage/src/Makefile_pure_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test_project_1stage/src/Makefile_pure_cuda	2019-02-14 08:14:49.000000000 +0100
+@@ -0,0 +1,14 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB =
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL) -lcudart
++CC            = mpicc -O3
++
++all: test_real_e1 test_real_e2
++
++test_real_e1: test_real_e1.F90
++	$(F90) -DCUDA -o $@ test_real_e1.F90 $(LIBS)
++
++test_real_e2: test_real_e2.F90
++	$(F90) -DCUDA -o $@ test_real_e2.F90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid	2019-02-14 08:32:16.000000000 +0100
+@@ -0,0 +1,23 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpatest_openmp -lelpa_openmp $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels test_autotune test_multiple_objs
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)
++
++test_autotune: test_autotune.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_autotune.F90 $(LIBS)
++
++test_multiple_objs: test_multiple_objs.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_multiple_objs.F90 $(LIBS)
++
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_hybrid_cuda	2019-02-14 08:33:40.000000000 +0100
+@@ -0,0 +1,22 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpatest_openmp -lelpa_openmp $(SCALAPACK_LIB) $(MKL) -lcudart
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels test_autotune test_multiple_objs
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=1 -DWITH_OPENMP -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -I$(ELPA_INCLUDE_OPENMP)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=1 -DWITH_OPENMP -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -I$(ELPA_INCLUDE_OPENMP)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)
++
++test_autotune: test_autotune.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_OPENMP -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_autotune.F90 $(LIBS)
++
++test_multiple_objs: test_multiple_objs.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_OPENMP -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_multiple_objs.F90 $(LIBS)
+--- elpa-2018.115.001/test/Fortran/driver/legacy_interface/Makefile_examples_pure	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_pure	2019-02-07 14:27:48.000000000 +0100
+@@ -0,0 +1,22 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels test_autotune test_multiple_objs
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -I$(ELPA_INCLUDE)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=0 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -I$(ELPA_INCLUDE)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)
++
++test_autotune: test_autotune.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_autotune.F90 $(LIBS)
++
++test_multiple_objs: test_multiple_objs.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_multiple_objs.F90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_examples_pure_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_examples_pure_cuda	2019-02-14 08:34:02.000000000 +0100
+@@ -0,0 +1,22 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL) -lcudart
++#CC            = mpicc -O3 
++
++all: test_real_1stage test_real_2stage_all_kernels test_autotune test_multiple_objs
++
++test_real_1stage: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=1 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_1STAGE -DTEST_EIGENVECTORS -I$(ELPA_INCLUDE)/elpa -o test_real_1stage.F90 test.F90
++	$(F90) -o $@ test_real_1stage.F90 $(LIBS)
++
++test_real_2stage_all_kernels: test.F90
++	/usr/bin/cpp -P -DTEST_GPU=1 -DTEST_REAL -DTEST_DOUBLE -DTEST_SOLVER_2STAGE -DTEST_EIGENVECTORS -DTEST_ALL_KERNELS -I$(ELPA_INCLUDE)/elpa -o test_real_2stage_all_kernels.F90 test.F90
++	$(F90) -o $@ test_real_2stage_all_kernels.F90 $(LIBS)
++
++test_autotune: test_autotune.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_autotune.F90 $(LIBS)
++
++test_multiple_objs: test_multiple_objs.F90
++	$(F90) -DTEST_REAL -DTEST_DOUBLE -DWITH_MPI -I$(ELPA_INCLUDE_OPENMP)/elpa -o $@ test_multiple_objs.F90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_legacy_hybrid	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_legacy_hybrid	2019-02-14 08:34:26.000000000 +0100
+@@ -0,0 +1,24 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa_openmp -lelpatest_openmp $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: legacy_complex_driver legacy_real_driver 
++
++legacy_complex_driver: legacy_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_complex_driver.F90 -o legacy_complex_driver.f90
++	$(F90) -o $@ legacy_complex_driver.f90 $(LIBS)
++
++legacy_real_driver: legacy_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_real_driver.F90 -o legacy_real_driver.f90
++	$(F90) -o $@ legacy_real_driver.f90 $(LIBS)
++
++legacy_single_complex_driver: legacy_single_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_single_complex_driver.F90 -o legacy_single_complex_driver.f90
++	$(F90) -o $@ legacy_single_complex_driver.f90 $(LIBS)
++
++legacy_single_real_driver: legacy_single_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_single_real_driver.F90 -o legacy_single_real_driver.f90
++	$(F90) -o $@ legacy_single_real_driver.f90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_legacy_hybrid_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_legacy_hybrid_cuda	2019-02-14 08:35:10.000000000 +0100
+@@ -0,0 +1,24 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -qopenmp -I$(ELPA_MODULES_OPENMP) -I$(ELPA_INCLUDE_OPENMP) -I$(ELPA_INCLUDE_OPENMP)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa_openmp -lelpatest_openmp $(SCALAPACK_LIB) $(MKL) -lcudart
++#CC            = mpicc -O3 
++
++all: legacy_complex_driver legacy_real_driver 
++
++legacy_complex_driver: legacy_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_complex_driver.F90 -o legacy_complex_driver.f90
++	$(F90) -o $@ legacy_complex_driver.f90 $(LIBS)
++
++legacy_real_driver: legacy_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_real_driver.F90 -o legacy_real_driver.f90
++	$(F90) -o $@ legacy_real_driver.f90 $(LIBS)
++
++legacy_single_complex_driver: legacy_single_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_single_complex_driver.F90 -o legacy_single_complex_driver.f90
++	$(F90) -o $@ legacy_single_complex_driver.f90 $(LIBS)
++
++legacy_single_real_driver: legacy_single_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -DWITH_OPENMP -I$(ELPA_INCLUDE_OPENMP)/elpa legacy_single_real_driver.F90 -o legacy_single_real_driver.f90
++	$(F90) -o $@ legacy_single_real_driver.f90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_legacy_pure	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_legacy_pure	2019-02-07 11:15:06.000000000 +0100
+@@ -0,0 +1,24 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL)
++#CC            = mpicc -O3 
++
++all: legacy_complex_driver legacy_real_driver 
++
++legacy_complex_driver: legacy_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_complex_driver.F90 -o legacy_complex_driver.f90
++	$(F90) -o $@ legacy_complex_driver.f90 $(LIBS)
++
++legacy_real_driver: legacy_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_real_driver.F90 -o legacy_real_driver.f90
++	$(F90) -o $@ legacy_real_driver.f90 $(LIBS)
++
++legacy_single_complex_driver: legacy_single_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_single_complex_driver.F90 -o legacy_single_complex_driver.f90
++	$(F90) -o $@ legacy_single_complex_driver.f90 $(LIBS)
++
++legacy_single_real_driver: legacy_single_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_single_real_driver.F90 -o legacy_single_real_driver.f90
++	$(F90) -o $@ legacy_single_real_driver.f90 $(LIBS)
+--- elpa-2018.11.001/test/Fortran/driver/legacy_interface/Makefile_legacy_pure_cuda	1970-01-01 01:00:00.000000000 +0100
++++ elpa-2018.11.001_ok/test/Fortran/driver/legacy_interface/Makefile_legacy_pure_cuda	2019-02-07 09:53:50.000000000 +0100
+@@ -0,0 +1,24 @@
++SCALAPACK_LIB = -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++LAPACK_LIB = 
++MKL = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -liomp5 -lpthread -lstdc++
++F90 = mpif90 -O3 -I$(ELPA_MODULES) -I$(ELPA_INCLUDE) -I$(ELPA_INCLUDE)/elpa
++LIBS = -L$(ELPA_LIB) -lelpa -lelpatest $(SCALAPACK_LIB) $(MKL) -lcudart
++#CC            = mpicc -O3 
++
++all: legacy_complex_driver legacy_real_driver 
++
++legacy_complex_driver: legacy_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_complex_driver.F90 -o legacy_complex_driver.f90
++	$(F90) -o $@ legacy_complex_driver.f90 $(LIBS)
++
++legacy_real_driver: legacy_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_real_driver.F90 -o legacy_real_driver.f90
++	$(F90) -o $@ legacy_real_driver.f90 $(LIBS)
++
++legacy_single_complex_driver: legacy_single_complex_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_single_complex_driver.F90 -o legacy_single_complex_driver.f90
++	$(F90) -o $@ legacy_single_complex_driver.f90 $(LIBS)
++
++legacy_single_real_driver: legacy_single_real_driver.F90
++	/usr/bin/cpp -P -DWITH_MPI -I$(ELPA_INCLUDE)/elpa legacy_single_real_driver.F90 -o legacy_single_real_driver.f90
++	$(F90) -o $@ legacy_single_real_driver.f90 $(LIBS)
+--- elpa-2018.11.001/test_project_1stage/src/test_real.F90	2018-05-29 07:57:48.000000000 +0200
++++ elpa-2018.11.001_ok/test_project_1stage/src/test_real.F90	2019-02-14 08:23:50.000000000 +0100
+@@ -76,6 +76,9 @@
+    use iso_c_binding
+ 
+    use elpa
++#ifdef WITH_OPENMP
++   use omp_lib
++#endif
+ 
+ #ifdef HAVE_MPI_MODULE
+    use mpi
+@@ -111,9 +114,12 @@
+    character(len=8)                 :: task_suffix
+    integer                          :: j
+ 
+-   integer, parameter               :: error_unit = 0
++!   integer, parameter               :: error_unit = 0
+ 
+    class(elpa_t), pointer           :: e
++#ifdef WITH_OPENMP
++   integer                    :: max_threads
++#endif
+    !-------------------------------------------------------------------------------
+ 
+ 
+@@ -206,6 +212,13 @@
+    call e%set("mpi_comm_parent", mpi_comm_world, success)
+    call e%set("process_row", my_prow, success)
+    call e%set("process_col", my_pcol, success)
++#ifdef WITH_OPENMP
++   max_threads=omp_get_max_threads()
++   call e%set("omp_threads", max_threads, success)
++#endif
++#ifdef CUDA
++   call e%set("gpu", 1, success)
++#endif
+ 
+    success = e%setup()
+ 
+--- elpa-2018.11.001/test_project_2stage/src/test_real2.F90	2018-05-29 08:05:05.000000000 +0200
++++ elpa-2018.11.001_ok/test_project_2stage/src/test_real2.F90	2019-03-15 14:04:06.441321988 +0100
+@@ -77,6 +77,10 @@
+ 
+    use elpa
+ 
++#ifdef WITH_OPENMP
++   use omp_lib
++#endif
++
+ #ifdef HAVE_MPI_MODULE
+    use mpi
+    implicit none
+@@ -85,6 +89,7 @@
+    include 'mpif.h'
+ #endif
+ 
++
+    !-------------------------------------------------------------------------------
+    ! Please set system size parameters below!
+    ! na:   System size
+@@ -111,9 +116,13 @@
+    character(len=8)                 :: task_suffix
+    integer                          :: j
+ 
+-   integer, parameter               :: error_unit = 0
++!   integer, parameter               :: error_unit = 0
+ 
+    class(elpa_t), pointer           :: e
++#ifdef WITH_OPENMP
++   integer                    :: max_threads
++#endif
++
+    !-------------------------------------------------------------------------------
+ 
+ 
+@@ -206,6 +215,14 @@
+    call e%set("mpi_comm_parent", mpi_comm_world, success)
+    call e%set("process_row", my_prow, success)
+    call e%set("process_col", my_pcol, success)
++#ifdef CUDA
++   call e%set("gpu", 1, success)
++#endif
++#ifdef WITH_OPENMP
++   max_threads=omp_get_max_threads()
++   call e%set("omp_threads", max_threads, success)
++#endif
++   if (myid==0) call e%set("timings",1,success)
+ 
+    success = e%setup()
+ 
+@@ -220,8 +237,13 @@
+    end if
+ 
+    call mpi_barrier(mpi_comm_world, mpierr) ! for correct timings only
++   call e%timer_start("e%eigenvectors()")
+    call e%eigenvectors(a, ev, z, success)
+ 
++   call e%timer_stop("e%eigenvectors()")
++   call e%print_times("e%eigenvectors()")
++
++
+    if (myid==0) then
+      print '(a)','| Two-step ELPA solver complete.'
+      print *

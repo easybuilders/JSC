@@ -1,0 +1,12 @@
+diff -ruN SuiteSparse.orig/Mongoose/Makefile SuiteSparse/Mongoose/Makefile
+--- SuiteSparse.orig/Mongoose/Makefile	2018-12-23 02:18:37.000000000 +0100
++++ SuiteSparse/Mongoose/Makefile	2019-04-10 08:55:53.165613000 +0200
+@@ -15,7 +15,7 @@
+ 
+ # build the Mongoose library (static and dynamic) and run a quick test
+ default:
+-	( cd build ; CC=$(CC) CXX=$(CXX) cmake $(CMAKE_OPTIONS) .. ; $(MAKE) --jobs=$(JOBS) ; ./bin/demo )
++	( cd build ; CC=$(CC) CXX=$(CXX) cmake $(CMAKE_OPTIONS) .. ; $(MAKE) --jobs=$(JOBS) ; LD_LIBRARY_PATH="../../lib:$(LD_LIBRARY_PATH)" ./bin/demo )
+ 
+ # just build the static and dynamic libraries; do not run the demo
+ library:

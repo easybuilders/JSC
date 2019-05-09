@@ -1,0 +1,12 @@
+--- jupyterlab-github-0.10.0.orig/schema/drive.json     2018-10-10 21:14:53.986184891 +0200
++++ jupyterlab-github-0.10.0/schema/drive.json          2018-10-11 00:28:34.846777384 +0200
+@@ -18,7 +18,7 @@
+     "defaultRepo": {
+       "type": "string",
+       "title": "Default Repository",
+-      "default": ""
++      "default": "FZJ-JSC/jupyter4jsc"
+     }
+   },
+   "type": "object"
+

@@ -1,0 +1,29 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libspatialindex'
+version = '1.9.0'
+
+homepage = 'http://libspatialindex.github.io'
+description = "C++ implementation of R*-tree, an MVR-tree and a TPR-tree with C API"
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = ['https://github.com/libspatialindex/libspatialindex/releases/download/%(version)s/']
+sources = ['spatialindex-src-%(version)s.tar.gz']
+
+patches = [
+    ('libspatialindex_1.9.0_missing_headers.patch', 1),
+]
+
+builddependencies = [
+    ('binutils', '2.32')
+]
+
+sanity_check_paths = {
+    'files': ['lib/libspatialindex.a', 'lib/libspatialindex.%s' % SHLIB_EXT],
+    'dirs': ['include/spatialindex'],
+}
+
+moduleclass = 'lib'

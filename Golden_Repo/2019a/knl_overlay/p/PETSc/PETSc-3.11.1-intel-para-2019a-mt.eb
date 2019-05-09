@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = "PETSc"
+version = "3.11.1"
+
+homepage = 'http://www.mcs.anl.gov/petsc'
+description = """PETSc, pronounced PET-see (the S is silent), is a suite
+of data structures and routines for the scalable (parallel) solution
+of scientific applications modeled by partial differential equations.
+
+This version is configured with several downloads of other libraries,
+with --with-large-file-io and no debugging. It is a C and Fortran
+version with default 4-Byte integer values.
+
+For more information see $PETSC_DIR/$PETSC_ARCH/lib/petsc/conf/configure.log.
+"""
+
+
+toolchain = {'name': 'intel-para', 'version': '2019a-mt'}
+
+toolchainopts = {'usempi': True, 'pic': True}
+
+downloadinstall = True
+
+source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
+sources = ['petsc-lite-%s.tar.gz' % version]
+
+builddependencies = [
+    ('CMake', '3.14.0')
+]
+
+download_deps = [
+    'triangle',
+]
+
+download_deps_static = [
+    'hypre',
+    'metis',
+    'parmetis',
+    'spooles',
+    'superlu',
+    'superlu_dist',
+    # MUMPS doesn't compile on KNL with intel 2019.0. Needs to be patched
+    # 'mumps',
+    'spai',
+    'chaco',
+    'sundials',
+    'parms',
+    'hdf5',
+]
+
+configopts = '--with-large-file-io --with-cxx-dialect=C++11'
+
+postinstallcmds = [
+    'cp %(builddir)s/petsc-%(version)s/src/mat/impls/aij/mpi/mpiaij.h %(installdir)s/include/petsc/private/',
+    'cp %(builddir)s/petsc-%(version)s/src/mat/impls/aij/seq/aij.h %(installdir)s/include/petsc/private/',
+    'cp %(builddir)s/petsc-%(version)s/src/mat/impls/dense/seq/dense.h %(installdir)s/include/petsc/private/'
+]
+
+moduleclass = 'numlib'

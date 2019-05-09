@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ELPA'
+version = '2016.05.004'
+
+homepage = 'http://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications. ELPA has been installed as module in
+$EBROOTELPA ($ELPA_ROOT is also defined). This installation is the pure MPI version.
+
+Several assembly kernels have been compiled. They can be chosen at runtime when calling the library or
+with the environment variables REAL_ELPA_KERNEL or COMPLEX_ELPA_KERNEL.
+
+An example is
+export REAL_ELPA_KERNEL=REAL_ELPA_KERNEL_GENERIC
+which chooses the generic real kernel for elpa2.
+"""
+
+usage = """You can get an overview over the available kernels by loading ELPA and then submitting a batch job with
+
+srun --ntasks=1 $EBROOTELPA/bin/elpa2_print_kernels
+
+Programs using this ELPA library have to be compiled with
+
+-I$ELPA_INCLUDE/ -I$ELPA_INCLUDE/elpa -I$ELPA_MODULES
+
+and linked with
+
+-L$EBROOTELPA/lib -lelpa -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -lmkl_intel_lp64
+-lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lstdc++
+"""
+
+examples = 'Examples can be found in $EBROOTELPA/examples'
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2019a'}
+toolchainopts = {'optarch': True, 'usempi': True}
+
+source_urls = ['http://elpa.mpcdf.mpg.de/html/Releases/%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = [
+    'ELPA-%(version)s_install-libelpatest.patch',
+]
+
+builddependencies = [
+    # Can't use Autotools 20180311, since Automake 1.16.1 doesn't correctly detect the fortran dependencies
+    #('Autotools', '20180311'),
+    ('Autoconf', '2.69'),
+    ('libtool', '2.4.6'),
+    ('Automake', '1.15.1'),
+]
+
+with_mpi= True
+with_openmp = True
+with_single = False
+
+# The sed command is needed to make sure that libtool doesn't swallow -module, leaving a broken line passed to the
+# compiler. This is important just for ifort >= 2019, since it doesn't accept -mod as a flag, just -module or -Module
+#preconfigopts = 'autoreconf && sed -i s/"\'-module \' -M \'-Am -M\' \'-e m -J \'; do"/"\'-Module \' -M \'-Am -M\' \'-e m -J \'; do"/g configure && '
+postinstallcmds = [
+    'cp config.h config-f90.h %(installdir)s/share/doc/elpa/examples',
+    # Missing
+    #'cp %(builddir)s/elpa-%(version)s/test/Fortran/Makefile_examples_pure %(installdir)s/share/doc/elpa/examples',
+    'cp %(builddir)s/elpa-%(version)s/test/Fortran/elpa_print_headers.X90 %(installdir)s/share/doc/elpa/examples',
+    'cp %(builddir)s/elpa-%(version)s/private_modules/* %(installdir)s/include/elpa-%(version)s/modules'
+]
+
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules'
+}
+
+moduleclass = 'math'

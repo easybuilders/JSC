@@ -1,0 +1,94 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ELPA'
+version = '2018.11.001'
+versionsuffix = '-single'
+
+homepage = 'http://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications. ELPA has been installed as module in
+$EBROOTELPA ($ELPA_ROOT is also defined). This installation
+contains the pure MPI version and the hybrid MPI/OpenMP version
+in single precision.
+
+Several assembly kernels have been compiled. They can be chosen at runtime when calling the library or
+with the environment variables REAL_ELPA_KERNEL or COMPLEX_ELPA_KERNEL.
+
+An example is
+export REAL_ELPA_KERNEL=REAL_ELPA_KERNEL_GENERIC
+which chooses the generic real kernel for elpa2.
+"""
+
+usage = """You can get an overview over the available kernels by loading ELPA and then submitting a batch job with
+
+srun --ntasks=1 $EBROOTELPA/bin/elpa2_print_kernels
+
+Programs using this ELPA library have to be compiled with
+
+-I$ELPA_INCLUDE[_OPENMP]/ -I$ELPA_INCLUDE[_OPENMP]/elpa -I$ELPA_MODULES[_OPENMP]
+
+and linked with
+
+-L$EBROOTELPA/lib -lelpa[_openmp] -lmkl_scalapack_lp64 
+-lmkl_blacs_intelmpi_lp64 -lmkl_intel_lp64
+-lmkl_sequential[-lmkl_intel_thread] 
+-lmkl_core -liomp5 -lpthread -lstdc++
+"""
+
+examples = 'Examples can be found in $EBROOTELPA/examples'
+
+
+toolchain = {'name': 'intel-para', 'version': '2019a'}
+toolchainopts = {'optarch': True, 'usempi': True}
+
+source_urls = ['http://elpa.mpcdf.mpg.de/html/Releases/%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = [
+    'ELPA-%(version)s_install-libelpatest.patch',
+]
+
+builddependencies = [
+    ('Autotools', '20180311'),
+]
+
+with_mpi= True
+with_openmp = True
+with_single = True
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/examples/',
+    'cp -r %(builddir)s/elpa-%(version)s/test/C/ %(installdir)s/examples/',
+    'cp -r %(builddir)s/elpa-%(version)s/test/Fortran/ %(installdir)s/examples/',
+    'rm %(installdir)s/examples/Fortran/*.o',
+    'rm %(installdir)s/examples/Fortran/driver/legacy_interface/*.o',
+    'rm %(installdir)s/examples/Fortran/elpa1/legacy_interface/*.o',
+    'rm %(installdir)s/examples/Fortran/elpa2/legacy_interface/*.o',
+    'rm %(installdir)s/examples/C/*.o',
+    'rm %(installdir)s/examples/C/driver/legacy_interface/*.o',
+    'rm %(installdir)s/examples/C/elpa1/legacy_interface/*.o',
+    'rm %(installdir)s/examples/C/elpa2/legacy_interface/*.o',
+    'cp %(builddir)s/elpa-%(version)s/test_project_1stage/src/test_real.F90 %(installdir)s/examples/test_real_e1.F90',
+    'cp %(builddir)s/elpa-%(version)s/test_project_2stage/src/test_real2.F90 %(installdir)s/examples/test_real_e2.F90',
+    'cp %(builddir)s/elpa-%(version)s/test_project_1stage/src/Makefile_pure %(installdir)s/examples/Makefile_pure',
+    'cp %(builddir)s/elpa-%(version)s/test_project_1stage/src/Makefile_hybrid %(installdir)s/examples/Makefile_hybrid',
+    'cp config.h config-f90.h %(installdir)s/include/elpa-%(version)s/elpa/',
+    'cp %(builddir)s/elpa-%(version)s/private_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+    'cp %(builddir)s/elpa-%(version)s/test_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+]
+
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_INCLUDE_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_LIB_OPENMP': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules',
+    'ELPA_MODULES_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/modules',
+}
+
+modloadmsg = """
+Notice: If you want to use OpenMP threads you have to set
+$ export ELPA_DEFAULT_omp=<number of threads per MPI process>
+"""
+
+moduleclass = 'math'

@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'pkgconfig'
+version = '1.5.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://github.com/matze/pkgconfig'
+description = """pkgconfig is a Python module to interface with the pkg-config command line tool"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+
+builddependencies = [
+    ('binutils', '2.32'),
+]
+
+dependencies = [
+    ('Python', '3.6.8'),
+    ('pkg-config', '0.29.2'),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+moduleclass = 'data'

@@ -1,7 +1,5 @@
 -- This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
-help([[
-This module will load the environment you need to install new software with EasyBuild in a hierarchy.
-]])
+help("This module will load the environment you need to install new software with EasyBuild in a hierarchy.")
 
 whatis("Module to set up the environment for development within EasyBuild")
 
@@ -181,7 +179,7 @@ setenv("EASYBUILD_INSTALLPATH", stage_path)
 setenv("EASYBUILD_BUILDPATH", pathJoin("/dev/shm", user, architecture))
 
 -- We add our custom Toolchains directory, it must be appended so as not to interfere with the EasyBuild installation
-setenv("EASYBUILD_INCLUDE_TOOLCHAINS", pathJoin(custom_toolchains_path, "\*.py")..','..pathJoin(custom_toolchains_path, "fft", "\*.py"))
+setenv("EASYBUILD_INCLUDE_TOOLCHAINS", pathJoin(custom_toolchains_path, "\*.py")..','..pathJoin(custom_toolchains_path, "fft", "\*.py")..','..pathJoin(custom_toolchains_path, "compiler", "\*.py"))
 
 -- Finally we add our custom EasyBlock directory, it must be appended so as not to interfere with the EasyBuild installation
 setenv("EASYBUILD_INCLUDE_EASYBLOCKS", pathJoin(custom_easyblocks_path, "\*.py")..","..
@@ -191,41 +189,11 @@ setenv("EASYBUILD_INCLUDE_EASYBLOCKS", pathJoin(custom_easyblocks_path, "\*.py")
 setenv("EASYBUILD_REPOSITORY", "FileRepository")
 setenv("EASYBUILD_REPOSITORYPATH", pathJoin(stage_path, "eb_repo"))
 
--- Always hide the following dependencies to keep 'module avail' clean
-local hidden_deps = "ANTLR,APR,APR-util,AT-SPI2-ATK,AT-SPI2-core,ATK,Autoconf,Automake,adwaita-icon-theme,ant,assimp,"..
-"Bison,babl,binutils,byacc,bzip2,"..
-"CUSP,Coreutils,cairo,cling,configurable-http-proxy,"..
-"DB,DBus,DocBook-XML,Dyninst,dbus-glib,damageproto,"..
-"ETSF_IO,Exiv2,eudev,expat,"..
-"FFmpeg,FLTK,FTGL,FoX,fixesproto,fontsproto,fontconfig,freeglut,freetype,"..
-"GCCcore,GDAL,GEGL,GL2PS,GLEW,GLM,GLib,GLPK,GPC,GObject-Introspection,GTI,GTK+,GTS,Gdk-Pixbuf,Ghostscript,GraphicsMagick,GtkSourceView,"..
-"g2clib,g2lib,gc,gexiv2,gflags,glog,glproto,googletest,gperf,guile,gsettings-desktop-schemas,gettext,gzip,"..
-"HarfBuzz,"..
-"icc,ifort,inputproto,intltool,itstool,"..
-"JUnit,JSON-C,JSON-GLib,JasPer,jhbuild,"..
-"kbproto,"..
-"LMDB,LZO,LevelDB,LibTIFF,LibUUID,Libint,LittleCMS,"..
-"libGLU,libICE,libSM,libX11,libXau,libXaw,libXcursor,libXdamage,libXdmcp,libXext,libXfixes,libXfont,libXft,libXi,"..
-"libXinerama,libXmu,libXp,libXpm,libXrandr,libXrender,libXt,libXtst,libcerf,libcroco,libctl,libdap,libdrm,libdwarf,libelf,"..
-"libepoxy,libevent,libffi,libfontenc,libgd,libgeotiff,libglade,libidn,libjpeg-turbo,libmatheval,libmypaint,libpng,"..
-"libpciaccess,libpthread-stubs,libreadline,librsvg,libsndfile,libspatialindex,libtool,libunistring,libunwind,libyaml,libxcb,libxkbcommon,libxml2,"..
-"libxslt,libyuv,"..
-"M4,MATIO,Mesa,makedepend,motif,msgpack-c,"..
-"NASM,NLopt,ncurses,nettle,nodejs,nvenc_sdk,nvidia,"..
-"OPARI2,OTF2,"..
-"PCRE,PDT,PROJ,Pango,Pmw,PnMPI,PyCairo,PyGObject,Python-Xpra,patchelf,pixman,pkg-config,pkgconfig,popt,printproto,protobuf,pscom,pybind11,"..
-"Qhull,Qt,Qt5,qrupdate,"..
-"randrproto,recordproto,renderproto,"..
-"S-Lang,SCons,SIP,SQLite,SWIG,Serf,Szip,scrollkeeper,snappy,"..
-"Tk,texinfo,"..
-"UDUNITS,util-linux,"..
-"vpx,"..
-"wxPropertyGrid,wxWidgets,"..
-"XML-Parser,XZ,XKeyboardConfig,"..
-"x264,x265,xbitmaps,xcb-proto,xcb-util,xcb-util-image,xcb-util-keysyms,xcb-util-renderutil,xcb-util-wm,xextproto,"..
-"xineramaproto,xorg-macros,xprop,xproto,xtrans,"..
-"Yasm,"..
-"zlib"
+-- Always hide these dependencies to keep 'module avail' clean
+local hidden_deps = ""
+if isFile(gr_path.."/hidden_deps.txt") then
+    hidden_deps = capture("tr '\n' ',' < "..gr_path.."/hidden_deps.txt")
+end
 
 setenv("EASYBUILD_HIDE_DEPS", hidden_deps)
 

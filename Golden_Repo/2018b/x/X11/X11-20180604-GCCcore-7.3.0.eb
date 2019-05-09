@@ -279,7 +279,7 @@ components = [
         'checksums': ['962a3d550ad0058c141c2bf16eed6498d0f86d987141f875cb0a5df5696487d7'],
     }),
     ('font-util', '1.3.1', {
-        'checksums': ['aa7ebdb0715106dd255082f2310dbaa2cd7e225957c2a77d719720c7cc92b921'],
+        'checksums': ['34ebb0c9c14e0a392cdd5ea055c92489ad88d55ae148b2f1cfded0f3f63f2b5b'],
     }),
 ]
 

@@ -9,7 +9,7 @@ description = """The Intel(R) MPI Library for Linux* OS is a multi-fabric messag
 """
 
 
-toolchain = {'version': '2019.0.117-GCC-7.3.0', 'name': 'iccifort'}
+toolchain = {'version': '2019.3.199-GCC-8.3.0', 'name': 'iccifort'}
 
 sources = ['l_mpi_%(version)s.tgz']
 
@@ -42,12 +42,7 @@ modextravars = {
     'I_MPI_ADJUST_GATHERV': '3',
 }
 
-#modloadmsg =  '    This version of Intel MPI have the DAPL and OFA translation caches disabled by default.\n'
-#modloadmsg += 'You can enable them at your own risk with:\n'
-#modloadmsg += ' -export I_MPI_OFA_TRANSLATION_CACHE=1\n'
-#modloadmsg += ' -export I_MPI_DAPL_TRANSLATION_CACHE=1\n'
-#modloadmsg += 'Please note that doing so might result in MPI messages with the wrong content, depending on the memory\n'
-#modloadmsg += 'allocation functions used by the compiler. Fortran codes seem to be particularly sensitive to this\n'
-#modloadmsg += 'problem\n'
+#modloadmsg =  'This version of Intel MPI have serious issues. Particularly with certain collective functions at large\n'
+#modloadmsg += 'core counts. Please load version 2018.4 instead'
 
 moduleclass = 'mpi'

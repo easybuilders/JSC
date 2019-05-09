@@ -133,7 +133,7 @@ configopts += '-DVTK_USE_LARGE_DATA=ON '
 configopts += '-DVTK_RENDERING_BACKEND:STRING=OpenGL2 '
 configopts += '-DVTK_LEGACY_SILENT=ON ' # disable warnings if OpenGL interface instead of OpenGL2 interface is used in VTK_RENDERING_BACKEND
 # OpenGL (hardware)
-configopts += '-DOPENGL_gl_LIBRARY=/usr/lib64/libGL.so '
+configopts += '-DOPENGL_gl_LIBRARY=$NVIDIALIBDIR/libGL.so '
 configopts += '-DOpenGL_GL_PREFERENCE=GLVND ' # "GLVND" or "LEGACY"
 configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF ' # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
 configopts += '-DVTK_USE_X=ON -DVTK_USE_OFFSCREEN=OFF '

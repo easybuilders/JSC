@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'nvidia'
+version = '418.87.00'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """This is a set of libraries normally installed by the NVIDIA driver installer."""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = [
+    'http://us.download.nvidia.com/tesla/%(version)s/',
+    'http://developer.download.nvidia.com/compute/cuda/%(version_major_minor)s/Prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/Prod2/local_installers/',
+]
+
+sources = [
+    'NVIDIA-Linux-x86_64-%(version)s.run'
+]
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

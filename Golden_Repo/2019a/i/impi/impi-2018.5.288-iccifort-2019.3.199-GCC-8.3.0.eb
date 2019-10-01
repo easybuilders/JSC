@@ -1,0 +1,63 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'impi'
+version = '2018.5.288'
+
+homepage = 'http://software.intel.com/en-us/intel-mpi-library/'
+description = """The Intel(R) MPI Library for Linux* OS is a multi-fabric message
+ passing library based on ANL MPICH2 and OSU MVAPICH2. The Intel MPI Library for
+ Linux OS implements the Message Passing Interface, version 2 (MPI-2) specification.
+"""
+
+
+toolchain = {'version': '2019.3.199-GCC-8.3.0', 'name': 'iccifort'}
+
+sources = ['l_mpi_%(version)s.tgz']
+
+postinstallcmds = [
+    "ln -s %(installdir)s/lib64/libmpi.so  %(installdir)s/lib64/libmpich.so",
+    "ln -s %(installdir)s/lib64/libmpigc4.so  %(installdir)s/lib64/libmpichcxx.so",
+    "ln -s %(installdir)s/lib64/libmpigf.so %(installdir)s/lib64/libfmpich.so",
+    "ln -s %(installdir)s/lib64/libmpigf.so %(installdir)s/lib64/libmpichf90.so",
+    "ln -s %(installdir)s/lib64/libmpi.so %(installdir)s/lib64/libmpl.so",
+    "ln -s %(installdir)s/lib64/libmpi.so %(installdir)s/lib64/libopa.so",
+    # These 2 commands are here to fix a bug in the mpif90 wrapper. See https://github.com/hpcugent/easybuild-framework/issues/2000
+    # They should be removed for future versions of Intel MPI
+    r'''echo "$(awk '{if ($1 ~ /^gfort_ver=/) print "if [[ \"$FC\" =~ .*gfortran ]]; then ", $0, "; fi"; else print $0}' %(installdir)s/bin64/mpif90)" > %(installdir)s/bin64/mpif90''',
+    r'''sed -i s/^"    gver=".*/"    gver=\"\""/ %(installdir)s/bin64/mpif90''',
+]
+
+
+# use a more explicit module name to help our naming scheme
+modaltsoftname = 'IntelMPI'
+# Add a family for our naming scheme
+modluafooter = 'family("mpi")'
+dontcreateinstalldir = 'True'
+# set up all the mpi commands to work as expected
+set_mpi_wrappers_all = 'True'
+
+modextravars = {
+#    'I_MPI_OFA_TRANSLATION_CACHE': '0',
+#    'I_MPI_DAPL_TRANSLATION_CACHE': '0',
+    # Needed for PSM and harmless for InfiniBand. For ParaStation it is set on the pscom module
+    'HFI_NO_CPUAFFINITY': 'YES',
+    # The default algorithms hang for large core counts
+    'I_MPI_ADJUST_GATHER': '1',
+    'I_MPI_ADJUST_GATHERV': '3',
+    'I_MPI_ADJUST_SCATTER': '1',
+    'I_MPI_FABRICS': 'shm:ofa',
+}
+
+modloadmsg = 'WARNING: Intel MPI version 2018 (all minor releases) and 2019 have unresolved, known issues\n'
+modloadmsg += 'affecting collective operations. Since not all applications are impaired, JSC has\n'
+modloadmsg += 'decided not to fully retract the MPI version 2018 (other than version 2019).\n'
+modloadmsg += 'However, we warn users about potential problems with hanging applications due to stalls\n'
+modloadmsg += 'or very slow progress in collectives.\n'
+modloadmsg += 'In particular affected are:\n'
+modloadmsg += '    * MPI_Scatter/MPI_Scatterv\n'
+modloadmsg += '    * Collectives executed with 3000+ tasks\n'
+modloadmsg += 'Larger jobs are more likely affected than smaller ones.\n'
+modloadmsg += 'Please consider ParaStation MPI as an alternative option, when experiencing problems\n'
+modloadmsg += 'with this Intel MPI version. Irrespectively, please contact sc@fz-juelich.de and report\n'
+modloadmsg += 'your problem.'
+
+moduleclass = 'mpi'

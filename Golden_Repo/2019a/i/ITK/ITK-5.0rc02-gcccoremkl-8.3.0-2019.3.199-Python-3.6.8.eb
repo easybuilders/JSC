@@ -1,0 +1,195 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ITK'
+version = '5.0rc02'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://itk.org'
+description = """Insight Segmentation and Registration Toolkit (ITK) provides
+ an extensive suite of software tools for registering and segmenting
+ multidimensional imaging data."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.3.0-2019.3.199'}
+toolchainopts = {'pic': True, 'optarch': False}
+
+source_urls = ['https://github.com/InsightSoftwareConsortium/ITK/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('CMake', '3.14.0'),
+]
+
+dependencies = [
+    ('Python', '3.6.8'),
+    ('HDF5', '1.10.5', '-serial'),
+    ('Eigen', '3.3.7'),
+    ('VTK', '8.2.0', versionsuffix),
+    ('X11', '20190311'),
+]
+
+separate_build_dir = True
+maxparallel = 24
+
+configopts  = "-DCMAKE_CC_COMPILER=g++ "
+
+configopts += "-DCMAKE_BUILD_TYPE=Release "
+configopts += "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON "
+
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBUILD_TESTING=OFF "
+
+configopts += "-DITKV4_COMPATIBILITY=ON "
+configopts += "-DITK_LEGACY_SILENT=ON "
+
+configopts += "-DITK_USE_SYSTEM_EIGEN=ON "
+configopts += "-DEigen3_DIR=$EBROOTEIGEN/share/eigen3/cmake "
+
+configopts += "-DITK_USE_SYSTEM_HDF5=ON "
+
+configopts += "-DITK_WRAP_PYTHON=ON "
+configopts += "-DPYTHON_EXECUTABLE:PATH=$EBROOTPYTHON/bin/python%(pyshortver)s "
+configopts += "-DPYTHON_INCLUDE_DIR:PATH=$EBROOTPYTHON/include/python%(pyshortver)sm "
+configopts += "-DPYTHON_LIBRARY:PATH=$EBROOTPYTHON/lib/libpython%%(pyshortver)sm.%s " % SHLIB_EXT
+
+configopts += "-DModule_ITKReview=ON "
+configopts += "-DModule_ITKVtkGlue=ON "
+#configopts += "-DHDF5_INCLUDE_DIRS=$EBROOTHDF5/include "
+
+# ITK_USE_CCACHE                  *OFF
+# ITK_USE_SYSTEM_CASTXML          *OFF
+# ITK_USE_SYSTEM_SWIG             *OFF
+# ITK_WRAP_CASTXML                *ON
+# ITK_WRAP_DOC                    *OFF
+# ITK_WRAP_EXPLICIT               *OFF
+# ITK_WRAP_PYTHON_LEGACY          *ON
+# ITK_WRAP_SWIGINTERFACE          *ON 
+# ITKV4_COMPATIBILITY              OFF
+# ITK_BUILD_ALL_MODULES_FOR_TEST   OFF
+# ITK_BUILD_DEFAULT_MODULES        ON
+# ITK_COMPUTER_MEMORY_SIZE         1
+## ITK_CPPCHECK_TEST                OFF
+# ITK_CXX_OPTIMIZATION_FLAGS        -mtune=native -march=corei7
+# ITK_CXX_WARNING_FLAGS
+# ITK_C_OPTIMIZATION_FLAGS          -mtune=native -march=corei7
+# ITK_C_WARNING_FLAGS               
+# ITK_DOXYGEN_CHM                  OFF
+# ITK_DOXYGEN_DOCSET               OFF
+# ITK_DOXYGEN_ECLIPSEHELP          OFF
+# ITK_DOXYGEN_HTML                 ON
+# ITK_DOXYGEN_LATEX                OFF
+# ITK_DOXYGEN_QHP                  OFF
+# ITK_DOXYGEN_RTF                  OFF
+# ITK_DOXYGEN_XML                  OFF
+# ITK_DYNAMIC_LOADING              ON
+# ITK_FORBID_DOWNLOADS             OFF
+# ITK_FUTURE_LEGACY_REMOVE         OFF
+# ITK_LEGACY_REMOVE                OFF
+# ITK_LEGACY_SILENT                OFF <- better ON
+# ITK_TEMPLATE_VISIBILITY_DEFAUL   OFF
+# ITK_TRANSFORM_FACTORY_MAX_DIM    4
+# ITK_USE_64BITS_IDS               OFF
+# ITK_USE_BRAINWEB_DATA            OFF
+# ITK_USE_CONCEPT_CHECKING         ON
+# ITK_USE_CUFFTW                   OFF
+# ITK_USE_EIGEN_MPL2_ONLY          OFF
+# ITK_USE_FFTWD                    OFF
+# ITK_USE_FFTWF                    OFF
+# ITK_USE_FLOAT_SPACE_PRECISION    OFF
+# ITK_USE_GIT_PROTOCOL             OFF
+# ITK_USE_GOLD_LINKER              ON
+# ITK_USE_GPU                      OFF
+# ITK_USE_KWSTYLE                  ON
+# ITK_USE_MKL                      OFF
+# ITK_USE_SYSTEM_DOUBLECONVERSIO   OFF
+# ITK_USE_SYSTEM_EIGEN             OFF
+# ITK_USE_SYSTEM_EXPAT             OFF
+# ITK_USE_SYSTEM_FFTW              OFF
+# ITK_USE_SYSTEM_GDCM              OFF
+# ITK_USE_SYSTEM_GOOGLETEST        OFF
+# ITK_USE_SYSTEM_HDF5              OFF
+# ITK_USE_SYSTEM_JPEG              OFF
+# ITK_USE_SYSTEM_KWIML             OFF
+# ITK_USE_SYSTEM_LIBRARIES         OFF
+# ITK_USE_SYSTEM_MINC              OFF
+# ITK_USE_SYSTEM_PNG               OFF
+# ITK_USE_SYSTEM_TIFF              OFF
+# ITK_USE_SYSTEM_VXL               OFF
+# Module_AnalyzeObjectMapIO        OFF
+# Module_AnisotropicDiffusionLBR   OFF
+# Module_BioCell                   OFF
+# Module_BoneMorphometry           OFF
+# Module_Cuberille                 OFF
+# Module_FixedPointInverseDispla   OFF
+# Module_GenericLabelInterpolato   OFF
+# Module_HigherOrderAccurateGrad   OFF
+# Module_IOFDF                     OFF
+# Module_IOMeshSTL                 OFF
+# Module_IOOpenSlide               OFF
+# Module_IOScanco                  OFF
+# Module_IOTransformDCMTK          OFF
+# Module_ITKDCMTK                  OFF
+# Module_ITKDeprecated             OFF
+# Module_ITKFEM                    OFF
+# Module_ITKFEMRegistration        OFF
+# Module_ITKIODCMTK                OFF
+# Module_ITKIOPhilipsREC           OFF
+# Module_ITKIOTransformMINC        OFF
+# Module_ITKLevelSetsv4Visualiza   OFF
+# Module_ITKReview                 OFF
+# Module_ITKTBB                    OFF
+# Module_ITKVideoBridgeOpenCV      OFF
+# Module_ITKVideoBridgeVXL         OFF
+# Module_ITKVtkGlue                OFF
+# Module_IsotropicWavelets         OFF
+# Module_LabelErodeDilate          OFF
+# Module_LesionSizingToolkit       OFF
+# Module_MGHIO                     OFF
+# Module_MeshNoise                 OFF
+# Module_MinimalPathExtraction     OFF
+# Module_Montage                   OFF
+# Module_MorphologicalContourInt   OFF
+# Module_MultipleImageIterator     OFF
+# Module_NeuralNetworks            OFF
+# Module_ParabolicMorphology       OFF
+# Module_PerformanceBenchmarking   OFF
+# Module_PhaseSymmetry             OFF
+# Module_PolarTransform            OFF
+# Module_PrincipalComponentsAnal   OFF
+# Module_RLEImage                  OFF
+# Module_RTK                       OFF
+# Module_SCIFIO                    OFF
+# Module_SimpleITKFilters          OFF
+# Module_SkullStrip                OFF
+# Module_SmoothingRecursiveYvvGa   OFF
+# Module_SphinxExamples            OFF
+# Module_SplitComponents           OFF
+# Module_Strain                    OFF
+# Module_SubdivisionQuadEdgeMesh   OFF
+# Module_TextureFeatures           OFF
+# Module_Thickness3D               OFF
+# Module_TotalVariation            OFF
+# Module_TwoProjectionRegistrati   OFF
+# Module_VariationalRegistration   OFF
+# Module_WikiExamples              OFF
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib64/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+# no file found at 'lib/libITKVtkGlue-5.0rc02.so' in /usr/local/software/jureca/Stages/Devel-2018b/software/ITK/5.0rc02-GCCcore-7.3.0-Python-3.6.6
+sanity_check_paths = {
+    'files': ['bin/itkTestDriver',
+              'lib/libITKVtkGlue-%(version_major)s.0.so',
+              'lib/libitkjpeg-%(version_major)s.0.so',
+              'lib/libitkpng-%(version_major)s.0.so'],
+    'dirs': ['include/ITK-%(version_major)s.0',
+             'lib/python%(pyshortver)s/site-packages',
+             'share'],
+}
+
+sanity_check_commands = [('python', "-c 'import %(namelower)s'")]
+
+moduleclass = 'vis'

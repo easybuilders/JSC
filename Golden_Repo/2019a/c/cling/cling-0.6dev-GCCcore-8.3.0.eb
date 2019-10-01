@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'cling'
+version = '0.6dev'
+
+homepage = "https://root.cern.ch/cling"
+description = """Cling is an interactive C++ interpreter, built on the top of LLVM and Clang libraries.
+Its advantages over the standard interpreters are that it has command line prompt and uses just-in-time (JIT) compiler for compilation.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+toolchainopts = {'pic': True}
+
+#source_urls = [ '...' ]
+#sources = [ '...' ]
+
+builddependencies = [
+    ('CMake', '3.14.0'),
+    ('binutils', '2.32', ''),
+]
+
+separate_build_dir = True
+srcdir = "%(builddir)s/cling-%(version)s/src"
+
+preconfigopts  = "mkdir %(builddir)s/cling-%(version)s && "
+
+# get source
+preconfigopts += "cd %(builddir)s/cling-%(version)s && "
+preconfigopts += "git clone http://root.cern.ch/git/llvm.git src && "
+preconfigopts += "cd src && "
+preconfigopts += "git checkout cling-patches && "
+preconfigopts += "cd tools && "
+preconfigopts += "git clone http://root.cern.ch/git/cling.git && "
+preconfigopts += "git clone http://root.cern.ch/git/clang.git && "
+preconfigopts += "cd clang && "
+preconfigopts += "git checkout cling-patches && "
+preconfigopts += "cd ../.. && " 
+
+# patch for GCC 8.x
+# https://bugzilla.redhat.com/show_bug.cgi?id=1540620
+preconfigopts += 'echo -e "'\
+'--- include/llvm/ExecutionEngine/Orc/OrcRemoteTargetClient.h    2019-05-05 09:53:34.165372303 +0200\n'\
+'+++ include/llvm/ExecutionEngine/Orc/OrcRemoteTargetClient.h    2019-05-04 10:04:45.960982366 +0200\n'\
+'@@ -695,7 +695,7 @@\n'\
+'\n'\
+'   uint32_t getTrampolineSize() const { return RemoteTrampolineSize; }\n'\
+'\n'\
+'-  Expected<std::vector<char>> readMem(char *Dst, JITTargetAddress Src,\n'\
+'+  Expected<std::vector<uint8_t>> readMem(char *Dst, JITTargetAddress Src,\n'\
+'                                       uint64_t Size) {\n'\
+'     // Check for an \'out-of-band\' error, e.g. from an MM destructor.\n'\
+'     if (ExistingError)" > patched4gcc8_llvm05.patch && '
+preconfigopts += "patch -p0 < patched4gcc8_llvm05.patch && "
+
+# cd to easybuild standard build directory
+preconfigopts += "cd %(builddir)s/easybuild_obj/ && "
+
+sanity_check_paths = {
+     'files': [],
+     'dirs': ['bin','include','lib','share'],
+}
+
+moduleclass = 'tools'

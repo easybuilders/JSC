@@ -1,0 +1,12 @@
+diff -ruN gromacs-2019.3.orig/cmake/gmxDetectCpu.cmake gromacs-2019.3/cmake/gmxDetectCpu.cmake
+--- gromacs-2019.3.orig/cmake/gmxDetectCpu.cmake	2019-06-14 14:00:16.000000000 +0200
++++ gromacs-2019.3/cmake/gmxDetectCpu.cmake	2019-07-11 14:59:21.573084772 +0200
+@@ -83,7 +83,7 @@
+                 set(GCC_INLINE_ASM_DEFINE "-DGMX_X86_GCC_INLINE_ASM=0")
+             endif()
+ 
+-            set(_compile_definitions "${GCC_INLINE_ASM_DEFINE} -I${PROJECT_SOURCE_DIR}/src -DGMX_CPUINFO_STANDALONE ${GMX_STDLIB_CXX_FLAGS} -DGMX_TARGET_X86=${GMX_TARGET_X86_VALUE}")
++            set(_compile_definitions ${GCC_INLINE_ASM_DEFINE} -I${PROJECT_SOURCE_DIR}/src -DGMX_CPUINFO_STANDALONE ${GMX_STDLIB_CXX_FLAGS} -DGMX_TARGET_X86=${GMX_TARGET_X86_VALUE})
+             set(LINK_LIBRARIES "${GMX_STDLIB_LIBRARIES}")
+             try_compile(CPU_DETECTION_COMPILED
+                 "${PROJECT_BINARY_DIR}"

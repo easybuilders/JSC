@@ -1,0 +1,641 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Jupyter'
+version = '2019a'
+
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://www.jupyter.org'
+description = """
+Project Jupyter exists to develop open-source software, open-standards, and services for interactive computing across
+dozens of programming languages.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '8.3.0-2019.3.199'}
+
+toolchainopts = { 'pic' : True }
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('unzip', '6.0'),
+    # For Julia
+    ('git', '2.21.0'),
+    ('Autotools','20180311'),
+    ('CMake','3.14.0'),
+    ('pkg-config','0.29.2'),
+]
+
+dependencies = [
+    ('Python', '3.6.8'),
+    ('SciPy-Stack', '2019a', versionsuffix),
+    ('dask', '1.1.5', versionsuffix),
+    ('libyaml', '0.2.2'),
+    ('cling', '0.6dev'),
+    ('pandoc', '2.7.2', '', True), # For Doc-generation
+    ('texlive', '2018'),
+    ('Julia', '1.1.0'),
+    ('ITK', '5.0rc02', versionsuffix),
+]
+
+# Needed to install Julia
+osdependencies = [('openssl')]
+
+common_opts = {
+     'req_py_majver': '3',
+     'req_py_minver': '0'
+}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+components = [
+    ('nodejs', '10.15.3', {
+        'easyblock': 'ConfigureMake',
+        'source_urls': ['http://nodejs.org/dist/v%(version)s/'],
+        'sources': ['node-v%(version)s.tar.gz'],
+        'start_dir': 'node-v%(version)s',
+    }),
+]
+
+exts_list = [
+    ('pyOpenSSL', '19.0.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pyOpenSSL']),
+        ('modulename', 'OpenSSL'),
+    ])),
+    ('entrypoints', '0.2.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/e/entrypoints']),
+    ])),
+    ('async_generator', '1.10', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/a/async_generator']),
+    ])),
+    ('absl-py', '0.7.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/a/absl-py']),
+        ('modulename', 'absl'),
+    ])),
+    # General Python packages
+    ('tornado', '5.1.1', dict(common_opts.items() + [ # >= 4.1 (eg.4.5.3), cling does not support tornado>=5
+        ('source_urls', ['https://pypi.python.org/packages/source/t/tornado']),
+    ])),
+    ('bokeh', '0.13.0', dict(common_opts.items() + [ # Interactive plots and applications in the browser from Python
+        ('source_urls', ['https://pypi.python.org/packages/source/b/bokeh']),
+    ])),
+    ('nbformat', '4.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/n/nbformat']),
+    ])),
+    ('param', '1.6.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/param']),
+    ])),
+    ('holoviews', '1.9.5', dict(common_opts.items() + [ # Stop plotting your data - annotate your data and let it visualize itself
+        ('source_urls', ['https://pypi.python.org/packages/source/h/holoviews']),
+    ])),
+    # Jupyter-core and dependencies
+    ('alabaster', '0.7.10', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/a/alabaster']),
+    ])),
+    ('Babel', '2.5.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/b/Babel']),
+        ('modulename', 'babel'),
+    ])),
+    ('snowballstemmer', '1.2.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/snowballstemmer']),
+    ])),
+    ('docutils', '0.14', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/d/docutils']),
+    ])),
+    ('imagesize', '1.0.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/imagesize']),
+    ])),
+    ('sphinxcontrib-websupport', '1.0.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/sphinxcontrib-websupport']),
+        ('modulename', 'sphinxcontrib'),
+    ])),
+    ('Sphinx', '1.7.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/Sphinx']),
+        ('modulename',  'sphinx'),
+    ])),
+    ('ipynb', '0.5.1', dict(common_opts.items() + [ # importer for importing code from Jupyter Notebook files
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipynb']),
+    ])),
+    ('jupyter_core', '4.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter-core']),
+        ('use_pip',  True),
+        ('patches', ['jupyter_config_path.patch',]),
+    ])),
+    ('retrying', '1.3.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/r/retrying']),
+    ])),
+    ('plotly', '3.3.0', dict(common_opts.items() + [ # plotting library for collaborative, interactive, publication-quality graphs
+        ('source_urls', ['https://pypi.python.org/packages/source/p/plotly']),
+    ])),
+    ('matplotlib2tikz', '0.7.4', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/m/matplotlib2tikz']),
+    ])),
+    # Jupyter client
+    ('jupyter_client', '5.2.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter-client']),
+        ('use_pip',  True),
+    ])),
+    # Jupyter notebook and dependencies
+    ('pyzmq', '17.0.0', dict(common_opts.items() + [ # >=13
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pyzmq']),
+        ('modulename',  'zmq'),
+    ])),
+    ('ipyparallel', '6.1.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipyparallel']),
+        ('use_pip',  True),
+    ])),
+    ('ipykernel', '4.10.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipykernel']),
+    ])),
+    ('terminado', '0.8.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/t/terminado']),
+    ])),
+    ('bleach', '2.1.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/b/bleach']),
+    ])),
+    ('mistune', '0.8.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/m/mistune']),
+    ])),
+    ('pandocfilters', '1.4.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pandocfilters']),
+    ])),
+    ('testpath', '0.3.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/t/testpath']),
+    ])),
+    ('nbconvert', '5.5.0', dict(common_opts.items() + [ # convert Jupyter notebooks to: HTML, Latex, etc.
+        ('source_urls', ['https://pypi.python.org/packages/source/n/nbconvert']),
+        ('use_pip',  True),
+    ])),
+    ('Send2Trash', '1.5.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/Send2Trash']),
+        ('modulename',  'send2trash'),
+    ])),
+    ('notebook', '5.7.0', dict(common_opts.items() + [ # 5.4.1
+        ('source_urls', ['https://pypi.python.org/packages/source/n/notebook']),
+        ('use_pip',  True),
+    ])),
+    ('version_information', '1.0.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/v/version_information']),
+        ('use_pip',  True),
+    ])),
+    ('lesscpy', '0.13.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/l/lesscpy']),
+        ('use_pip',  True),
+    ])),
+    ('prometheus_client', '0.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/prometheus_client']),
+        ('use_pip',  True),
+    ])),
+    ('jupyterthemes', '0.19.6', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterthemes']),
+        ('use_pip',  True),
+    ])),
+    # Jupyter Lab and dependencies
+    ('jupyterlab_launcher', '0.13.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_launcher']),
+        ('use_pip',  True),
+    ])),
+    ('sphinx_rtd_theme', '0.2.4', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/sphinx_rtd_theme']),
+    ])),
+    ('CommonMark', '0.5.4', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/c/CommonMark']),
+        ('modulename', 'CommonMark'),
+    ])),
+    ('recommonmark', '0.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/r/recommonmark']),
+    ])),
+    ('jupyterlab', '0.35.6', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab']),
+        ('use_pip',  True),
+    ])),
+    ('jupyterlab_server', '0.2.0', dict(common_opts.items() + [
+       ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_server']),
+       ('use_pip',  True),
+    ])),
+    # Jupyter Kernel and dependencies
+    ('bash_kernel', '0.7.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/b/bash_kernel']),
+        ('use_pip',  True),
+    ])),
+#    ('octave_kernel', '0.28.4', dict(common_opts.items() + [
+#        ('source_urls', ['https://pypi.python.org/packages/source/o/octave_kernel']),
+#        ('use_pip',  True),
+#    ])),
+    # Jupyter Widgets and dependencies
+    ('defusedxml', '0.6.0', dict(common_opts.items() + [ # dependency for widgetsnbextension
+        ('source_urls', ['https://pypi.python.org/packages/source/d/defusedxml']),
+    ])),
+    ('widgetsnbextension', '3.4.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/w/widgetsnbextension']),
+    ])),
+    ('ipywidgets', '7.4.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipywidgets']),
+    ])),
+    ('ipyscales', '0.2.2', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipyscales']),
+        ('use_pip', True),
+    ])),
+    ('ipydatawidgets', '3.2.0', dict(common_opts.items() + [ # widgets to help facilitate reuse of large datasets across widgets
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipydatawidgets']),
+        ('use_pip', True),
+    ])),
+    ('traittypes', '0.2.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/t/traittypes']),
+    ])),
+    ('bqplot', '0.9.1', dict(common_opts.items() + [   # 2-D plotting with d3.js (0.10.5 was giving problems)
+        ('source_urls', ['https://pypi.python.org/packages/source/b/bqplot']),
+    ])),
+    ('pythreejs', '2.0.2', dict(common_opts.items() + [ # 3-D scene visualization with three.js
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pythreejs']),
+        ('use_pip', True),
+    ])),
+    ('ipywebrtc', '0.4.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipywebrtc']),
+        ('use_pip', True),
+    ])),
+    ('ipyvolume', '0.5.1', dict(common_opts.items() + [ 
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipyvolume']),
+        ('use_pip', True),
+    ])),
+    ('branca', '0.3.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/b/branca']),
+        ('use_pip', True),
+    ])),
+    ('ipyleaflet', '0.10.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipyleaflet']),
+        ('use_pip', True),
+    ])),
+    ('ipympl', '0.2.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipympl']),
+    ])),
+    # Jupyter Notebook Extensions
+    ('jupyter_nbextensions_configurator', '0.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter_nbextensions_configurator']),
+        ('use_pip', True),
+    ])),
+    ('jupyter_latex_envs', '1.4.4', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter_latex_envs']),
+        ('modulename', 'latex_envs'),
+    ])),
+    ('jupyter_highlight_selected_word', '0.2.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter_highlight_selected_word']),
+    ])),
+    ('jupyter_contrib_core', '0.3.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter_contrib_core']),
+    ])),
+    ('jupyter_contrib_nbextensions', '0.5.1', dict(common_opts.items() + [ # https://github.com/ipython-contrib/jupyter_contrib_nbextensions
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter_contrib_nbextensions']),
+    ])),
+    ('rise', '5.4.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/r/rise']),
+        ('use_pip',True),
+    ])),
+    ('typing_extensions', '3.7.2', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/t/typing_extensions']),
+    ])),
+    ('idna-ssl', '1.1.0', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/i/idna-ssl']),
+    ])),
+    ('multidict', '4.5.2', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/m/multidict']),
+    ])),
+    ('yarl', '1.3.0', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/y/yarl']),
+    ])),
+    ('async-timeout', '3.0.1', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/a/async-timeout']),
+    ])),
+    ('aiohttp', '3.5.4', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/a/aiohttp']),
+    ])),
+    ('simpervisor', '0.3', dict(common_opts.items() + [ # indirect dep of jupyter-server-proxy
+        ('source_urls', ['https://pypi.python.org/packages/source/s/simpervisor']),
+    ])),
+    ('jupyter-server-proxy', '1.0.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyter-server-proxy']),
+    ])), 
+    # Jupyter Lab Extensions
+    ('jupyterlab_github', '0.10.0', dict(common_opts.items() + [
+        #('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_github']), # do not use pypi for download -> we need to patch drive.json
+        ('source_urls', ['https://github.com/jupyterlab/jupyterlab-github/archive']),
+        ('source_tmpl', 'v%(version)s.tar.gz'),
+        ('use_pip', True),
+        ('patches', ['jupyterlab_github-0.10.0_jsc.patch']),
+    ])),
+    ('jupyterlab-gitlab', '0.1.1', dict(common_opts.items() + [
+        #('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab-gitlab']), # do not use pypi for download -> we need to patch drive.json
+        ('source_urls', ['https://gitlab.com/beenje/jupyterlab-gitlab/-/archive/%(version)s']),
+        ('source_tmpl', 'jupyterlab-gitlab-%(version)s.tar.gz'),
+        ('use_pip', True),
+        ('patches', ['jupyterlab-gitlab-0.1.0_jsc.patch']),
+    ])),
+    ('zstandard', '0.11.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/z/zstandard']),
+        ('use_pip', True),
+    ])),
+# https://blog.kitware.com/itk-is-on-pypi-pip-install-itk-is-here/
+#    ('itk_core', '4.13.2.post1', dict(common_opts.items() + [
+#        ('source_urls', ['https://pypi.python.org/packages/source/i/itk_core']),
+#        ('use_pip', True),
+#    ])),
+#    ('itk_filtering', '4.13.2.post1', dict(common_opts.items() + [
+#        ('source_urls', ['https://pypi.python.org/packages/source/i/itk_filtering']),
+#        ('use_pip', True),
+#    ])),
+#    ('itkwidgets', '0.16.1', dict(common_opts.items() + [
+#        ('source_urls', ['https://pypi.python.org/packages/source/i/itkwidgets']),
+#        ('use_pip', True),
+#    ])),
+    ('ujson', '1.35', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/u/ujson']),
+        ('use_pip', True),
+    ])),
+    ('jupyterlab_iframe', '0.0.11', dict(common_opts.items() + [ # open HTML URLs in Jupyter-Tabs
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_iframe']), # do not forget to add version number (e.g. 0.0.8)
+    ])),
+    ('python-dotenv', '0.9.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/python-dotenv']),
+        ('modulename', 'dotenv'),
+        ('use_pip', True),
+    ])),
+    ('ipyauth', '0.2.5', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/i/ipyauth']),
+        ('use_pip', True),
+    ])),
+    ('jupyterlab_latex', '0.6.1', dict(common_opts.items() + [ # edit/compile latex documents
+        #('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_latex']),
+        ('source_urls', ['https://github.com/jupyterlab/jupyterlab-latex/archive']),
+        ('source_tmpl', '%(version)s.tar.gz'),
+        ('use_pip', True),
+    ])),
+    ('jupyterlab_slurm', '0.1.0', dict(common_opts.items() + [ # https://github.com/NERSC/jupyterlab-slurm
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlab_slurm']),
+        ('use_pip', True),
+    ])),
+    ('jupyterlmod', '1.7.5', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterlmod']),
+        ('use_pip', True),
+        ('patches', ['jupyterlmod-1.7.5.patch']),
+    ])),
+    # Jupyter Hub
+    ('pamela', '0.3.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pamela']),
+    ])),
+    ('jupyterhub', '0.9.6', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/j/jupyterhub']),
+        ('use_pip',  True),
+    ])),
+    ('appmode', '0.5.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/a/appmode']),
+        ('use_pip',  True),
+    ])),
+    ('HeapDict', '1.0.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/h/HeapDict']),
+    ])),
+    ('zict', '0.1.4', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/z/zict']),
+    ])),
+    ('tblib', '1.4.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/t/tblib']),
+    ])),
+    ('sortedcontainers', '2.1.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/sortedcontainers']),
+    ])),
+    ('msgpack', '0.6.1', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/m/msgpack']),
+    ])),
+    ('distributed', '1.28.0', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/d/distributed']),
+    ])),
+    ('dask_labextension', '0.3.3', dict(common_opts.items() + [
+        ('source_urls', ['https://pypi.python.org/packages/source/d/dask_labextension']),
+        ('use_pip',  True),
+    ])),
+    # VTKJS
+#    ('vtkjs', '0.1.2', dict(common_opts.items() + [
+#        ('source_urls', ['https://gitlab.version.fz-juelich.de/grosch1/vtkjs']), # Needs authentication, so download manually first
+#        ('use_pip',  True),
+#    ])),
+    ('Automat', '0.7.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/a/Automat']),
+        ('use_pip',  True),
+    ])),
+    ('PyHamcrest', '1.9.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/p/PyHamcrest']),
+        ('modulename', 'hamcrest'),
+        ('use_pip',  True),
+    ])),
+    ('Twisted', '19.2.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/t/Twisted']),
+        ('source_tmpl', '%(name)s-%(version)s.tar.bz2'),
+        ('use_pip',  True),
+    ])),
+    ('autobahn', '19.3.3', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/a/autobahn']),
+        ('use_pip',  True),
+    ])),
+    ('constantly', '15.1.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/c/constantly']),
+        ('use_pip',  True),
+    ])),
+    ('hyperlink', '19.0.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/h/hyperlink']),
+        ('use_pip',  True),
+    ])),
+    ('incremental', '17.5.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/i/incremental']),
+        ('use_pip',  True),
+    ])),
+    ('txaio', '18.8.1', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/t/txaio']),
+        ('use_pip',  True),
+    ])),
+    ('zope.interface', '4.6.0', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/z/zope.interface']),
+        ('use_pip',  True),
+    ])),
+    ('wslink', '0.1.11', dict(common_opts.items() + [ # indirect dep of vtk_remoterender
+        ('source_urls', ['https://pypi.python.org/packages/source/w/wslink']),
+        ('use_pip',  True),
+    ])),
+    ('vtk_remoterender', '0.1.0', dict(common_opts.items() + [
+        ('source_urls', ['https://gitlab.version.fz-juelich.de/jupyter4jsc/j4j_extras/vtk_remoterender/-/archive/v%(version)s']),
+        ('source_tmpl', 'vtk_remoterender-v%(version)s.tar.gz'),
+        ('use_pip',  True),
+    ])),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+full_sanity_check = True
+
+jupyter_config_path = 'etc/jupyter'
+jupyter_path = 'share/jupyter'
+jupyterlab_dir = 'share/jupyter/lab'
+julia_depot_path = "%(installdir)s/share/julia/site/" # for Julia packages needed for Jupyter
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+    # search path to find installable data files, such as kernelspecs and notebook extensions
+    'JUPYTER_PATH' : [jupyter_path],
+    'JUPYTERLAB_DIR' : [jupyterlab_dir],
+    # do NOT set JUPYTER_CONFIG_DIR: if not set, if will be ${HOME}/.jupyter, which is just right - we better set at runtime JUPYTER_CONFIG_PATH (which needs a patch: https://github.com/jupyter/jupyter_core/pull/139)
+    'JUPYTER_CONFIG_PATH' : [jupyter_config_path]   # config dir at install time. ATTENTION: not config dir at runtime, because this is fixed to {sys.prefix}/etc/jupyter/
+}
+
+modextravars  = {
+    'JUPYTER' : '%(installdir)s/bin/jupyter',
+    'JULIA_DEPOT_PATH': julia_depot_path,
+}
+
+postinstallcmds = [
+    # ensure we install in the correct directory !!!
+    'python3 -m venv %(installdir)s', # --system-site-packages %(installdir)s && '
+
+    'echo "#!/bin/bash" > %(builddir)s/env.sh',
+    'echo "source %(installdir)s/bin/activate" >> %(builddir)s/env.sh',
+    'echo "export PYTHONPATH=%(installdir)s/lib/python3.6/site-packages:${PYTHONPATH}" >> %(builddir)s/env.sh',
+    # Jupyter Paths - http://jupyter.readthedocs.io/en/latest/projects/jupyter-directories.html
+    'echo "export JUPYTER=%(installdir)s/bin/jupyter" >> %(builddir)s/env.sh',
+    'echo "export JUPYTER_PATH=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % jupyter_path,
+    'echo "export JUPYTERLAB_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % jupyterlab_dir,
+    # Config dir at install time. ATTENTION: not config dir at runtime. This is picked up by JUPYTER_CONFIG_PATH
+    'echo "export JUPYTER_CONFIG_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % jupyter_config_path, # jupyter will use $JUPYTER_CONFIG_DIR with "--user"
+    'echo "export JUPYTER_DATA_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % jupyter_path,
+    'echo "export PATH=%(installdir)s/bin:${PATH}" >> %(builddir)s/env.sh',
+    'echo "export JULIA_DEPOT_PATH=%s" >> %%(builddir)s/env.sh' % julia_depot_path,
+
+    # Jupyter Extensions are searched through https://www.npmjs.com
+
+    ### Jupyter Notebook Extensions
+    'source %(builddir)s/env.sh && jupyter contrib nbextension install --user',
+    'source %(builddir)s/env.sh && jupyter nbextensions_configurator enable --user',
+    'source %(builddir)s/env.sh && jupyter nbextension enable codefolding/main --user',
+
+    'source %(builddir)s/env.sh && jupyter nbextension install jupyterlmod --py --user',
+
+    'source %(builddir)s/env.sh && jupyter nbextension install widgetsnbextension --py --nbextensions=${JUPYTER_PATH}/nbextensions',
+    'source %(builddir)s/env.sh && jupyter nbextension enable  widgetsnbextension --py --user',
+
+    'source %(builddir)s/env.sh && jupyter nbextension install rise --py --nbextensions=${JUPYTER_PATH}/nbextensions',
+    'source %(builddir)s/env.sh && jupyter nbextension enable  rise --py --user',
+
+    'source %(builddir)s/env.sh && jupyter nbextension     enable appmode --py --user',
+    'source %(builddir)s/env.sh && jupyter serverextension enable appmode --py',
+
+#    'source %(builddir)s/env.sh && jupyter nbextension install vtkjs --py --nbextensions=${JUPYTER_PATH}/nbextensions',
+#    'source %(builddir)s/env.sh && jupyter nbextension enable  vtkjs/extension --py --user',
+
+    # Patch jupyter lab for vtkjs
+#    'patch -p0 -d %(installdir)s/lib/python%(pyshortver)s/site-packages/jupyterlab/staging < %(installdir)s/lib/python%(pyshortver)s/site-packages/vtkjs/patches/packagejson.patch',
+#    'patch -p0 -d %(installdir)s/lib/python%(pyshortver)s/site-packages/jupyterlab/staging < %(installdir)s/lib/python%(pyshortver)s/site-packages/vtkjs/patches/webpack_config.patch',
+
+    ### JupyterLab Extensions
+#    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-slurm@0.1.2',
+#    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-lmod@0.1.2',
+    'source %(builddir)s/env.sh && jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38', # Jupyter widgets extension
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab_bokeh@0.6.3',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-scales@0.2.1',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-datawidgets@5.1.0',
+    'source %(builddir)s/env.sh && jupyter labextension install plotlywidget@0.4.0',                  # FigureWidget support of plotly
+    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/plotly-extension@0.18.0', # offline iplot support
+    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/hub-extension@0.12.0',    # https://github.com/jupyterhub/jupyterlab-hub
+    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/latex@0.6.1',
+#    'source %(builddir)s/env.sh && jupyter labextension install ipyauth@0.2.5', # disabled because of issue https://gitlab.com/oscar6echo/ipyauth/issues/2
+    'source %(builddir)s/env.sh && jupyter labextension install @pyviz/jupyterlab_pyviz@0.6.5',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyter-matplotlib@0.3.0',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyter-leaflet@0.10.1',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyter-webrtc@0.4.3',
+    'source %(builddir)s/env.sh && jupyter labextension install ipyvolume@0.5.1',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyter-threejs@2.0.3',
+    'source %(builddir)s/env.sh && jupyter labextension install itk-jupyter-widgets@0.16.1',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-server-proxy@1.0.0',
+#    'source %(builddir)s/env.sh && jupyter labextension install %(builddir)s/vtk_remoterender/vtk_remoterender-v0.1.0/js/',    #%(installdir)s/lib/python%(pyshortver)s/site-packages/vtk-remoterender/js/
+
+    #'source %(builddir)s/env.sh && jupyter labextension install dask-labextension@0.3.0',
+    #'source %(builddir)s/env.sh && jupyter labextension install qgrid@1.1.1',                                  # render pandas DataFrames within a Jupyter notebook
+    #'source %(builddir)s/env.sh && jupyter labextension install @jpmorganchase/perspective-jupyterlab@0.2.2',  # in-lining perspective based charts
+    #'source %(builddir)s/env.sh && jupyter labextension install ipysheet@0.2.0',                               # spreadsheet in the Jupyter notebook
+    #'source %(builddir)s/env.sh && jupyter labextension install lineup_widget@3.1.6',                          # interactive technique designed to create, visualize and explore rankings of items
+    #'source %(builddir)s/env.sh && jupyter labextension install %(installdir)s/lib/python%(pyshortver)s/site-packages/vtkjs/js',
+
+    # logout button
+    #'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-topbar@0.1.1',                       # %(builddir)s/jupyterlab-topbar-logout-ext/packages/jupyterlab-topbar
+    #'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-topbar-extension@0.2.0',
+    #'wget --directory-prefix=%(builddir)s https://github.com/jtpio/jupyterlab-topbar/archive/logout-ext.tar.gz',
+    #'tar -xzf %(builddir)s/logout-ext.tar.gz --directory %(builddir)s',                                         # creates %(builddir)s/jupyterlab-topbar-logout-ext/
+    #'source %(builddir)s/env.sh && jupyter labextension install %(builddir)s/jupyterlab-topbar-logout-ext/packages/jupyterlab-logout',
+
+    # GitLab-extension
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-gitlab@0.1.1',
+    #'source %(builddir)s/env.sh && jupyter serverextension enable jupyterlab_gitlab',              # enabled automatically if jupyter notebook version > 5.3
+    'echo \'# no username+password needed, if we have the token for a specific URL\' >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    'echo \'c.GitLabConfig.access_token = \"SJcsU_o4ULLNEdPas9Ni"\'       >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py', # give api-access to gitlab of gitlab-user "jupyter.jsc@fz-juelich.de"
+    'echo \'c.GitLabConfig.allow_client_side_access_token = False\'       >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    'echo \'c.GitLabConfig.url = "https://gitlab.version.fz-juelich.de"\' >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py', 
+    'echo \'c.GitLabConfig.validate_cert = False\'                        >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py', 
+    #-- must be last postcommand -- 'patch %(installdir)s/share/jupyter/lab/schemas/jupyterlab-gitlab/drive.json  < jupyterlab-gitlab-0.1.0_jsc.patch',
+    #-- must be last postcommand -- 'cp %(builddir)s/jupyterlabgitlab/jupyterlab-gitlab-0.1.1/schema/drive.json %(installdir)s/share/jupyter/lab/schemas/jupyterlab-gitlab/drive.json ', # copy the patched drive.json
+
+    # GitHub-extension
+    #'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/github@0.10.0'
+    ##'source %(builddir)s/env.sh && jupyter serverextension enable @jupyterlab/github',             # enabled automatically if jupyter notebook version > 5.3
+    #'echo \'# no username+password needed, if we have the token for a specific URL\' >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    #'echo \'c.GitHubConfig.access_token = \"<API-TOKEN"\'                 >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    #'echo \'c.GitHubConfig.allow_client_side_access_token = False\'       >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py', 
+    #'echo \'c.GitHubConfig.url = "FZJ-JSC/jupyter4jsc"\'                  >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    #'echo \'c.GitHubConfig.validate_cert = True\'                         >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    #-- must be last postcommand -- 'patch %(installdir)s/share/jupyter/lab/schemas/@jupyterlab/github/drive.json < jupyterlab_github-0.10.0_jsc.patch',
+    #-- must be last postcommand -- 'cp %(builddir)s/jupyterlab_github/jupyterlab-github-0.10.0/schema/drive.json %(installdir)s/share/jupyter/lab/schemas/@jupyterlab/github/drive.json ', # copy the patched drive.json
+
+    # iframe-extension
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab_iframe@0.1.9', # js-version 0.1.9 fits to python-extension 0.1.11
+    'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_iframe',           # must be enabled explicitly !!!
+    'echo \'#c.JupyterLabIFrame.iframes = [\'list\', \'of\', \'sites\']\'  >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+    'echo \'c.JupyterLabIFrame.welcome = "http://www.fz-juelich.de/jsc"\'  >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py',
+
+# not required if jupyter notebook > 5.3
+#    'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab-slurm',
+
+   ### Jupyter Kernel (to $JUPYTER_DATA_DIR/kernels)
+
+    # Jupyter Kernel: Cling (C++)
+    # cling-cpp11  cling-cpp14  cling-cpp17
+    'source %(builddir)s/env.sh && pip3 install ${EBROOTCLING}/share/cling/Jupyter/kernel',
+    'source %(builddir)s/env.sh && jupyter-kernelspec install --prefix=%(installdir)s ${EBROOTCLING}/share/cling/Jupyter/kernel/cling-cpp11',
+    'source %(builddir)s/env.sh && jupyter-kernelspec install --prefix=%(installdir)s ${EBROOTCLING}/share/cling/Jupyter/kernel/cling-cpp14',
+    'source %(builddir)s/env.sh && jupyter-kernelspec install --prefix=%(installdir)s ${EBROOTCLING}/share/cling/Jupyter/kernel/cling-cpp17',
+
+    # Jupyter Kernel: IJulia
+    # This will install a bunch of julia dependencies automatically. No bueno
+    # installs ijulia in JULIA_DEPOT_PATH and kernel in $JUPYTER_DATA_DIR/kernels
+    'source %(builddir)s/env.sh && julia -e \'using Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")\'', # installs ijulia in JULIA_DEPOT_PATH and kernel in $JUPYTER_DATA_DIR/kernels
+    # to trigger the precompilation
+    'source %(builddir)s/env.sh && julia -e \'using IJulia\'',
+    # adjust permissions of precompiled files
+    'for i in $(find %s); do chmod +r $i; done' % julia_depot_path,
+
+    # Jupyter Kernel: IJavaScript
+    'source %(builddir)s/env.sh && npm install -g ijavascript',
+    'source %(builddir)s/env.sh && ijsinstall --install=local', # installs ijavascript in $JUPYTER_DATA_DIR/kernels
+
+    # Jupyter Kernel: Bash - https://github.com/takluyver/bash_kernel
+    'source %(builddir)s/env.sh && python -m bash_kernel.install --user', # installs bash_kernel in $JUPYTER_DATA_DIR/kernels
+
+   ### modify the installation files, which would be overwritten if done before (must be last commands to run)
+    #'patch %(installdir)s/share/jupyter/lab/schemas/jupyterlab-gitlab/drive.json  < jupyterlab-gitlab-0.1.0_jsc.patch',
+    'cp %(builddir)s/jupyterlabgitlab/jupyterlab-gitlab-0.1.1/schema/drive.json %(installdir)s/share/jupyter/lab/schemas/jupyterlab-gitlab/drive.json ', # copy the patched drive.json
+    ##'patch %(installdir)s/share/jupyter/lab/schemas/@jupyterlab/github/drive.json < jupyterlab_github-0.10.0_jsc.patch',
+    #'cp %(builddir)s/jupyterlab_github/jupyterlab-github-0.10.0/schema/drive.json %(installdir)s/share/jupyter/lab/schemas/@jupyterlab/github/drive.json ', # copy the patched drive.json
+]
+
+sanity_check_paths = {
+     'files': [],
+     'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

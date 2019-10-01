@@ -1,0 +1,55 @@
+--- pscom/lib/pscom/pscom_precon.c	2019-07-16 22:28:51.000000000 +0200
++++ pscom.semaphore_sleep/lib/pscom/pscom_precon.c	2019-09-16 09:01:10.347458180 +0200
+@@ -18,6 +18,10 @@
+ #include <errno.h>
+ #include <sys/time.h>
+ 
++#include <fcntl.h>           /* For O_* constants */
++#include <sys/stat.h>        /* For mode constants */
++#include <semaphore.h>
++#include <time.h>
+ 
+ typedef struct {
+ 	/* supported version range from sender,
+@@ -34,6 +38,8 @@
+ static void pscom_precon_recv_stop(precon_t *pre);
+ static void pscom_precon_check_end(precon_t *pre);
+ 
++static sem_t* pscom_sem_connect;
++static int pscom_sem_initialized=0;
+ 
+ static
+ const char *pscom_info_type_str(int type)
+@@ -243,13 +249,15 @@
+ 	struct sockaddr_in si;
+ 	int rc;
+ 	int optval;
+-
++        int errno_connect;
++        // struct timespec sleepreq,sleeprem;
+ 	/* Open the socket */
+ 	int fd = socket(PF_INET , SOCK_STREAM, 0);
+ 	if (fd < 0) goto err_socket;
+ 
+ 	/* Try a nonblocking connect. Ignoring fcntl errors and use blocking connect in this case. */
+ 	fcntl(fd, F_SETFL, O_NONBLOCK);
++        //sleepreq.tv_nsec=1;sleepreq.tv_sec=0;
+ 
+ 	/* Close on exec. Ignore errors. */
+ 	fcntl(fd, F_SETFD, FD_CLOEXEC);
+@@ -261,8 +269,13 @@
+ 	pscom_sockaddr_init(&si, nodeid, portno);
+ 
+ 	/* Connect */
++        if(pscom_sem_initialized==0){pscom_sem_initialized=1;pscom_sem_connect=sem_open("/pscom_connect",O_CREAT,0644,1);if (pscom_sem_connect==SEM_FAILED)exit(1);}
++        sem_wait(pscom_sem_connect);
+ 	rc = mtry_connect(fd, (struct sockaddr*)&si, sizeof(si), debug_id);
+-	if (rc < 0 && errno != EINPROGRESS) goto err_connect;
++        errno_connect=errno;
++        nanosleep((const struct timespec[]){{0, 5000L}},NULL);
++        sem_post(pscom_sem_connect);
++	if (rc < 0 && errno_connect != EINPROGRESS) goto err_connect;
+ 
+ 	return fd;
+ 	/* --- */
+

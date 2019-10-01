@@ -1,0 +1,67 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'XServer'
+version = '1.20.4'
+
+homepage = 'https://www.x.org'
+
+description = """
+XServer: X Window System display server.
+
+This module provides a stripped-down installation with minimal driver support.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+
+source_urls = [
+    'https://www.x.org/archive/individual/xserver/',
+    'https://www.x.org/archive/individual/driver/'
+]
+
+# OS dependency should be preferred for security reasons
+osdependencies = [
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
+]
+
+builddependencies = [
+    ('pkg-config', '0.29.2'),
+    # use same binutils version that was used when building GCCcore toolchain
+    ('binutils', '2.32'),
+    ('Meson', '0.50.0', '-Python-3.6.8'),
+    ('Ninja', '1.9.0'),
+]
+
+dependencies = [
+    ('libdrm', '2.4.97'),
+    ('libepoxy', '1.5.3'),
+    ('Mesa', '19.0.1'),
+    ('pixman', '0.38.0'),
+    ('X11', '20190311'),
+    ('eudev', '3.2.7'),
+]
+
+default_easyblock = 'ConfigureMake'
+
+default_component_specs = {
+    'sources': [SOURCE_TAR_GZ],
+    'start_dir': '%(name)s-%(version)s',
+}
+
+components = [
+   ('xorg-server', version, {
+        'easyblock': 'MesonNinja',
+    }),
+    ('xf86-video-dummy', '0.3.8', {
+        'preconfigopts': 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:%(installdir)s/lib/pkgconfig:%(installdir)s/lib64/pkgconfig',
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/Xorg', 'bin/Xvfb',
+              'lib/xorg/modules/drivers/dummy_drv.la', 'lib/xorg/modules/drivers/dummy_drv.so'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'Horovod'
+version = '0.16.2'
+pysuffix = '-Python-%(pyver)s'
+versionsuffix = '-GPU%s' % pysuffix
+
+homepage = 'https://github.com/uber/horovod'
+description = "Horovod is a distributed training framework for TensorFlow."
+
+
+toolchain = {'name': 'gmvapich2c', 'version': '2019a-GDR'}
+
+source_urls = [PYPI_LOWER_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+
+dependencies = [
+    ('Python', '3.6.8'), # Just to enable template name resolution in the easyconfig file
+    ('SciPy-Stack', '2019a', pysuffix, ('gcccoremkl', '8.3.0-2019.3.199')),
+    ('PyTorch', '1.1.0', versionsuffix, ('gcccoremkl', '8.3.0-2019.3.199')),
+    ('TensorFlow', '1.13.1', versionsuffix),
+    ('Keras', '2.2.4', versionsuffix),
+    ('NCCL', '2.4.6-1', '-CUDA-10.1.105'),
+]
+
+req_py_majver = '3'
+req_py_minver = '0'
+
+prebuildopts = 'export LDSHARED="$CC -shared" && '
+prebuildopts += 'HOROVOD_NCCL_LINK=SHARED HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_NCCL_HOME=$EBROOTNCCL '
+preinstallopts = 'export LDSHARED="$CC -shared" && '
+preinstallopts += 'HOROVOD_NCCL_LINK=SHARED HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_NCCL_HOME=$EBROOTNCCL '
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+# Add a property
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'tools'

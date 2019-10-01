@@ -1,0 +1,82 @@
+commit e3ebbeec449ec13a5c560711a383604d17c22a12
+Author:     Jens Hauke <hauke@par-tec.com>
+AuthorDate: Mon Apr 15 14:54:57 2019 +0200
+Commit:     Thomas Moschny <moschny@par-tec.com>
+CommitDate: Wed May 29 13:29:25 2019 +0200
+
+    allin support for pscom4gateway.
+---
+ mpich2/src/mpid/psp/src/mpid_isend.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/mpich2/src/mpid/psp/src/mpid_isend.c b/mpich2/src/mpid/psp/src/mpid_isend.c
+index 9a7152485..0aef40ff5 100644
+--- a/mpich2/src/mpid/psp/src/mpid_isend.c
++++ b/mpich2/src/mpid/psp/src/mpid_isend.c
+@@ -361,6 +361,7 @@ int MPID_Issend(const void * buf, MPI_Aint count, MPI_Datatype datatype, int ran
+ #include <syslog.h>
+ #include <sys/ioctl.h>
+ #include <sys/ipc.h>
++#include <sys/mman.h>
+ #include <sys/poll.h>
+ #include <sys/resource.h>
+ #include <sys/shm.h>
+-- 
+2.21.0
+
+
+commit 2dbdfb0b8f4976fb59be737b60abcfa1e035528b
+Author:     Jens Hauke <hauke@par-tec.com>
+AuthorDate: Mon Apr 8 14:58:24 2019 +0200
+Commit:     Thomas Moschny <moschny@par-tec.com>
+CommitDate: Wed May 29 13:29:50 2019 +0200
+
+    psp: add new list iterators for reverse traversal
+---
+ mpich2/src/mpid/psp/include/list.h | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/mpich2/src/mpid/psp/include/list.h b/mpich2/src/mpid/psp/include/list.h
+index 72db9bff7..29a8b96a2 100644
+--- a/mpich2/src/mpid/psp/include/list.h
++++ b/mpich2/src/mpid/psp/include/list.h
+@@ -148,6 +148,15 @@ static inline void list_splice(struct list_head *list, struct list_head *head)
+ 	for (pos = (head)->next; pos != (head); pos = pos->next)
+ 
+ 
++/**
++ * list_for_each_prev	-	iterate over a list backwards
++ * @pos:	the &struct list_head to use as a loop cursor.
++ * @head:	the head for your list.
++ */
++#define list_for_each_prev(pos, head) \
++	for (pos = (head)->prev; pos != (head); pos = pos->prev)
++
++
+ /**
+  * list_for_each_safe	-	iterate over a list safe against removal of list entry
+  * @pos:	the &struct list_head to use as a loop counter.
+@@ -158,6 +167,19 @@ static inline void list_splice(struct list_head *list, struct list_head *head)
+ 	for (pos = (head)->next, n = pos->next; pos != (head); \
+ 		pos = n, n = pos->next)
+ 
++
++/**
++ * list_for_each_prev_safe - iterate over a list backwards safe against removal of list entry
++ * @pos:	the &struct list_head to use as a loop cursor.
++ * @n:		another &struct list_head to use as temporary storage
++ * @head:	the head for your list.
++ */
++#define list_for_each_prev_safe(pos, n, head) \
++	for (pos = (head)->prev, n = pos->prev; \
++	     pos != (head); \
++	     pos = n, n = pos->prev)
++
++
+ static inline unsigned list_count(struct list_head *head)
+ {
+     struct list_head *pos;
+-- 
+2.21.0
+
+

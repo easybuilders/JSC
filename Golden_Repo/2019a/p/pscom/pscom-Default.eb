@@ -4,7 +4,7 @@ easyblock = 'ConfigureMake'
 name = 'pscom'
 # Create drop-in replacement version that ensures over-riding behaviour
 version = "Default"
-realversion = "5.2.9-1"
+realversion = "5.3.0-1_115_g12720ef_gateway"
 homepage = 'http://www.par-tec.com'
 description = """ParaStation is a robust and efficient cluster middleware, consisting of a high-performance
 communication layer (MPI) and a sophisticated management layer.
@@ -13,8 +13,7 @@ communication layer (MPI) and a sophisticated management layer.
 
 toolchain = {'name': 'dummy', 'version': ''}
 
-sources = ['%s.zip' % realversion]
-source_urls = ['https://github.com/ParaStation/%(name)s/archive/']
+sources = ['%%(name)s-%s.tar.gz' % realversion]
 
 builddependencies = [
     ('popt', '1.16'),
@@ -24,7 +23,8 @@ sanity_check_paths = {
     'files': ['include/%(name)s.h',
         ('lib/libpscom.so', 'lib64/libpscom.so'),
         ('lib/libpscom4ucp.so', 'lib64/libpscom4ucp.so'),
-        ('lib/libpscom4openib.so', 'lib64/libpscom4openib.so')
+        ('lib/libpscom4openib.so', 'lib64/libpscom4openib.so'),
+        ('lib/libpscom4gateway.so', 'lib64/libpscom4gateway.so'),
     ],
     'dirs': [],
 }

@@ -20,11 +20,18 @@ builddependencies = [
     ('popt', '1.16'),
 ]
 
+preconfigopts = "CPATH=/opt/extoll/x86_64/include:$CPATH "
+preconfigopts += "LIBRARY_PATH=/opt/extoll/x86_64/lib:$LIBRARY_PATH "
+preconfigopts += "PATH=/opt/extoll/x86_64/bin:$PATH "
+prebuildopts = preconfigopts
+preinstallopts = preconfigopts
+
 sanity_check_paths = {
     'files': ['include/%(name)s.h',
         ('lib/libpscom.so', 'lib64/libpscom.so'),
 #        ('lib/libpscom4ucp.so', 'lib64/libpscom4ucp.so'),
-        ('lib/libpscom4openib.so', 'lib64/libpscom4openib.so')
+        ('lib/libpscom4openib.so', 'lib64/libpscom4openib.so'),
+        ('lib/libpscom4extoll.so', 'lib64/libpscom4extoll.so')
     ],
     'dirs': [],
 }

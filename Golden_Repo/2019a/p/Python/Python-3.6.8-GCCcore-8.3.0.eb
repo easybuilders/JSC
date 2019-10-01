@@ -434,9 +434,18 @@ exts_list = [
     }),
 ]
 
+grako_egginfo_path = '%%(installdir)s/lib/python3.6/site-packages/grako-%s-py3.6-linux-x86_64.egg/EGG-INFO/' % grakover
+
 postinstallcmds = [
-    'chmod o+r %%(installdir)s/lib/python3.6/site-packages/grako-%s-py3.6-linux-x86_64.egg/EGG-INFO/entry_points.txt' % grakover,
+    'chmod o+r %s/*.txt' % grako_egginfo_path,
+    'chmod o+r %s/not-zip-safe' % grako_egginfo_path,
+    'chmod o+r %s/PKG-INFO' % grako_egginfo_path,
     'ln -s %(installdir)s/bin/python3-config %(installdir)s/bin/python-config'
 ]
+
+# Needed so stuff here is picked up in virtual environments (like in the Jupyter easyconfig)
+modextrapaths = {'PYTHONPATH': [
+    'lib/python%s/site-packages' % ".".join(version.split(".")[:-1]),
+]}
 
 moduleclass = 'lang'

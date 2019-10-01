@@ -59,7 +59,7 @@ sanity_check_paths = {
 }
 
 modextrapaths = {
-    'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages',
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages', 'lib/python%(pyshortver)s/site-packages/PyQt5'],
     'QT_PLUGIN_PATH': 'plugins',
 }
 

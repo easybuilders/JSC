@@ -21,7 +21,7 @@ cuda_major_minor_ver = '.'.join(cudaversion.split('.')[:2])
 toolchain = {'name': 'GCC', 'version': '7.3.0'}
 
 #sources = ['%s%s-mcast.cuda%s_384.81.mofed4.0.pgi%s-%s_pre-1.el7.centos.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cudaversion, compilerversion, version)]
-sources = ['%s%s-mcast.cuda%s.mofed4.2.gnu6.3.0-%s-1.el7.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cuda_major_minor_ver, version)]
+sources = ['%s%s-mcast.cuda%s.mofed4.2.gnu7.3.0-%s-1.el7.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cuda_major_minor_ver, version)]
 
 dependencies = [
     ('CUDA',cudaversion, '', True)
@@ -37,15 +37,15 @@ modextravars = {
     'MV2_ENABLE_AFFINITY':'0',
     'MV2_USE_CUDA':'1',
     'MV2_USE_GPUDIRECT_GDRCOPY':'0',
-    'MV2_USE_GPUDIRECT_LOOPBACK_LIMIT':'0',
-    'MV2_USE_GPUDIRECT_LOOPBACK_NAIVE_LIMIT':'0',
-    'MV2_USE_GPUDIRECT_RDMA':'0',
+#    'MV2_USE_GPUDIRECT_LOOPBACK_LIMIT':'0',
+#    'MV2_USE_GPUDIRECT_LOOPBACK_NAIVE_LIMIT':'0',
+#    'MV2_USE_GPUDIRECT_RDMA':'0',
 }
 
 # Ugly hack
 installdir = '%(installdir)s'
 
-path_to_fix = "/opt/mvapich2/gdr/%s/mcast/no-openacc/cuda9.2/mofed4.2/mpirun/gnu6.3.0" % version
+path_to_fix = "/opt/mvapich2/gdr/%s/mcast/no-openacc/cuda9.2/mofed4.2/mpirun/gnu7.3.0" % version
 
 postinstallcmds = [
     # Move to bin/ lib64/ include/ libexec/ and share/ to the correct directory

@@ -2,7 +2,7 @@
 name = 'psmpi'
 version = '5.2.2-1'
 versionsuffix = '-mt'
-pscom_version = '5.2.9-1'
+pscom_version = '5.3.0-1_116_g78db4be_gateway'
 
 homepage = 'https://github.com/ParaStation/psmpi2'
 description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
@@ -22,28 +22,28 @@ source_urls = [
 ]
 sources = [
     '%(version)s.tar.gz',
-    {
-        'filename': 'pscom-%s.zip' % pscom_version,
-        'download_filename': '%s.zip' % pscom_version
-    }
+#    {
+#        'filename': 'pscom-%s.zip' % pscom_version,
+#        'download_filename': '%s.zip' % pscom_version
+#    }
+    'pscom-%s.tar.gz' % pscom_version
 ]
 
 pscom_allin_path = '%%(builddir)s/pscom-%s ' % pscom_version
 pgo = True
 
 patches = [
-    'psmpi_shebang.patch'
+    'psmpi_shebang.patch',
+    'psmpi-5.2.2-1-gw-allin.patch'
 ]
 
 builddependencies = [
     ('popt', '1.16', '', True)
 ]
 
-mpich_opts = '--enable-static'
+threaded = True
 
-threaded = False
-
-configopts  = ' --with-pscom-builtin=psm2'
+configopts  = ' --with-pscom-builtin=psm2 '
 
 modextravars = {
     'PSP_READAHEAD': '4096',

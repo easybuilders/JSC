@@ -23,7 +23,7 @@ compilerversion = '19.1'
 #toolchain = {'name': 'PGI', 'version': '%s-GCC-8.3.0' % compilerversion}
 toolchain = {'name': 'PGI', 'version': '19.3-GCC-8.3.0'}
 
-sources = ['%s%s-mcast.cuda%s.mofed4.4.pgi%s-%s-2.el7.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cuda_major_minor_ver, compilerversion, version)]
+sources = ['%s%s-mcast.cuda%s.mofed4.4.pgi%s-%s-1.el7.x86_64.rpm' % (name.lower(), versionsuffix.lower(), cuda_major_minor_ver, compilerversion, version)]
 
 dependencies = [
     ('CUDA', cudaversion, '', True)
@@ -58,18 +58,18 @@ postinstallcmds = [
     "sed -i s#%s#%s#g %s/bin/mpif77"  % (path_to_fix, installdir, installdir),
     "sed -i s#%s#%s#g %s/bin/mpif90"  % (path_to_fix, installdir, installdir),
     "sed -i s#%s#%s#g %s/bin/mpifort" % (path_to_fix, installdir, installdir),
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpicc"   % installdir,
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpicxx"  % installdir,
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpic++"  % installdir,
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpif77"  % installdir,
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpif90"  % installdir,
-    "sed -i s#/usr/local/cuda-{cuda_version}#$EBROOTCUDA#g %s/bin/mpifort" % installdir,
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpicc"   % (cuda_major_minor_ver, installdir),
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpicxx"  % (cuda_major_minor_ver, installdir),
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpic++"  % (cuda_major_minor_ver, installdir),
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpif77"  % (cuda_major_minor_ver, installdir),
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpif90"  % (cuda_major_minor_ver, installdir),
-    "sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpifort" % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpicc"   % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpicxx"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpic++"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpif77"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpif90"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpifort" % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpicc"   % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpicxx"  % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpic++"  % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpif77"  % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpif90"  % (cuda_major_minor_ver, installdir),
+    #"sed -i s#/opt/cuda/%s#$EBROOTCUDA#g %s/bin/mpifort" % (cuda_major_minor_ver, installdir),
     # Add -lnvidia-ml inside the wrappers to avoid undefined references in libmpi.so
     "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpicc",
     "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpicxx",
@@ -77,10 +77,31 @@ postinstallcmds = [
     "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpif77",
     "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpif90",
     "sed -i s#'-lmpi '#'-lmpi -lnvidia-ml '#g %(installdir)s/bin/mpifort",
+    # Add -lmpi before -lcuda. Otherwise the CUDA symbols that libmpi redefines are not picked up from the correct path
+    # and GDR breaks
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpicc",
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpicxx",
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpic++",
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpif77",
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpif90",
+    "sed -i s#'final_ldflags=\" '#'final_ldflags=\" -lmpi '#g %(installdir)s/bin/mpifort",
+    # Remove -g
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpicc",
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpicxx",
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpic++",
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpif77",
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpif90",
+    "sed -i s#' -g '#' '#g %(installdir)s/bin/mpifort",
+    # Remove -tp=px
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpicc",
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpicxx",
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpic++",
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpif77",
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpif90",
+    "sed -i s#'-tp=px'#''#g %(installdir)s/bin/mpifort",
     # Remove launchers
     "rm %(installdir)s/bin/mpiexec* %(installdir)s/bin/mpirun*",
 ]
-
 
 # Add a family for our naming scheme
 modluafooter = """

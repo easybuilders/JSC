@@ -16,6 +16,10 @@ source_urls = ['https://github.com/ParaStation/psmpi/archive/']
 
 dependencies = [
     ('pscom', 'Default', '', True),
+    # This should be a temporary fix. UCX should be a dependency of pscom. But at the moment, pscom is in "dummy" and
+    # UCX is in GCCcore, so pscom can't load UCX. As an alternative to pull pscom high in the hierarchy during production
+    # we load UCX here to override the system one
+    ('UCX', '1.5.1'),
 ]
 
 patches = [

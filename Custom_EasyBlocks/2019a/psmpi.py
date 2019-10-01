@@ -29,6 +29,7 @@ EasyBuild support for building and installing the ParaStationMPI library, implem
 @author: Damian Alvarez (Forschungszentrum Juelich)
 """
 
+import easybuild.tools.environment as env
 import easybuild.tools.toolchain as toolchain
 import os
 import re
@@ -216,6 +217,11 @@ class EB_psmpi(EB_MPICH):
             #toolchain.PGI: 'pgi',
         }
 
+        # ParaStationMPI defines its environment through confsets. So these should be unset
+        env_vars = ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS', 'FCFLAGS', 'FFLAGS', 'LDFLAGS', 'LIBS']
+        env.unset_env_vars(env_vars)
+        self.log.info("Unsetting the following variables: " + ' '.join(env_vars))
+
         # Set confset
         comp_fam = self.toolchain.comp_family()
         if comp_fam in comp_opts:
@@ -270,4 +276,4 @@ class EB_psmpi(EB_MPICH):
         # ParaStationMPI < 5.1.1-1 is based on MPICH < 3.1.1.
         use_new_libnames = LooseVersion(self.version) >= LooseVersion('5.1.1-1')
 
-        super(EB_psmpi, self).sanity_check_step(use_new_libnames=use_new_libnames, check_launchers=False)
+        super(EB_psmpi, self).sanity_check_step(use_new_libnames=use_new_libnames, check_launchers=False, check_static_libs=False)

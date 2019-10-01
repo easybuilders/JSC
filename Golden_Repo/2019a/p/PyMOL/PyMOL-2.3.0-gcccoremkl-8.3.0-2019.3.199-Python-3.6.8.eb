@@ -22,7 +22,7 @@ dependencies = [
     ('GLEW','2.1.0'),
     ('GLM','0.9.9.5'),
     ('VirtualGL','2.6.1'),
-    ('nvidia','418.40.04','', True),
+    ('nvidia','418.87.00','', True),
 ]
 
 common_opts = {

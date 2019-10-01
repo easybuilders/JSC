@@ -27,6 +27,7 @@ builddependencies = [
 ]
 
 dependencies = [
+    ('cairo', '1.17.2'),
     ('expat', '2.2.6'),
     ('freetype', '2.10.0'),
     ('X11', '20190311'),
@@ -35,20 +36,18 @@ dependencies = [
     ('GTS', '0.7.6'),
     ('Java', '1.8', '', True),
     ('libpng', '1.6.36'),
-# 2.40.1 doesn't work with the latest pango and cairo
-#    ('Pango', '1.43.0'),
-#    ('cairo', '1.17.2'),
+    ('Pango', '1.43.0'),
     ('Qt5', '5.12.2'),
     ('Tcl', '8.6.9'),
     ('zlib', '1.2.11'),
 ]
 
 preconfigopts = "sed -i 's/install-data-hook$//g' tclpkg/Makefile.in && "
+# To make it work with the latest pango/cairo
+preconfigopts += 'LIBS="$LIBS -lgio-2.0 -lgobject-2.0" '
 
 configopts = '--enable-guile=no --enable-lua=no --enable-ocaml=no '
 configopts += '--enable-r=no --enable-ruby=no '
-# 2.40.1 doesn't work with the latest pango and cairo
-configopts += '--with-pangocairo=no '
 
 prebuildopts = 'qmake -o cmd/gvedit/qMakefile cmd/gvedit/gvedit.pro && '
 

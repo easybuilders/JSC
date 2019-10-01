@@ -20,7 +20,13 @@ postinstallcmds = [
     "rm -Rf %(installdir)s/bin",
     "ln -s %(installdir)s/intel64/bin  %(installdir)s",
     # If not removed but psm2 is installed in the system, libfabric crashes
-    "rm %(installdir)s/intel64/libfabric/lib/prov/libpsmx2-fi.so",
+    #"rm %(installdir)s/intel64/libfabric/lib/prov/libpsmx2-fi.so",
+    "pushd %(installdir)s/libfabric && "
+    "tar zxvf src.tgz && "
+    "./configure --prefix=%(installdir)s/intel64/libfabric --disable-mlx --disable-psm2 && "
+    "make && "
+    "make install && "
+    "popd"
 ]
 
 # use a more explicit module name to help our naming scheme

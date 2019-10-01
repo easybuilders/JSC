@@ -59,7 +59,7 @@ dependencies = [
     ('SciPy-Stack', '2019a', '-Python-%(pyver)s', ('gcccoremkl', '8.3.0-2019.3.199')),
     ('VirtualGL', '2.6.1'),
 #    ('Mesa', '19.0.1'),
-    ('nvidia', '418.40.04', '', True),
+    ('nvidia', '418.87.00', '', True),
 ]
 
 separate_build_dir = True

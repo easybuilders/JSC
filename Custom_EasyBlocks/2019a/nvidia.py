@@ -93,8 +93,13 @@ class EB_nvidia(Binary):
     def post_install_step(self):
         """Generate the appropriate symlinks"""
 
+        libdir = os.path.join(self.installdir, 'lib64')
+
         # Run ldconfig to create missing symlinks (libcuda.so.1, etc)
-        run_cmd("ldconfig -N " + os.path.join(self.installdir, 'lib64'))
+        run_cmd("ldconfig -N %s" % libdir)
+
+        # Create an extra symlink for libcuda.so, otherwise PGI 19.X breaks
+        run_cmd("ln -s %s/libcuda.so.1 %s/libcuda.so" % (libdir,libdir))
 
         super(EB_nvidia, self).post_install_step()
 

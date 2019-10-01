@@ -45,6 +45,7 @@ dependencies = [
     ('HDF5', '1.10.5'),  # for hdf5r
     ('UDUNITS', '2.2.26'),  # for units
     ('netCDF', '4.6.3'),
+    ('GEOS', '3.7.1', '-Python-3.6.8'), # for rgeos
     # OS dependency should be preferred if the os version is more recent then this version,
     # it's nice to have an up to date openssl for security reasons
     # ('OpenSSL', '1.0.2h'),
@@ -2035,6 +2036,7 @@ exts_list = [
     ('intervals', '0.15.1', exts_default_options),
     ('spacetime', '1.2-2', exts_default_options),
     ('gstat', '1.1-6', exts_default_options),
+    ('rgeos', '0.4-3', exts_default_options),
 ]
 
 moduleclass = 'lang'

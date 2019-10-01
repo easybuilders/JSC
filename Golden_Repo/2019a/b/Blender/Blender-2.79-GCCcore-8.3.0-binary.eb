@@ -20,7 +20,7 @@ source_urls = ['http://ftp.nluug.nl/pub/graphics/blender/release/%(name)s%(versi
 
 dependencies = [
     ('Mesa', '19.0.1'),
-    ('nvidia', '418.40.04', '', True),
+    ('nvidia', '418.87.00', '', True),
     ('VirtualGL', '2.6.1'),
 ]
 

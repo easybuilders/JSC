@@ -26,7 +26,7 @@ sources = [
 host_compilers = [ 'g++', 'pgc++' ]
 
 dependencies = [
-    ('nvidia', '418.40.04', '', True),
+    ('nvidia', '418.87.00', '', True),
 ]
 
 installopts = '--samplespath=%(installdir)s --samples'

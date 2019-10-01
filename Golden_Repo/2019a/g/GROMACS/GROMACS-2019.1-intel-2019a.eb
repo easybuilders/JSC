@@ -49,6 +49,8 @@ mpi_numprocs = '24'
 
 runtest = False
 
+modloadmsg = "This installation of GROMACS performs poorly and should not be used. Please use GROMACS 2019.3 instead"
+
 modluafooter = '''
 add_property("arch","gpu")
 '''

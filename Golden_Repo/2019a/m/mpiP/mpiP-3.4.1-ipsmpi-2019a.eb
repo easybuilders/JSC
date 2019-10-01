@@ -38,3 +38,5 @@ sanity_check_paths = {
    'files': ['lib/libmpiP.a'],
    'dirs': ['lib','share']
 }
+
+moduleclass = 'perf'

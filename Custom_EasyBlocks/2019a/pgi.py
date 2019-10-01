@@ -98,8 +98,10 @@ class EB_PGI(PackedBinary):
 
         self.pgi_install_subdir = os.path.join('linux86-64', self.version)
         self.pgi_install_subdirs = [self.pgi_install_subdir]
-        if LooseVersion(self.version) > LooseVersion('18'):
+        if LooseVersion(self.version) > LooseVersion('18') and LooseVersion(self.version) < LooseVersion('19'):
             self.pgi_install_subdirs.append(os.path.join('linux86-64-llvm', self.version))
+        elif LooseVersion(self.version) > LooseVersion('19'):
+            self.pgi_install_subdirs.append(os.path.join('linux86-64-nollvm', self.version))
 
     def configure_step(self):
         """
@@ -139,33 +141,40 @@ class EB_PGI(PackedBinary):
         run_cmd(cmd, log_all=True, simple=True)
 
         # make sure localrc uses GCC in PATH, not always the system GCC, and does not use a system g77 but gfortran
-        install_abs_subdir = os.path.join(self.installdir, self.pgi_install_subdir)
-        filename = os.path.join(install_abs_subdir, "bin", "makelocalrc")
-        for line in fileinput.input(filename, inplace='1', backup='.orig'):
-            line = re.sub(r"^PATH=/", r"#PATH=/", line)
-            sys.stdout.write(line)
+        for subdir in self.pgi_install_subdirs:
+            install_abs_subdir = os.path.join(self.installdir, subdir)
+            filename = os.path.join(install_abs_subdir, "bin", "makelocalrc")
+            for line in fileinput.input(filename, inplace='1', backup='.orig'):
+                line = re.sub(r"^PATH=/", r"#PATH=/", line)
+                sys.stdout.write(line)
 
-        cmd = "%s -x %s -g77 /" % (filename, install_abs_subdir)
-        run_cmd(cmd, log_all=True, simple=True)
+            cmd = "%s -x %s -g77 /" % (filename, install_abs_subdir)
+            run_cmd(cmd, log_all=True, simple=True)
 
-        # If an OS libnuma is NOT found, makelocalrc creates symbolic links to libpgnuma.so
-        # If we use the EB libnuma, delete those symbolic links to ensure they are not used
-        if get_software_root("numactl"):
-            for subdir in self.pgi_install_subdirs:
-                install_abs_subdir = os.path.join(self.installdir, subdir)
+            # If an OS libnuma is NOT found, makelocalrc creates symbolic links to libpgnuma.so
+            # If we use the EB libnuma, delete those symbolic links to ensure they are not used
+            if get_software_root("numactl"):
                 for filename in ["libnuma.so", "libnuma.so.1"]:
                     path = os.path.join(install_abs_subdir, "lib", filename)
                     if os.path.islink(path):
                         os.remove(path)
 
-        # install (or update) siterc file to make PGI consider $LIBRARY_PATH and accept -pthread
-        siterc_path = os.path.join(self.installdir, self.pgi_install_subdir, 'bin', 'siterc')
-        write_file(siterc_path, SITERC_LIBRARY_PATH, append=True)
-        self.log.info("Appended instructions to pick up $LIBRARY_PATH to siterc file at %s: %s",
-                      siterc_path, SITERC_LIBRARY_PATH)
-        write_file(siterc_path, SITERC_PTHREAD_SWITCH, append=True)
-        self.log.info("Append instructions to replace -pthread with -lpthread to siterc file at %s: %s",
-                      siterc_path, SITERC_PTHREAD_SWITCH)
+            # install (or update) siterc file to make PGI consider $LIBRARY_PATH and accept -pthread
+            siterc_path = os.path.join(self.installdir, subdir, 'bin', 'siterc')
+            # adding LIBRARY_PATH has the side effect of adding llvm to nollvm siterc files and viceversa
+            # this is done dynamically, so we can't account for it in all cases. Simply do it for the default
+            isdefault = False
+            if ((LooseVersion(self.version) > LooseVersion('18') and LooseVersion(self.version) < LooseVersion('19') and
+                subdir == 'linux86-64-nollvm') or
+                (LooseVersion(self.version) > LooseVersion('19') and subdir == 'linux86-64-llvm')):
+                isdefault = True
+            if isdefault:
+                write_file(siterc_path, SITERC_LIBRARY_PATH, append=True)
+                self.log.info("Appended instructions to pick up $LIBRARY_PATH to siterc file at %s: %s",
+                              siterc_path, SITERC_LIBRARY_PATH)
+            write_file(siterc_path, SITERC_PTHREAD_SWITCH, append=True)
+            self.log.info("Append instructions to replace -pthread with -lpthread to siterc file at %s: %s",
+                          siterc_path, SITERC_PTHREAD_SWITCH)
 
         # The cuda nvvp tar file has broken permissions
         adjust_permissions(self.installdir, stat.S_IWUSR, add=True, onlydirs=True)

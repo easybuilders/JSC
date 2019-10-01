@@ -20,6 +20,7 @@ description = """Portable interactive, function plotting utility"""
 
 
 toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
+toolchainopts = {'cstd': 'c++11'}
 
 sources = [SOURCE_TAR_GZ]
 source_urls = [('http://sourceforge.net/projects/gnuplot/files', 'download')]
@@ -30,8 +31,7 @@ builddependencies = [
 ]
 
 dependencies = [
-#    ('cairo', '1.17.2'),
-#    ('GLib', '2.60.0'),
+    ('cairo', '1.17.2'),
     ('libjpeg-turbo', '2.0.2'),
     ('libreadline', '8.0'),
     ('libpng', '1.6.36'),
@@ -41,7 +41,8 @@ dependencies = [
     ('Qt5', '5.12.2'),
 ]
 
-configopts = 'CXXFLAGS="$CXXFLAGS -std=c++11" --with-qt=qt5 --without-latex --disable-wxwidgets --without-cairo '
+preconfigopts = 'LIBS="$LIBS -lgio-2.0 -lgobject-2.0" '
+configopts = '--with-qt=qt5 --without-latex --disable-wxwidgets '
 
 sanity_check_paths = {
     'files': ['bin/gnuplot'],

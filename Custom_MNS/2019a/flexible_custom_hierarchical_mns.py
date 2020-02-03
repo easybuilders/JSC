@@ -10,7 +10,7 @@ Implementation of a hierarchical module naming scheme, with added flexibility
 
 import os
 import re
-from vsc.utils import fancylogger
+from easybuild.base import fancylogger
 
 from easybuild.tools.build_log import EasyBuildError
 from easybuild.tools.module_naming_scheme.hierarchical_mns import HierarchicalMNS

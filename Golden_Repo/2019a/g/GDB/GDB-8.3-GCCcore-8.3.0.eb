@@ -28,7 +28,7 @@ dependencies = [
     ('expat', '2.2.6'),
 ]
 
-configopts = '--with-system-zlib --with-expat=$EBROOTEXPAT '
+configopts = '--with-system-zlib --with-zlib=$EBROOTZLIB --with-expat=$EBROOTEXPAT '
 configopts += '--with-system-readline --enable-tui --enable-plugins'
 
 parallel = 1

@@ -99,7 +99,10 @@ class EB_nvidia(Binary):
         run_cmd("ldconfig -N %s" % libdir)
 
         # Create an extra symlink for libcuda.so, otherwise PGI 19.X breaks
-        run_cmd("ln -s %s/libcuda.so.1 %s/libcuda.so" % (libdir,libdir))
+        # Create an extra symlink for libnvidia-ml.so, otherwise MVAPICH2 doesn't find it if it doesn't rely on stubs
+        missing_links = ['libcuda.so', 'libnvidia-ml.so']
+        for missing_link in missing_links:
+            run_cmd("ln -s %s/%s.1 %s/%s" % (libdir, missing_link, libdir, missing_link))
 
         super(EB_nvidia, self).post_install_step()
 

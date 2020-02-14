@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'nvidia'
+version = 'driver'
+realversion = '418.87.00'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """This is a set of libraries normally installed by the NVIDIA driver installer."""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = [
+    'http://us.download.nvidia.com/tesla/%s/' % realversion,
+    'http://developer.download.nvidia.com/compute/cuda/%s/Prod/local_installers/' % '.'.join(realversion.split('.')[:2]),
+    'https://developer.nvidia.com/compute/cuda/%s/prod/local_installers/' % '.'.join(realversion.split('.')[:2]),
+    'https://developer.nvidia.com/compute/cuda/%s/Prod2/local_installers/' % '.'.join(realversion.split('.')[:2]),
+]
+
+sources = [
+    'NVIDIA-Linux-x86_64-%s.run' % realversion
+]
+
+# Causes issues pointing to wrong directories
+postinstallcmds = [
+    'rm %(installdir)s/lib64/libGL.la'
+]
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

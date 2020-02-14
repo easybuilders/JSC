@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'MVAPICH2-settings'
+version = '2.3-GDR'
+versionsuffix = 'default'
+
+homepage = ''
+description = """This is a module to load the default MVAPICH2 GDR configuration"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = []
+
+sources = []
+
+modextravars = {
+    'MV2_ENABLE_AFFINITY':'0',
+    'MV2_USE_CUDA':'1',
+    'MV2_USE_GPUDIRECT_GDRCOPY':'1',
+    'MV2_USE_RDMA_CM':'0',
+    'MV2_GPUDIRECT_LIMIT': '4194304',
+}
+
+moduleclass = 'system'

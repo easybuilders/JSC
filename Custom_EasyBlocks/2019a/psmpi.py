@@ -151,6 +151,7 @@ class EB_psmpi(EB_MPICH):
             'pscom_allin_path': [None, "Enable pscom integration by giving its source path", CUSTOM],
             'pgo': [False, "Enable profiling guided optimizations", CUSTOM],
             'mpiexec_cmd': ['srun -n ', "Command to run benchmarks to generate PGO profile. With -n switch", CUSTOM],
+            'cuda': [False, "Enable CUDA awareness", CUSTOM],
         })
         return extra_vars
 
@@ -213,14 +214,18 @@ class EB_psmpi(EB_MPICH):
         comp_opts = {
             toolchain.GCC: 'gcc',
             toolchain.INTELCOMP: 'intel',
-            # TODO: Include PGI as soon as it is available as toolchain
-            #toolchain.PGI: 'pgi',
+            toolchain.PGI: 'pgi',
         }
 
         # ParaStationMPI defines its environment through confsets. So these should be unset
         env_vars = ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS', 'FCFLAGS', 'FFLAGS', 'LDFLAGS', 'LIBS']
         env.unset_env_vars(env_vars)
         self.log.info("Unsetting the following variables: " + ' '.join(env_vars))
+
+        # Enable CUDA
+        if self.cfg['cuda']:
+            self.log.info("Enabling CUDA-Awareness...")
+            self.cfg.update('configopts', ' --with-cuda')
 
         # Set confset
         comp_fam = self.toolchain.comp_family()

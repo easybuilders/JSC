@@ -23,13 +23,19 @@ builddependencies = [
     ('pkg-config', '0.29.2'),
 ]
 
-# needed for --with-verbs
-osdependencies = [('libibverbs-dev', 'libibverbs-devel', 'rdma-core-devel')]
+osdependencies = [
+    # needed for --with-verbs
+    ('libibverbs-dev', 'libibverbs-devel', 'rdma-core-devel'),
+    # needed for mlx5 acceleration
+    ('libmlx5-devel')
+]
 
 dependencies = [
     ('numactl', '2.0.12'),
     ('CUDA', '10.1.105', '', True),
 ]
+
+preconfigopts = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib64/pkgconfig '
 
 configopts  = '--with-verbs ' # Build OpenFabrics support, adding DIR/include,  DIR/lib, and DIR/lib64 to the search path for headers and libraries
 configopts += '--without-java '

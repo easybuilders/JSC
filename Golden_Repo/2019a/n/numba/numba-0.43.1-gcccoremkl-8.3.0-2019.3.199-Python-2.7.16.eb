@@ -10,6 +10,14 @@ description = """Numba is an Open Source NumPy-aware optimizing compiler for Pyt
  Inc. It uses the remarkable LLVM compiler infrastructure to compile Python syntax to machine code.
 """
 
+usage = '''
+In case you intend to use CUDA functionality of Numba, you need to set the following variables AFTER loading the CUDA
+module:
+
+NUMBAPRO_LIBDEVICE="$CUDA_HOME/nvvm/libdevice/"
+NUMBAPRO_NVVM="$CUDA_HOME/nvvm/lib64/libnvvm.so"
+'''
+
 
 toolchain = {'name': 'gcccoremkl', 'version': '8.3.0-2019.3.199'}
 toolchainopts = {'pic': True}

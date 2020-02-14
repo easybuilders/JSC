@@ -19,6 +19,11 @@ sources = [
     'NVIDIA-Linux-x86_64-%(version)s.run'
 ]
 
+# Causes issues pointing to wrong directories
+postinstallcmds = [
+    'rm %(installdir)s/lib64/libGL.la'
+]
+
 modluafooter = '''
 add_property("arch","gpu")
 '''

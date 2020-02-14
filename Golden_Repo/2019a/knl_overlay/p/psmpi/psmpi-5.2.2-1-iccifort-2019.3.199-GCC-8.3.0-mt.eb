@@ -45,15 +45,15 @@ threaded = True
 
 configopts  = ' --with-pscom-builtin=psm2 '
 
-modextravars = {
-    'PSP_READAHEAD': '4096',
-    'HFI_NO_CPUAFFINITY': '1'
-}
-
 # use a more explicit module name to help our naming scheme
 modaltsoftname = 'ParaStationMPI'
 
 # Add a family for our naming scheme
-modluafooter = 'family("mpi")'
+modluafooter = '''
+family("mpi")
+if not ( isloaded("mpi-settings/default") ) then
+    load("mpi-settings/default")
+end
+'''
 
 moduleclass = 'mpi'

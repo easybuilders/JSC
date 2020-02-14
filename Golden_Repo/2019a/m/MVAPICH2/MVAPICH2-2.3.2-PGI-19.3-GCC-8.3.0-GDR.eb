@@ -57,6 +57,13 @@ postinstallcmds = [
     "sed -i s#%s#%s#g %s/bin/mpif77"  % (path_to_fix, installdir, installdir),
     "sed -i s#%s#%s#g %s/bin/mpif90"  % (path_to_fix, installdir, installdir),
     "sed -i s#%s#%s#g %s/bin/mpifort" % (path_to_fix, installdir, installdir),
+    # Replace the stubs to make them point to the nvidia libraries provided by the module
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpicc"   % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpicxx"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpic++"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpif77"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpif90"  % (cuda_major_minor_ver, installdir),
+    "sed -i s#/usr/local/cuda-%s/lib64/stubs#\$EBROOTNVIDIA/lib64#g %s/bin/mpifort" % (cuda_major_minor_ver, installdir),
     "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpicc"   % (cuda_major_minor_ver, installdir),
     "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpicxx"  % (cuda_major_minor_ver, installdir),
     "sed -i s#/usr/local/cuda-%s#$EBROOTCUDA#g %s/bin/mpic++"  % (cuda_major_minor_ver, installdir),

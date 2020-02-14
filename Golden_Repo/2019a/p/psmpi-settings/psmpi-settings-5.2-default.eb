@@ -1,0 +1,18 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'psmpi-settings'
+version = '5.2'
+versionsuffix = 'default'
+
+homepage = ''
+description = """This is a module to load the default ParaStationMPI configuration"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = []
+
+sources = []
+
+moduleclass = 'system'

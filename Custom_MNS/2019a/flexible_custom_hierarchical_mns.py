@@ -11,6 +11,7 @@ Implementation of a hierarchical module naming scheme, with added flexibility
 import os
 import re
 from vsc.utils import fancylogger
+#from easybuild.base import fancylogger
 
 from easybuild.tools.build_log import EasyBuildError
 from easybuild.tools.module_naming_scheme.hierarchical_mns import HierarchicalMNS
@@ -19,6 +20,7 @@ from easybuild.tools.module_naming_scheme.toolchain import det_toolchain_compile
 CORE = 'Core'
 COMPILER = 'Compiler'
 MPI = 'MPI'
+MPI_SETTINGS = 'MPI_settings'
 
 MODULECLASS_COMPILER = 'compiler'
 MODULECLASS_MPI = 'mpi'
@@ -35,10 +37,12 @@ COMP_NAME_VERSION_TEMPLATES = {
 
 # Compiler relevant version numbers
 comp_relevant_versions = {
-    'Intel': 1,
+    'intel': 1,
     'PGI': 1,
-    'GCC': 1,
-    'GCCcore': 1,
+# The compilers load GCCcore/version. So GCC and GCCcore can't really be flexible, since GCCcore will always be loaded
+# as a dependency with a full version, and GCC it nothing but a bundle around GCCcore + binutils
+#    'GCC': 1,
+#    'GCCcore': 1,
 }
 
 # MPI relevant version numbers
@@ -48,6 +52,9 @@ mpi_relevant_versions = {
     'MVAPICH2': 2,
     'OpenMPI': 2,
 }
+
+# MPIs with settings modules
+mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2']
 
 class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
     """Class implementing an example hierarchical module naming scheme."""
@@ -64,6 +71,8 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             modname_regex = re.compile('^%s/\S+$' % re.escape('ParaStationMPI'))
         elif name == 'impi':
             modname_regex = re.compile('^%s/\S+$' % re.escape('IntelMPI'))
+        elif name in ['-'.join([x, 'settings']) for x in mpi_with_settings]:
+            modname_regex = re.compile('^%s/\S+$' % re.escape('mpi-settings'))
         else:
             modname_regex = re.compile('^%s/\S+$' % re.escape(name))
         res = bool(modname_regex.match(short_modname))
@@ -72,6 +81,43 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                        short_modname, name, modname_regex.pattern, res)
 
         return res
+
+    def _find_relevant_compiler_info(self, comp_info):
+        comp_name, comp_ver = comp_info
+
+        # Strip the irrelevant bits of the version and append the suffix again
+        if comp_relevant_versions.has_key(comp_name):
+            suffix = '-'.join(comp_ver.split('-')[1:])
+            comp_ver = '.'.join(comp_ver.split('.')[:comp_relevant_versions[comp_name]])
+            if suffix:
+                comp_ver += '-%s' % suffix
+
+        return comp_name, comp_ver
+
+    def _find_relevant_mpi_info(self, mpi_info):
+        mpi_ver = self.det_full_version(mpi_info)
+        mpi_name = mpi_info['name']
+
+        # Find suffix, if any, to be appended. Try to be clever, since the suffix is embedded in the version
+        # and sometimes the version might include a string that looks like a suffix (ie: psmpi-5.4.0-1)
+        if mpi_relevant_versions.has_key(mpi_name):
+            # Find possible suffixes
+            possible_suffixes = mpi_ver.split('-')[1:]
+            # Match the '-1' that is a typical part of psmpi's version
+            if possible_suffixes:
+                if re.match('^\d$', possible_suffixes[0]):
+                    suffix_index = 2
+                else:
+                    suffix_index = 1
+                suffix = '-'.join(mpi_ver.split('-')[suffix_index:])
+            else:
+                suffix = ''
+
+            mpi_ver = '.'.join(mpi_ver.split('.')[:mpi_relevant_versions[mpi_name]])
+            if suffix:
+                mpi_ver += '-%s' % suffix
+
+        return mpi_name, mpi_ver
 
     def det_module_subdir(self, ec):
         """
@@ -85,16 +131,12 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         if tc_comp_info is None:
             # no compiler in toolchain, dummy toolchain => Core module
             subdir = CORE
+            # except if the module is a MPI settings module
+            stripped_name = re.sub('-settings$', '', ec['name'])
+            if stripped_name in mpi_with_settings:
+                subdir = os.path.join(MPI_SETTINGS, stripped_name, ec['version'])
         else:
-            tc_comp_name, tc_comp_ver = tc_comp_info
-
-            # Strip the irrelevant bits of the version and append the suffix again
-            if comp_relevant_versions.has_key(tc_comp_name):
-                suffix = '-'.join(tc_comp_ver.split('-')[1:])
-                tc_comp_ver = '.'.join(tc_comp_ver.split('.')[:comp_relevant_versions[tc_comp_name]])
-                if suffix:
-                    tc_comp_ver += '-%s' % suffix
-
+            tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
             tc_mpi = det_toolchain_mpi(ec)
             if tc_mpi is None:
                 # compiler-only toolchain => Compiler/<compiler_name>/<compiler_version> namespace
@@ -104,25 +146,23 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 else:
                     subdir = os.path.join(COMPILER, tc_comp_name, tc_comp_ver)
             else:
-                tc_mpi_fullver = self.det_full_version(tc_mpi)
-
-                # Find suffix, if any, to be appended. Try to be clever, since the suffix is embedded in the version
-                # and sometimes the version might include a string that looks like a suffix (ie: psmpi-5.4.0-1)
-                if mpi_relevant_versions.has_key(tc_mpi['name']):
-                    # Match the '-1' that is a typical part of psmpi's version
-                    if re.match('^\d$', tc_mpi_fullver.split('-')[1:][0]):
-                        suffix_index = 2
-                    else:
-                        suffix_index = 1
-                    suffix = '-'.join(tc_mpi_fullver.split('-')[suffix_index:])
-                    tc_mpi_fullver = '.'.join(tc_mpi_fullver.split('.')[:mpi_relevant_versions[tc_mpi['name']]])
-                    if suffix:
-                        tc_mpi_fullver += '-%s' % suffix
-
+                tc_mpi_name, tc_mpi_ver = self._find_relevant_mpi_info(tc_mpi)
                 # compiler-MPI toolchain => MPI/<comp_name>/<comp_version>/<MPI_name>/<MPI_version> namespace
-                subdir = os.path.join(MPI, tc_comp_name, tc_comp_ver, tc_mpi['name'], tc_mpi_fullver)
+                subdir = os.path.join(MPI, tc_comp_name, tc_comp_ver, tc_mpi_name, tc_mpi_ver)
 
         return subdir
+
+    def det_short_module_name(self, ec):
+        """
+        Determine short module name, i.e. the name under which modules will be exposed to users.
+        Examples: GCC/4.8.3, OpenMPI/1.6.5, OpenBLAS/0.2.9, HPL/2.1, Python/2.7.5
+                  UCX-UD (for MPI settings)
+        """
+        stripped_name = re.sub('-settings$', '', ec['name'])
+        if stripped_name in mpi_with_settings and '-settings' in ec['name']:
+            return os.path.join('mpi-settings', ec['versionsuffix'])
+        else:
+            return super(FlexibleCustomHierarchicalMNS, self).det_short_module_name(ec)
 
     def det_modpath_extensions(self, ec):
         """
@@ -163,20 +203,27 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 # This means icc/ifort are not of the moduleclass compiler but iccifort is
                 if ec['name'] == 'iccifort':
                     comp_name_ver = ['intel', self.det_full_version(ec)]
+
             # Exclude extending the path for icc/ifort, the iccifort special case is handled above
             if ec['name'] not in ['icc', 'ifort']:
+                # Overwrite version if necessary
+                comp_name_ver = self._find_relevant_compiler_info(comp_name_ver)
                 paths.append(os.path.join(COMPILER, *comp_name_ver))
                 # Always extend to capture the MPI implementations too (which are in a separate directory)
                 if ec['name'] not in [GCCCORE]:
                     paths.append(os.path.join(COMPILER, MODULECLASS_MPI, *comp_name_ver))
+
         elif modclass == MODULECLASS_MPI:
             if tc_comp_info is None:
                 raise EasyBuildError("No compiler available in toolchain %s used to install MPI library %s v%s, "
                                      "which is required by the active module naming scheme.",
                                      ec['toolchain'], ec['name'], ec['version'])
             else:
-                tc_comp_name, tc_comp_ver = tc_comp_info
-                fullver = self.det_full_version(ec)
-                paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, ec['name'], fullver))
+                tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
+                mpi_name, mpi_ver = self._find_relevant_mpi_info(ec)
+                paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
+
+                if ec['name'] in mpi_with_settings:
+                    paths.append(os.path.join(MPI_SETTINGS, mpi_name, mpi_ver))
 
         return paths

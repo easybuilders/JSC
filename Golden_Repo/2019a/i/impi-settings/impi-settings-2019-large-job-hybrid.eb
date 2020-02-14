@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'impi-settings'
+version = '2019'
+versionsuffix = 'large-job-hybrid'
+
+homepage = ''
+description = """This is a module to load the IntelMPI configuration for large scale hybrid jobs"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+source_urls = []
+
+sources = []
+
+modextravars = {
+    'UCX_TLS': 'dc_x,sm,self',
+    'I_MPI_PMI_VALUE_LENGTH_MAX': '900',
+    # Needed for PSM and harmless for InfiniBand. For ParaStation it is set on the pscom module
+    'HFI_NO_CPUAFFINITY': 'YES',
+}
+
+moduleclass = 'system'

@@ -15,11 +15,11 @@ sources = ['%(version)s.tar.gz']
 source_urls = ['https://github.com/ParaStation/psmpi/archive/']
 
 dependencies = [
-    ('pscom', 'Default', '', True),
+    ('pscom', '5.2-default', '', True),
     # This should be a temporary fix. UCX should be a dependency of pscom. But at the moment, pscom is in "dummy" and
     # UCX is in GCCcore, so pscom can't load UCX. As an alternative to pull pscom high in the hierarchy during production
     # we load UCX here to override the system one
-    ('UCX', '1.5.1'),
+    ('UCX', '1.6.1'),
 ]
 
 patches = [
@@ -34,6 +34,11 @@ threaded = False
 modaltsoftname = 'ParaStationMPI'
 
 # Add a family for our naming scheme
-modluafooter = 'family("mpi")'
+modluafooter = '''
+family("mpi")
+if not ( isloaded("mpi-settings/default") ) then
+    load("mpi-settings/default")
+end
+'''
 
 moduleclass = 'mpi'

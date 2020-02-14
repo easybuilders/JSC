@@ -163,12 +163,12 @@ class EB_PGI(PackedBinary):
             siterc_path = os.path.join(self.installdir, subdir, 'bin', 'siterc')
             # adding LIBRARY_PATH has the side effect of adding llvm to nollvm siterc files and viceversa
             # this is done dynamically, so we can't account for it in all cases. Simply do it for the default
-            isdefault = False
-            if ((LooseVersion(self.version) > LooseVersion('18') and LooseVersion(self.version) < LooseVersion('19') and
-                subdir == 'linux86-64-nollvm') or
-                (LooseVersion(self.version) > LooseVersion('19') and subdir == 'linux86-64-llvm')):
-                isdefault = True
-            if isdefault:
+            #isdefault = False
+            #if ((LooseVersion(self.version) > LooseVersion('18') and LooseVersion(self.version) < LooseVersion('19') and
+            #    subdir == 'linux86-64-nollvm') or
+            #    (LooseVersion(self.version) > LooseVersion('19') and subdir == 'linux86-64-llvm')):
+            #    isdefault = True
+            if subdir == os.path.join('linux86-64', self.version):
                 write_file(siterc_path, SITERC_LIBRARY_PATH, append=True)
                 self.log.info("Appended instructions to pick up $LIBRARY_PATH to siterc file at %s: %s",
                               siterc_path, SITERC_LIBRARY_PATH)

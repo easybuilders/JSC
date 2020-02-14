@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'iimpi'
+version = '2019a'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = """Intel C/C++ and Fortran compilers, alongside Intel MPI.
+"""
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+compver = '2019.5.281'
+mpiver = '2019.6.154'
+gccsuffix = '-GCC-8.3.0'
+dependencies = [
+    ('iccifort', '%s%s' % (compver, gccsuffix)),
+    ('icc', compver, gccsuffix),
+    ('ifort', compver, gccsuffix),
+    ('impi', '%s' % mpiver, '', ('iccifort', '%s%s' % (compver, gccsuffix))),
+]
+
+moduleclass = 'toolchain'

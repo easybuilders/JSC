@@ -233,7 +233,7 @@ setenv("EASYBUILD_PREFIX", stage_path)
 
 -- Finally we tell EasyBuild to build hierarchical modules using our custom scheme
 setenv("EASYBUILD_INCLUDE_MODULE_NAMING_SCHEMES", pathJoin(custom_mns_path, "\*.py"))
-setenv("EASYBUILD_MODULE_NAMING_SCHEME", "CustomHierarchicalMNS")
+setenv("EASYBUILD_MODULE_NAMING_SCHEME", "FlexibleCustomHierarchicalMNS")
 
 -- Used a fixed installation subdir so that we can change naming schemes later if we want
 setenv("EASYBUILD_FIXED_INSTALLDIR_NAMING_SCHEME", "1")

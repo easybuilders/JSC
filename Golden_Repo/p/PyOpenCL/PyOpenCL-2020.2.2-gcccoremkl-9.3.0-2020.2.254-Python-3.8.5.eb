@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'PyOpenCL'
+version = '2020.2.2'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = "https://pypi.python.org/pypi/pyopencl/"
+description = """Python wrapper for OpenCL. PyOpenCL lets you access GPUs and other massively parallel compute devices
+from Python.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('pybind11', '2.5.0', versionsuffix),
+    ('SciPy-Stack', '2020', versionsuffix),
+    ('CUDA', '11.0', '', ('dummy', 'dummy')),
+]
+
+exts_download_dep_fail = True
+
+exts_list = [
+    ('pytools', '2020.4', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pytools'],
+    }),
+    ('pyopencl', version, {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pyopencl'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'lib'

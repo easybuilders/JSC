@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'nvptx-tools'
+version = '20180301'
+
+homepage = 'https://github.com/MentorEmbedded/nvptx-tools'
+description = """nvptx-tools: a collection of tools for use with nvptx-none GCC toolchains."""
+
+
+toolchain = SYSTEM
+toolchainopts = {'pic': True}
+
+sources = ['5f6f343a302d620b0868edab376c00b15741e39e.zip']
+source_urls = ['https://github.com/MentorEmbedded/nvptx-tools/archive/']
+
+patches = ['nvptx-tools-20180301_sm_30_to_sm_35.patch']
+checksums = [
+    'afcce591a9cae7babd5422724b9e85b45061fcc42d8ce55123225eb255f678ed',  # 5f6f343a302d620b0868edab376c00b15741e39e.zip
+    '2d5733bed28c533f2db5eecc3670e3470ffc1dfea6789e57f9079b46f45e4f0c',  # nvptx-tools-20180301_sm_30_to_sm_35.patch
+]
+
+hidden = True
+
+sanity_check_paths = {
+    'files': ["bin/%s" % x for x in ["nvptx-none-as", "nvptx-none-ranlib", "nvptx-none-ar", "nvptx-none-ld"]],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

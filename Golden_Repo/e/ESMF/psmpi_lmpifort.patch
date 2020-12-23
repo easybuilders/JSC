@@ -1,0 +1,10 @@
+--- esmf/build_config/Linux.intel.default/build_rules.mk.orig	2016-04-25 17:31:54.667689000 +0200
++++ esmf/build_config/Linux.intel.default/build_rules.mk	2016-04-25 17:32:22.991830000 +0200
+@@ -45,6 +45,7 @@ ifeq ($(ESMF_COMM),mpich2)
+ # Mpich2 ---------------------------------------------------
+ ESMF_F90DEFAULT         = mpif90
+ ESMF_CXXDEFAULT         = mpicxx
++ESMF_CXXLINKLIBS       += -lmpifort
+ ESMF_MPIRUNDEFAULT      = mpirun $(ESMF_MPILAUNCHOPTIONS)
+ ESMF_MPIMPMDRUNDEFAULT  = mpiexec $(ESMF_MPILAUNCHOPTIONS)
+ else

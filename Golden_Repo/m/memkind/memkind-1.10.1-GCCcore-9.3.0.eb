@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'memkind'
+version = '1.10.1'
+
+homepage = 'http://memkind.github.io'
+description = """User Extensible Heap Manager built on top of jemalloc which enables control of memory characteristics
+and a partitioning of the heap between kinds of memory.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/memkind/memkind/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('Coreutils', '8.32'),  # needed to ensure that ./build_jemalloc.sh works properly
+    ('Autotools', '20200321'),  # needed to ensure that ./build_jemalloc.sh works properly
+]
+
+dependencies = [
+    ('numactl', '2.0.13', '', SYSTEM),
+    ('tbb', '2020.3'),  # optional, to enable the tbb heap manager
+]
+
+# The build_jemalloc.sh is gone, autogen should take care of it.
+preconfigopts = './autogen.sh && '
+
+moduleclass = 'lib'

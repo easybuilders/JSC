@@ -1,0 +1,18 @@
+--- nvhpc_2020_209_Linux_x86_64_cuda_11.0/install_components/Linux_x86_64/20.9/compilers/bin/rcfiles/nvccrc.bak	2020-10-28 11:40:18.642068000 +0100
++++ nvhpc_2020_209_Linux_x86_64_cuda_11.0/install_components/Linux_x86_64/20.9/compilers/bin/rcfiles/nvccrc	2020-10-28 11:41:04.525783000 +0100
+@@ -51,10 +51,11 @@
+ variable TREECUDADIR is default($COMPBASE/$CUDAMAJOR/$CUDAVER/bin);
+ variable CUDADIR is default($if($or($SETVER,$equal($NVCOMPILER_CUDA_HOME,)),$TREECUDADIR,$NVCOMPILER_CUDA_HOME/bin));
+ 
+-restart($if($isdir($CUDADIR),
+-        $if($expr($CUDAXXYY>=$NVREQCUDAVERSIONXXYY),
+-            $CUDADIR,
+-            $error(The nvc++ host compiler is only supported with CUDA 11.0 or newer)),
++restart($if($isdir($CUDADIR),$CUDADIR,
++# PATCH AH 2020-10-28: Otherwise, nvcc will not work...; Copied this from NVHPC 20.7
++#        $if($expr($CUDAXXYY>=$NVREQCUDAVERSIONXXYY),
++#            $CUDADIR,
++#            $error(The nvc++ host compiler is only supported with CUDA 11.0 or newer)),
+     $error(
+       $if($SETVER,
+ 	$if($equal($CUDAVER,),

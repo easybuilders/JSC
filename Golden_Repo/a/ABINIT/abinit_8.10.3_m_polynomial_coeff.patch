@@ -1,0 +1,42 @@
+Patch based on https://github.com/abinit/abinit/issues/24
+
+--- abinit-8.10.3.orig/src/78_effpot/m_polynomial_coeff.F90	2019-06-24 07:00:10.000000000 +0200
++++ abinit-8.10.3/src/78_effpot/m_polynomial_coeff.F90	2020-08-14 15:55:33.552846884 +0200
+@@ -2517,6 +2517,7 @@
+  integer :: ia,ib,ii,icoeff1,icoeff_tmp
+  integer :: iterm,nbody_in,ncoeff_max,pa,pb
+  integer :: ndisp_max,nterm_max
++ integer :: icoeff1_temp
+  real(dp):: coefficient
+  logical :: need_compute,compatible,possible,need_anharmstr,need_spcoupling,need_distributed
+ !arrays
+@@ -2639,8 +2640,9 @@
+      end if!end if power_disp < power_disp_min
+ 
+      if(compatible)then
++       icoeff1_temp = icoeff1
+        call computeNorder(cell,coeffs_out,compatibleCoeffs,list_coeff,list_str,index_coeff,&
+-&                         icoeff1,icoeff_tot,natom,ncoeff,nstr,ncoeff_out,nrpt,nsym,power_disp+1,&
++&                         icoeff1_temp,icoeff_tot,natom,ncoeff,nstr,ncoeff_out,nrpt,nsym,power_disp+1,&
+ &                         power_disp_min,power_disp_max,symbols,nbody=nbody_in,compute=need_compute,&
+ &                         anharmstr=need_anharmstr,spcoupling=need_spcoupling)
+      end if
+@@ -2770,6 +2772,7 @@
+ !Local variables ---------------------------------------
+ !scalar
+  integer :: icoeff1,icoeff2,nbody_in,ii,jj
++ integer :: icoeff1_temp
+  logical :: need_compute,compatible,possible,need_anharmstr,need_spcoupling
+  logical :: need_only_odd_power,need_only_even_power
+ !arrays
+@@ -2879,8 +2882,9 @@
+ 
+ !    If the model is still compatbile with the input flags, we continue.
+      if(compatible)then
++       icoeff1_temp = icoeff1
+        call computeCombinationFromList(cell,compatibleCoeffs,list_coeff,list_str,&
+-&                                     index_coeff,list_combination,icoeff1,max_power_strain,&
++&                                     index_coeff,list_combination,icoeff1_temp,max_power_strain,&
+ &                                     nmodel_tot,natom,ncoeff,nstr,nmodel,nrpt,nsym,power_disp+1,&
+ &                                     power_disp_min,power_disp_max,symbols,nbody=nbody_in,&
+ &                                     compute=need_compute,anharmstr=need_anharmstr,&

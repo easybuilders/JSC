@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Embree'
+version = '3.8.0'
+
+homepage = 'http://www.ospray.org/'
+description = """
+Embree is a collection of high-performance ray tracing kernels, developed at Intel. The target user of Embree are
+graphics application engineers that want to improve the performance of their application by leveraging the optimized ray
+tracing kernels of Embree. The kernels are optimized for photo-realistic rendering on the latest Intel processors with
+support for SSE, AVX, AVX2, and AVX512.
+"""
+
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+toolchainopts = {'optarch': True, 'pic': True}
+
+source_urls = ['https://github.com/embree/embree/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('CMake', '3.18.0'),
+    ('pkg-config', '0.29.2'),
+    ('ispc', '1.12.0', '', SYSTEM),
+]
+
+dependencies = [
+    ('X11', '20200222'),
+    ('OpenGL', '2020'),
+    ('freeglut', '3.2.1'),
+    ('libpng', '1.6.37'),
+    ('libjpeg-turbo', '2.0.5'),
+    ('ImageMagick', '7.0.10-25'),
+    ('OpenEXR', '2.5.2'),
+    ('tbb', '2020.3'),
+]
+
+separate_build_dir = True
+
+configopts = '-DCMAKE_BUILD_TYPE=Release '
+configopts += '-DEMBREE_ISPC_SUPPORT=ON '
+configopts += '-DEMBREE_TASKING_SYSTEM=TBB '
+configopts += '-DEMBREE_TBB_ROOT=$EBROOTTBB '
+# Select highest supported ISA (SSE2, SSE4.2, AVX, AVX2, AVX512KNL, AVX512SKX, or NONE)
+configopts += '-DEMBREE_MAX_ISA=AVX2 '
+configopts += '-DEMBREE_TUTORIALS=OFF '
+
+sanity_check_paths = {
+    'dirs': ['include/embree3'],
+    'files': ['lib64/libembree3.so']
+}
+
+modextrapaths = {
+    'CMAKE_MODULE_PATH': 'lib64/cmake/embree-%(version)s/'
+}
+
+moduleclass = 'vis'

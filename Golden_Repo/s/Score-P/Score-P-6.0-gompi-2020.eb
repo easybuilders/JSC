@@ -1,0 +1,67 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This is an easyconfig file for EasyBuild, see https://github.com/easybuilders/easybuild
+# Copyright:: Copyright 2013-2018 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+#             Markus Geimer <m.geimer@fz-juelich.de>
+# License::   3-clause BSD
+#
+# This work is based on experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+
+easyblock = 'EB_Score_minus_P'
+
+name = 'Score-P'
+version = '6.0'
+
+homepage = 'http://www.score-p.org'
+description = """
+The Score-P measurement infrastructure is a highly scalable and easy-to-use
+tool suite for profiling, event tracing, and online analysis of HPC
+applications.
+"""
+
+
+toolchain = {'name': 'gompi', 'version': '2020'}
+
+source_urls = ['https://www.vi-hps.org/cms/upload/packages/scorep/']
+sources = ['scorep-%(version)s.tar.gz']
+patches = [
+    'Score-P-6.0_binutils_2.34_api_change.patch',
+    'Score-P-6.0_no_PDT_for_CUDA.patch'
+]
+
+builddependencies = [
+    ('CUDA', '11.0', '', True),
+    ('CubeLib', '4.5'),
+    ('CubeWriter', '4.5'),
+    # Unwinding/sampling support (optional):
+    ('libunwind', '1.4.0'),
+]
+
+dependencies = [
+    # binutils is implicitly available via GCC toolchain
+    ('OPARI2', '2.0.5'),
+    ('OTF2', '2.2'),
+    # Hardware counter support (optional):
+    ('PAPI', '6.0.0'),
+    # PDT source-to-source instrumentation support (optional):
+    ('PDT', '3.25'),
+]
+
+configopts = '--enable-shared '
+# Enable CUDA support
+configopts += '--with-libOpenCL=$EBROOTCUDA/targets/x86_64-linux'
+
+sanity_check_paths = {
+    'files': ['bin/scorep', 'include/scorep/SCOREP_User.h',
+              ('lib/libscorep_adapter_mpi_event.a', 'lib64/libscorep_adapter_mpi_event.a'),
+              ('lib/libscorep_adapter_mpi_event.%s' % SHLIB_EXT, 'lib64/libscorep_adapter_mpi_event.%s' % SHLIB_EXT)],
+    'dirs': [],
+}
+
+# Ensure that local metric documentation is found by CubeGUI
+modextrapaths = {'CUBE_DOCPATH': 'share/doc/scorep/profile'}
+
+moduleclass = 'perf'

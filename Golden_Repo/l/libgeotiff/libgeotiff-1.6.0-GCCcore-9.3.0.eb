@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libgeotiff'
+version = '1.6.0'
+
+homepage = 'https://trac.osgeo.org/geotiff/'
+description = """Library for reading and writing coordinate system information
+ from/to GeoTIFF files"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = ['https://download.osgeo.org/geotiff/libgeotiff']
+sources = [SOURCE_TAR_GZ]
+
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
+dependencies = [
+    ('PROJ', '7.1.0'),
+    ('libjpeg-turbo', '2.0.5'),
+    ('zlib', '1.2.11'),
+    ('SQLite', '3.32.3'),
+    ('LibTIFF', '4.1.0'),
+    ('cURL', '7.71.1'),
+]
+
+configopts = '--with-libtiff=$EBROOTLIBTIFF'
+configopts += ' --with-proj=$EBROOTPROJ '
+configopts += ' --with-zlib=$EBROOTZLIB'
+configopts += ' --with-jpeg=$EBROOTLIBJPEGMINTURBO'
+
+sanity_check_paths = {
+    'files': ['bin/listgeo', 'lib/libgeotiff.a',
+              'lib/libgeotiff.%s' % SHLIB_EXT],
+    'dirs': ['include', 'share'],
+}
+
+moduleclass = 'lib'

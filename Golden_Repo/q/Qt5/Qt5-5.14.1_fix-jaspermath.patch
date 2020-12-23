@@ -1,0 +1,13 @@
+add math.h because jasper.h does not provide it any more in 2.0.19
+see commit https://github.com/qt/qtimageformats/commit/704868db61be1542c2d9e2b75ead00c45c56cc36
+diff -Nru qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp
+--- qt-everywhere-src-5.14.1.orig/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2020-09-02 17:38:18.915006000 +0200
++++ qt-everywhere-src-5.14.1/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2020-09-02 17:38:34.375018000 +0200
+@@ -45,6 +45,7 @@
+ #include "qcolor.h"
+ 
+ #include <jasper/jasper.h>
++#include <math.h> // for pow
+ 
+ QT_BEGIN_NAMESPACE
+ 

@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+name = 'Julia.MPI'
+version = '0.15.1'
+
+homepage = 'https://juliaparallel.github.io/MPI.jl/stable/configuration/'
+description = """This provides Julia interface to the Message Passing Interface (MPI),
+roughly inspired by mpi4py.
+"""
+
+
+toolchain = {'name': 'gompi', 'version': '2020'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+sources = [{
+    'source_urls': ['https://github.com/JuliaParallel/MPI.jl/archive/'],
+    'filename': 'MPI.jl-%(version)s.tar.gz',
+    'download_filename': 'v%(version)s.tar.gz',
+    'extract_cmd': "tar xfvz %s",
+}]
+
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
+dependencies = [
+    ('Julia', '1.5.2', '', ('gcccoremkl', '9.3.0-2020.2.254')),
+]
+
+extract_sources = True
+install_cmd = (
+    'cd %(builddir)s/MPI.jl-%(version)s/; '
+    'export JULIA_DEPOT_PATH=%(installdir)s; '
+    '$EBROOTJULIA/bin/julia -e \'ENV["JULIA_MPI_BINARY"]="system"; using Pkg; Pkg.add("MPI"); Pkg.build("MPI")\'; '
+    '$EBROOTJULIA/bin/julia -e \'import MPI;  MPI.install_mpiexecjl()\' ')
+
+modextrapaths = {
+    'PATH': 'bin',
+    'JULIA_DEPOT_PATH': '',
+}
+
+# Ensure that the user-specific $HOME/.julia is always first entry in JULIA_DEPOT_PATH
+modluafooter = """
+prepend_path("JULIA_DEPOT_PATH", pathJoin(os.getenv("HOME"), ".julia"))
+"""
+
+sanity_check_paths = {
+    'files': ['bin/mpiexecjl'],
+    'dirs': ['bin', 'registries', 'packages/MPI']
+}
+
+moduleclass = 'lang'

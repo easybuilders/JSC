@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'NCO'
+version = '4.9.5'
+
+homepage = 'http://nco.sourceforge.net'
+description = """NCO manipulates data stored in netCDF-accessible formats,
+ including HDF4 and HDF5. It also exploits the geophysical expressivity of many
+ CF (Climate & Forecast) metadata conventions, the flexible description of
+ physical dimensions translated by UDUnits, the network transparency of OPeNDAP,
+ the storage features (e.g., compression, chunking, groups) of HDF (the
+ Hierarchical Data Format), and many powerful mathematical and statistical
+ algorithms of GSL (the GNU Scientific Library).
+"""
+
+
+toolchain = {'name': 'ipsmpi', 'version': '2020'}
+toolchainopts = {'opt': True, 'pic': True}
+
+configopts = '--enable-optimize-custom --enable-debug-custom '
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = ['http://nco.sourceforge.net/src/']
+
+patches = ['nco_4.9.5_yyget_gcc9.patch']
+
+builddependencies = [
+    ('Bison', '3.6.4'),
+    ('flex', '2.6.4'),
+]
+
+dependencies = [
+    ('cURL', '7.71.1'),
+    ('netCDF', '4.7.4'),
+    ('UDUNITS', '2.2.26'),
+    ('GSL', '2.6'),
+    ('expat', '2.2.9'),
+    # ANTLR 3.X doesn't have C++ support and therefore is not usable
+    # ANTLR 4.X has C++ support, but right now is not compatible with NCO
+    # See https://sourceforge.net/p/nco/discussion/9831/thread/1a424aac/
+    ('ANTLR', '2.7.7', '-Python-3.8.5'),
+    ('libdap', '3.20.6'),
+]
+
+sanity_check_paths = {
+    'files': ["bin/ncks", "bin/ncrename"],
+    'dirs': [],
+}
+
+moduleclass = 'data'

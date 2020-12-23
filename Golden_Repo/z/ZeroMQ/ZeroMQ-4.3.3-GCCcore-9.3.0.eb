@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'ZeroMQ'
+version = '4.3.3'
+
+homepage = 'https://www.zeromq.org/'
+description = """ZeroMQ looks like an embeddable networking library but acts like a concurrency framework.
+ It gives you sockets that carry atomic messages across various transports like in-process,
+ inter-process, TCP, and multicast. You can connect sockets N-to-N with patterns like fanout,
+ pub-sub, task distribution, and request-reply. It's fast enough to be the fabric for clustered
+ products. Its asynchronous I/O model gives you scalable multicore applications, built as asynchronous
+ message-processing tasks. It has a score of language APIs and runs on most operating systems."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = ['https://github.com/zeromq/libzmq/releases/download/v%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['9d9285db37ae942ed0780c016da87060497877af45094ff9e1a1ca736e3875a2']
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('pkg-config', '0.29.2'),
+]
+
+configopts = '--with-pic '
+
+sanity_check_paths = {
+    'files': ['lib/libzmq.%s' % SHLIB_EXT, 'lib/libzmq.a'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'devel'

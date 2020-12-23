@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'Blender'
+version = '2.90.1'
+versionsuffix = '-binary'
+
+homepage = 'https://www.blender.org'
+description = """
+Blender is the free and open source 3D creation suite. It supports the entirety of the 3D pipeline,
+modeling, rigging, animation, simulation, rendering, compositing and motion tracking, even video 
+editing and game creation.
+"""
+
+
+toolchain = SYSTEM
+
+source_urls = ['http://ftp.nluug.nl/pub/graphics/%(namelower)s/release/%(name)s%(version_major_minor)s/']
+sources = ['%(namelower)s-%(version)s-linux64.tar.xz']
+checksums = ['054668c46a3e56921f283709f51a35f7860786183001cf2ea9be3249d13ac667']
+
+modextrapaths = {
+    'PATH': '',
+    'LD_LIBRARY_PATH': 'lib',
+}
+
+sanity_check_paths = {
+    'files': ['%(namelower)s'],
+    'dirs': ['%(version_major_minor)s'],
+}
+
+moduleclass = 'vis'

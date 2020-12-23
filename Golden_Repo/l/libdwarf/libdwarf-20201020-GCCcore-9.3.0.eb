@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libdwarf'
+version = '20201020'
+
+homepage = 'http://www.prevanders.net/dwarf.html'
+description = """The DWARF Debugging Information Format is of interest to programmers working on compilers
+and debuggers (and anyone interested in reading or writing DWARF information))
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['http://www.prevanders.net']
+
+builddependencies = [
+    ('binutils', '2.34')
+]
+
+dependencies = [
+    ('libelf', '0.8.13'),
+]
+
+configopts = "--enable-shared "
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ["bin", "lib", "include"]
+}
+
+moduleclass = 'devel'

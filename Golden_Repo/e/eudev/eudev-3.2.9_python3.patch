@@ -1,0 +1,9 @@
+diff -ruN eudev-3.2.9.orig/test/rule-syntax-check.py eudev-3.2.9/test/rule-syntax-check.py
+--- eudev-3.2.9.orig/test/rule-syntax-check.py	2016-11-17 22:14:19.000000000 +0100
++++ eudev-3.2.9/test/rule-syntax-check.py	2020-11-06 15:22:12.238868994 +0100
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python3
+ # Simple udev rules syntax checker
+ #
+ # (C) 2010 Canonical Ltd.

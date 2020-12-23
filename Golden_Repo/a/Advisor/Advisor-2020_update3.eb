@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Advisor'
+version = '2020_update3'
+
+homepage = 'https://software.intel.com/intel-advisor-xe'
+description = """Vectorization Optimization and Thread Prototyping
+ - Vectorize & thread code or performance "dies"
+ - Easy workflow + data + tips = faster code faster
+ - Prioritize, Prototype & Predict performance gain
+"""
+
+
+toolchain = SYSTEM
+
+sources = ['advisor_%(version)s.tar.gz']
+
+dontcreateinstalldir = True
+
+requires_runtime_license = False
+
+moduleclass = 'perf'

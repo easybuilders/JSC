@@ -1,0 +1,77 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'GTK+'
+version = '3.24.17'
+
+homepage = 'https://developer.gnome.org/gtk+/stable/'
+description = """
+ The GTK+ 3 package contains libraries used for creating graphical user interfaces for applications.
+ """
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('Coreutils', '8.32'),
+    ('pkg-config', '0.29.2'),
+    ('GObject-Introspection', '1.64.1'),
+    ('cairo', '1.17.2'),
+    ('Perl', '5.32.0'),
+]
+
+dependencies = [
+    ('ATK', '2.36.0'),
+    ('AT-SPI2-ATK', '2.34.2'),
+    ('Gdk-Pixbuf', '2.40.0'),
+    ('Pango', '1.44.7'),
+    ('X11', '20200222'),
+    ('libepoxy', '1.5.4'),
+    ('zlib', '1.2.11'),
+    ('FriBidi', '1.0.9'),
+    ('X11', '20200222'),  # GDK backend
+    ('librsvg', '2.48.8'),  # This installs the SVG loader in Gdk-Pixbuf, which is needed for adwaita
+]
+
+default_easyblock = 'ConfigureMake'
+
+default_component_specs = {
+    'sources': [SOURCELOWER_TAR_XZ],
+    'start_dir': '%(namelower)s-%(version)s',
+}
+
+components = [
+    (name, version, {
+        'source_urls': [FTPGNOME_SOURCE],
+        'checksums': ['f210255b221cb0f0db3e7b21399983b715c9dda6eb1e5c2f7fdf38f4f1b6bac0'],
+        'configopts': "--disable-silent-rules --disable-glibtest --enable-introspection=yes --disable-visibility" +
+                      "--disable-wayland-backend --enable-x11-backend",
+    }),
+    ('hicolor-icon-theme', '0.17', {
+        'source_urls': ['https://icon-theme.freedesktop.org/releases/'],
+        'checksums': ['317484352271d18cbbcfac3868eab798d67fff1b8402e740baa6ff41d588a9d8'],
+    }),
+    ('adwaita-icon-theme', '3.36.0', {
+        'source_urls': [FTPGNOME_SOURCE],
+        'checksums': ['1a172112b6da482d3be3de6a0c1c1762886e61e12b4315ae1aae9b69da1ed518'],
+    }),
+]
+
+postinstallcmds = ['gtk-update-icon-cache']
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib64/girepository-1.0',
+    'XDG_DATA_DIRS': 'share',
+}
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ['gtk3-demo', 'gtk3-demo-application', 'gtk3-icon-browser', 'gtk3-widget-factory',
+                                     'gtk-builder-tool', 'gtk-launch', 'gtk-query-immodules-3.0', 'gtk-query-settings',
+                                     'gtk-update-icon-cache']] +
+             ['lib/%s-%%(version_major)s.%s' % (x, SHLIB_EXT) for x in ['libgailutil', 'libgdk', 'libgtk']],
+    'dirs': ['include/%s-%%(version_major)s.0' % x for x in ['gail', 'gtk']] +
+            ['share/icons/hicolor', 'share/icons/Adwaita'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Graphviz'
+version = '2.44.1'
+
+homepage = 'http://www.graphviz.org/'
+description = """Graphviz is open source graph visualization software. Graph visualization
+is a way of representing structural information as diagrams of
+abstract graphs and networks. It has important applications in networking,
+bioinformatics,  software engineering, database and web design, machine learning,
+and in visual interfaces for other technical domains.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = ['https://www2.graphviz.org/Packages/stable/portable_source/']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = ['tclpkg-Makefile.am.patch']
+
+builddependencies = [
+    ('Autotools', '20200321'),
+    ('binutils', '2.34'),
+    ('Bison', '3.6.4'),
+    ('flex', '2.6.4'),
+    ('pkg-config', '0.29.2'),
+    ('SWIG', '3.0.12', '-Python-3.8.5'),
+]
+
+dependencies = [
+    ('cairo', '1.17.2'),
+    ('expat', '2.2.9'),
+    ('freetype', '2.10.1'),
+    ('X11', '20200222'),
+    ('Ghostscript', '9.52'),
+    ('GLib', '2.64.4'),
+    ('GTS', '0.7.6'),
+    ('Java', '1.8', '', True),
+    ('libpng', '1.6.37'),
+    ('librsvg', '2.48.8'),
+    ('Pango', '1.44.7'),
+    ('Qt5', '5.14.2'),
+    ('Tcl', '8.6.10'),
+    ('zlib', '1.2.11'),
+]
+
+preconfigopts = './autogen.sh NOCONFIG && '
+
+configopts = '--enable-guile=no --enable-lua=no --enable-ocaml=no '
+configopts += '--enable-r=no --enable-ruby=no --enable-perl=no '
+configopts += '--enable-python=no --enable-python2=no --enable-python3=no '
+# Use ltdl from libtool in EB
+configopts += '--enable-ltdl --without-included-ltdl --disable-ltdl-install '
+configopts += '--with-ltdl-include=$EBROOTLIBTOOL/include --with-ltdl-lib=$EBROOTLIBTOOL/lib '
+configopts += '--with-expatincludedir=$EBROOTEXPAT/include --with-expatlibdir=$EBROOTEXPAT/lib '
+configopts += '--with-tclsh=$EBROOTTCL/bin/tclsh8.6'
+
+prebuildopts = 'qmake -o cmd/gvedit/qMakefile cmd/gvedit/gvedit.pro && '
+
+sanity_check_paths = {
+    'files': ['bin/cluster', 'bin/dot', 'bin/gvmap',
+              'lib/libcdt.%s' % SHLIB_EXT, 'lib/libgvc.%s' % SHLIB_EXT, 'lib/libxdot.%s' % SHLIB_EXT],
+    'dirs': ['include', 'lib/graphviz']
+}
+
+sanity_check_commands = [
+    ("test ! -d $EBROOTTCL/lib/*/graphviz", ''),
+    ("test ! -d $EBROOTTCL/lib64/*/graphviz", ''),
+]
+
+modextrapaths = {
+    'CLASSPATH': 'lib/graphviz/java/org/graphviz',
+    'LD_LIBRARY_PATH': 'lib/graphviz/java',
+    'TCLLIBPATH': 'lib/graphviz/tcl',
+}
+
+moduleclass = 'vis'

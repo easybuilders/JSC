@@ -1,0 +1,20 @@
+diff -Nru netcdf-c-4.7.4.orig/liblib/CMakeLists.txt netcdf-c-4.7.4/liblib/CMakeLists.txt
+--- netcdf-c-4.7.4.orig/liblib/CMakeLists.txt	2020-09-20 20:17:25.395953767 +0200
++++ netcdf-c-4.7.4/liblib/CMakeLists.txt	2020-09-20 20:17:54.671071349 +0200
+@@ -111,11 +111,11 @@
+     )
+ ENDIF()
+ 
+-IF(NOT MSVC)
+-  IF(BUILD_SHARED_LIBS)
+-    SET_TARGET_PROPERTIES(netcdf PROPERTIES LINK_FLAGS -shared)
+-  ENDIF()
+-ENDIF()
++#IF(NOT MSVC)
++#  IF(BUILD_SHARED_LIBS)
++#    SET_TARGET_PROPERTIES(netcdf PROPERTIES LINK_FLAGS -shared)
++#  ENDIF()
++#ENDIF()
+ 
+ IF(ENABLE_SHARED_LIBRARY_VERSION)
+   SET_TARGET_PROPERTIES(netcdf PROPERTIES

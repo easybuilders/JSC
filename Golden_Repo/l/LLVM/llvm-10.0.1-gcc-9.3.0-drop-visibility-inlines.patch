@@ -1,0 +1,17 @@
+diff -ruN llvm-10.0.1.src.orig/cmake/modules/HandleLLVMOptions.cmake llvm-10.0.1.src/cmake/modules/HandleLLVMOptions.cmake
+--- llvm-10.0.1.src.orig/cmake/modules/HandleLLVMOptions.cmake	2020-07-07 18:21:37.000000000 +0200
++++ llvm-10.0.1.src/cmake/modules/HandleLLVMOptions.cmake	2020-09-02 18:44:17.280675916 +0200
+@@ -267,13 +267,6 @@
+   endif()
+ endif()
+ 
+-if(NOT WIN32 AND NOT CYGWIN AND NOT (${CMAKE_SYSTEM_NAME} MATCHES "AIX" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+-  # MinGW warns if -fvisibility-inlines-hidden is used.
+-  # GCC on AIX warns if -fvisibility-inlines-hidden is used.
+-  check_cxx_compiler_flag("-fvisibility-inlines-hidden" SUPPORTS_FVISIBILITY_INLINES_HIDDEN_FLAG)
+-  append_if(SUPPORTS_FVISIBILITY_INLINES_HIDDEN_FLAG "-fvisibility-inlines-hidden" CMAKE_CXX_FLAGS)
+-endif()
+-
+ if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND MINGW)
+   add_definitions( -D_FILE_OFFSET_BITS=64 )
+ endif()

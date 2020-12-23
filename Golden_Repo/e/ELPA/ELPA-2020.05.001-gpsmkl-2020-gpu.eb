@@ -1,0 +1,97 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ELPA'
+version = '2020.05.001'
+versionsuffix = '-gpu'
+
+homepage = 'http://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications. ELPA has been installed as module in
+$EBROOTELPA ($ELPA_ROOT is also defined). This installation
+contains the pure MPI version with support for GPUs. To get
+full GPU performance it is necessary to enable Nvidia Multi-process Service
+by adding 
+#SBATCH --gres=gpu:4 --partition=gpus  --cuda-mps
+in your batch script. With that option usage of OpenMP is not possible.
+
+Several assembly kernels have been compiled. They can be chosen at runtime when calling the library or
+with the environment variables REAL_ELPA_KERNEL or COMPLEX_ELPA_KERNEL.
+
+An example is
+export REAL_ELPA_KERNEL=REAL_ELPA_KERNEL_GENERIC
+which chooses the generic real kernel for elpa2.
+Starting with version 2019.11.001 the legacy interface is no longer available.
+"""
+
+usage = """You can get an overview over the available kernels by loading ELPA and then submitting a batch job with
+
+srun --ntasks=1 $EBROOTELPA/bin/elpa2_print_kernels
+
+Programs using this ELPA library have to be compiled with
+
+-I$ELPA_INCLUDE/ -I$ELPA_INCLUDE/elpa -I$ELPA_MODULES
+
+and linked with
+
+-L$EBROOTELPA/lib -lelpa
+-lmkl_scalapack_lp64 -lmkl_gf_lp64
+-lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64
+-lgomp -lpthread -lm -ldl  -lstdc++
+"""
+
+examples = 'Examples can be found in $EBROOTELPA/examples'
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2020'}
+toolchainopts = {'openmp': False, 'usempi': True}
+
+source_urls = ['http://elpa.mpcdf.mpg.de/html/Releases/%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = [
+    'ELPA-%(version)s_install-libelpatest.patch',
+]
+
+builddependencies = [
+    ('Autotools', '20200321'),
+]
+
+preconfigopts = 'export LDFLAGS="-lm $LDFLAGS" && '
+preconfigopts += 'autoreconf && '
+
+dependencies = [
+    ('CUDA', '11.0', '', SYSTEM),
+]
+
+configopts = '--enable-gpu '
+configopts += '--with-GPU-compute-capability="sm_70" '
+
+prebuildopts = 'export LIBS="$LIBS -lcudart -lcublas" && '
+
+with_single = False
+
+postinstallcmds = [
+    'cp -r %(builddir)s/elpa-%(version)s/examples %(installdir)s/examples/',
+    'rm %(installdir)s/examples/Makefile_pure',
+    'rm %(installdir)s/examples/Makefile_hybrid',
+    'rm %(installdir)s/examples/C/Makefile_examples_pure',
+    'rm %(installdir)s/examples/C/Makefile_examples_hybrid',
+    'rm %(installdir)s/examples/Fortran/Makefile_examples_pure',
+    'rm %(installdir)s/examples/Fortran/Makefile_examples_hybrid',
+    'cp config.h config-f90.h %(installdir)s/include/elpa-%(version)s/elpa/',
+    'cp %(builddir)s/elpa-%(version)s/test/shared/generated.h %(installdir)s/examples/C/generated.h',
+    'cp %(builddir)s/elpa-%(version)s/private_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+    'cp %(builddir)s/elpa-%(version)s/test_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+]
+
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules',
+}
+
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'math'

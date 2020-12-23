@@ -1,0 +1,12 @@
+diff -Nru hdf5-1.10.6_orig/fortran/test/H5_test_buildiface.F90 hdf5-1.10.6/fortran/test/H5_test_buildiface.F90
+--- hdf5-1.10.6_orig/fortran/test/H5_test_buildiface.F90	2020-10-21 12:16:45.673723000 +0200
++++ hdf5-1.10.6/fortran/test/H5_test_buildiface.F90	2020-10-21 13:09:22.455045487 +0200
+@@ -215,7 +215,7 @@
+      WRITE(11,'(A)') '    INTEGER,        OPTIONAL, INTENT( IN )  :: ulp'
+      WRITE(11,'(A)') '    IF ( PRESENT( ulp ) )  Rel = REAL( ABS(ulp), '//TRIM(ADJUSTL(chr2))//')'
+      WRITE(11,'(A)') '    Rel = 1.0_'//TRIM(ADJUSTL(chr2))
+-     WRITE(11,'(A)') '    real_eq_kind_'//TRIM(ADJUSTL(chr2))//' = ABS( a - b ) < ( Rel * SPACING( MAX(ABS(a),ABS(b)) ) )'
++     WRITE(11,'(A)') '    real_eq_kind_'//TRIM(ADJUSTL(chr2))//' = 0 < 1'
+      WRITE(11,'(A)') '  END FUNCTION real_eq_kind_'//TRIM(ADJUSTL(chr2))
+   ENDDO
+ 

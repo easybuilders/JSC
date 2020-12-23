@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'OpenMPI-settings'
+version = '4.1'
+versionsuffix = 'CUDA'
+
+homepage = ''
+description = """This is a module to load the default OpenMPI configuration"""
+
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'SLURM_MPI_TYPE': 'pspmix',
+    'UCX_TLS': 'rc_x,cuda_ipc,gdr_copy,self,sm,cuda_copy',
+    'UCX_MEMTYPE_CACHE': 'n',
+    'OMPI_MCA_mca_base_component_show_load_errors': '1',
+    'OMPI_MCA_mpi_param_check': '1',
+    'OMPI_MCA_mpi_show_handle_leaks': '1',
+    'OMPI_MCA_mpi_warn_on_fork': '1',
+    # Disable uct for the time being due to:
+    # https://github.com/openucx/ucx/wiki/OpenMPI-and-OpenSHMEM-installation-with-UCX#running-open-mpi-with-ucx
+    # Also openib, since it is deprecated and should be substituted by the UCX support in the pml
+    'OMPI_MCA_btl': '^uct,openib',
+    'OMPI_MCA_btl_openib_allow_ib': '1',
+    'OMPI_MCA_bml_r2_show_unreach_errors': '0',
+    'OMPI_MCA_coll': '^ml',
+    'OMPI_MCA_coll_hcoll_enable': '1',
+    'OMPI_MCA_coll_hcoll_np': '0',
+    'OMPI_MCA_pml': 'ucx',
+    'OMPI_MCA_osc': '^rdma',
+    'OMPI_MCA_opal_abort_print_stack': '1',
+    'OMPI_MCA_opal_set_max_sys_limits': '1',
+    'OMPI_MCA_opal_event_include': 'epoll',
+    'OMPI_MCA_btl_openib_warn_default_gid_prefix': '0',
+    # OMPIO does not seem to work reliably on our system
+    'OMPI_MCA_io': 'romio321',
+}
+
+moduleclass = 'system'

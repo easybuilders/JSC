@@ -1,0 +1,8 @@
+--- Rmpi/src/Makevars.orig	2020-08-12 16:00:24.750464585 +0200
++++ Rmpi/src/Makevars.in	2020-08-12 16:00:42.941024431 +0200
+@@ -2,4 +2,4 @@
+ 
+ PKG_CPPFLAGS = @DEFS@ @PKG_CPPFLAGS@
+ PKG_CFLAGS   = $(ARCHCFLAGS)
+-PKG_LIBS     = @PKG_LIBS@ $(ARCHLIB)
++PKG_LIBS     = @PKG_LIBS@ -lmpifort $(ARCHLIB)

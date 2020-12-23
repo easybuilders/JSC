@@ -1,0 +1,19 @@
+--- test/jit/test_recursive_script.py.orig	2020-11-11 18:40:22.959601697 +0100
++++ test/jit/test_recursive_script.py	2020-11-11 18:40:44.718092798 +0100
+@@ -2,7 +2,6 @@
+ import os
+ import sys
+ import typing
+-import typing_extensions
+ from typing import List, Dict, Optional, Tuple
+ 
+ import torch
+@@ -174,7 +173,7 @@
+         self.checkModule(M1(), (torch.randn(2, 2),))
+ 
+         class M2(torch.nn.Module):
+-            x : typing_extensions.Final[int]
++            x : typing.Final[int]
+ 
+             def __init__(self):
+                 super().__init__()

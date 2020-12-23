@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'NCL'
+version = "6.6.2"
+
+homepage = 'http://www.ncl.ucar.edu'
+description = 'NCL is an interpreted language designed specifically for scientific data analysis and visualization.'
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2020'}
+toolchainopts = {'cstd': 'c99', 'openmp': True, 'pic': True}
+
+source_urls = ['https://github.com/NCAR/ncl/archive']
+sources = ['%(version)s.tar.gz']
+
+patches = ['NCL-6.4.0_fix-types.patch']
+
+dependencies = [
+    ('cURL', '7.71.1'),
+    ('libdap', '3.20.6'),
+    ('netCDF', '4.7.4'),
+    ('netCDF-Fortran', '4.5.3'),
+    ('freetype', '2.10.1'),
+    ('JasPer', '2.0.19'),
+    ('g2lib', '3.1.0'),
+    ('zlib', '1.2.11'),
+    ('ESMF', '8.0.1'),
+    ('bzip2', '1.0.8'),
+    ('GSL', '2.6'),
+    ('GDAL', '3.1.2', '-Python-3.8.5'),
+    ('HDF5', '1.10.6'),
+    ('HDF', '4.2.15'),
+    ('g2clib', '1.6.0'),
+    ('Szip', '2.1.1'),
+    ('UDUNITS', '2.2.26'),
+    ('cairo', '1.17.2'),
+    ('Bison', '3.6.4'),
+    ('flex', '2.6.4'),
+]
+
+moduleclass = 'data'

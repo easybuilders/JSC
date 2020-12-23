@@ -1,0 +1,14 @@
+diff -ruN g2lib-3.1.0.orig/addfield.f g2lib-3.1.0/addfield.f
+--- g2lib-3.1.0.orig/addfield.f	2017-10-11 18:42:27.260459115 +0200
++++ g2lib-3.1.0/addfield.f	2017-10-11 18:43:55.107089682 +0200
+@@ -119,7 +119,9 @@
+       integer lensec3,lensec4,lensec5,lensec6,lensec7
+       logical issec3,needext,isprevbmap
+ 
+-      allones=Z'FFFFFFFF'
++      ! Z'FFFFFFFF' causes and overflow and does not really set the
++      ! whole bit mask to 1. -1 does.
++      allones=-1
+       ierr=0
+ !
+ ! Check to see if beginning of GRIB message exists

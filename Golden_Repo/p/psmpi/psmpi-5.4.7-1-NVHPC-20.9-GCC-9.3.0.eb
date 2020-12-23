@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.4.7-1'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+"""
+
+
+toolchain = {'name': 'NVHPC', 'version': '20.9-GCC-9.3.0'}
+
+sources = ['%(version)s.tar.gz']
+source_urls = ['https://github.com/ParaStation/psmpi/archive/']
+
+builddependencies = [('CUDA', '11.0', '', SYSTEM)]
+dependencies = [
+    ('pscom', '5.4-default', '', SYSTEM),
+    # needed due to the inclusion of hwloc
+    ('libxml2', '2.9.10')
+]
+
+patches = [
+    'psmpi_shebang.patch',
+    'psmpi-5.4.6-1_ime.patch'
+]
+
+# mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
+# We disable gpfs support, since it seems to be problematic under some circumstances. One can disable it by setting
+# ROMIO_FSTYPE_FORCE="ufs:", but then we loose IME support
+mpich_opts = '--enable-static --with-file-system=ime+ufs --enable-romio'
+
+# Needed since nvfortran can't deal with --allow-shlib-undefined, but pgf77 can
+preconfigopts = 'unset F77 && '
+preconfigopts += 'export CFLAGS="-I/opt/ddn/ime/include $CFLAGS" && '
+preconfigopts += 'export LDFLAGS="$LDFLAGS -L/opt/ddn/ime/lib -lim_client" && '
+
+threaded = False
+
+cuda = True
+
+# use a more explicit module name to help our naming scheme
+modaltsoftname = 'ParaStationMPI'
+
+# Add a family for our naming scheme
+modluafooter = '''
+add_property("arch","gpu")
+family("mpi")
+if not ( isloaded("mpi-settings/CUDA") ) then
+    load("mpi-settings/CUDA")
+end
+'''
+
+moduleclass = 'mpi'

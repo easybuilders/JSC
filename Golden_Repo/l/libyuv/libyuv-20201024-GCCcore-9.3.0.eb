@@ -1,0 +1,56 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'libyuv'
+version = '20201024'
+
+homepage = 'https://chromium.googlesource.com/libyuv/libyuv/'
+description = """
+libyuv for colorspace conversion. libyuv is Optimized for SSE2/SSSE3/AVX2 on x86/x64.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+toolchainopts = {'pic': True}
+
+sources = [
+    {
+        'source_urls': ['https://chromium.googlesource.com/libyuv/libyuv/+archive/'],
+        'filename': '%(name)s-19d71f6b351fe992ae34b114eebd872c383a6bdb.tar.gz',
+        'download_filename': '19d71f6b351fe992ae34b114eebd872c383a6bdb.tar.gz',
+    }, {
+        'filename': 'libyuv.pc.gz',
+    }
+]
+checksums = ['3796b5b96cc0c5987b6d4d6e52a726de6277623d900937f100a6b0cffd3adda8']
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('CMake', '3.18.0')
+]
+
+dependencies = [
+]
+
+separate_build_dir = True
+start_dir = './'
+
+maxparallel = 12
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+
+postinstallcmds = [
+    'sed -ie "s#PREFIX_TEMPLATE#%(installdir)s#g" %(builddir)s/libyuv.pc',
+    'cp %(builddir)s/libyuv.pc %(installdir)s'
+]
+
+sanity_check_paths = {
+    'files': ['lib/libyuv.a', 'include/libyuv.h'],
+    'dirs': [],
+}
+
+modextrapaths = {
+    'PKG_CONFIG_PATH': ''
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'motif'
+version = '2.3.8'
+
+homepage = 'https://motif.ics.com/'
+description = """Motif refers to both a graphical user interface (GUI) specification and the widget toolkit for building
+ applications that follow that specification under the X Window System on Unix and other POSIX-compliant systems.
+ It was the standard toolkit for the Common Desktop Environment and thus for Unix.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+sources = [SOURCELOWER_TAR_GZ]
+source_urls = [SOURCEFORGE_SOURCE]
+
+dependencies = [
+    ('freetype', '2.10.1'),
+    ('libjpeg-turbo', '2.0.5'),
+    ('X11', '20200222'),
+]
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('pkg-config', '0.29.2'),
+    ('Autotools', '20200321'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.6.4'),
+    ('util-linux', '2.36'),
+]
+
+# makefile is not parallel safe
+parallel = 1
+
+sanity_check_paths = {
+    'files': ['lib/libMrm.a', 'lib/libUil.a', 'lib/libXm.a', 'bin/mwm', 'bin/uil', 'bin/xmbind'],
+    'dirs': ['include/Mrm', 'include/uil', 'include/X11', 'include/Xm'],
+}
+
+moduleclass = 'vis'

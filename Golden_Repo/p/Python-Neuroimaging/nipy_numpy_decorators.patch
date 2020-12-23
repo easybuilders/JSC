@@ -1,0 +1,372 @@
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/clustering/tests/test_vmm.py.orig nipy-0.4.2/nipy/algorithms/clustering/tests/test_vmm.py.orig
+--- nipy-0.4.2.orig/nipy/algorithms/clustering/tests/test_vmm.py.orig	1970-01-01 01:00:00.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/clustering/tests/test_vmm.py.orig	2020-10-20 14:36:04.203516000 +0200
+@@ -0,0 +1,77 @@
++"""
++Test the Von-Mises-Fisher mixture model
++
++Author : Bertrand Thirion, 2010
++"""
++from __future__ import absolute_import
++
++import numpy as np
++
++from ..von_mises_fisher_mixture import (VonMisesMixture,
++                                        sphere_density,
++                                        select_vmm,
++                                        select_vmm_cv)
++
++
++from nose.tools import assert_true, assert_equal
++
++
++def test_spherical_area():
++    # test the co_labelling functionality
++    points, area = sphere_density(100)
++    assert_true(np.abs(area.sum()-4*np.pi)<1.e-2)
++
++
++def test_von_mises_fisher_density():
++    # test that a density is indeed computed on the unit sphere for a
++    # one-component and three-component model (k == 1, 3)
++    x = np.random.randn(100, 3)
++    x = (x.T/np.sqrt(np.sum(x**2, 1))).T
++    s, area = sphere_density(100)
++    for k in (1, 3):
++        for precision in [.1, 1., 10., 100.]:
++            for null_class in (False, True):
++                vmd = VonMisesMixture(k, precision, null_class=null_class)
++                vmd.estimate(x)
++                # check that it sums to 1
++                assert_true(np.abs((vmd.mixture_density(s)*area).sum() - 1)
++                            < 1e-2)
++
++
++def test_dimension_selection_bic():
++    # Tests whether dimension selection yields correct results
++    x1 = [0.6, 0.48, 0.64]
++    x2 = [-0.8, 0.48, 0.36]
++    x3 = [0.48, 0.64, -0.6]
++    x = np.random.randn(200, 3) * .1
++    x[:40] += x1
++    x[40:150] += x2
++    x[150:] += x3
++    x = (x.T / np.sqrt(np.sum(x**2, 1))).T
++
++    precision = 100.
++    my_vmm = select_vmm(list(range(1,8)), precision, False, x)
++    assert_equal(my_vmm.k, 3)
++
++
++def test_dimension_selection_cv():
++    # Tests the dimension selection using cross validation
++    x1 = [1, 0, 0]
++    x2 = [-1, 0, 0]
++    x = np.random.randn(20, 3)*.1
++    x[0::2] += x1
++    x[1::2] += x2
++    x = (x.T / np.sqrt(np.sum(x**2,1))).T
++
++    precision = 50.
++    sub = np.repeat(np.arange(10), 2)
++    my_vmm = select_vmm_cv(list(range(1,8)), precision, x, cv_index=sub,
++                           null_class=False, ninit=5)
++    z = np.argmax(my_vmm.responsibilities(x), 1)
++    assert_true(len(np.unique(z))>1)
++    assert_true(len(np.unique(z))<4)
++
++
++if __name__ == '__main__':
++    import nose
++    nose.run(argv=['', __file__])
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/clustering/tests/test_vmm.py.rej nipy-0.4.2/nipy/algorithms/clustering/tests/test_vmm.py.rej
+--- nipy-0.4.2.orig/nipy/algorithms/clustering/tests/test_vmm.py.rej	1970-01-01 01:00:00.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/clustering/tests/test_vmm.py.rej	2020-10-20 14:36:04.203570000 +0200
+@@ -0,0 +1,15 @@
++--- nipy/algorithms/clustering/tests/test_vmm.py
+++++ nipy/algorithms/clustering/tests/test_vmm.py
++@@ -13,7 +13,11 @@
++                                         select_vmm_cv)
++ 
++ from nose.tools import assert_true, assert_equal
++-from numpy.testing import decorators
+++try:
+++    from numpy.testing import decorators
+++except ImportError:
+++    from numpy.testing import dec
+++    decorators = dec
++ 
++ from nibabel.optpkg import optional_package
++ 
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/diagnostics/tests/test_screen.py nipy-0.4.2/nipy/algorithms/diagnostics/tests/test_screen.py
+--- nipy-0.4.2.orig/nipy/algorithms/diagnostics/tests/test_screen.py	2018-01-13 20:37:07.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/diagnostics/tests/test_screen.py	2020-10-20 14:36:04.205595000 +0200
+@@ -23,7 +23,13 @@
+ from nose.tools import (assert_true, assert_false, assert_equal, assert_raises)
+ 
+ from numpy.testing import (assert_array_equal, assert_array_almost_equal,
+-                           assert_almost_equal, decorators)
++                           assert_almost_equal)
++
++try:
++    from numpy.testing import decorators
++except ImportError:
++    from numpy.testing import dec
++    decorators = dec
+ 
+ from nipy.testing import funcfile
+ from nipy.testing.decorators import needs_mpl_agg
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/statistics/formula/formulae.py nipy-0.4.2/nipy/algorithms/statistics/formula/formulae.py
+--- nipy-0.4.2.orig/nipy/algorithms/statistics/formula/formulae.py	2018-02-17 12:53:17.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/statistics/formula/formulae.py	2020-10-20 14:36:04.206408696 +0200
+@@ -267,10 +267,10 @@
+             return sympy.Symbol.__mul__(self, other)
+ 
+ 
+-class Beta(sympy.symbol.Dummy):
++class Beta(sympy.Dummy):
+     ''' A symbol tied to a Term `term` '''
+     def __new__(cls, name, term):
+-        new = sympy.symbol.Dummy.__new__(cls, name)
++        new = sympy.Dummy.__new__(cls, name)
+         new._term = term
+         return new
+ 
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/statistics/rft.py nipy-0.4.2/nipy/algorithms/statistics/rft.py
+--- nipy-0.4.2.orig/nipy/algorithms/statistics/rft.py	2018-02-17 12:53:17.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/statistics/rft.py	2020-10-20 14:36:04.207667603 +0200
+@@ -20,7 +20,10 @@
+ from numpy.linalg import pinv
+ 
+ from scipy import stats
+-from scipy.misc import factorial
++try:
++    from scipy.misc import factorial
++except ImportError:
++    from scipy.special import factorial
+ from scipy.special import gamma, gammaln, beta, hermitenorm
+ 
+ # Legacy repr printing from numpy.
+diff -ruN nipy-0.4.2.orig/nipy/algorithms/statistics/tests/test_rft.py nipy-0.4.2/nipy/algorithms/statistics/tests/test_rft.py
+--- nipy-0.4.2.orig/nipy/algorithms/statistics/tests/test_rft.py	2018-02-17 12:53:17.000000000 +0100
++++ nipy-0.4.2/nipy/algorithms/statistics/tests/test_rft.py	2020-10-20 14:36:04.209578233 +0200
+@@ -6,7 +6,10 @@
+ 
+ from scipy.special import gammaln, hermitenorm
+ import scipy.stats
+-from scipy.misc import factorial
++try:
++    from scipy.misc import factorial
++except ImportError:
++    from scipy.special import factorial
+ 
+ from .. import rft
+ 
+diff -ruN nipy-0.4.2.orig/nipy/fixes/numpy/testing/nosetester.py nipy-0.4.2/nipy/fixes/numpy/testing/nosetester.py
+--- nipy-0.4.2.orig/nipy/fixes/numpy/testing/nosetester.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/fixes/numpy/testing/nosetester.py	2020-10-20 14:36:04.211233186 +0200
+@@ -21,7 +21,7 @@
+ 
+     Examples
+     --------
+-    >>> np.testing.nosetester.get_package_name('nonsense')
++    >>> get_package_name('nonsense')
+     'numpy'
+ 
+     """
+diff -ruN nipy-0.4.2.orig/nipy/info.py nipy-0.4.2/nipy/info.py
+--- nipy-0.4.2.orig/nipy/info.py	2018-02-19 13:40:18.000000000 +0100
++++ nipy-0.4.2/nipy/info.py	2020-10-20 14:36:04.212645000 +0200
+@@ -170,7 +170,7 @@
+ MICRO               = _version_micro
+ ISRELEASE           = _version_extra == ''
+ VERSION             = __version__
+-REQUIRES            = ["numpy", "scipy", "sympy", "nibabel"]
++REQUIRES            = ["numpy", "scipy", "sympy(<1.6)", "nibabel"]
+ STATUS              = 'beta'
+ 
+ # Versions and locations of optional data packages
+diff -ruN nipy-0.4.2.orig/nipy/labs/group/permutation_test.py nipy-0.4.2/nipy/labs/group/permutation_test.py
+--- nipy-0.4.2.orig/nipy/labs/group/permutation_test.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/labs/group/permutation_test.py	2020-10-20 14:36:04.214327640 +0200
+@@ -6,7 +6,10 @@
+ 
+ # Third-party imports
+ import numpy as np
+-import scipy.misc as sm
++try:
++    from scipy.misc import comb
++except ImportError:
++    from scipy.special import comb
+ import warnings
+ 
+ # Our own imports
+@@ -374,7 +377,7 @@
+         elif self.nsamples == 2:
+             n1,p = self.data1.shape[self.axis], self.data1.shape[1-self.axis]
+             n2 = self.data2.shape[self.axis]
+-            max_nperms = sm.comb(n1+n2,n1,exact=1)
++            max_nperms = comb(n1+n2,n1,exact=1)
+             data = np.concatenate((self.data1,self.data2), self.axis)
+             if self.vardata1 is not None:
+                 vardata = np.concatenate((self.vardata1,self.vardata2), self.axis)
+diff -ruN nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_activation_maps.py nipy-0.4.2/nipy/labs/viz_tools/test/test_activation_maps.py
+--- nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_activation_maps.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/labs/viz_tools/test/test_activation_maps.py	2020-10-20 14:36:04.215870000 +0200
+@@ -10,7 +10,7 @@
+ try:
+     import matplotlib as mp
+     # Make really sure that we don't try to open an Xserver connection.
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+ except ImportError:
+@@ -28,7 +28,7 @@
+ 
+ def test_demo_plot_map():
+     # This is only a smoke test
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+     demo_plot_map()
+@@ -38,7 +38,7 @@
+ 
+ def test_plot_anat():
+     # This is only a smoke test
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+     data = np.zeros((20, 20, 20))
+@@ -85,7 +85,7 @@
+     # Test that things don't crash when we give a map with nothing above
+     # threshold
+     # This is only a smoke test
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+     data = np.zeros((20, 20, 20))
+diff -ruN nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_cm.py nipy-0.4.2/nipy/labs/viz_tools/test/test_cm.py
+--- nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_cm.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/labs/viz_tools/test/test_cm.py	2020-10-20 14:36:04.217044000 +0200
+@@ -8,7 +8,7 @@
+ try:
+     import matplotlib as mp
+     # Make really sure that we don't try to open an Xserver connection.
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+ except ImportError:
+@@ -19,14 +19,14 @@
+ 
+ def test_dim_cmap():
+     # This is only a smoke test
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     dim_cmap(pl.cm.jet)
+ 
+ 
+ def test_replace_inside():
+     # This is only a smoke test
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+     replace_inside(pl.cm.jet, pl.cm.hsv, .2, .8)
+diff -ruN nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_slicers.py nipy-0.4.2/nipy/labs/viz_tools/test/test_slicers.py
+--- nipy-0.4.2.orig/nipy/labs/viz_tools/test/test_slicers.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/labs/viz_tools/test/test_slicers.py	2020-10-20 14:36:04.218549000 +0200
+@@ -7,7 +7,7 @@
+ try:
+     import matplotlib as mp
+     # Make really sure that we don't try to open an Xserver connection.
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+ except ImportError:
+@@ -25,7 +25,7 @@
+     # conditioned on presence of MNI templated
+     if not find_mni_template():
+         raise nose.SkipTest("MNI Template is absent for the smoke test")
+-    mp.use('svg', warn=False)
++    mp.use('svg')
+     import pylab as pl
+     pl.switch_backend('svg')
+     demo_ortho_slicer()
+diff -ruN nipy-0.4.2.orig/nipy/modalities/fmri/tests/test_aliases.py nipy-0.4.2/nipy/modalities/fmri/tests/test_aliases.py
+--- nipy-0.4.2.orig/nipy/modalities/fmri/tests/test_aliases.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/modalities/fmri/tests/test_aliases.py	2020-10-20 14:36:04.219628000 +0200
+@@ -44,7 +44,7 @@
+     func = sympy.Function('myfunc')
+     assert_false(hasattr(func, '_imp_'))
+     f = implemented_function(func, lambda x: 2*x)
+-    assert_true(hasattr(func, '_imp_'))
++    assert_true(hasattr(f, '_imp_'))
+ 
+ 
+ def test_lambdify():
+diff -ruN nipy-0.4.2.orig/nipy/testing/decorators.py nipy-0.4.2/nipy/testing/decorators.py
+--- nipy-0.4.2.orig/nipy/testing/decorators.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/testing/decorators.py	2020-10-20 14:36:04.222327000 +0200
+@@ -8,7 +8,10 @@
+ from __future__ import print_function
+ from __future__ import absolute_import
+ 
+-from numpy.testing.decorators import *
++try:
++    from numpy.testing.decorators import *
++except ImportError:
++    from numpy.testing._private.decorators import *
+ 
+ from nipy.utils import templates, example_data, DataError
+ 
+@@ -124,7 +127,7 @@
+     import matplotlib.pyplot as plt
+     from nose.tools import make_decorator
+     def agg_func(*args, **kwargs):
+-        matplotlib.use('agg', warn=False)
++        matplotlib.use('agg')
+         plt.switch_backend('agg')
+         return func(*args, **kwargs)
+     return make_decorator(func)(agg_func)
+diff -ruN nipy-0.4.2.orig/nipy/testing/__init__.py nipy-0.4.2/nipy/testing/__init__.py
+--- nipy-0.4.2.orig/nipy/testing/__init__.py	2018-02-17 12:53:17.000000000 +0100
++++ nipy-0.4.2/nipy/testing/__init__.py	2020-10-20 14:36:04.220882000 +0200
+@@ -36,6 +36,13 @@
+ anatfile = os.path.join(basedir, 'anatomical.nii.gz')
+ 
+ from numpy.testing import *
++# Re import decorators/dec depending on numpy's version
++try:
++    from numpy.testing import decorators
++except ImportError:
++    from numpy.testing import dec
++    decorators = dec
++
+ # Overwrites numpy.testing.Tester
+ from .nosetester import NipyNoseTester as Tester
+ test = Tester().test
+diff -ruN nipy-0.4.2.orig/nipy/tests/test_scripts.py nipy-0.4.2/nipy/tests/test_scripts.py
+--- nipy-0.4.2.orig/nipy/tests/test_scripts.py	2018-01-13 20:37:08.000000000 +0100
++++ nipy-0.4.2/nipy/tests/test_scripts.py	2020-10-20 14:36:04.223796000 +0200
+@@ -19,7 +19,13 @@
+ from nose.tools import assert_true, assert_false, assert_equal, assert_raises
+ 
+ from ..testing import funcfile
+-from numpy.testing import decorators, assert_almost_equal
++from numpy.testing import assert_almost_equal
++
++try:
++    from numpy.testing import decorators
++except ImportError:
++    from numpy.testing import dec
++    decorators = dec
+ 
+ from nipy.testing.decorators import make_label_dec
+ 

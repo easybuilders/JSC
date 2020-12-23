@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ESMF'
+version = '8.0.1'
+
+homepage = 'https://www.earthsystemcog.org/projects/esmf/'
+description = """The Earth System Modeling Framework (ESMF) is software for building and coupling weather,
+ climate, and related models.
+"""
+
+
+toolchain = {'name': 'intel-para', 'version': '2020'}
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['https://github.com/esmf-org/esmf/archive/']
+sources = ['%%(name)s_%s.tar.gz' % '_'.join(version.split('.'))]
+
+dependencies = [
+    ('netCDF', '4.7.4'),
+    ('netCDF-Fortran', '4.5.3'),
+    ('netCDF-C++4', '4.3.1'),
+]
+
+patches = [
+    'psmpi_lmpifort.patch',
+]
+
+# ESMF ignores xxFLAGS
+preconfigopts = 'export ESMF_BOPT="O" && '
+preconfigopts += 'export ESMF_OPTLEVEL="2" && '
+preinstallopts = 'export ESMF_CXXLINKOPTS="-lmpifort" && '
+
+# too parallel causes the build to become really slow
+maxparallel = 8
+
+moduleclass = 'geo'

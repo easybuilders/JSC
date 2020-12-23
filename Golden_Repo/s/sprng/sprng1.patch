@@ -1,0 +1,111 @@
+--- sprng/make.CHOICES	1998-05-28 16:55:52.000000000 +0200
++++ sprng1_ok/make.CHOICES	2015-08-06 09:33:55.362818441 +0200
+@@ -24,12 +24,19 @@
+ #PLAT = HP
+ #PLAT = LINUX
+ #PLAT = O2K
+-PLAT  = SGI
++#PLAT  = SGI
+ #PLAT = SOLARIS
+ #PLAT = SP2		# IBM SP2
+ #PLAT = SUN
+ # For T3D, Use PLAT=T3E instead
+ #PLAT =  T3E
+-#PLAT  = GENERIC
++PLAT  = GENERIC
+ 
+ LIB_REL_DIR = lib
++
++PMLCGDEF = -DUSE_PMLCG
++#GMP_ROOT = /usr/local/software/jureca/Stage3/software/Toolchain/intel-para/2015.07/GMP/6.0.0a
++GMP_ROOT = $(EBROOTGMP)
++GMPLIB = -Wl,-Bstatic -Wl,--start-group -L$(GMP_ROOT)/lib -lgmp -Wl,--end-group -Wl,-Bdynamic
++
++MPIDEF = -DSPRNG_MPI
+--- sprng/SRC/make.GENERIC	1998-07-03 20:33:16.000000000 +0200
++++ sprng1_ok/SRC/make.GENERIC	2014-11-25 12:58:53.000000000 +0100
+@@ -1,36 +1,35 @@
+ AR = ar
+-ARFLAGS = cr
+-#If your system has ranlib, then replace next statement with the one after it.
+-RANLIB = echo
+-#RANLIB = ranlib
+-CC = gcc
++ARFLAGS = -cr
++#If your system does not have ranlib, then replace next statement with 
++#RANLIB = echo
++RANLIB = ranlib
++CC = mpicc
+ CLD = $(CC)
+-F77 = f77
++# Set f77 to echo if you do not have a FORTRAN compiler
++F77 = mpif77
++#F77 = echo
+ F77LD = $(F77)
+-FFXN =  -DAdd_
++FFXN = -DAdd_
+ FSUFFIX = F
+ 
+-MPIF77 = $(F77) 
+-MPICC = $(CC)
++MPIF77 = mpif77
++MPICC = mpicc
+ 
+ # To use MPI, set the MPIDIR to location of mpi library, and MPILIB 
+ # to name of mpi library. Remove # signs from beginning of next 3 lines.
+ # Also, if the previous compilation was without MPI, type: make realclean
+ # before compiling for mpi.
+ #
+-#MPIDEF = -DSPRNG_MPI #Only if you plan to use MPI
+-MPIDIR = 
+-MPILIB = 
+-
+-# If _LONG_LONG type is available, then you can use the addition flag
+-# -D_LONG_LONG. Set F77 to echo to compile the C version alone. 
+-# Try adding: -DGENERIC to CFLAGS. This can improve speed, but may give
+-# incorrect values. Check with 'checksprng' to see if it works.
+-
+-CFLAGS = -O $(MPIDEF)
+-CLDFLAGS = -O
+-FFLAGS = -O $(MPIDEF)
+-F77LDFLAGS = -O
+-
+-CPP = f77 -F
++# COMMENTED BY ME
++#MPIDIR = -L/usr/local/mpi/build/LINUX/ch_p4/lib
++#MPILIB = -lmpich
++
++# Please include mpi header file path, if needed
++
++CFLAGS = -O3 -DLittleEndian $(PMLCGDEF) $(MPIDEF) -D$(PLAT)  
++CLDFLAGS =  -O3
++#FFLAGS = -O3 $(PMLCGDEF) $(MPIDEF) -D$(PLAT)  -I/usr/local/mpi/include -I/usr/local/mpi/build/LINUX/ch_p4/include -I.
++FFLAGS = -O2 $(PMLCGDEF) $(MPIDEF) -D$(PLAT) -DPOINTER_SIZE=8
++F77LDFLAGS =  -O3 
+ 
++CPP = cpp -P  -DPOINTER_SIZE=8
+--- sprng/Makefile	1998-03-23 21:45:33.000000000 +0100
++++ sprng1_ok/Makefile	2014-11-28 16:08:51.000000000 +0100
+@@ -24,17 +24,18 @@
+ 
+ include $(SRCDIR)/make.$(PLAT)
+ 
+-all : src examples tests
++#all : src examples tests
++all : src tests
+ 
+ #---------------------------------------------------------------------------
+ src :
+-	(cd SRC; $(MAKE) LIBDIR=../$(LIBDIR) SRCDIR=../$(SRCDIR) PLAT=$(PLAT); cd ..)
++	(cd SRC; $(MAKE) PLAT=$(PLAT); cd ..)
+ 
+ examples : 
+-	(cd EXAMPLES; $(MAKE) LIBDIR=../$(LIBDIR) SRCDIR=../$(SRCDIR) PLAT=$(PLAT))
++	(cd EXAMPLES; $(MAKE) all PLAT=$(PLAT))
+ 
+ tests : 
+-	(cd TESTS; $(MAKE) LIBDIR=../$(LIBDIR) SRCDIR=../$(SRCDIR) PLAT=$(PLAT))
++	(cd TESTS; $(MAKE) PLAT=$(PLAT) BASE=foo LIB=bar)
+ 
+ #---------------------------------------------------------------------------
+ clean :

@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Warning: YAXT needs to be run from within an salloc, with a shared buildpath
+# Example:
+# salloc --partition=devel --nodes=1
+# eb --buildpath=$HOME/temp  YAXT-0.9.0-gpsmpi-2019a.eb
+
+easyblock = 'ConfigureMake'
+
+name = 'YAXT'
+version = '0.9.0'
+
+homepage = 'https://www.dkrz.de/redmine/projects/yaxt'
+description = """Yet Another eXchange Tool"""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2020'}
+toolchainopts = {'usempi': True}
+
+source_urls = ['https://www.dkrz.de/redmine/attachments/download/498/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['d3673e88c1cba3b77e0821393b94b5952d8ed7dc494305c8cf93e7ebec19483c']
+
+preconfigopts = 'MPI_LAUNCH="$(which srun)"'
+
+sanity_check_paths = {
+    'files': ["include/yaxt.h", "include/yaxt.mod", "lib/libyaxt.a", "lib/libyaxt.so"],
+    'dirs': ["include/xt"],
+}
+
+moduleclass = 'tools'

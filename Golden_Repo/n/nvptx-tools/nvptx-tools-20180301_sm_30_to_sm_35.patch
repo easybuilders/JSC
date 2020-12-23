@@ -1,0 +1,12 @@
+diff -ruN nvptx-tools-5f6f343a302d620b0868edab376c00b15741e39e.orig/nvptx-as.c nvptx-tools-5f6f343a302d620b0868edab376c00b15741e39e/nvptx-as.c
+--- nvptx-tools-5f6f343a302d620b0868edab376c00b15741e39e.orig/nvptx-as.c	2018-03-01 18:31:24.000000000 +0100
++++ nvptx-tools-5f6f343a302d620b0868edab376c00b15741e39e/nvptx-as.c	2020-07-15 23:33:06.804514239 +0200
+@@ -1047,7 +1047,7 @@
+   FILE *out = stdout;
+   bool verbose __attribute__((unused)) = false;
+   int verify = -1;
+-  const char *smver = "sm_30";
++  const char *smver = "sm_35";
+ 
+   int o;
+   int option_index = 0;

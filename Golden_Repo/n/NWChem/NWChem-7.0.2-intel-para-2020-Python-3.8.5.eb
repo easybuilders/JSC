@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'NWChem'
+version = '7.0.2'
+versionsuffix = '-Python-%(pyver)s'
+local_verdate = '2020-10-12'
+local_revision = 'b9985dfa'
+
+
+homepage = 'https://nwchemgit.github.io'
+description = """NWChem aims to provide its users with computational chemistry tools that are scalable both in
+ their ability to treat large scientific computational chemistry problems efficiently, and in their use of available
+ parallel computing resources from high-performance parallel supercomputers to conventional workstation clusters.
+ NWChem software can handle: biomolecules, nanostructures, and solid-state; from quantum to classical, and all
+ combinations; Gaussian basis functions or plane-waves; scaling from one to thousands of processors; properties
+ and relativity."""
+
+
+toolchain = {'name': 'intel-para', 'version': '2020'}
+toolchainopts = {'i8': True}
+source_urls = ['https://github.com/nwchemgit/nwchem/releases/download/v%(version)s-release/']
+sources = ['nwchem-%%(version)s-release.revision-%s-src.%s.tar.bz2' % (local_revision, local_verdate)]
+patches = [
+    'NWChem_fix-date.patch',
+]
+
+dependencies = [('Python', '3.8.5')]
+
+# This easyconfig is using the default for armci_network (OPENIB) and
+# thus needs infiniband libraries.
+osdependencies = [
+    ('libibverbs-dev', 'libibverbs-devel', 'rdma-core-devel'),
+    ('libibumad-dev', 'libibumad-devel'),
+]
+
+modules = 'all python'
+
+moduleclass = 'chem'

@@ -91,9 +91,6 @@ exts_list = [
             'paycheck-1.0.2_setup-open-README-utf8.patch',
         ],
     }),
-    ('argparse', '1.4.0', {
-        'source_urls': ['https://pypi.python.org/packages/source/a/argparse/'],
-    }),
     ('pbr', '5.4.5', {
         'source_urls': ['https://pypi.python.org/packages/source/p/pbr/'],
     }),
@@ -441,6 +438,19 @@ exts_list = [
     }),
     ('hypothesis', '4.44.2', {
         'source_urls': ['https://pypi.python.org/packages/source/h/hypothesis/'],
+    }),
+    ('coverage', '5.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/coverage/'],
+        'checksums': [('sha256', 'f90bfc4ad18450c80b024036eaf91e4a246ae287701aaa88eaebebf150868052')],
+    }),
+    ('msgpack', '0.6.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/msgpack/'],
+        'checksums': [('sha256', 'ea3c2f859346fcd55fc46e96885301d9c2f7a36d453f5d8f2967840efa1e1830')],
+    }),
+    ('pyzmq', '18.1.0', {
+        'modulename': 'zmq',
+        'source_urls': ['https://pypi.python.org/packages/source/p/pyzmq/'],
+        'checksums': [('sha256', '93f44739db69234c013a16990e43db1aa0af3cf5a4b8b377d028ff24515fbeb3')],
     }),
 ]
 

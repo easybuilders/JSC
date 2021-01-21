@@ -48,7 +48,7 @@ builddependencies = [
 
 # Removed ('hwloc', '2.0.3') from dependencies due to runtime failures.
 dependencies = [
-    ('CUDA', '11.0', '', True),
+    ('CUDA', '11.0', '', SYSTEM),
 ]
 
 configopts = '-DCMAKE_PREFIX_PATH=$EBROOTHWLOC -DMPIEXEC_MAX_NUMPROCS="24" '

@@ -8,6 +8,7 @@ description = 'I/O forwarding for SIONlib'
 
 
 toolchain = {'name': 'gpsmpi', 'version': '2020'}
+toolchainopts = {'pic': True}
 
 dependencies = [('Boost', '1.74.0')]
 

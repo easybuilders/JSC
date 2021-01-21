@@ -20,11 +20,14 @@ checksums = ['5f9a3ee85db4ea1d3b1fa9159352aebc2af72732fc2f58c96a3f0768dba0e9aa']
 
 builddependencies = [
     ('binutils', '2.34'),
+    ('Java', '15', '', SYSTEM)
 ]
 
 dependencies = [
     ('zlib', '1.2.11'),
     ('Szip', '2.1.1'),
 ]
+
+configopts = '--enable-java'
 
 moduleclass = 'data'

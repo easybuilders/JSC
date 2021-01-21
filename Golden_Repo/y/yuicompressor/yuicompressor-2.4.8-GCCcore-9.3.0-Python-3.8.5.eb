@@ -22,7 +22,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.8.5'),
-    ('Java', '1.8', '', True),
+    ('Java', '1.8', '', SYSTEM),
 ]
 
 use_pip = True

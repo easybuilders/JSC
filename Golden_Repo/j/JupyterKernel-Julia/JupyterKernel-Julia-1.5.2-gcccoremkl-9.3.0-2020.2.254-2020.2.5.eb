@@ -1,0 +1,117 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'JupyterKernel-Julia'
+version = '1.5.2'
+local_jupyterver = '2020.2.5'
+versionsuffix = '-' + local_jupyterver
+
+local_pysuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/IRkernel/IRkernel'
+description = """
+Native R kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('Jupyter', local_jupyterver, local_pysuffix),
+    ('Julia', version),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+exts_list = [
+    ('julia', '0.5.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'b13207125709fdba069a25c4e54ff366f0bc308807b2aa0f3b66924101799c58')]),
+        ('use_pip',  True),
+    ])),
+]
+
+local_jupyter_path = 'share/jupyter'
+local_julia_depot_path = "%(installdir)s/share/julia/site/"  # for Julia packages needed for Jupyter
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+modextravars = {
+    'JULIA_DEPOT_PATH': local_julia_depot_path,
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # Create virtual environment to ensure we install in the correct directory !!!
+    'python3 -m venv %(installdir)s --system-site-packages',
+    (
+        '{ cat > %%(builddir)s/env.sh; } << \'EOF\'\n'
+        '#!/bin/bash\n'
+        'source %%(installdir)s/bin/activate\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:${PYTHONPATH}\n'
+        ''
+        'export JULIA_DEPOT_PATH=%s\n'
+        'export JUPYTER_DATA_DIR=%%(installdir)s/%s\n'
+        'EOF'
+    ) % (local_julia_depot_path, local_jupyter_path),
+
+    # installs ijulia in JULIA_DEPOT_PATH and kernel in $JUPYTER_DATA_DIR/kernels
+    'source %(builddir)s/env.sh && julia -e \'using Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")\'',
+
+    # to trigger the precompilation
+    'source %(builddir)s/env.sh && julia -e \'using IJulia\'',
+
+    # adjust permissions of precompiled files
+    'for i in $(find %s); do chmod +r $i; done' % local_julia_depot_path,
+
+    # configure Python<->Julia bridge (of python package julia)
+    'source %(builddir)s/env.sh && python -c "import julia; julia.install()"',
+
+    # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+    'rm %(installdir)s/pyvenv.cfg',
+    'rm %(installdir)s/bin/python',
+    'rm %(installdir)s/bin/python3',
+    'rm %(installdir)s/bin/activate',
+    'rm %(installdir)s/bin/activate*',
+    'rm %(installdir)s/bin/easy_install*',
+    'rm %(installdir)s/bin/pip*',
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+# full_sanity_check = True
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/julia-%(version_major_minor)s/kernel.json',
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages',
+        'share/jupyter/kernels/julia-%(version_major_minor)s/',
+    ],
+}
+
+moduleclass = 'tools'

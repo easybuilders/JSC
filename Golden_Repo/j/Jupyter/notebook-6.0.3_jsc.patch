@@ -1,0 +1,143 @@
+diff
+--- notebook-6.0.3.orig/notebook/services/contents/filecheckpoints.py   2020-04-28 06:26:51.384296390 +0200
++++ notebook-6.0.3/notebook/services/contents/filecheckpoints.py        2020-04-28 06:30:55.139342947 +0200
+@@ -14,7 +14,7 @@
+ 
+ from jupyter_core.utils import ensure_dir_exists
+ from ipython_genutils.py3compat import getcwd
+-from traitlets import Unicode
++from traitlets import Unicode, Integer
+ 
+ from notebook import _tz as tz
+ 
+@@ -28,6 +28,35 @@
+     you want file-based checkpoints with another ContentsManager.
+     """
+ 
++    checkpoint_permissions = Integer(
++        0o644,
++        config=True,
++        help="""The permission of your checkpoint files.
++
++        By default, it is 0o644
++        """,
++    )
++
++    restore_permissions = Integer(
++        0o644,
++        config=True,
++        help="""The permission of a restored checkpoint.
++
++        By default, it is 0o644
++        """,
++    )
++
++    checkpoint_dir_umask = Integer(
++        0o022,
++        config=True,
++        help="""The umask for the checkpoint directory.
++
++        Keep in mind that it depends on your system umask, too.
++
++        By default, it is 0o022
++        """,
++    )
++
+     checkpoint_dir = Unicode(
+         '.ipynb_checkpoints',
+         config=True,
+@@ -50,21 +79,29 @@
+     # ContentsManager-dependent checkpoint API
+     def create_checkpoint(self, contents_mgr, path):
+         """Create a checkpoint."""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         checkpoint_id = u'checkpoint'
+         src_path = contents_mgr._get_os_path(path)
+         dest_path = self.checkpoint_path(checkpoint_id, path)
+         self._copy(src_path, dest_path)
+-        return self.checkpoint_model(checkpoint_id, dest_path)
++        os.chmod(dest_path, self.checkpoint_permissions)
++        ret = self.checkpoint_model(checkpoint_id, dest_path)
++        os.umask(original_umask)
++        return ret
+ 
+     def restore_checkpoint(self, contents_mgr, checkpoint_id, path):
+         """Restore a checkpoint."""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         src_path = self.checkpoint_path(checkpoint_id, path)
+         dest_path = contents_mgr._get_os_path(path)
+         self._copy(src_path, dest_path)
++        os.chmod(dest_path, self.restore_permissions)
++        os.umask(original_umask)
+ 
+     # ContentsManager-independent checkpoint API
+     def rename_checkpoint(self, checkpoint_id, old_path, new_path):
+         """Rename a checkpoint from old_path to new_path."""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         old_cp_path = self.checkpoint_path(checkpoint_id, old_path)
+         new_cp_path = self.checkpoint_path(checkpoint_id, new_path)
+         if os.path.isfile(old_cp_path):
+@@ -75,9 +112,11 @@
+             )
+             with self.perm_to_403():
+                 shutil.move(old_cp_path, new_cp_path)
++        os.umask(original_umask)
+ 
+     def delete_checkpoint(self, checkpoint_id, path):
+         """delete a file's checkpoint"""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         path = path.strip('/')
+         cp_path = self.checkpoint_path(checkpoint_id, path)
+         if not os.path.isfile(cp_path):
+@@ -86,23 +125,29 @@
+         self.log.debug("unlinking %s", cp_path)
+         with self.perm_to_403():
+             os.unlink(cp_path)
++        os.umask(original_umask)
+ 
+     def list_checkpoints(self, path):
+         """list the checkpoints for a given file
+ 
+         This contents manager currently only supports one checkpoint per file.
+         """
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         path = path.strip('/')
+         checkpoint_id = "checkpoint"
+         os_path = self.checkpoint_path(checkpoint_id, path)
+         if not os.path.isfile(os_path):
++            os.umask(original_umask)
+             return []
+         else:
+-            return [self.checkpoint_model(checkpoint_id, os_path)]
++            ret = self.checkpoint_model(checkpoint_id, os_path)
++            os.umask(original_umask)
++            return [ret]
+ 
+     # Checkpoint-related utilities
+     def checkpoint_path(self, checkpoint_id, path):
+         """find the path to a checkpoint"""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         path = path.strip('/')
+         parent, name = ('/' + path).rsplit('/', 1)
+         parent = parent.strip('/')
+@@ -117,16 +162,19 @@
+         with self.perm_to_403():
+             ensure_dir_exists(cp_dir)
+         cp_path = os.path.join(cp_dir, filename)
++        os.umask(original_umask)
+         return cp_path
+ 
+     def checkpoint_model(self, checkpoint_id, os_path):
+         """construct the info dict for a given checkpoint"""
++        original_umask = os.umask(self.checkpoint_dir_umask)
+         stats = os.stat(os_path)
+         last_modified = tz.utcfromtimestamp(stats.st_mtime)
+         info = dict(
+             id=checkpoint_id,
+             last_modified=last_modified,
+         )
++        os.umask(original_umask)
+         return info
+ 
+     # Error Handling
+

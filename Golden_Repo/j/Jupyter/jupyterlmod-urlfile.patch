@@ -1,0 +1,37 @@
+diff -Naur jupyter-lmod-2.0.1/jupyterlab/src/index.ts jupyter-lmod-2.0.1_devel/jupyterlab/src/index.ts
+--- jupyter-lmod-2.0.1/jupyterlab/src/index.ts	2020-10-05 17:08:01.000000000 +0200
++++ jupyter-lmod-2.0.1_devel/jupyterlab/src/index.ts	2020-11-25 11:55:24.000000000 +0100
+@@ -244,7 +244,13 @@
+   const namespace = 'server-proxy';
+   const command = namespace + ':' + 'open';
+   for (let server_process of data.server_processes) {
+-    const url = PageConfig.getBaseUrl() + server_process.name + '/';
++
++    let urlfile = '';
++    if (server_process.launcher_entry.urlfile) {
++       urlfile =  server_process.launcher_entry.urlfile;
++    }
++    const url = PageConfig.getBaseUrl() + server_process.name + '/' + urlfile;
++    
+     const title = server_process.launcher_entry.title;
+     const newBrowserTab = server_process.new_browser_tab;
+     const id = namespace + ':' + server_process.name;
+diff -Naur jupyter-lmod-2.0.1/jupyterlmod/static/main.js jupyter-lmod-2.0.1_devel/jupyterlmod/static/main.js
+--- jupyter-lmod-2.0.1/jupyterlmod/static/main.js	2020-10-05 17:08:01.000000000 +0200
++++ jupyter-lmod-2.0.1_devel/jupyterlmod/static/main.js	2020-11-25 11:55:24.000000000 +0100
+@@ -316,10 +316,14 @@
+                 .addClass('new-' + server_process.name);
+ 
+             /* create our list item's link */
++            let urlfile = '';
++            if (server_process.launcher_entry.urlfile) {
++                urlfile =  server_process.launcher_entry.urlfile;
++            }
+             let entry_link = $('<a>')
+                 .attr('role', 'menuitem')
+                 .attr('tabindex', '-1')
+-                .attr('href', base_url + server_process.name + '/')
++                .attr('href', base_url + server_process.name + '/' + urlfile)
+                 .attr('target', '_blank')
+                 .text(server_process.launcher_entry.title);
+ 

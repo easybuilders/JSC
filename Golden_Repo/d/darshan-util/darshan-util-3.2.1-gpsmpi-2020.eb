@@ -47,6 +47,8 @@ prebuildopts = 'cd %s;' % local_subpath
 
 preinstallopts = 'cd %s;' % local_subpath
 
+configopts = '--enable-hdf5-mod=$EBROOTHDF5'
+
 sanity_check_paths = {
     'files': ["bin/darshan-job-summary.pl"],
     'dirs': []
@@ -55,6 +57,7 @@ sanity_check_paths = {
 dependencies = [
     ("gnuplot", "5.2.8"),
     ("Perl", "5.32.0"),
+    ("HDF5", "1.10.6"),
 ]
 
 moduleclass = 'lib'

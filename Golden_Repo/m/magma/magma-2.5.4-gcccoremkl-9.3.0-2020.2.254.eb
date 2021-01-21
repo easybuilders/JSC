@@ -22,7 +22,7 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('CUDA', '11.0', '', True),
+    ('CUDA', '11.0', '', SYSTEM),
 ]
 
 # make sure both static and shared libs are built

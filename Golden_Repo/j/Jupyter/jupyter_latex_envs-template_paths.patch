@@ -1,0 +1,48 @@
+diff -Naur jupyter_latex_envs.orig/src/latex_envs/latex_envs.py jupyter_latex_envs/src/latex_envs/latex_envs.py
+--- jupyter_latex_envs.orig/src/latex_envs/latex_envs.py	2020-11-22 17:04:43.617982112 +0100
++++ jupyter_latex_envs/src/latex_envs/latex_envs.py	2020-11-22 17:05:35.063217000 +0100
+@@ -301,12 +301,12 @@
+         )
+         c.merge(super(LenvsHTMLExporter, self).default_config)
+         if os.path.isdir(os.path.join(os.path.dirname(__file__), 'templates')):
+-            c.TemplateExporter.template_path = ['.',
++            c.TemplateExporter.template_paths = ['.',
+                                                 os.path.join(os.path.dirname(__file__), 'templates')]
+         else:
+             from jupyter_contrib_nbextensions.nbconvert_support import (
+                 templates_directory)
+-            c.TemplateExporter.template_path = ['.', templates_directory()]
++            c.TemplateExporter.template_paths = ['.', templates_directory()]
+ 
+         return c
+ 
+@@ -364,12 +364,12 @@
+         )
+         c.merge(super(LenvsSlidesExporter, self).default_config)
+         if os.path.isdir(os.path.join(os.path.dirname(__file__), 'templates')):
+-            c.TemplateExporter.template_path = ['.',
++            c.TemplateExporter.template_paths = ['.',
+                                                 os.path.join(os.path.dirname(__file__), 'templates')]
+         else:
+             from jupyter_contrib_nbextensions.nbconvert_support import (
+                 templates_directory)
+-            c.TemplateExporter.template_path = ['.', templates_directory()]
++            c.TemplateExporter.template_paths = ['.', templates_directory()]
+ 
+         return c
+ 
+@@ -483,12 +483,12 @@
+         c.merge(super(LenvsLatexExporter, self).default_config)
+ 
+         if os.path.isdir(os.path.join(os.path.dirname(__file__), 'templates')):
+-            c.TemplateExporter.template_path = ['.',
++            c.TemplateExporter.template_paths = ['.',
+                                                 os.path.join(os.path.dirname(__file__), 'templates')]
+         else:
+             from jupyter_contrib_nbextensions.nbconvert_support import (
+                 templates_directory)
+-            c.TemplateExporter.template_path = ['.', templates_directory()]
++            c.TemplateExporter.template_paths = ['.', templates_directory()]
+         return c
+ 
+     def tocrefrm(self, text):

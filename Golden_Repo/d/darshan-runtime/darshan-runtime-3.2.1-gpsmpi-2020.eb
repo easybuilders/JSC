@@ -44,7 +44,8 @@ sources = ['ftp://ftp.mcs.anl.gov/pub/darshan/releases/darshan-%s.tar.gz' % vers
 
 local_subpath = 'darshan-runtime'
 preconfigopts = 'cd %s;' % local_subpath
-configopts = '--with-mem-align=8 --with-log-path-by-env=DARSHAN_LOG_PATH --with-jobid-env=SLURM_JOBID CC=mpicc'
+configopts = '--with-mem-align=8 --with-log-path-by-env=DARSHAN_LOG_PATH '
+configopts += ' --with-jobid-env=SLURM_JOBID CC=mpicc --enable-hdf5-mod=$EBROOTHDF5'
 
 prebuildopts = 'cd %s;' % local_subpath
 
@@ -54,5 +55,10 @@ sanity_check_paths = {
     'files': ["lib/libdarshan.so"],
     'dirs': []
 }
+
+dependencies = [
+    ("HDF5", "1.10.6"),
+]
+
 
 moduleclass = 'lib'

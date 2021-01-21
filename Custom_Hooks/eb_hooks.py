@@ -130,9 +130,12 @@ def parse_hook(ec, *args, **kwargs):
     # located in the search path, warn that it's dependencies will (most probably)
     # not be resolved
     if build_option("robot"):
-        search_paths = build_option("search_paths")
+        search_paths = build_option("search_paths") or []
         robot_paths = list(set(build_option("robot_path") + build_option("robot")))
-        ec_dir_path = os.path.dirname(os.path.abspath(ec.path))
+        if ec.path:
+            ec_dir_path = os.path.dirname(os.path.abspath(ec.path))
+        else:
+            ec_dir_path = ''
         if any(search_path in ec_dir_path for search_path in search_paths) and not any(
             robot_path in ec_dir_path for robot_path in robot_paths
         ):

@@ -24,8 +24,8 @@ builddependencies = [
     ('pybind11', '2.5.0', versionsuffix),
 ]
 dependencies = [
-    ('CUDA', local_cudaver, '', True),
-    ('cuDNN', '8.0.2.39', '-CUDA-%s' % local_cudaver, True),
+    ('CUDA', local_cudaver, '', SYSTEM),
+    ('cuDNN', '8.0.2.39', '-CUDA-%s' % local_cudaver, SYSTEM),
     ('NCCL', '2.8.3-1', '-CUDA-%s' % local_cudaver),
     ('Python', '3.8.5'),
     ('h5py', '2.10.0', '-serial%s' % versionsuffix),

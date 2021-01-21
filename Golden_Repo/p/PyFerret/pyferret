@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -z "${FER_LIBS}" ]; then
+    echo "**ERROR: Ferret environment variables are not defined"
+    exit 1
+fi
+python -i -c "import sys; import pyferret; (errval, errmsg) = pyferret.init(sys.argv[1:], True)" $*

@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'JupyterKernel-R'
+version = '4.0.2'
+local_jupyterver = '2020.2.5'
+versionsuffix = '-' + local_jupyterver
+
+local_pysuffix = '-Python-3.8.5'
+
+homepage = 'https://github.com/IRkernel/IRkernel'
+description = """
+Native R kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
+dependencies = [
+    ('Jupyter', local_jupyterver, local_pysuffix),
+    ('R', '4.0.2', '-nompi'),
+]
+
+modextrapaths = {
+    'JUPYTER_PATH': 'share/jupyter',  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # Jupyter Kernel: R - https://github.com/IRkernel/IRkernel
+    # installs R kernel in $EBROOTJUPYTER/share/jupyter/kernels
+    'R -e \'IRkernel::installspec(name="ir40", displayname="R 4.0", prefix="%(installdir)s")\'',
+
+    # force options(bitmapType='cairo') -> https://github.com/IRkernel/IRkernel/issues/388
+    (
+        'sed -i "s#IRkernel::main()#options(bitmapType=\'cairo\') ; IRkernel::main()#g" '
+        '       %(installdir)s/share/jupyter/kernels/ir40/kernel.json'
+    ),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/ir40/kernel.json',
+    ],
+    'dirs': [
+        'share/jupyter/kernels/ir40/',
+    ],
+}
+
+moduleclass = 'tools'

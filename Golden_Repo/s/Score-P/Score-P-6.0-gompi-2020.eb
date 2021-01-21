@@ -33,7 +33,7 @@ patches = [
 ]
 
 builddependencies = [
-    ('CUDA', '11.0', '', True),
+    ('CUDA', '11.0', '', SYSTEM),
     ('CubeLib', '4.5'),
     ('CubeWriter', '4.5'),
     # Unwinding/sampling support (optional):

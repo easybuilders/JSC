@@ -37,7 +37,7 @@ dependencies = [
     ('Ghostscript', '9.52'),
     ('GLib', '2.64.4'),
     ('GTS', '0.7.6'),
-    ('Java', '1.8', '', True),
+    ('Java', '1.8', '', SYSTEM),
     ('libpng', '1.6.37'),
     ('librsvg', '2.48.8'),
     ('Pango', '1.44.7'),

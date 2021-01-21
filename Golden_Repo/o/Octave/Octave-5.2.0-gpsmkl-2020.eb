@@ -35,8 +35,9 @@ dependencies = [
     ('GLPK', '4.65'),
     ('GL2PS', '1.4.2'),
     ('gnuplot', '5.2.8'),
-    ('Java', '1.8', '', True),
+    ('Java', '1.8', '', SYSTEM),
     ('OpenGL', '2020'),
+    ('freeglut', '3.2.1'),
     ('zlib', '1.2.11'),
     ('Qhull', '2020.1'),
     ('Qt5', '5.14.2'),
@@ -61,6 +62,6 @@ sanity_check_paths = {
     'dirs': []
 }
 
-sanity_check_commands = [('octave', '--eval "1+2"')]
+sanity_check_commands = [('octave-cli', '--eval "1+2"')]
 
 moduleclass = 'math'

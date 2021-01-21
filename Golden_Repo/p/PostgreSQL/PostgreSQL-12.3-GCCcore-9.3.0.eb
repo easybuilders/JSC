@@ -25,7 +25,7 @@ toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
 osdependencies = [('openssl-devel', 'libssl-dev')]
 
 dependencies = [
-    ('Java', '1.8', '', True),
+    ('Java', '1.8', '', SYSTEM),
     ('libreadline', '8.0'),
     ('zlib', '1.2.11'),
 ]

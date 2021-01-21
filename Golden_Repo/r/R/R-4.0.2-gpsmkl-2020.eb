@@ -30,7 +30,7 @@ dependencies = [
     ('libpng', '1.6.37'),  # for plotting in R
     ('libjpeg-turbo', '2.0.5'),  # for plottting in R
     ('LibTIFF', '4.1.0'),
-    ('Java', '1.8', '', True),
+    ('Java', '1.8', '', SYSTEM),
     ('Tk', '8.6.10'),  # for tcltk
     ('cURL', '7.71.1'),  # for RCurl
     ('libxml2', '2.9.10'),  # for XML
@@ -469,8 +469,8 @@ exts_list = [
     ('pkgbuild', '1.0.7', {
         'checksums': ['29bb38a38202ba780d2d46aeca0a6e2f052653e4a83891ec38d19bebd131a971'],
     }),
-    ('rstudioapi', '0.11', {
-        'checksums': ['13e07fb7e2eba8cf1d885db2721901d676d219a1042d7ef5d166125e4905306b'],
+    ('rstudioapi', '0.13', {
+        'checksums': ['aac35bbdcb4a8e8caba943bc8a2b98120e8940b80cd1020224bb1a26ff776d8b'],
     }),
     ('pkgload', '1.0.2', {
         'checksums': ['3186564e690fb05eabe76e1ac0bfd4312562c3ac8794b29f8850399515dcf27c'],
@@ -2543,6 +2543,28 @@ exts_list = [
     }),
     ('IRkernel', '1.1.1', {
         'checksums': ['f5a129168f44bdda6da8cc907189a2737f692d427529515d87312a17dbd806f8'],
+    }),
+    # language server support
+    ('collections', '0.3.5', {
+        'checksums': ['bf76ab5c6a8082b6bb70b9bf3bdb30658e823e3b7b28cf7be7e8a87d117a7114'],
+    }),
+    ('xmlparsedata', '1.0.4', {
+        'checksums': ['387b13c25bea9ddc0a39b817c17c199b86ab9acafa328daae2233a9ca577fb9c'],
+    }),
+    ('cyclocomp', '1.1.0', {
+        'checksums': ['cdbf65f87bccac53c1527a2f1269ec7840820c18503a7bb854910b30b71e7e3e'],
+    }),
+    ('lintr', '2.0.1', {
+        'checksums': ['fe0723757b653ef83ec7a5005d0a7524cd917d646d35a5627ee639158881ce93'],
+    }),
+    ('styler', '1.3.2', {
+        'checksums': ['3fcf574382c607c2147479bad4f9fa8b823f54fb1462d19ec4a330e135a44ff1'],
+    }),
+    ('mockery', '0.4.2', {
+        'checksums': ['988e249c366ee7faf277de004084cf5ca24b5c8a8c6e3842f1b1362ce2f7ea9b'],
+    }),
+    ('languageserver', '0.3.8', {
+        'checksums': ['371db6976d6066d654c9d31f911dba667c1f8ceb4ab67da34d44037b66f3ca9b'],
     }),
 ]
 

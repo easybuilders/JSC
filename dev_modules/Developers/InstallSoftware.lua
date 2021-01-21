@@ -348,5 +348,8 @@ if mode()=="load" then
     end
 end
 
+-- Add tools directory to path
+prepend_path("PATH", pathJoin(common_eb_path, stage, 'bin'))
+
 -- Finally, set EB to use python3
 setenv("EB_PYTHON", "python3")

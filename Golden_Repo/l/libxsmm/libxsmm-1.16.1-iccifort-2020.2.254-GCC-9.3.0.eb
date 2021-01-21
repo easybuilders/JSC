@@ -15,7 +15,7 @@ sources = ['%(version)s.tar.gz']
 source_urls = ['https://github.com/hfp/libxsmm/archive/']
 
 dependencies = [
-    ('imkl', '2020.2.254', '', True),
+    ('imkl', '2020.2.254', '', SYSTEM),
 ]
 
 # install both static and dynamic version

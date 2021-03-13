@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-Matlab'
+version = '0.1.0'
+
+local_jupyterver = '2020.2.6'
+versionsuffix = '-' + local_jupyterver
+
+homepage = ''
+description = """
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('Jupyter', local_jupyterver, '-Python-%(pyver)s'),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+exts_list = [
+    ('jupyter-matlab-proxy', '0.1.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://github.com/mathworks/jupyter-matlab-proxy/archive/']),
+        ('source_tmpl', '%(version)s.tar.gz'),
+        ('checksums', [('sha256', '4be1f317681cb1ec5e24ee0bad82e4c8317026edb2b29c4bb4176173cd7eb623')]),
+    ])),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

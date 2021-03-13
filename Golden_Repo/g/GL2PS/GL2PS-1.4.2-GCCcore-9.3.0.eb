@@ -17,6 +17,7 @@ sources = [SOURCELOWER_TGZ]
 builddependencies = [
     ('binutils', '2.34'),
     ('CMake', '3.18.0'),
+    ('texinfo', '6.7'),
 ]
 
 dependencies = [

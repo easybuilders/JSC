@@ -34,6 +34,7 @@ patches = [
 
 builddependencies = [
     ('CMake', '3.18.0'),
+    ('git', '2.28.0'),
 ]
 
 dependencies = [
@@ -56,6 +57,7 @@ dependencies = [
     ('netCDF-C++4', '4.3.1'),
     ('netCDF-Fortran', '4.5.3'),
     ('mpi4py', '3.0.3', '-Python-%(pyver)s'),
+    ('nlohmann-json', '3.9.1'),  # for ParFlow plugin
     # ('VTK', '8.2.0', '-Python-%(pyver)s', ('gcccoremkl', '8.3.0-2019.3.199')),
     # ('VTKm','1.1.0','-AVX2'),
     ('Qt5', '5.14.2'),
@@ -66,6 +68,10 @@ dependencies = [
 
 separate_build_dir = True
 # parallel = 24
+
+# ensure we do not use a too advanced GL-version at config/build-time, which might not be available at run-time
+preconfigopts = "export __EGL_VENDOR_LIBRARY_FILENAMES=${EBROOTOPENGL}/share/glvnd/egl_vendor.d/50_mesa.json && "
+prebuildopts = "export __EGL_VENDOR_LIBRARY_FILENAMES=${EBROOTOPENGL}/share/glvnd/egl_vendor.d/50_mesa.json && "
 
 ########################################################################################
 # check ParaView Superbuild options                                                    #
@@ -228,8 +234,7 @@ configopts += '-DModule_vtkFiltersSelection=ON '
 configopts += '-DModule_vtkFiltersTopology=ON '
 
 # --- coupling --- #
-configopts += '-DPARAVIEW_USE_VISITBRIDGE=ON '
-configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '
+# configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '  # variable is obsolete and no longer has any effect
 
 # --- development & testing --- #
 configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON '
@@ -261,7 +266,14 @@ configopts += '-DNETCDF_CXX_ROOT=$EBROOTNETCDFMINCPLUSPLUS '
 configopts += '-DNETCDF_F77_ROOT=$EBROOTNETCDFMINFORTRAN '
 configopts += '-DNETCDF_F90_ROOT=$EBROOTNETCDFMINFORTRAN '
 
-# --- ParaView Plugins --- #
+# --- ParaView Extra-Reader --- #
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_ParFlow=ON '
+
+configopts += '-DPARAVIEW_ENABLE_VISITBRIDGE=ON '
+configopts += '-DVISIT_BUILD_READER_Nek5000=ON '
+# configopts += '-DVISIT_BUILD_READER_Boxlib3D=ON '  # req. external dependency
+# configopts += '-DVISIT_BUILD_READER_Mili=ON '  # req. external dependency
+# configopts += '-DVISIT_BUILD_READER_Silo=ON '  # req. external dependency
 
 # --- ParaView Plugin Autoload --- #
 # configopts += '-DPARAVIEW_AUTOLOAD_PLUGIN_AnalyzeNIfTIIO=ON '
@@ -321,9 +333,9 @@ postinstallcmds = ['python -m compileall %(installdir)s/lib64/python3.6/site-pac
 
 modextravars = {'CUDA_VISIBLE_DEVICES': '0,1'}
 
-# OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.2 -> clame to fully support 3.2
-modextravars = {'MESA_GL_VERSION_OVERRIDE': '3.2'}
-# modextravars = {'MESA_GLSL_VERSION_OVERRIDE': '??'} 
+# OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
+modextravars = {'MESA_GL_VERSION_OVERRIDE': '3.3'}
+modextravars = {'MESA_GLSL_VERSION_OVERRIDE': '330'}
 
 modextravars = {
     #  OpenMP will choose an optimum number of threads by default, which is usually the number of cores

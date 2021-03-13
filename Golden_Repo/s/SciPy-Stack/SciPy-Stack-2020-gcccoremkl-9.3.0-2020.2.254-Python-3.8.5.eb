@@ -68,7 +68,7 @@ exts_list = [
     ('kiwisolver', '1.2.0', dict(list(local_common_opts.items()) + [
         ('source_urls', ['https://pypi.python.org/packages/source/k/kiwisolver']),
     ])),
-    ('matplotlib', '3.3.0', dict(list(local_common_opts.items()) + [
+    ('matplotlib', '3.3.1', dict(list(local_common_opts.items()) + [
         ('source_urls', ['https://pypi.python.org/packages/source/m/matplotlib']),
     ])),
     ('xarray', '0.16.0', dict(list(local_common_opts.items()) + [

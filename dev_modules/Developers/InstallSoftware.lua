@@ -36,6 +36,7 @@ local common_eb_path = pathJoin(fastdata, "swmanage/EasyBuild")
 
 local sources_path = pathJoin(common_eb_path, "sources")
 local gr_path = pathJoin(common_eb_path, stage, "Golden_Repo")
+local overlay_path = pathJoin(common_eb_path, stage, "Overlays")
 local custom_easyblocks_path = pathJoin(common_eb_path, stage, "Custom_EasyBlocks")
 local custom_toolchains_path = pathJoin(common_eb_path, stage, "Custom_Toolchains")
 local custom_mns_path = pathJoin(common_eb_path, stage, "Custom_MNS")
@@ -55,9 +56,9 @@ if mode()=="load" then
                       contact..normal)
         else
             if not (is_devel and (isloaded("Stages/"..stage) or isloaded("Stages/Devel"))) then
-                LmodError(yellow.."Sorry but we only allow installations into Devel stages!\n"..
-                          "If you would like a working installation moved to production please contact: "..
-                          contact..normal)
+                LmodMessage(yellow.."Installation directly in production is possible just to certain directories for\n"..
+                          "selected users. If you would like to be allowed to install in the production stage\n"..
+                          "please contact: "..contact..normal)
             end
         end
     end
@@ -97,7 +98,7 @@ unload("StdEnv")
 
 -- EASYBUILD ENVIRONMENT
 
--- This should be set to only look in the golden repo. We need this here to prepend overlays if needed
+-- This should be set to only look in the golden repo. We need this here to prepend overlays
 setenv("EASYBUILD_ROBOT", gr_path)
 setenv("EASYBUILD_ROBOT_PATHS", gr_path)
 
@@ -115,34 +116,34 @@ if tonumber(nproc) > 64 then
     local maxparallel = "64"
     pushenv("EASYBUILD_PARALLEL", maxparallel)
     if mode()=="load" then
-        LmodMessage(yellow.."   - Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
+        LmodMessage(yellow.."  - Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
     end
 end
 
--- Read systemname to know if we should prepend an overlay
+-- Read systemname to know which overlay we should prepend
 local systemname = capture("cat /etc/FZJ/systemname")
 --Sanitize systemname
 systemname = string.gsub(systemname, "\n", "")
+local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
 
--- Prepend the overlay
-gr_overlay_path = pathJoin(gr_path, systemname.."_overlay")
+-- To support cross-compilation
+if lmod_systemname == "jurecabooster" then
+    systemname = lmod_systemname
+end
+
+-- Set overlay
+gr_overlay_path = pathJoin(overlay_path, systemname.."_overlay")
 prepend_path("EASYBUILD_ROBOT", gr_overlay_path)
 prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
 
 -- Set optarch options for easybuild
-local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
 -- JURECA booster
-if lmod_systemname == "jurecabooster" or systemname == "jurecabooster" then
+if systemname == "jurecabooster" then
     local opt="GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
     if mode()=="load" then
         LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
     end
     pushenv("EASYBUILD_OPTARCH", opt)
-
-    -- Prepend the overlay
-    gr_overlay_path = pathJoin(gr_path, "jurecabooster_overlay")
-    prepend_path("EASYBUILD_ROBOT", gr_overlay_path)
-    prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
 -- JUWELS
 elseif systemname == "juwels" then
     local opt="GCCcore:march=haswell -mtune=haswell"
@@ -175,13 +176,6 @@ elseif systemname == "jusuf" then
     end
     pushenv("EASYBUILD_OPTARCH", opt)
     pushenv("EASYBUILD_PARALLEL", "64")
--- Juropa3
-elseif architecture == "SandyBridge" then
-    local opt="GCC:march=sandybridge -mtune=sandybridge;Intel:xAVX"
-    if mode()=="load" then
-        LmodMessage(yellow.."   - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
 -- Default
 else
     if mode()=="load" then
@@ -213,7 +207,7 @@ setenv("EASYBUILD_SOURCEPATH", sources_path)
 setenv("EASYBUILD_INSTALLPATH", stage_path)
 
 -- Make sure that people build in a unique space so we avoid stepping on each others toes as much as possible
-setenv("EASYBUILD_BUILDPATH", pathJoin("/dev/shm", user, architecture))
+setenv("EASYBUILD_BUILDPATH", pathJoin("/dev/shm", user, systemname))
 
 -- We add our custom Toolchains directory, it must be appended so as not to interfere with the EasyBuild installation
 setenv("EASYBUILD_INCLUDE_TOOLCHAINS", pathJoin(custom_toolchains_path, "\z*.py")..','..pathJoin(custom_toolchains_path, "fft", "\z*.py")..','..pathJoin(custom_toolchains_path, "compiler", "\z*.py"))

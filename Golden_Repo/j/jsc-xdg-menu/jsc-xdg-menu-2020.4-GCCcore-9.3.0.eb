@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'jsc-xdg-menu'
+version = '2020.4'
+
+homepage = ''
+description = """setup JSC`s desktop menu"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = ['https://gitlab.version.fz-juelich.de/goebbert1/jsc-xdg-menu/-/archive/%(version)s/']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = [('sha256', '866afc04be7a8b7068baca0323a0ed88c6bbccf793fd9b3f4f686e6ebc244548')],
+
+extract_sources = True,
+install_cmd = 'cp -a %(builddir)s/%(name)s-%(version)s/* %(installdir)s/'
+
+modextravars = {'XDG_MENU_PREFIX': 'jsc-'}
+modextrapaths = {'PATH': 'bin',
+                 'XDG_CONFIG_DIRS': 'config',
+                 'XDG_DATA_DIRS': 'data'}
+
+sanity_check_paths = {
+    'files': ['README.md', 'config/menus/jsc-applications.menu'],
+    'dirs': ['bin', 'config/menus', 'data/applications', 'data/desktop-directories'],
+}
+
+moduleclass = 'vis'

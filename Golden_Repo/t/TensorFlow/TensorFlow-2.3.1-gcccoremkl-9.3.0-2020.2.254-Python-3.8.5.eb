@@ -90,9 +90,6 @@ exts_list = [
     ('google-auth-oauthlib', '0.4.1', {
         'checksums': ['88d2cd115e3391eb85e1243ac6902e76e77c5fe438b7276b297fbe68015458dd'],
     }),
-    ('Werkzeug', '1.0.1', {
-        'checksums': ['6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c'],
-    }),
     ('absl-py', '0.10.0', {
         'modulename': 'absl',
         'checksums': ['b20f504a7871a580be5268a18fbad48af4203df5d33dbc9272426cb806245a45'],

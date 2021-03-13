@@ -18,7 +18,7 @@ For more information see $PETSC_DIR/lib/petsc/conf/configure-hash.
 
 toolchain = {'name': 'gpsmkl', 'version': '2020'}
 
-toolchainopts = {'usempi': True}
+toolchainopts = {'usempi': True, 'pic': True}
 
 source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
 sources = ['petsc-lite-%s.tar.gz' % version]
@@ -26,17 +26,18 @@ sources = ['petsc-lite-%s.tar.gz' % version]
 builddependencies = [
     ('CMake', '3.18.0')
 ]
-dependencies = [
-    ('HDF5', '1.10.6'),
-]
 
 download_deps = [
     'triangle',
 ]
 
+dependencies = [
+    ('HDF5', '1.10.6'),
+    ('METIS', '5.1.0'),
+    ('ParMETIS', '4.0.3'),
+]
+
 download_deps_static = [
-    'metis',
-    'parmetis',
     'spooles',
     'superlu',
     'superlu_dist',
@@ -44,8 +45,10 @@ download_deps_static = [
     'chaco',
 ]
 
-configopts = '--with-large-file-io --with-cxx-dialect=C++11 --with-pic=0 -fPIC '
+configopts = '--with-large-file-io --with-cxx-dialect=C++11 '
 configopts += '--with-scalar-type=complex '
+
+shared_libs = 1
 
 postinstallcmds = [
     'cp %(builddir)s/petsc-%(version)s.0/src/mat/impls/aij/mpi/mpiaij.h %(installdir)s/include/petsc/private/',

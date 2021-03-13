@@ -1,0 +1,98 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyTorch-Geometric'
+version = '1.6.3'
+local_pytorch_ver = '1.7.0'
+versionsuffix = '-Python-%%(pyver)s-PyTorch-%s' % local_pytorch_ver
+
+homepage = 'https://github.com/rusty1s/pytorch_geometric'
+description = "PyTorch Geometric (PyG) is a geometric deep learning extension library for PyTorch."
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+
+local_pysuff = '-Python-%(pyver)s'
+dependencies = [
+    ('Python', '3.8.5'),
+    ('PyTorch', local_pytorch_ver, local_pysuff),
+    ('numba', '0.51.1', local_pysuff),
+    ('h5py', '2.10.0', '-serial%s' % local_pysuff),
+    ('scikit', '2020', local_pysuff),
+    ('torchvision', '0.8.1', local_pysuff),
+    ('trimesh', '3.8.11', local_pysuff),
+    ('METIS', '5.1.0', '-IDX64'),
+]
+
+use_pip = True
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_download_dep_fail = True
+exts_default_options = {'source_urls': [PYPI_SOURCE]}
+
+exts_list = [
+    ('gdist', '1.0.3', {
+        'source_urls': ['https://pypi.python.org/packages/source/g/gdist'],
+        'modulename': 'gdist',
+    }),
+    ('rdflib', '5.0.0', {
+        'checksums': ['78149dd49d385efec3b3adfbd61c87afaf1281c30d3fcaf1b323b34f603fb155'],
+        'modulename': 'rdflib',
+    }),
+    ('googledrivedownloader', '0.4', {
+        'checksums': ['4b34c1337b2ff3bf2bd7581818efbdcaea7d50ffd484ccf80809688f5ca0e204'],
+        'modulename': 'google_drive_downloader',
+    }),
+    ('plyfile', '0.7.2', {
+        'checksums': ['59a25845d00a51098e6c9147c3c96ce89ad97395e256a4fabb4aed7cf7db5541'],
+    }),
+    ('torch_scatter', '2.0.5', {
+        'patches': ['torch_scatter-2.0.5-sm_70.patch'],
+        'prebuildopts': 'FORCE_CUDA=1',
+        'preinstallopts': 'FORCE_CUDA=1',
+        'source_tmpl': '2.0.5.tar.gz',
+        'source_urls': ['https://github.com/rusty1s/pytorch_scatter/archive/'],
+    }),
+    ('torch_sparse', '0.6.8', {
+        'patches': ['torch_sparse-0.6.8-sm_70.patch'],
+        'prebuildopts': 'FORCE_CUDA=1 WITH_METIS=1',
+        'preinstallopts': 'FORCE_CUDA=1 WITH_METIS=1',
+        'source_tmpl': '0.6.8.tar.gz',
+        'source_urls': ['https://github.com/rusty1s/pytorch_sparse/archive/'],
+    }),
+    ('torch_cluster', '1.5.8', {
+        'patches': ['torch_cluster-1.5.8-sm_70.patch'],
+        'prebuildopts': 'FORCE_CUDA=1',
+        'preinstallopts': 'FORCE_CUDA=1',
+        'source_tmpl': '1.5.8.tar.gz',
+        'source_urls': ['https://github.com/rusty1s/pytorch_cluster/archive/'],
+    }),
+    ('torch_spline_conv', '1.2.0', {
+        'patches': ['torch_spline_conv-1.2.0-sm_70.patch'],
+        'prebuildopts': 'FORCE_CUDA=1',
+        'preinstallopts': 'FORCE_CUDA=1',
+        'source_tmpl': '1.2.0.tar.gz',
+        'source_urls': ['https://github.com/rusty1s/pytorch_spline_conv/archive'],
+    }),
+    ('ase', '3.21.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/a/ase'],
+        'modulename': 'ase',
+    }),
+    ('python-louvain', '0.15', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/python-louvain'],
+        'checksums': ['2a856edfbe29952a60a5538a84bb78cca18f6884a88b9325e85a11c8dd4917eb'],
+        'modulename': 'community',
+    }),
+    ('tqdm', '4.56.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/tqdm'],
+        'modulename': 'tqdm',
+    }),
+    ('torch_geometric', version, {
+        'checksums': ['347f693bebcc8a621eda4867dafab91c04db5f596d7ed7ecb89b242f8ab5c6a1'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'devel'

@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMakeCp'
+
+name = 'PySCF'
+version = '1.7.1'  # last version which requires libxc<5
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'http://www.pyscf.org'
+description = "PySCF is an open-source collection of electronic structure modules powered by Python."
+
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/pyscf/pyscf/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['23ccf6d8bb6a15fe7035e04e6ab00783a069bf38556873c71a6fb672b6159636']
+
+builddependencies = [
+    ('CMake', '3.18.0')
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2020', versionsuffix, ('gcccoremkl', '9.3.0-2020.2.254')),
+    ('h5py', '2.10.0', '-serial' + versionsuffix),
+    ('qcint', '3.0.19', '', ('gcccoremkl', '9.3.0-2020.2.254')),
+    ('libxc', '4.3.4'),  # no gcccore*-version available - only in toolchain GCC
+    ('XCFun', '20190127', versionsuffix, ('gcccoremkl', '9.3.0-2020.2.254')),
+]
+
+start_dir = 'pyscf/lib'
+
+separate_build_dir = True
+
+configopts = "-DBUILD_LIBCINT=OFF -DBUILD_LIBXC=OFF -DBUILD_XCFUN=OFF"
+
+prebuildopts = "export PYSCF_INC_DIR=$EBROOTQCINT/include:$EBROOTLIBXC/lib && "
+
+files_to_copy = ['pyscf']
+
+sanity_check_paths = {
+    'files': ['pyscf/__init__.py'],
+    'dirs': ['pyscf/data', 'pyscf/lib'],
+}
+
+sanity_check_commands = ["python -c 'import pyscf'"]
+
+modextrapaths = {'PYTHONPATH': ''}
+
+moduleclass = 'chem'

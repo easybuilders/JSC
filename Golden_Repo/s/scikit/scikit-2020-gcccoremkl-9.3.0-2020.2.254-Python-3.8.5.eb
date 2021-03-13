@@ -16,6 +16,7 @@ dependencies = [
     ('Python', '3.8.5'),
     ('dask', '2.22.0', versionsuffix),
     ('SciPy-Stack', version, versionsuffix),
+    ('CMake', '3.18.0'),
 ]
 
 # this is a bundle of Python packages
@@ -44,6 +45,15 @@ exts_list = [
     ('scikit-image', '0.17.2', {
         'source_urls': ['https://pypi.python.org/packages/source/s/scikit-image'],
         'modulename': 'skimage',
+    }),
+    ('distro', '1.5.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/d/distro'],
+        'checksums': [('sha256', '0e58756ae38fbd8fc3020d54badb8eae17c5b9dcbed388b17bb55b8a5928df92')],
+    }),
+    ('scikit-build', '0.11.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/s/scikit-build'],
+        'checksums': [('sha256', 'da40dfd69b2456fad1349a894b90180b43712152b8a85d2a00f4ae2ce8ac9a5c')],
+        'modulename': 'skbuild',
     }),
 ]
 

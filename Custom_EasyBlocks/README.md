@@ -2,6 +2,12 @@
 
 Overview of the custom EasyBlocks.
 
+## GCC
+
+- __*added by*__ s.achilles
+- __*needed because*__ nvptx Offloading Support.
+- __*difference compared to upstream*__ Same as upstream EasyBlocks 4.3.2
+- __*can be removed*__ when we upgread EasyBlocks 4.3.2+
 
 ## Quantum ESPRESSO
 

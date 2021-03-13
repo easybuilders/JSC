@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyCUDA'
+version = '2020.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://pypi.python.org/pypi/pycuda/'
+description = """
+PyCUDA lets you access Nvidia‘s CUDA parallel computation API from Python.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = [PYPI_LOWER_SOURCE]
+
+builddependencies = [
+    ('binutils', '2.34')
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2020', versionsuffix, ('gcccoremkl', '9.3.0-2020.2.254')),
+    ('Boost.Python', '1.74.0', '-nompi'),
+    ('CUDA', '11.0', '', SYSTEM),
+]
+
+local_prebuildopts = "./configure.py --cuda-root=$EBROOTCUDA --boost-inc-dir=$EBROOTBOOST/include/boost/ "
+local_prebuildopts += "--boost-lib-dir=$EBROOTBOOST/lib/ --no-use-shipped-boost "
+local_prebuildopts += "--boost-python-libname=boost_python38 && "
+
+use_pip = True
+sanity_pip_check = True
+
+exts_default_options = {
+    'source_urls': [PYPI_LOWER_SOURCE],
+    'source_tmpl': SOURCELOWER_TAR_GZ,
+}
+
+exts_list = [
+    ('pytools', '2020.4.4', {
+        'checksums': ['3645ed839cf4d79cb4bf030f37ddaeecd7fe5e2d6698438cc36c24a1d5168809'],
+    }),
+    (name, version, {
+        'prebuildopts': local_prebuildopts,
+        'use_pip': False,
+        'checksums': ['effa3b99b55af67f3afba9b0d1b64b4a0add4dd6a33bdd6786df1aa4cc8761a5'],
+    }),
+]
+
+moduleclass = 'lang'

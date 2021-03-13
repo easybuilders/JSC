@@ -2,7 +2,7 @@
 easyblock = 'ConfigureMake'
 
 name = 'pscom'
-# Create drop-in replacement version that ensures over-riding behaviour
+# Create drop-in replacement version that ensures overriding behaviour
 version = "5.4-default"
 local_realversion = "5.4.6-1"
 homepage = 'http://www.par-tec.com'

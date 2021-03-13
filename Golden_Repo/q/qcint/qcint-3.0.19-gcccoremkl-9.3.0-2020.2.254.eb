@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'qcint'
+version = '3.0.19'
+
+homepage = 'http://wiki.sunqm.net/libcint'
+description = """libcint is an open source library for analytical Gaussian integrals.
+qcint is an optimized libcint branch for the x86-64 platform."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+toolchainopts = {'optarch': False, 'noopt': True}  # FIXME failing tests
+
+source_urls = ['https://github.com/sunqm/qcint/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['b46354becc284be4638d09e26b2002bf73a2be53c1653c6a6755bfb7778202e5']
+
+builddependencies = [
+    ('CMake', '3.18.0'),
+]
+
+separate_build_dir = True
+
+configopts = "-DENABLE_EXAMPLE=0 -DENABLE_TEST=0"
+
+buildopts = "VERBOSE=1"
+
+sanity_check_paths = {
+    'files': ['include/cint.h', 'lib/libcint.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'lib'

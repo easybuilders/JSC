@@ -15,7 +15,7 @@ diff -Naur jupyter-xprahtml5-proxy.orig/jupyter_xprahtml5_proxy/share/launch_xpr
 +module load Stages/2020
 +module load GCCcore/.9.3.0
 +module load xpra/4.0.4-Python-3.8.5
-+module load jsc-xdg-menu/.2020.3
++module load jsc-xdg-menu/.2020.4
 +
 +if ! command -v xterm &> /dev/null
 +then

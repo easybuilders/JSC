@@ -165,18 +165,26 @@ postinstallcmds = [
     'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libGLESv1_CM_nvidia.so.1 .',
     'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libGLESv2_nvidia.so.2 .',
     # EGL vendor ICDs
-    'echo "{"                                               >  %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "  \"file_format_version\" : \"1.0.0\","          >> %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "  \"ICD\" : {"                                   >> %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "      \"library_path\" : \"libEGL_nvidia.so.0\"" >> %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "  }"                                             >> %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "}"                                               >> %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json',
-    'echo "{"                                               >  %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
-    'echo "  \"file_format_version\" : \"1.0.0\","          >> %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
-    'echo "  \"ICD\" : {"                                   >> %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
-    'echo "      \"library_path\" : \"libEGL_mesa.so.0\""   >> %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
-    'echo "  }"                                             >> %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
-    'echo "}"                                             >> %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json',
+    (
+        '{ cat > %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json; } << \'EOF\'\n'
+        '{\n'
+        '  \"file_format_version\" : \"1.0.0\",\n'
+        '  \"ICD\" : {\n'
+        '     \"library_path\" : \"libEGL_nvidia.so.0\"\n'
+        '  }\n'
+        '}\n'
+        'EOF'
+    ),
+    (
+        '{ cat > %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json; } << \'EOF\'\n'
+        '{\n'
+        '  \"file_format_version\" : \"1.0.0\",\n'
+        '  \"ICD\" : {\n'
+        '     \"library_path\" : \"libEGL_mesa.so.0\"\n'
+        '  }\n'
+        '}\n'
+        'EOF'
+    ),
     # correct pkg-config of GLEW
     'sed -i "/^libdir=/c\libdir=\${exec_prefix}\/lib" %(installdir)s/lib/pkgconfig/glew.pc',
     'sed -i "/^prefix=/c\prefix=%(installdir)s"       %(installdir)s/lib/pkgconfig/glew.pc',

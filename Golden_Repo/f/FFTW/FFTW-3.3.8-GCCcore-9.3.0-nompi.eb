@@ -20,7 +20,7 @@ builddependencies = [
     ('binutils', '2.34'),
 ]
 
-# We hide it since this should be used just for Jupyter and the MPI version should be preferred for normal cases
+# We hide it here since this should be used just for Jupyter and the MPI version should be preferred for normal cases
 hidden = True
 
 # no quad precision, requires GCC v4.6 or higher

@@ -1,0 +1,33 @@
+# Change the mpirun command to "srun".
+# As of writing, only the srun is supported at JSC supercomputers.
+# Author: Metin Cakircali <m.cakircali@fz-juelich.de>
+
+diff -ru OpenFOAM-6-version-6_orig/bin/foamJob OpenFOAM-6-version-6/bin/foamJob
+--- OpenFOAM-6-version-6_orig/bin/foamJob	2018-10-17 11:22:43.363505000 +0200
++++ OpenFOAM-6-version-6/bin/foamJob	2018-10-17 12:12:27.565678000 +0200
+@@ -195,8 +195,8 @@
+     #
+     # Find mpirun
+     #
+-    mpirun=$(findExec mpirun) || error "'mpirun' not found"
+-    mpiopts="-np $NPROCS"
++    mpirun=$(findExec srun) || error "'srun' not found"
++    mpiopts="-n $NPROCS"
+ 
+     #
+     # Check if the machine ready to run parallel
+diff -ru OpenFOAM-6-version-6_orig/bin/tools/RunFunctions OpenFOAM-6-version-6/bin/tools/RunFunctions
+--- OpenFOAM-6-version-6_orig/bin/tools/RunFunctions	2018-10-17 11:22:43.319389000 +0200
++++ OpenFOAM-6-version-6/bin/tools/RunFunctions	2018-10-17 11:24:49.276331000 +0200
+@@ -139,9 +139,9 @@
+     else
+         echo "Running $APP_RUN in parallel on $PWD using $nProcs processes"
+         if [ "$LOG_APPEND" = "true" ]; then
+-            ( mpirun -np $nProcs $APP_RUN -parallel "$@" < /dev/null >> log.$LOG_SUFFIX 2>&1 )
++            ( srun -n $nProcs $APP_RUN -parallel "$@" < /dev/null >> log.$LOG_SUFFIX 2>&1 )
+         else
+-            ( mpirun -np $nProcs $APP_RUN -parallel "$@" < /dev/null > log.$LOG_SUFFIX 2>&1 )
++            ( srun -n $nProcs $APP_RUN -parallel "$@" < /dev/null > log.$LOG_SUFFIX 2>&1 )
+         fi
+     fi
+ }

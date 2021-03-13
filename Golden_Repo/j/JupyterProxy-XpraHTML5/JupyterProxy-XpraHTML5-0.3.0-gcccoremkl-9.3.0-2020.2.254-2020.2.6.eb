@@ -1,0 +1,86 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-XpraHTML5'
+version = '0.3.0'
+
+local_jupyterver = '2020.2.6'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://xpra.org'
+description = """
+Jupyter proxy for Xpra HTML5 sessions.
+Xpra is an open-source multi-platform persistent remote display server and client
+for forwarding applications and desktop screens.
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '9.3.0-2020.2.254'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('xpra', '4.0.4', '-Python-%(pyver)s'),  # check for existance
+    ('jsc-xdg-menu', '2020.4'),  # check for existance
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('Jupyter', local_jupyterver, '-Python-%(pyver)s'),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+exts_list = [
+    ('jupyter-xprahtml5-proxy', '0.3.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'db852682e8e366091e6a3984b60ac3d2e6b3197be2ef074440c11cb09e23b80b')]),
+        ('source_urls', ['https://github.com/FZJ-JSC/jupyter-xprahtml5-proxy/archive/']),
+        ('source_tmpl', 'v0.3.0_devel.tar.gz'),
+        ('modulename', 'jupyter_xprahtml5_proxy'),
+    ])),
+]
+
+postinstallcmds = [
+    # write launch_xpra.sh
+    (
+        '{ cat > %(installdir)s/lib/python%(pyshortver)s/'
+        'site-packages/jupyter_xprahtml5_proxy/share/launch_xpra.sh; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module use \$OTHERSTAGES \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.9.3.0 \n'
+        'module load xpra/4.0.4-Python-3.8.5 \n'
+        'module load jsc-xdg-menu/.2020.4 \n'
+        '\n'
+        'if ! command -v xterm &> /dev/null \n'
+        'then \n'
+        '    echo "xterm not found - trying to load the xterm-module" \n'
+        '    module load xterm \n'
+        'fi \n'
+        '\n'
+        'xpra "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/lib/python%(pyshortver)s/site-packages/jupyter_xprahtml5_proxy/share/launch_xpra.sh'
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

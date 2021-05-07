@@ -23,6 +23,7 @@ builddependencies = [
     ('Autotools', '20200321'),
     ('Meson', '0.55.0', '-Python-3.8.5'),
     ('Ninja', '1.10.0'),
+    ('pkg-config', '0.29.2')
 ]
 
 dependencies = [

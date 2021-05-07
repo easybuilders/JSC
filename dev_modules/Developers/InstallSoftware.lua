@@ -283,7 +283,8 @@ setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 setenv("EASYBUILD_SUBDIR_USER_MODULES", "easybuild/modules")
 
 -- Filter for test reports
-setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", "\\*PS1\\*|PROMPT\\*|\\*LICENSE\\*")
+setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", ".*PS1.*|PROMPT.*|.*LICENSE.*|.*PROJECT.*|.*DATA.*|.*FASTDATA.*|.*SCRATCH.*|.*IMESCRATCH.*|.*HOME.*|.*ARCHIVE.*|.*LOGNAME.*|^SSH|USER|HOSTNAME|UID|.*COOKIE.*")
+
 
 -- Set up the hooks to automatically refresh the cache and stop waiting for the cronjob to do it
 --if user == "swmanage" then

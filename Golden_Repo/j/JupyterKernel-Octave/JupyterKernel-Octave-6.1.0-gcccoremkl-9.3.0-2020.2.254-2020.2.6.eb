@@ -81,7 +81,7 @@ postinstallcmds = [
         'module purge \n'
         'module use \$OTHERSTAGES \n'
         'module load Stages/${STAGE} \n'
-        'module load GCC/9.3.0 \n'
+        'module load GCCcore/.9.3.0 \n'
         '\n' \
         'module load Python/%%(pyver)s \n'
         'module load Jupyter/%s%s \n'

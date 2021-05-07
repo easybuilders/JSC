@@ -19,7 +19,7 @@ dependencies = [
     ('numba', '0.51.1', local_pysuff),
     ('h5py', '2.10.0', '-serial%s' % local_pysuff),
     ('scikit', '2020', local_pysuff),
-    ('torchvision', '0.8.1', local_pysuff),
+    ('torchvision', '0.8.2', local_pysuff),
     ('trimesh', '3.8.11', local_pysuff),
     ('METIS', '5.1.0', '-IDX64'),
 ]

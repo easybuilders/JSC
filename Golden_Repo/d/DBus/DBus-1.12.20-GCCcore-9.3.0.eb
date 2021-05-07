@@ -18,7 +18,10 @@ toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
 source_urls = ['http://dbus.freedesktop.org/releases/dbus']
 sources = [SOURCELOWER_TAR_GZ]
 
-builddependencies = [('binutils', '2.34')]
+builddependencies = [
+    ('binutils', '2.34'),
+    ('pkg-config', '0.29.2'),
+]
 dependencies = [('expat', '2.2.9')]
 
 sanity_check_paths = {

@@ -2,9 +2,8 @@
 easyblock = 'PythonPackage'
 
 name = 'torchvision'
-version = '0.8.1'
+version = '0.8.2'
 versionsuffix = '-Python-%(pyver)s'
-
 
 homepage = 'http://pytorch.org/'
 description = """The torchvision package consists of popular datasets, model architectures, and common image

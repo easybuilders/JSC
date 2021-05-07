@@ -20,6 +20,10 @@ toolchain = SYSTEM
 source_urls = [GNU_SOURCE]
 sources = [SOURCE_TAR_GZ]
 
+builddependencies = [
+    ('binutils', '2.34'),
+]
+
 dependencies = [
     ('ncurses', '6.2'),
 ]

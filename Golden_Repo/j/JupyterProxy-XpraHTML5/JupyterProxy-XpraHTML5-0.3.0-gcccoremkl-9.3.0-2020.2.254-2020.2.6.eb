@@ -43,7 +43,7 @@ local_common_opts = {
 
 exts_list = [
     ('jupyter-xprahtml5-proxy', '0.3.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'db852682e8e366091e6a3984b60ac3d2e6b3197be2ef074440c11cb09e23b80b')]),
+        ('checksums', [('sha256', '6212ae766ebcecab31052cc1a42beebcbc65f7c310540e9da042ed027253ecc2')]),
         ('source_urls', ['https://github.com/FZJ-JSC/jupyter-xprahtml5-proxy/archive/']),
         ('source_tmpl', 'v0.3.0_devel.tar.gz'),
         ('modulename', 'jupyter_xprahtml5_proxy'),

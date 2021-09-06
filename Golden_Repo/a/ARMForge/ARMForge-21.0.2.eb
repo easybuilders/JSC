@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# For using $SYSTEMNAME to determine license path. The local prefix is to appease the checker
+import os as local_os
+
+easyblock = 'EB_Allinea'
+
+name = 'ARMForge'
+version = '21.0.2'
+
+homepage = 'https://developer.arm.com/tools-and-software/server-and-hpc/debug-and-profile/arm-forge'
+description = """
+Arm Forge is the leading server and HPC development tool suite in research, industry, and academia for C, C++, Fortran,
+and Python high performance code on Linux.  
+
+Arm Forge includes Arm DDT, the best debugger for time-saving high performance application debugging, Arm MAP, the
+trusted performance profiler for invaluable optimization advice, and Arm Performance Reports to help you analyze your
+HPC application runs.
+"""
+
+usage = """For more information, type "ddt -h" or "map -h"
+
+For the ARM DDT and MAP User Guide, please see: "$EBROOTARMFORGE/doc/userguide.pdf"
+"""
+
+
+toolchain = SYSTEM
+
+sources = ['arm-forge-%(version)s-linux-x86_64.tar']
+source_urls = ['https://content.allinea.com/downloads/']
+checksums = ['ebb22444a46ad06ac417bcbf0d76d245']
+
+start_dir = '%(builddir)s/arm-forge-%(version)s-linux-x86_64/'
+install_cmd = "./textinstall.sh --accept-licence %(installdir)s"
+local_licdir = '/p/software/%s/licenses/armforge' % local_os.environ['SYSTEMNAME']
+    '%s/LicenseForge.lic' % local_licdir,
+    '%s/LicensePR.lic' % local_licdir
+]
+
+sanity_check_paths = {
+    'files': ['bin/ddt'],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

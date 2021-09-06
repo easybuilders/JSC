@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'cppzmq'
+version = '4.7.1'
+
+homepage = 'https://github.com/zeromq/cppzmq'
+description = """
+cppzmq is a C++ binding for libzmq
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://github.com/zeromq/cppzmq/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['9853e0437d834cbed5d3c223bf1d755cadee70e7c964c6e42c4c6783dee5d02c']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('ZeroMQ', '4.3.3'),
+]
+
+separate_build_dir = True
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DCPPZMQ_BUILD_TESTS=OFF '  # lpthreads error
+
+sanity_check_paths = {
+    'dirs': ['include'],
+    'files': ['include/zmq.hpp'],
+}
+modextrapaths = {'CMAKE_MODULE_PATH': ['share/cmake/cppzmq']}
+
+moduleclass = 'devel'

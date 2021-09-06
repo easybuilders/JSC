@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OpenCV'
+version = '4.5.3'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://opencv.org/'
+description = """OpenCV (Open Source Computer Vision Library) is an open source computer vision
+ and machine learning software library. OpenCV was built to provide
+ a common infrastructure for computer vision applications and to accelerate
+ the use of machine perception in the commercial products."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True, 'optarch': True}
+
+source_urls = [
+    'https://github.com/opencv/opencv/archive/',
+]
+
+sources = [
+    '%(version)s.zip',
+]
+
+checksums = [
+    'a61e7a4618d353140c857f25843f39b2abe5f451b018aab1604ef0bc34cd23d5'
+]
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', versionsuffix),
+    ('zlib', '1.2.11'),
+    ('FFmpeg', '4.4'),
+    ('libjpeg-turbo', '2.0.5'),
+    ('libpng', '1.6.37'),
+    ('LibTIFF', '4.1.0'),
+    ('JasPer', '2.0.19'),
+    ('GLib', '2.64.4'),
+    ('GTK+', '3.24.17',),
+    ('protobuf', '3.13.0'),
+    ('Eigen', '3.3.7'),
+    ('OpenEXR', '2.5.2'),
+    ('freetype', '2.10.1'),
+    ('OpenGL', '2020'),
+]
+
+separate_build_dir = True
+
+configopts = "-D CMAKE_BUILD_TYPE=RELEASE "
+configopts += '-D CMAKE_CXX_FLAGS="-Wdeprecated-declarations" '
+
+configopts += "-D OPENCV_GENERATE_PKGCONFIG=ON "
+configopts += "-D ENABLE_PRECOMPILED_HEADERS=OFF "
+
+configopts += "-D BUILD_EXAMPLES=ON "
+configopts += "-D INSTALL_PYTHON_EXAMPLES=ON "
+
+configopts += "-D Protobuf_INCLUDE_DIR=$EBROOTPROTOBUF/include "
+configopts += "-D Protobuf_LIBRARY=$EBROOTPROTOBUF/lib64/libprotobuf.so "
+configopts += "-D Protobuf_LITE_LIBRARY_RELEASE=$EBROOTPROTOBUF/lib64/libprotobuf-lite.so "
+configopts += "-D Protobuf_PROTOC_LIBRARY_RELEASE=$EBROOTPROTOBUF/lib64/bprotoc.so "
+configopts += "-D BUILD_PROTOBUF=OFF -DPROTOBUF_UPDATE_FILES=ON "
+
+configopts += "-D BUILD_JAVA=OFF "
+
+configopts += "-D PYTHON_DEFAULT_EXECUTABLE=$EBROOTPYTHON/bin/python3 "
+configopts += "-D PYTHON2_EXECUTABLE='' "  # ensure python2 is NOT used
+
+configopts += "-D WITH_OPENMP=ON "
+
+modextrapaths = {'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages/'}
+
+moduleclass = 'vis'

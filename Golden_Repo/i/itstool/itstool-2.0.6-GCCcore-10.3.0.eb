@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'itstool'
+version = '2.0.6'
+
+homepage = 'http://itstool.org/'
+description = """
+ITS Tool allows you to translate your XML documents with PO files, using rules
+from the W3C Internationalization Tag Set (ITS) to determine what to translate and how to separate
+it into PO file messages.
+"""
+
+
+source_urls = ['http://files.itstool.org/itstool']
+sources = [SOURCE_TAR_BZ2]
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+builddependencies = [
+    ('binutils', '2.36.1')
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('libxml2-python', '2.9.10', '-Python-%(pyver)s'),
+]
+
+sanity_check_paths = {
+    'files': ["bin/itstool"],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

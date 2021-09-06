@@ -1,0 +1,63 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'OpenMPI'
+version = '4.1.0rc1'
+
+homepage = 'http://www.open-mpi.org/'
+description = """The Open MPI Project is an open source MPI-3 implementation."""
+
+
+toolchain = {'name': 'iccifort', 'version': '2020.2.254-GCC-9.3.0'}
+
+source_urls = ['http://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
+sources = [SOURCELOWER_TAR_GZ]
+
+patches = ['psm2_pmix.patch']
+
+osdependencies = [
+    # needed for --with-pmix
+    ('pmix-devel'),
+]
+
+builddependencies = [
+    ('Autotools', '20200321'),
+]
+
+dependencies = [
+    ('zlib', '1.2.11'),
+    ('hwloc', '2.2.0'),
+    ('libevent', '2.1.12'),
+    ('libfabric', '1.12.1'),
+]
+
+configopts = '--enable-shared '
+configopts += '--with-hwloc=$EBROOTHWLOC '  # hwloc support
+configopts += '--with-psm2 '
+configopts += '--with-ofi=$EBROOTLIBFABRIC '
+configopts += '--with-libevent=$EBROOTLIBEVENT '
+configopts += '--without-orte '
+configopts += '--disable-oshmem '
+configopts += '--with-gpfs '
+
+# to enable SLURM integration (site-specific)
+configopts += '--with-slurm --with-pmix=external --with-libevent=external --with-ompi-pmix-rte'
+
+local_libs = ["mpi_mpifh", "mpi", "ompitrace", "open-pal", "open-rte"]
+sanity_check_paths = {
+    'files': ["bin/%s" % local_binfile for local_binfile in ["ompi_info", "opal_wrapper"]] +
+             ["lib/lib%s.%s" % (local_libfile, SHLIB_EXT) for local_libfile in local_libs] +
+             ["include/%s.h" % x for x in ["mpi-ext", "mpif-config", "mpif", "mpi", "mpi_portable_platform"]],
+    'dirs': [],
+}
+
+# Add a family for our naming scheme
+modluafooter = '''
+family("mpi")
+add_property("arch","gpu")
+if not ( isloaded("mpi-settings") ) then
+    load("mpi-settings")
+end
+'''
+
+moduleclass = 'mpi'

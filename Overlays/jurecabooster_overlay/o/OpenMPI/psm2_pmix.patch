@@ -1,0 +1,47 @@
+diff -ruN openmpi-4.1.0rc1.orig/ompi/mca/mtl/psm2/mtl_psm2.c openmpi-4.1.0rc1.patched/ompi/mca/mtl/psm2/mtl_psm2.c
+--- openmpi-4.1.0rc1.orig/ompi/mca/mtl/psm2/mtl_psm2.c	2020-07-06 23:56:33.000000000 +0200
++++ openmpi-4.1.0rc1.patched/ompi/mca/mtl/psm2/mtl_psm2.c	2021-05-11 12:05:35.399831599 +0200
+@@ -26,6 +26,7 @@
+ #include "ompi_config.h"
+ 
+ #include "opal/mca/pmix/pmix.h"
++#include "opal/mca/pmix/pmix3x/pmix/include/pmix_common.h"
+ #include "ompi/mca/mtl/mtl.h"
+ #include "ompi/mca/mtl/base/mtl_base_datatype.h"
+ #include "opal/util/show_help.h"
+@@ -102,6 +103,21 @@
+     int rc;
+ 
+     generated_key = getenv(OPAL_MCA_PREFIX"orte_precondition_transports");
++    opal_process_name_t pname;
++
++    generated_key = NULL;
++    pname.jobid = atoi(getenv("SLURM_JOBID"));
++    pname.vpid = OPAL_VPID_WILDCARD;
++    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, PMIX_CREDENTIAL, &pname,
++                                    (char**)&generated_key, PMIX_STRING);
++
++    char *tmp_key;
++    if (PMIX_SUCCESS != rc || NULL == generated_key) {
++        if (NULL != (tmp_key = getenv("OMPI_MCA_orte_precondition_transports"))) {
++            generated_key = strdup(tmp_key);
++        }
++     }
++
+     memset(uu, 0, sizeof(psm2_uuid_t));
+ 
+     if (!generated_key || (strlen(generated_key) != 33) ||
+@@ -111,10 +127,13 @@
+ 		     "no uuid present", true,
+ 		     generated_key ? "could not be parsed from" :
+ 		     "not present in", ompi_process_info.nodename);
++      free(generated_key);
+       return OMPI_ERROR;
+ 
+     }
+ 
++    free(generated_key);
++
+     /* Handle our own errors for opening endpoints */
+     psm2_error_register_handler(ompi_mtl_psm2.ep, ompi_mtl_psm2_errhandler);
+ 

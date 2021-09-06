@@ -1,0 +1,94 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ITK'
+version = '5.2.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://itk.org'
+description = """Insight Segmentation and Registration Toolkit (ITK) provides
+ an extensive suite of software tools for registering and segmenting
+ multidimensional imaging data."""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2021'}
+toolchainopts = {'pic': True, 'usempi': False}
+
+source_urls = ['https://github.com/InsightSoftwareConsortium/ITK/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['6022b2b64624b8bcec3333fe48d5f74ff6ebceb3bdf98258ba7d7fbbc76b99ab']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('Bison', '3.7.6'),
+    ('pkg-config', '0.29.2'),
+    ('Perl', '5.32.0'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('HDF5', '1.10.6', '-serial'),
+    ('SWIG', '4.0.2', '-Python-%(pyver)s'),
+    ('libpng', '1.6.37'),
+    ('LibTIFF', '4.1.0'),
+    ('expat', '2.2.9'),
+    ('Eigen', '3.3.7'),
+    # ('ParaView', '5.8.1', '-Python-%(pyver)s'),
+    ('tbb', '2020.3'),
+    ('Qt5', '5.14.2'),
+    ('OpenGL', '2020'),
+    ('X11', '20200222'),
+    ('SciPy-Stack', '2021', '-Python-%(pyver)s', ('gcccoremkl', '10.3.0-2021.2.0')),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_BUILD_TYPE=Release "
+configopts += "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON "
+
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBUILD_TESTING=OFF "
+# configopts += "-DITK_FORBID_DOWNLOADS=ON "
+
+configopts += "-DITKV4_COMPATIBILITY=ON "
+configopts += "-DITK_LEGACY_SILENT=ON "
+
+configopts += "-DITK_USE_SYSTEM_SWIG=ON "
+configopts += "-DSWIG_EXECUTABLE=${EBROOTSWIG}/bin/swig "
+configopts += "-DSWIG_DIR=${EBROOTSWIG} "
+
+configopts += "-DITK_USE_SYSTEM_EIGEN=ON "
+configopts += "-DEigen3_DIR=$EBROOTEIGEN/share/eigen3/cmake "
+
+configopts += "-DITK_USE_SYSTEM_HDF5=ON "
+configopts += "-DHDF5_DIR=$EBROOTHDF5 "
+
+configopts += "-DITK_WRAP_PYTHON=ON "
+configopts += "-DModule_ITKReview=ON "
+
+# fails with ITK_WRAP_PYTON=ON, error, because vtkImage*.h cannot be found
+# read: https://discourse.itk.org/t/problem-with-building-itk-with-module-itkvtkglue-on/2315
+# code: https://github.com/InsightSoftwareConsortium/ITKVtkGlue/blob/itk-5.0.1/CMakeLists.txt#L81
+# configopts="-DModule_ITKVtkGlue=ON ${configopts} "
+# configopts="-DVTK_DIR=$EBROOTPARAVIEW/lib64/cmake/paraview-5.8/vtk ${configopts} "
+# configopts="-DVTK_INCLUDE_DIRS=$EBROOTPARAVIEW/include/paraview-5.8 ${configopts} "
+# configopts="-DVTK_LIBRARIES=$EBROOTPARAVIEW/lib64 ${configopts} "
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+sanity_check_paths = {
+    'files': ['bin/itkTestDriver',
+              'lib/libITKVTK-%(version_major_minor)s.so',
+              'lib/libITKIOJPEG-%(version_major_minor)s.so',
+              'lib/libITKCommon-%(version_major_minor)s.so'],
+    'dirs': ['include/ITK-%(version_major_minor)s',
+             'lib/python%(pyshortver)s/site-packages',
+             'share'],
+}
+
+sanity_check_commands = [('python', "-c 'import %(namelower)s'")]
+
+moduleclass = 'vis'

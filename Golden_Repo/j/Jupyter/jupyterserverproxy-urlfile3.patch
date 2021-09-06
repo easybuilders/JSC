@@ -1,0 +1,82 @@
+diff -Naur jupyter-server-proxy.orig/jupyterlab-server-proxy/src/index.ts jupyter-server-proxy/jupyterlab-server-proxy/src/index.ts
+--- jupyter-server-proxy.orig/jupyterlab-server-proxy/src/index.ts	2021-08-16 19:38:33.440690000 +0200
++++ jupyter-server-proxy/jupyterlab-server-proxy/src/index.ts	2021-08-16 19:11:07.061678000 +0200
+@@ -79,8 +79,11 @@
+     if (!server_process.launcher_entry.enabled) {
+       continue;
+     }
+-
+-    const url = PageConfig.getBaseUrl() + server_process.name + '/';
++    var urlfile = '';
++    if (server_process.launcher_entry.urlfile) {
++       urlfile =  server_process.launcher_entry.urlfile;
++    }
++    const url = PageConfig.getBaseUrl() + server_process.name + '/' + urlfile;
+     const title = server_process.launcher_entry.title;
+     const newBrowserTab = server_process.new_browser_tab;
+     const id = namespace + ':' + server_process.name;
+diff -Naur jupyter-server-proxy.orig/jupyter_server_proxy/api.py jupyter-server-proxy/jupyter_server_proxy/api.py
+--- jupyter-server-proxy.orig/jupyter_server_proxy/api.py	2021-08-16 19:38:33.426478000 +0200
++++ jupyter-server-proxy/jupyter_server_proxy/api.py	2021-08-16 19:27:14.875158000 +0200
+@@ -20,7 +20,8 @@
+                 'launcher_entry': {
+                     'enabled': sp.launcher_entry.enabled,
+                     'title': sp.launcher_entry.title,
+-                    'path_info': sp.launcher_entry.path_info
++                    'path_info': sp.launcher_entry.path_info,
++                    'urlfile': sp.launcher_entry.urlfile
+                 },
+                 'new_browser_tab' : sp.new_browser_tab
+             }
+diff -Naur jupyter-server-proxy.orig/jupyter_server_proxy/config.py jupyter-server-proxy/jupyter_server_proxy/config.py
+--- jupyter-server-proxy.orig/jupyter_server_proxy/config.py	2021-08-16 19:38:33.427114000 +0200
++++ jupyter-server-proxy/jupyter_server_proxy/config.py	2021-08-16 19:28:19.426005625 +0200
+@@ -106,7 +106,7 @@
+         ))
+     return handlers
+ 
+-LauncherEntry = namedtuple('LauncherEntry', ['enabled', 'icon_path', 'title', 'path_info'])
++LauncherEntry = namedtuple('LauncherEntry', ['enabled', 'icon_path', 'title', 'path_info', 'urlfile'])
+ ServerProcess = namedtuple('ServerProcess', [
+     'name', 'command', 'environment', 'timeout', 'absolute_url', 'port', 'mappath', 'launcher_entry', 'new_browser_tab', 'request_headers_override'])
+ 
+@@ -124,7 +124,8 @@
+             enabled=le.get('enabled', True),
+             icon_path=le.get('icon_path'),
+             title=le.get('title', name),
+-            path_info=le.get('path_info', name + "/")
++            path_info=le.get('path_info', name + "/"),
++            urlfile=le.get('urlfile', '')
+         ),
+         new_browser_tab=server_process_config.get('new_browser_tab', True),
+         request_headers_override=server_process_config.get('request_headers_override', {})
+@@ -184,6 +185,10 @@
+             title
+               Title to be used for the launcher entry. Defaults to the name of the server if missing.
+ 
++            urlfile
++              URL file name and URL parameters to be added to the base URL of the launcher entry.
++              Default is none.
++
+           new_browser_tab
+             Set to True (default) to make the proxied server interface opened as a new browser tab. Set to False
+             to have it open a new JupyterLab tab. This has no effect in classic notebook.
+diff -Naur jupyter-server-proxy.orig/jupyter_server_proxy/static/tree.js jupyter-server-proxy/jupyter_server_proxy/static/tree.js
+--- jupyter-server-proxy.orig/jupyter_server_proxy/static/tree.js	2021-08-16 19:38:33.434248000 +0200
++++ jupyter-server-proxy/jupyter_server_proxy/static/tree.js	2021-08-16 19:20:16.484639000 +0200
+@@ -33,10 +33,14 @@
+                     .addClass('new-' + server_process.name);
+ 
+                 /* create our list item's link */
++                var urlfile = '';
++                if (server_process.launcher_entry.urlfile) {
++                    urlfile =  server_process.launcher_entry.urlfile;
++                }
+                 var $entry_link = $('<a>')
+                     .attr('role', 'menuitem')
+                     .attr('tabindex', '-1')
+-                    .attr('href', base_url + server_process.launcher_entry.path_info)
++                    .attr('href', base_url + server_process.launcher_entry.path_info + urlfile)
+                     .attr('target', '_blank')
+                     .text(server_process.launcher_entry.title);
+ 

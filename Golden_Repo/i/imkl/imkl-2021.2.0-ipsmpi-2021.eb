@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'imkl'
+version = '2021.2.0'
+
+homepage = 'http://software.intel.com/en-us/intel-mkl/'
+description = """Intel Math Kernel Library is a library of highly optimized,
+ extensively threaded math routines for science, engineering, and financial
+ applications that require maximum performance. Core math functions include
+ BLAS, LAPACK, ScaLAPACK, Sparse Solvers, Fast Fourier Transforms, Vector Math,
+ and more.
+"""
+
+
+toolchain = {'version': '2021', 'name': 'ipsmpi'}
+
+# see https://software.intel.com/content/www/us/en/develop/articles/oneapi-standalone-components.html
+source_urls = ['https://registrationcenter-download.intel.com/akdlm/irc_nas/tec/17757/']
+sources = ['l_onemkl_p_%(version)s.296_offline.sh']
+checksums = ['816e9df26ff331d6c0751b86ed5f7d243f9f172e76f14e83b32bf4d1d619dbae']
+
+dontcreateinstalldir = 'True'
+
+local_libdir = '%(installdir)s/mkl/latest/lib/intel64'
+
+postinstallcmds = [
+    # create sym links
+    'ln -s %s/libmkl_vml_avx2.so.1       %s/libmkl_vml_avx2.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_avx512_mic.so.1 %s/libmkl_vml_avx512_mic.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_avx512.so.1     %s/libmkl_vml_avx512.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_avx.so.1        %s/libmkl_vml_avx.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_cmpt.so.1       %s/libmkl_vml_cmpt.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_def.so.1        %s/libmkl_vml_def.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_mc2.so.1        %s/libmkl_vml_mc2.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_mc3.so.1        %s/libmkl_vml_mc3.so' % (local_libdir, local_libdir),
+    'ln -s %s/libmkl_vml_mc.so.1         %s/libmkl_vml_mc.so' % (local_libdir, local_libdir),
+]
+
+moduleclass = 'numlib'

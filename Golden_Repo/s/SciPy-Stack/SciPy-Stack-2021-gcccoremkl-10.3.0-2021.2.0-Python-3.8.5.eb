@@ -1,0 +1,92 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+name = 'SciPy-Stack'
+version = '2021'
+versionsuffix = '-Python-%(pyver)s'
+
+local_numpyversion = '1.19.1'
+
+homepage = 'http://www.scipy.org'
+description = """SciPy Stack is a collection of open source software for scientific computing in Python."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('unzip', '6.0'),
+]
+
+###########################################################################
+# WARNING: "six" is picked up from GC3Pie if it is loaded, causing an error
+# To proceed, unload GC3Pie
+###########################################################################
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('freetype', '2.10.1'),
+    ('libpng', '1.6.37'),
+    ('libreadline', '8.0'),
+    ('SQLite', '3.32.3'),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+exts_list = [
+    ('Cycler', '0.10.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/C/Cycler']),
+        ('source_tmpl', 'cycler-%(version)s.tar.gz'),
+        ('modulename', 'cycler'),
+    ])),
+    ('mpmath', '1.1.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/m/mpmath']),
+    ])),
+    ('numpy', local_numpyversion, dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://github.com/numpy/numpy/releases/download/v%s/' % local_numpyversion]),
+        ('patches', [
+            'numpy-1.14.2-mkl.patch',
+            'numpy-1.14.2-xhost.patch',
+        ]),
+    ])),
+    ('scipy', '1.5.2', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/scipy']),
+    ])),
+    ('sympy', '1.6.1', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/sympy']),
+    ])),
+    ('pandas', '1.1.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pandas']),
+    ])),
+    ('kiwisolver', '1.2.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/k/kiwisolver']),
+    ])),
+    ('matplotlib', '3.3.1', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/m/matplotlib']),
+    ])),
+    ('xarray', '0.16.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/x/xarray']),
+    ])),
+    ('seaborn', '0.10.1', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/s/seaborn']),
+    ])),
+    ('deap', '1.3.1', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/d/deap']),
+    ])),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'vis'

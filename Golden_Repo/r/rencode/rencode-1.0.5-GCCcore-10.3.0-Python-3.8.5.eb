@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'rencode'
+version = '1.0.5'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://pypi.python.org/pypi/rencode/'
+description = """
+The rencode module is similar to bencode from the BitTorrent project. 
+For complex, heterogeneous data structures with many small elements,
+r-encodings take up significantly less space than b-encodings. 
+This version of rencode is a complete rewrite in Cython to attempt to 
+increase the performance over the pure Python module written by Petru Paler, Connelly Barnes et al.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [PYPI_SOURCE]
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+]
+
+maxparallel = 12
+
+use_pip = True
+sanity_pip_check = True
+download_dep_fail = True
+
+options = {'modulename': 'rencode'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+moduleclass = 'lib'

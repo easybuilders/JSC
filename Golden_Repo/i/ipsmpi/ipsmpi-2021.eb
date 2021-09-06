@@ -1,0 +1,20 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'ipsmpi'
+version = '2021'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = 'Intel C/C++ and Fortran compilers, alongside ParaStationMPI.'
+
+
+toolchain = SYSTEM
+
+local_compver = '2021.2.0'
+local_gccsuffix = '-GCC-10.3.0'
+dependencies = [
+    ('intel-compilers', '%s%s' % (local_compver, local_gccsuffix)),
+    ('psmpi', '5.4.9-1', '', ('intel-compilers', '%s%s' % (local_compver, local_gccsuffix))),
+]
+
+moduleclass = 'toolchain'

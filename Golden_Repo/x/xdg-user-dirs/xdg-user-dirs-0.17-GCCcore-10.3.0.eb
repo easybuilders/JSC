@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'xdg-user-dirs'
+version = '0.17'
+
+homepage = 'https://freedesktop.org/wiki/Software/xdg-user-dirs'
+description = """
+    xdg-user-dirs is a tool to help manage "well known" user directories like the desktop folder
+    and the music folder. It also handles localization (i.e. translation) of the filenames. 
+ """
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['http://user-dirs.freedesktop.org/releases/']
+sources = ['xdg-user-dirs-%(version)s.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+]
+
+configopts = "--disable-documentation "
+
+sanity_check_paths = {
+    'files': ['bin/xdg-user-dir'],
+    'dirs': ['bin']
+}
+
+
+moduleclass = 'vis'

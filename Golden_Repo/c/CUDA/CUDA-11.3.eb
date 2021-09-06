@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'CUDA'
+version = '11.3'
+local_complete_version = '%(version)s.1'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """CUDA (formerly Compute Unified Device Architecture) is a parallel
+ computing platform and programming model created by NVIDIA and implemented by the
+ graphics processing units (GPUs) that they produce. CUDA gives developers access
+ to the virtual instruction set and memory of the parallel computational elements
+ in CUDA GPUs.
+"""
+
+
+toolchain = SYSTEM
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/cuda/%(local_complete_version)s/local_installers/'
+    'https://developer.download.nvidia.com/compute/cuda/%(version_major_minor)s/Prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/Prod2/local_installers/',
+]
+sources = [
+    '%%(namelower)s_%s_465.19.01_linux.run' % local_complete_version,
+]
+checksums = ['ad93ea98efced35855c58d3a0fc326377c60917cb3e8c017d3e6d88819bf2934']
+
+dependencies = [
+    ('nvidia-driver', 'default', '', SYSTEM),
+]
+
+installopts = '--samplespath=%(installdir)s --samples'
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

@@ -1,0 +1,158 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Qiskit'
+version = '0.23.5'
+versionsuffix = '-Python-%(pyver)s'
+local_aerver = '0.7.4'  # version of qiskit-aer
+
+homepage = 'https://qiskit.org'
+description = """Qiskit is an open-source framework for working with noisy quantum computers
+ at the level of pulses, circuits, and algorithms."""
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2021'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('Ninja', '1.10.0'),
+    ('pkg-config', '0.29.2'),
+    ('Rust', '1.47.0'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', versionsuffix, ('gcccoremkl', '10.3.0-2021.2.0')),
+    ('scikit', '2021', versionsuffix, ('gcccoremkl', '10.3.0-2021.2.0')),
+    ('CVXOPT', '1.2.5', versionsuffix),
+    ('h5py', '2.10.0', '-serial' + versionsuffix),
+    ('PySCF', '1.7.1', versionsuffix),
+    ('pybind11', '2.5.0', versionsuffix),  # for qiskit-aer
+    ('nlohmann-json', '3.9.1'),  # for qiskit-aer
+    ('spdlog', '1.8.2'),  # for qiskit-aer
+    ('muparserx', '4.0.8'),  # for qiskit-aer
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# qiskit-aer must not use CONAN to install dependencies
+modextravars = {'DISABLE_CONAN': 'YES'}
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': False,  # DISABLED: because 'pip check' does not find pyscf (not installed with pip)
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('python_constraint', '1.4.0', dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'python-constraint-%(version)s.tar.bz2'),
+        ('checksums', [('sha256', '501d6f17afe0032dfc6ea6c0f8acc12e44f992733f00e8538961031ef27ccb8e')]),
+        ('modulename', 'constraint'),
+    ])),
+    ('dill', '0.3.1.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '42d8ef819367516592a825746a18073ced42ca169ab1f5f4044134703e7a049c')]),
+    ])),
+    ('arrow', '0.15.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '5390e464e2c5f76971b60ffa7ee29c598c7501a294bc9f5e6dadcb251a5d027b')]),
+    ])),
+    ('marshmallow', '2.20.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'a339159e422a055269f5625df51fbdc7fb20512cfffa08451cd5727783ddca39')]),
+    ])),
+    ('marshmallow-polyfield', '3.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '72980cb9a43a7c750580b4b08e9d01a8cbd583e1f59360f1924a1ed60f065a4c')]),
+    ])),
+    ('pylatexenc', '1.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'ef2d5260c38e2cb4d2829e8b918914a558557820d4f57cb6588a81e827de2bb3')]),
+    ])),
+    ('qiskit-terra', '0.16.4', dict(list(local_common_opts.items()) + [
+        ('patches', ['qiskit-terra-0.9.0_fix-qiskit-version-env.patch']),
+        ('checksums', [(
+            # qiskit-terra-0.16.4.tar.gz
+            ('sha256', '2322e7e8d5a208c649432304f494bf73c4a4ce2f852128125fbaf9dbed1c1538'),
+            # qiskit-terra-0.9.0_fix-qiskit-version-env.patch
+            ('sha256', 'a297f338a97f956513d849286087bab5508301e214054d07482efc90a5ab1b74'),
+        )]),
+        ('modulename', 'qiskit.qobj'),
+    ])),
+    # retworkx installs `setuptools-rust`, if we do not
+    ('semantic_version', '2.8.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'd2cb2de0558762934679b9a104e82eca7af448c9f4974d1f3eeccff651df8a54')]),
+    ])),
+    ('setuptools-rust', '0.11.6', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'a5b5954909cbc5d66b914ee6763f81fa2610916041c7266105a469f504a7c4ca')]),
+    ])),
+    ('retworkx', '0.7.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '3fcd08031b743766935e01696c01545a24d1ef16c854333ba835c96a66eb76a9')]),
+    ])),
+    ('fastjsonschema', '2.14.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'afbc235655f06356e46caa80190512e4d9222abfaca856041be5a74c665fa094')]),
+    ])),
+    ('qiskit-ignis', '0.5.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'ca0eca5ad265388b1cd8914ceb31c50a6101f4b2de634553dcb2b5c9e122c840')]),
+        ('modulename', 'qiskit.ignis'),
+    ])),
+    ('fastdtw', '0.3.4', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '2350fa6ec36bcad186eaf81f46eff35181baf04e324f522de8aeb43d0243f64f')]),
+    ])),
+    ('dlx', '1.0.4', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'ef75bc9d590216ebde7d4811f9ae6b2d6c6dc2a54772d94ae13384dc517a5aae')]),
+    ])),
+    ('docloud', '1.0.375', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '996d55407498fd01e6c6c480f367048f92255e9ca9db0e9ea19aaef91328a441')]),
+    ])),
+    ('docplex', '2.10.154', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '34a36ff25dd44b72cfe76e01dd0658eb7a451b0c3a52ef9f98e8e38fed83d537')]),
+    ])),
+    ('joblib', '0.14.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '0630eea4f5664c463f23fbf5dcfc54a2bc6168902719fa8e19daf033022786c8')]),
+    ])),
+    ('inflection', '0.3.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '18ea7fb7a7d152853386523def08736aa8c32636b047ade55f7578c4edeb16ca')]),
+    ])),
+    ('Quandl', '3.5.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'c3a9fc5ec1b585eeacd97531454e7795dde7a072c057f21335e5918cb905fc7e')]),
+    ])),
+    ('qiskit-aqua', '0.8.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('bea761485826bb3858b3b446571b944dd4c6689f81f16ad96ff8a317b35613c6')]),
+        ('modulename', 'qiskit.aqua'),
+    ])),
+    ('websockets', '7.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '08e3c3e0535befa4f0c4443824496c03ecc25062debbcf895874f8a0b4c97c9f')]),
+    ])),
+    ('ntlm-auth', '1.4.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '350f2389c8ee5517f47db55a36ac2f8efc9742a60a678d6e2caa92385bdcaa9a')]),
+    ])),
+    ('requests_ntlm', '1.1.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '9189c92e8c61ae91402a64b972c4802b2457ce6a799d658256ebf084d5c7eb71')]),
+    ])),
+    ('nest_asyncio', '1.4.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'eaa09ef1353ebefae19162ad423eef7a12166bcc63866f8bff8f3635353cd9fa')]),
+    ])),
+    ('qiskit-ibmq-provider', '0.11.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '7e8b93cf12963c46989fac6d1540346a9fb1bc8f5768b2d64e8b1c6714a9c0de')]),
+        ('modulename', 'qiskit.providers.ibmq'),
+    ])),
+    ('qiskit-aer', local_aerver, dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '0fec1fa3d528cc8e9de13713cb243fe40a98c60dc27111b479f1df707d9c03a4')]),
+        ('modulename', 'qiskit.providers.aer'),
+    ])),
+    # (possible addition in future) qiskit-aer-gpu == qiskit-aer+CUDA
+    ('qiskit', version, dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '6529ef7738c85341fb1008c33ca84111a6bc1de3c9072aae36206848550d0091')]),
+    ])),
+]
+
+postinstallcmds = [
+    # qiskit/providers/aer/VERSION.txt does not get installed, but is required by qiskit/providers/aer/version.py
+    "echo %s > %%(installdir)s/lib/python%%(pyshortver)s/site-packages/qiskit/providers/aer/VERSION.txt" % local_aerver,
+]
+
+moduleclass = 'quantum'

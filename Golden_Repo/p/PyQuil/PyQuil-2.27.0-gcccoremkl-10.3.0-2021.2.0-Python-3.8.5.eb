@@ -1,0 +1,96 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyQuil'
+version = '2.27.0'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/quantumlib/cirq'
+description = """PyQuil is a library for generating and executing Quil programs on the Rigetti Forest platform."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', '-Python-%(pyver)s'),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'use_pip_for_deps':  False,
+    'download_dep_fail': True,
+    'sanity_pip_check': True,
+}
+
+exts_list = [
+    # testing
+    ('typing_extensions', '3.7.4.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c')]),
+    ])),
+    ('typed_ast', '1.4.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '9fc0b3cb5d1720e7141d103cf4819aea239f7d136acf9ee4a69b047b7986175a')]),
+    ])),
+    ('mypy_extensions', '0.4.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8')]),
+    ])),
+    ('mypy', '0.790', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '2b21ba45ad9ef2e2eb88ce4aeadd0112d0f5026418324176fd494a6824b74975')]),
+    ])),
+    ('requests-mock', '1.8.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'e68f46844e4cee9d447150343c9ae875f99fa8037c6dcf5f15bf1fe9ab43d226')]),
+    ])),
+    ('pytest-cov', '2.10.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '47bd0ce14056fdd79f93e1713f88fad7bdcc583dcd7783da86ef2f085a0bb88e')]),
+    ])),
+    ('pytest-timeout', '1.4.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '20b3113cf6e4e80ce2d403b6fb56e9e1b871b510259206d40ff8d609f48bda76')]),
+    ])),
+    ('pytest-asyncio', '0.14.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '9882c0c6b24429449f5f969a5158b528f39bde47dc32e85b9f0403965017e700')]),
+    ])),
+    ('pytest-rerunfailures', '9.1.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '1cb11a17fc121b3918414eb5eaf314ee325f2e693ac7cb3f6abf7560790827f2')]),
+    ])),
+    # pyquil application
+    ('python-rapidjson', '0.9.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'ad80bd7e4bb15d9705227630037a433e2e2a7982b54b51de2ebabdd1611394a1')]),
+        ('modulename', 'rapidjson'),
+    ])),
+    ('ruamel.yaml', '0.16.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '412a6f5cfdc0525dee6a27c08f5415c7fd832a7afcb7a0ed7319628aed23d408')]),
+    ])),
+    ('ruamel.yaml.clib', '0.1.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'cee86ecc893a6a8ecaa7c6a9c2d06f75f614176210d78a5f155f8e78d6989509')]),
+        ('modulename', 'ruamel.yaml'),  # fake to make sanitycheck shut-up
+    ])),
+    ('rpcq', '3.7.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'd4695048f874aa255764336fa1965f6fc1ea001a31e28681bbbef708cac531e1')]),
+    ])),
+    ('antlr4-python3-runtime', '4.7.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '168cdcec8fb9152e84a87ca6fd261b3d54c8f6358f42ab3b813b14a7193bb50b')]),
+        ('modulename', 'antlr4'),
+    ])),
+    ('lark', '0.11.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'f2c6ed79ae128a89714bbaa4a6ecb61b6eec84d1b5d63b9195ad461762f96298')]),
+    ])),
+    ('pyquil', version, dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '9082bbb58d1c104303d5e3890c81063f802edb5570c47d9f0176ae9df06f4081')]),
+    ])),
+    # addon
+    ('contextvars', '2.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '2341042e1c03a271813e07dba29b6b60fa85c1005ea5ed1638a076cf50b4d625')]),
+    ])),
+    ('immutables', '0.6', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '63023fa0cceedc62e0d1535cd4ca7a1f6df3120a6d8e5c34e89037402a6fd809')]),
+    ])),
+]
+
+moduleclass = 'quantum'

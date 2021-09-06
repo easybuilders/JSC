@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.4.9-1'
+versionsuffix = '-mt'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+"""
+
+
+toolchain = {'name': 'intel-compilers', 'version': '2021.2.0-GCC-10.3.0'}
+
+sources = ['%(version)s.tar.gz']
+source_urls = ['https://github.com/ParaStation/psmpi/archive/']
+
+local_cuda_ver = '11.3'
+
+builddependencies = [('CUDA', local_cuda_ver, '', SYSTEM)]
+dependencies = [
+    ('pscom', f'5.4-default-CUDA-{local_cuda_ver}', '', SYSTEM),
+    # needed due to the inclusion of hwloc
+    ('libxml2', '2.9.10')
+]
+
+patches = [
+    'psmpi_shebang.patch',
+    # We don't have IME in HDFML so we skip this
+    # 'psmpi-5.4.6-1_ime.patch'
+]
+
+# We don't have IME in HDFML so we skip this
+# mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
+#
+# preconfigopts = 'export CFLAGS="-I/opt/ddn/ime/include $CFLAGS" && '
+# preconfigopts += 'export LDFLAGS="$LDFLAGS -L/opt/ddn/ime/lib -lim_client" && '
+# mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
+# We disable gpfs support, since it seems to be problematic under some circumstances. One can disable it by setting
+# ROMIO_FSTYPE_FORCE="ufs:", but then we loose IME support
+mpich_opts = '--enable-static --with-file-system=ufs --enable-romio'
+
+threaded = True
+
+cuda = True
+
+moduleclass = 'mpi'

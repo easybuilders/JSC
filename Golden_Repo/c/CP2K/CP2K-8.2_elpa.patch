@@ -1,0 +1,22 @@
+--- src/environment.F.orig	2021-08-26 13:56:03.648356130 +0200
++++ src/environment.F	2021-08-26 13:56:17.680356693 +0200
+@@ -764,6 +764,7 @@
+             WRITE (UNIT=output_unit, FMT="(T2,A,T71,I10)") &
+                start_section_label//"| Minimum number of eigenvectors for ELPA usage", &
+                globenv%elpa_neigvec_min
++             write(UNIT=output_unit, FMT="(/a/)") '    ** WARNING ** Usage of ELPA might cause deadlocks!'
+          END IF
+ 
+ #if defined(__CHECK_DIAG)
+--- src/input_cp2k_global.F.orig	2021-08-26 13:57:03.377334378 +0200
++++ src/input_cp2k_global.F	2021-08-26 13:57:54.961859862 +0200
+@@ -110,7 +110,8 @@
+       CALL keyword_release(keyword)
+ 
+ #if defined(__ELPA)
+-      default_diag = do_diag_elpa
++!     default_diag = do_diag_elpa
++      default_diag = do_diag_scalapack
+ #else
+       default_diag = do_diag_scalapack
+ #endif

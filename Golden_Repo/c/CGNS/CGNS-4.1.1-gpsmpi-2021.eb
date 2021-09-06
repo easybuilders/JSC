@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# eb for CGNS
+easyblock = 'CMakeMake'
+
+name = 'CGNS'
+version = '4.1.1'
+
+homepage = 'https://cgns.github.io/'
+description = """The CGNS system is designed to facilitate the exchange
+of data between sites and applications, and to help stabilize the archiving
+of aerodynamic data."""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2021'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True}
+
+source_urls = ['https://github.com/CGNS/CGNS/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['055d345c3569df3ae832fb2611cd7e0bc61d56da41b2be1533407e949581e226']
+
+dependencies = [
+    ('HDF5', '1.10.6'),
+]
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM),
+]
+
+sanity_check_paths = {
+    'files': ["bin/%s" % x for x in ["cgnscheck", "cgnscompress",
+              "cgnsconvert", "cgnsdiff", "cgnslist", "cgnsnames",
+                                                     "cgnsupdate"]],
+    'dirs': [],
+}
+
+moduleclass = 'cae'

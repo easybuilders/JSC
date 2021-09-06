@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'xtl'
+version = '0.7.2'
+
+homepage = 'https://github.com/xtensor-stack/xtl'
+description = """
+Basic tools (containers, algorithms) used by other quantstack packages
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://github.com/xtensor-stack/xtl/archive/refs/tags/']
+sources = ['%(version)s.tar.gz']
+checksums = ['95c221bdc6eaba592878090916383e5b9390a076828552256693d5d97f78357c']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('pkg-config', '0.29.2'),
+]
+
+sanity_check_paths = {
+    'dirs': ['include'],
+    'files': ['include/xtl/xtl_config.hpp'],
+}
+modextrapaths = {'CMAKE_MODULE_PATH': ['share/cmake/xtl']}
+
+moduleclass = 'devel'

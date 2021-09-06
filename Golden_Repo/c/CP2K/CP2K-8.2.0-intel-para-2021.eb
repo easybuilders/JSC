@@ -1,0 +1,93 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'CP2K'
+version = '8.2.0'
+
+homepage = 'http://www.cp2k.org/'
+description = """CP2K is a freely available (GPL) program, written in Fortran 95, to perform atomistic and molecular
+ simulations of solid state, liquid, molecular and biological systems. It provides a general framework for different
+ methods such as e.g. density functional theory (DFT) using a mixed Gaussian and plane waves approach (GPW), and
+ classical pair and many-body potentials. 
+ The default eigensolver is set to Scalapack. This setting can be overridden by specifiying 
+ PREFERRED_DIAG_LIBRARY ELPA in the global section of the cp2k input. Note, that application-dependent 
+ - in particular for small basis sizes - the use of the ELPA eigensolver library can cause dead-locks:
+ the program might be killed with a corresponding message from the MPI library ( parastation mpi) 
+ or even hang (openmpi). The user is advised to check whether the particular application is prone to 
+ deadlocks if ELPA is switched on.
+"""
+
+
+toolchain = {'name': 'intel-para', 'version': '2021'}
+toolchainopts = {'pic': True, 'openmp': True}
+
+local_dbcsr_version = '2.1.0m'
+
+sources = [
+    'v%(version)s.tar.gz',
+    'v%s.tar.gz' % local_dbcsr_version,
+]
+source_urls = [
+    'https://github.com/cp2k/cp2k/archive/',
+    'https://github.com/cp2k/dbcsr/archive/'
+]
+
+patches = [
+    'CP2K-8.2_fftw3_lib.patch',
+    'CP2K-8.2_elpa.patch',
+]
+
+# patching the unpacked local dbcsr version 2.1.0 
+# is not possible, because the patch command is started from 
+# the root directory of the unpacked first source (cp2k v8.2.0) 
+# unpacking instead the second source to the appropriate subdirectory
+# of the first unpacked source file fails because the syntax is unclear
+# Hence, we resort to a silly work-around:
+# deposit a patched dbcsr version 2.1.0 to /p/fastdata/zam/swmanage/EasyBuild/sources/c/CP2K/v2.1.0m.tar.gz
+# unpack both sources in the builddir and subsequently within cp2k.py this
+# directory to the appropriate place in the cp2k source tree
+# and finally run the configuration and build procedure as usually
+
+dependencies = [
+    ('Libint', '2.7.0-beta.6', '_cp2k_lmax5', ('intel-compilers', '2021.2.0-GCC-10.3.0')),
+    ('ELPA', '2020.11.001'),
+    ('libxsmm', '1.16.1', '', ('intel-compilers', '2021.2.0-GCC-10.3.0')),
+    ('libxc', '5.1.5', '', ('intel-compilers', '2021.2.0-GCC-10.3.0')),
+    ('FFTW', '3.3.8'),
+    ('PLUMED', '2.6.1'),
+]
+
+builddependencies = [
+    ('flex', '2.6.4'),
+    ('Bison', '3.7.6'),
+    ('Python', '3.8.5', '', ('GCCcore', '10.3.0')),
+]
+
+
+# Add PLUMED support
+plumed = True
+
+# Disable CUDA
+cuda = False
+
+# explicit unrolled loops up to __MAX_CONTR, 4 gives excessive compiler times
+configopts = '-D__MAX_CONTR=3'
+
+# popt or psmp
+type = 'psmp'
+
+# run tests separately (2 nodes of juwels approx 1 hour)
+runtest = False
+
+# which dbcsr_version - here we must not use local_dbcsr_version
+dbcsr_version = '2.1.0'
+
+# additional DFLAGS
+extradflags = '-D__MKL'
+
+# regression test reports failures
+ignore_regtest_fails = False
+
+modextravars = {
+    'CP2K_DATA_DIR': '%(installdir)s/data',
+}
+
+moduleclass = 'chem'

@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.4.9-1'
+local_pscom_version = '5.4.7-1_gw'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with 
+various batch systems for tighter process control.
+"""
+
+
+toolchain = {'name': 'intel-compilers', 'version': '2021.2.0-GCC-10.3.0'}
+
+source_urls = [
+    'https://github.com/ParaStation/psmpi/archive/',
+    'https://github.com/ParaStation/pscom/archive/'
+]
+sources = [
+    '%(version)s.tar.gz',
+    'pscom-%s.tar.bz2' % local_pscom_version
+]
+
+builddependencies = [('popt', '1.16', '', True)]
+
+pscom_allin_path = '%%(builddir)s/pscom-%s ' % local_pscom_version
+pgo = True
+
+patches = [
+    'psmpi_shebang.patch',
+]
+
+mpich_opts = '--enable-static'
+configopts = '--with-pscom-builtin=psm2'
+
+threaded = False
+
+moduleclass = 'mpi'

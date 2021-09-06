@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Exiv2'
+version = '0.27.3'
+
+homepage = 'http://www.exiv2.org'
+description = """
+ Exiv2 is a C++ library and a command line utility to manage image metadata. It provides fast and easy read and write
+ access to the Exif, IPTC and XMP metadata of digital images in various formats. Exiv2 is available as free software and
+ with a commercial license, and is used in many projects.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['http://www.exiv2.org/builds']
+sources = ['%(namelower)s-%(version)s-Source.tar.gz']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+]
+
+dependencies = [
+    ('expat', '2.2.9'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/exiv2', 'lib/libexiv2.%s' % SHLIB_EXT],
+    'dirs': []
+}
+
+moduleclass = 'vis'

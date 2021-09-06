@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'SuiteSparse'
+version = '5.7.1'
+versionsuffix = '-CUDA'
+
+homepage = 'http://faculty.cse.tamu.edu/davis/suitesparse.html'
+description = "SuiteSparse is a collection of libraries manipulate sparse matrices."
+
+
+toolchain = {'name': 'gpsmkl', 'version': '2021'}
+toolchainopts = {'opt': True, 'unroll': True, 'pic': True}
+
+source_urls = ['https://github.com/DrTimothyAldenDavis/SuiteSparse/archive']
+sources = ['v%(version)s.tar.gz']
+
+dependencies = [
+    ('CUDA', '11.3', '', SYSTEM),
+    ('METIS', '5.1.0'),
+]
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM)
+]
+
+patches = [
+    'SuiteSparse-5.7.1_JSC_GPUS.patch'
+]
+
+buildopts = 'NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70 \
+                           -gencode=arch=compute_75,code=sm_75 \
+                           -gencode=arch=compute_80,code=sm_80"'
+
+
+# make sure that bin/demo can find libsuitesparseconfig.so.5 during build
+prebuildopts = "export LD_LIBRARY_PATH=%(builddir)s/SuiteSparse-%(version)s/lib:$LD_LIBRARY_PATH && "
+
+modluafooter = 'add_property("arch","gpu")'
+
+moduleclass = 'numlib'

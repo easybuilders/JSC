@@ -1,0 +1,22 @@
+--- src/xt_redist_f.f90.orig	2021-07-06 16:32:04.461200000 +0200
++++ src/xt_redist_f.f90	2021-07-06 16:26:56.535221313 +0200
+@@ -531,6 +531,9 @@
+     TYPE(c_ptr), INTENT(in) :: src_data_cptr(:), dst_data_cptr(:)
+     INTEGER :: n
+     INTEGER(c_int) :: num_ptr_c
++#if __INTEL_COMPILER == 1910 && __INTEL_COMPILER_UPDATE == 2
++    CONTIGUOUS :: src_data_cptr, dst_data_cptr
++#endif
+     n = SIZE(src_data_cptr)
+     IF (n /= SIZE(dst_data_cptr) .OR. n > HUGE(1_c_int)) &
+          CALL xt_abort("invalid number of pointers", filename, __LINE__)
+@@ -546,6 +549,9 @@
+     TYPE(xt_request), INTENT(out) :: request
+     INTEGER :: num_ptr
+     INTEGER(c_int) :: num_ptr_c
++#if __INTEL_COMPILER == 1910 && __INTEL_COMPILER_UPDATE == 2
++    CONTIGUOUS :: src_data_cptr, dst_data_cptr
++#endif
+     num_ptr = SIZE(src_data_cptr)
+     IF (num_ptr /= SIZE(dst_data_cptr) .OR. num_ptr > HUGE(1_c_int)) &
+          CALL xt_abort("invalid number of pointers", filename, __LINE__)

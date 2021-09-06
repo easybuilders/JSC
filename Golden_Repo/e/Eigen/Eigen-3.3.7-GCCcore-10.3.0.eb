@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Eigen'
+version = '3.3.7'
+
+homepage = 'http://eigen.tuxfamily.org'
+description = """Eigen is a C++ template library for linear algebra:
+ matrices, vectors, numerical solvers, and related algorithms.
+"""
+
+
+# only includes header files, but requires CMake so using non-system toolchain
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://gitlab.com/libeigen/eigen/-/archive/%(version)s']
+sources = [SOURCELOWER_TAR_BZ2]
+checksums = ['685adf14bd8e9c015b78097c1dc22f2f01343756f196acdc76a678e1ae352e11']
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('CMake', '3.18.0', '', SYSTEM),
+]
+
+moduleclass = 'math'

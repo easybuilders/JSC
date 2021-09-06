@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Java'
+local_patch_version = '292'
+local_java_version = '8'
+local_openjdk_version = 'b10'
+local_openj9_version = '0.26.0'
+version = '1.%s_%s' % (local_java_version, local_patch_version)
+versionsuffix = '-b10-OpenJDK'
+
+homepage = 'https://openjdk.java.net'
+description = """Open JDK lets you develop and deploy Java applications on desktops and servers."""
+
+
+toolchain = SYSTEM
+
+source_urls = ['https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk%su%s-%s_openj9-%s' %
+               (local_java_version, local_patch_version, local_openjdk_version, local_openj9_version)]
+sources = ['OpenJDK8U-jdk_x64_linux_openj9_%su%s%s_openj9-%s.tar.gz' %
+           (local_java_version, local_patch_version, local_openjdk_version, local_openj9_version)]
+
+moduleclass = 'lang'

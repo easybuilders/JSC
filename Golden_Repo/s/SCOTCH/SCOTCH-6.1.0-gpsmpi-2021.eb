@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'SCOTCH'
+version = '6.1.0'
+
+homepage = 'http://gforge.inria.fr/projects/scotch/'
+description = """Software package and libraries for sequential and parallel graph partitioning,
+static mapping, and sparse matrix block ordering, and sequential mesh and hypergraph partitioning.
+"""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2021'}
+toolchainopts = {'pic': True}
+
+source_urls = ['http://gforge.inria.fr/frs/download.php/file/38352/']
+sources = ['%(namelower)s_%(version)s.tar.gz']
+
+threadedmpi = False
+
+postinstallcmds = [
+    'mkdir %(installdir)s/example/',
+    'cp %(builddir)s/scotch_%(version)s/doc/scotch_example.f %(installdir)s/example/',
+]
+
+modextravars = {
+    'SCOTCH_ROOT': '%(installdir)s',
+    'SCOTCH_INCLUDE': '%(installdir)s/include/',
+    'SCOTCH_LIB': '%(installdir)s/lib',
+}
+
+moduleclass = 'math'

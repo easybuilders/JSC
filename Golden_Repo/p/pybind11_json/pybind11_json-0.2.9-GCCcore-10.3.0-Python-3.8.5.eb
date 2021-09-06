@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'pybind11_json'
+version = '0.2.9'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/pybind/pybind11_json'
+description = """pybind11_json is an nlohmann::json to pybind11 bridge,
+it allows you to automatically convert nlohmann::json to py::object and the other way around.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://github.com/pybind/pybind11_json/archive/']
+sources = ['%(version)s.tar.gz']
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('binutils', '2.36.1'),
+]
+dependencies = [
+    ('Python', '3.8.5'),
+    ('pybind11', '2.6.2', versionsuffix),
+    ('nlohmann-json', '3.9.1'),
+]
+
+configopts = "-DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python"
+
+sanity_check_paths = {
+    'files': ['include/pybind11_json/pybind11_json.hpp'],
+    'dirs': ['include/pybind11_json', 'share/cmake/pybind11_json'],
+}
+
+moduleclass = 'lib'

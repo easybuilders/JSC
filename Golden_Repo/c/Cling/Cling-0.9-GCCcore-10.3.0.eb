@@ -1,0 +1,69 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Cling'
+version = '0.9'
+
+homepage = "https://cdn.rawgit.com/root-project/cling/master/www/index.html"
+description = """Cling is an interactive C++ interpreter, built on the top of LLVM and Clang libraries.
+Its advantages over the standard interpreters are that it has command line prompt
+and uses just-in-time (JIT) compiler for compilation.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/root-project/cling/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['5fe545b4ca2884dc861e1241f2ae7b975b60514062675995cfbc401e3b3e8258']
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('binutils', '2.36.1',),
+]
+
+separate_build_dir = True
+srcdir = "%(builddir)s/src"
+
+# get source
+preconfigopts = (
+
+    # get compatible LLVM version id
+    'pushd %(builddir)s/cling-%(version)s && '
+    'LLVM_RELEASE=$(cat LastKnownGoodLLVMSVNRevision.txt) && '
+
+    # clone compatible LLVM branch
+    'cd .. && '
+    'git clone http://root.cern.ch/git/llvm.git src && '
+    'cd src && '
+    'git checkout cling-patches-r${LLVM_RELEASE} && '
+
+    # clone compatible Clang branch to the correct position in LLVM src 
+    'cd tools && '
+    'git clone http://root.cern.ch/git/clang.git && '
+    'cd clang && '
+    'git checkout cling-patches-r${LLVM_RELEASE} && '
+
+    # add cling src to the correct position LLVM src
+    'cd .. && '
+    'ln -s ../../cling-%(version)s cling && '
+
+    # cd to easybuild standard build directory
+    'popd && '
+)
+
+# copy jupyter kernel files
+postinstallcmds = [
+    # copy Jupyter kernel install files
+    # https://cdn.rawgit.com/root-project/cling/master/www/jupyter.html
+    'mkdir -p %(installdir)s/share/cling/ ',
+    'cp -a %(builddir)s/cling-%(version)s/tools/Jupyter %(installdir)s/share/cling ',
+]
+
+sanity_check_paths = {
+    'files': ['bin/cling'],
+    'dirs': ['bin', 'include', 'lib', 'share'],
+}
+
+moduleclass = 'tools'

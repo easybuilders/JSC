@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'ncview'
+version = "2.1.8"
+
+homepage = 'http://meteora.ucsd.edu/~pierce/ncview_home_page.html'
+description = """Ncview is a visual browser for netCDF format files."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['ftp://cirrus.ucsd.edu/pub/ncview/']
+sources = [SOURCE_TAR_GZ]
+checksums = ['e8badc507b9b774801288d1c2d59eb79ab31b004df4858d0674ed0d87dfc91be']
+
+preconfigopts = 'CC=$(which $CC) '
+configopts = '--with-udunits2_incdir=$EBROOTUDUNITS/include --with-udunits2_libdir=$EBROOTUDUNITS/lib '
+configopts += '--with-png_libdir=$EBROOTLIBPNG/lib --with-png_incdir=$EBROOTLIBPNG/include'
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('pkg-config', '0.29.2')
+]
+
+dependencies = [
+    ('netCDF', '4.7.4', '-serial'),
+    ('UDUNITS', '2.2.26'),
+    ('X11', '20200222'),
+    ('libpng', '1.6.37'),
+    ('zlib', '1.2.11'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/ncview'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

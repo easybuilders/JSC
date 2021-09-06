@@ -1,0 +1,11 @@
+--- tcsh-6.22.02/tc.sig.orig	2021-07-09 18:56:35.226284291 +0200
++++ tcsh-6.22.02/tc.sig.c	2021-07-09 18:57:20.678131519 +0200
+@@ -56,7 +56,7 @@
+ int phup_disabled; /* = 0; */
+ int pchild_disabled; /* = 0; */
+ int pintr_disabled; /* = 0; */
+-int handle_interrupt; /* = 0; */
++
+ 
+ int
+ handle_pending_signals(void)

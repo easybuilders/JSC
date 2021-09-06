@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'lz4'
+version = '3.1.0'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/lz4'
+description = """
+LZ4 is lossless compression algorithm, providing compression speed > 500 MB/s per core,
+scalable with multi-cores CPU. It features an extremely fast decoder, with speed in 
+multiple GB/s per core, typically reaching RAM speed limits on multi-core systems.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = [PYPI_SOURCE]
+
+builddependencies = [
+    ('binutils', '2.36.1')
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+]
+
+maxparallel = 12
+
+start_dir = '%(builddir)s/%(name)s-%(version)s/'
+
+options = {'modulename': 'lz4'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+moduleclass = 'lib'

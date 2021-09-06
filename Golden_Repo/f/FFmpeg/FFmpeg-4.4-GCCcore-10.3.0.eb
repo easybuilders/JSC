@@ -1,0 +1,71 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Built with EasyBuild version 4.4.0 on 2021-06-21_20-21-54
+easyblock = 'ConfigureMake'
+
+name = 'FFmpeg'
+version = '4.4'
+local_ffnvcodec_version = '11.0.10.1'
+
+homepage = 'https://www.ffmpeg.org/'
+description = """A complete, cross-platform solution to record, convert and stream audio and video."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = [
+    'https://ffmpeg.org/releases/',
+    'https://github.com/FFmpeg/nv-codec-headers/releases/download/n%s/' % local_ffnvcodec_version,
+]
+sources = [
+    SOURCELOWER_TAR_BZ2,
+    'nv-codec-headers-%s.tar.gz' % local_ffnvcodec_version,
+]
+checksums = [
+    '42093549751b582cf0f338a21a3664f52e0a9fbe0d238d3c992005e493607d0e',
+    '97e37b85922f1167b2f0bf0bb804c3d7266cc679e78814fe820cf8912a0e1291',
+]
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    ('pkg-config', '0.29.2')
+]
+
+dependencies = [
+    ('NASM', '2.15.03'),
+    ('zlib', '1.2.11'),
+    ('bzip2', '1.0.8'),
+    ('x264', '20200912'),
+    ('LAME', '3.100'),
+    ('x265', '3.4'),
+    ('libvpx', '1.9.0'),
+    ('X11', '20200222'),
+    ('freetype', '2.10.1'),
+    ('fontconfig', '2.13.92'),
+    ('FriBidi', '1.0.9'),
+    ('CUDA', '11.3', '', SYSTEM),
+]
+
+preconfigopts = 'pushd %%(builddir)s/nv-codec-headers-%s/ && ' % local_ffnvcodec_version
+preconfigopts += 'make install PREFIX=%(builddir)s/ffnvcodec && '
+preconfigopts += 'popd && '
+preconfigopts += 'export PKG_CONFIG_PATH=%(builddir)s/ffnvcodec/lib/pkgconfig/:$PKG_CONFIG_PATH && '
+
+configopts = '--enable-pic --enable-shared --enable-gpl --enable-version3 --enable-nonfree --cc="$CC" --cxx="$CXX" '
+configopts += '--enable-libx264 --enable-libx265 --enable-libmp3lame --enable-libfreetype --enable-fontconfig '
+configopts += '--enable-libfribidi --enable-libvpx '
+configopts += '--enable-cuda-nvcc --enable-libnpp --enable-nvenc --enable-cuvid '
+configopts += '--extra-cflags=-I${EBROOTCUDA}/include --extra-ldflags=-L${EBROOTCUDA}/lib64 '
+#  FFmpeg embeds ptx assembly code. Hence, '-ptx' is added to nvccflags by configure.
+#  This means that we cannot add more than a single architecture here.
+#  But new NVIDIA GPUs should be backward compatible.
+configopts += '--nvccflags="-O2 -gencode=arch=compute_60,code=sm_60" '
+configopts += '--logfile=log.txt '
+
+sanity_check_paths = {
+    'files': ['bin/ff%s' % x for x in ['mpeg', 'probe']] +
+             ['lib/lib%s.%s' % (x, y) for x in ['avdevice', 'avfilter', 'avformat', 'avcodec', 'postproc',
+                                                'swresample', 'swscale', 'avutil'] for y in [SHLIB_EXT, 'a']],
+    'dirs': ['include']
+}
+
+moduleclass = 'vis'

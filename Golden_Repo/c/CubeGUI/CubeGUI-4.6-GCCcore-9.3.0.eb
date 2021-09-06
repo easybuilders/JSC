@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This is an easyconfig file for EasyBuild, see https://github.com/easybuilders/easybuild
+#
+# Copyright:: Copyright 2018-2021 Juelich Supercomputing Centre, Germany
+# Authors::   Markus Geimer <m.geimer@fz-juelich.de>
+#             Christian Feld <c.feld@fz-juelich.de>
+# License::   3-clause BSD
+#
+# This work is based on experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+
+easyblock = 'EB_Score_minus_P'
+
+name = 'CubeGUI'
+version = '4.6'
+
+homepage = 'https://www.scalasca.org/software/cube-4.x/download.html'
+description = """
+Cube, which is used as performance report explorer for Scalasca and Score-P,
+is a generic tool for displaying a multi-dimensional performance space
+consisting of the dimensions (i) performance metric, (ii) call path, and
+(iii) system resource. Each dimension can be represented as a tree, where
+non-leaf nodes of the tree can be collapsed or expanded to achieve the
+desired level of granularity.
+
+This module provides the Cube graphical report explorer.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = ['http://perftools.pages.jsc.fz-juelich.de/cicd/cubegui/tags/cubegui-%(version)s']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = [
+    '1871c6736121d94a22314cb5daa8f3cbb978b58bfe54f677c4c9c9693757d0c5',  # cubegui-4.6.tar.gz
+]
+
+builddependencies = [
+    # use same binutils version that was used when building GCCcore
+    ('binutils', '2.34'),
+    ('CubeLib', '4.6'),
+]
+
+dependencies = [
+    ('Qt5', '5.14.2'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/cube', 'bin/cubegui-config',
+              ('lib/libcube4gui.a', 'lib64/libcube4gui.a'),
+              ('lib/libcube4gui.%s' % SHLIB_EXT, 'lib64/libcube4gui.%s' % SHLIB_EXT)],
+    'dirs': ['include/cubegui', 'lib/cube-plugins'],
+}
+
+# CubeGUI (and other Qt apps that use OpenGl) crash from time to time
+# or don't show any output when using Qt's WebEngine with the default
+# KNOB_MAX_WORKER_THREADS value of 65535 (from
+# OpenGL-2020-GCCcore-9.3.0.eb). Even with a value of 10 this behavior
+# doesn't vanish. Thus, don't use WebEngine at all, although it makes
+# nicer output.
+configopts = '--without-web-engine'
+
+moduleclass = 'perf'

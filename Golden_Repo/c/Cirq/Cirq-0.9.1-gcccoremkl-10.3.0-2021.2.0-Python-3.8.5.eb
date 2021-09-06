@@ -1,0 +1,99 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Cirq'
+version = '0.9.1'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/quantumlib/cirq'
+description = """A python framework for creating, editing,
+and invoking Noisy Intermediate Scale Quantum (NISQ) circuits."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', versionsuffix),
+    ('protobuf', '3.12.4'),
+    ('texlive', '20200406'),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check': True,
+}
+
+exts_list = [
+    ('cachetools', '4.1.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'bbaa39c3dede00175df2dc2b03d0cf18dd2d32a7de7beb68072d13043c9edb20')]),
+    ])),
+    ('pyasn1-modules', '0.2.8', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e')]),
+    ])),
+    ('rsa', '4.6', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '109ea5a66744dd859bf16fe904b8d8b627adafb9408753161e766a92e7d681fa')]),
+    ])),
+    ('google-auth', '1.23.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440')]),
+        ('modulename', 'google.auth'),
+    ])),
+    ('googleapis-common-protos', '1.52.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '560716c807117394da12cecb0a54da5a451b5cf9866f1d37e9a5e2329a665351')]),
+        ('modulename', 'googleapiclient')
+    ])),
+    ('grpcio', '1.33.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '21265511880056d19ce4f809ce3fbe2a3fa98ec1fc7167dbdf30a80d3276202e')]),
+        ('modulename', 'grpc')
+    ])),
+    ('google-api-core', '1.23.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '1bb3c485c38eacded8d685b1759968f6cf47dd9432922d34edb90359eaa391e2')]),
+        ('modulename', 'google'),
+    ])),
+    ('httplib2', '0.18.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '8af66c1c52c7ffe1aa5dc4bcd7c769885254b0756e6e69f953c7f0ab49a70ba3')]),
+    ])),
+    ('uritemplate', '3.0.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '5af8ad10cec94f215e3f48112de2022e1d5a37ed427fbd88652fa908f2ab7cae')]),
+    ])),
+    ('google-auth-httplib2', '0.0.4', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '8d092cc60fb16517b12057ec0bba9185a96e3b7169d86ae12eae98e645b7bc39')]),
+    ])),
+    ('google-api-python-client', '1.12.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '1892cd490d164e5ec2f2168dc3b4fa0af68f36ca15a88b91bca1826b3d4f2829')]),
+        ('modulename', 'googleapiclient'),
+    ])),
+    ('typing_extensions', '3.7.4.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c')]),
+    ])),
+    ('sortedcontainers', '2.2.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '4e73a757831fc3ca4de2859c422564239a31d8213d09a2a666e375807034d2ba')]),
+    ])),
+    ('networkx', '2.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '7978955423fbc9639c10498878be59caf99b44dc304c2286162fd24b458c1602')]),
+    ])),
+    ('freezegun', '0.3.15', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'e2062f2c7f95cc276a834c22f1a17179467176b624cc6f936e8bc3be5535ad1b')]),
+    ])),
+    ('protobuf', '3.12.4', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'c99e5aea75b6f2b29c8d8da5bdc5f5ed8d9a5b4f15115c8316a3f0a850f94656')]),
+        ('modulename', 'google.protobuf')
+    ])),
+    ('cirq', version, dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'cirq-%(version)s-py3-none-any.whl'),
+        ('checksums', [('sha256', 'd900b861f2132a673b511b22ec80955cedec34c1bfa95d8f39cdc1eab5309242')]),
+        ('use_pip', True),
+        ('unpack_sources', False),
+    ])),
+]
+
+moduleclass = 'quantum'

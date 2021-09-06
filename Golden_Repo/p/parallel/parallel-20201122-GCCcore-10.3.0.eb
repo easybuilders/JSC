@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'parallel'
+version = '20201122'
+
+homepage = 'https://savannah.gnu.org/projects/parallel/'
+description = """parallel: Build and execute shell commands in parallel"""
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_BZ2]
+
+builddependencies = [('binutils', '2.36.1')]
+dependencies = [
+    ('Perl', '5.32.0'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/parallel'],
+    'dirs': []
+}
+
+moduleclass = 'tools'

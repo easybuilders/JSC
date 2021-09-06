@@ -1,0 +1,20 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'gpsmpi'
+version = '2021'
+
+homepage = '(none)'
+description = 'GCC and GFortran based compiler toolchain, including Parastation MPICH2 for MPI support.'
+
+
+toolchain = SYSTEM
+
+local_compiler = ('GCC', '10.3.0')
+
+dependencies = [
+    local_compiler,
+    ('psmpi', '5.4.9-1', '', local_compiler),
+]
+
+moduleclass = 'toolchain'

@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# easyconfig file for Med File Library
+# author: Metin Cakircali (Juelich Supercomputing Centre)
+easyblock = 'ConfigureMake'
+
+name = 'MED'
+version = '4.0.0'
+
+homepage = 'http://salome-platform.org/'
+description = """Initially defined by EDF R&D,
+this format has been defined and maintained
+through a MED working group comprising members of
+EDF R&D and CEA (the Code Saturne team being represented).
+"""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2021'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True}
+
+sources = [{
+    'source_urls': ['http://files.salome-platform.org/Salome/other/'],
+    'filename': 'med-%(version)s.tar.gz'
+}]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SWIG', '4.0.2', '-Python-%(pyver)s'),
+    ('HDF5', '1.10.6'),
+]
+
+# better to configure these dependents explicitly
+configopts = ['--with-f90 --with-hdf5=$EBROOTHDF5 --with-swig=$EBROOTSWIG']
+
+moduleclass = 'lib'

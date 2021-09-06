@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Authors:: Jack Perdue <j-perdue@tamu.edu> - TAMU HPRC - https://hprc.tamu.edu
+
+easyblock = 'ConfigureMake'
+
+name = 'FriBidi'
+version = '1.0.9'
+
+homepage = 'https://github.com/fribidi/fribidi'
+
+description = """
+ The Free Implementation of the Unicode Bidirectional Algorithm.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://github.com/%(namelower)s/%(namelower)s/releases/download/v%(version)s']
+sources = [SOURCELOWER_TAR_XZ]
+
+builddependencies = [
+    ('Autotools', '20200321'),
+    ('binutils', '2.36.1'),
+    ('pkg-config', '0.29.2'),
+]
+
+configopts = '--disable-docs'
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'include/%(namelower)s/%(namelower)s.h',
+              'lib/lib%%(namelower)s.%s' % SHLIB_EXT],
+    'dirs': []
+}
+
+moduleclass = 'lang'

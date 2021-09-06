@@ -1,0 +1,57 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+name = 'Singularity-Tools'
+version = '2020'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://gitlab.version.fz-juelich.de/hps-public/container-build-system-cli'
+description = """Singularity-Tools contain a bunch of tools for Singularity,
+ e.g. the JSC Build System CLI or singularity-compose.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+dependencies = [('Python', '3.8.5')]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = ('python -c "import %(ext_name)s"', '')
+exts_download_dep_fail = True
+
+exts_list = [
+    ('pyaml', '20.4.0', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/pyaml']),
+    ])),
+    ('semver', '2.10.2', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/semver']),
+    ])),
+    ('spython', '0.0.85', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/spython']),
+    ])),
+    ('singularity-compose', '0.0.20', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/singularity-compose']),
+        ('modulename', 'scompose'),
+    ])),
+    ('tabulate', '0.8.7', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://pypi.python.org/packages/source/p/tabulate']),
+    ])),
+    ('sib', '0.0.1', dict(list(local_common_opts.items()) + [
+        ('sources', ['client-0.0.1.tar.gz']),
+        ('modulename', 'singularitydb_client'),
+    ])),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'tools'

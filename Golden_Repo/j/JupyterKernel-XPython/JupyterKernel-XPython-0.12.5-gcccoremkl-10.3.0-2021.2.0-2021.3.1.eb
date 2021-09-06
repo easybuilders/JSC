@@ -1,0 +1,125 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-XPython'
+version = '0.12.5'
+local_jupyterver = '2021.3.1'
+versionsuffix = '-' + local_jupyterver
+
+local_pysuffix = '-Python-%(pyver)s'
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special Debugging kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('Jupyter', local_jupyterver, local_pysuffix),
+    ('xeus', '1.0.4'),
+    ('pybind11_json', '0.2.9', local_pysuffix),
+]
+osdependencies = [('openssl-devel', 'libssl-dev', 'libopenssl-devel')]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+components = [
+    # attention: xeus-python >= 0.11.0 needs ipython >= 7.20.1
+    ('xeus-python', version, {
+        'easyblock': 'CMakeMake',
+        'source_urls': ['https://github.com/jupyter-xeus/xeus-python/archive/'],
+        'sources': ['%(version)s.tar.gz'],
+        'start_dir': '%(namelower)s-%(version)s',
+        # 'checksums': [''],
+        'configopts': (
+            '-DPYTHON_EXECUTABLE=$(which python) '
+            '-DXEUS_PYTHONHOME_RELPATH=$(realpath --relative-to=%(installdir)s $EBROOTPYTHON)/ '
+        ),
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+local_kernel_dir = 'xpython'
+local_kernel_name = 'Python %(pyshortver)s (XPython)'
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module use \$OTHERSTAGES \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.10.3.0 \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec %%(installdir)s/bin/xpython \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { "debugger": true } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+# full_sanity_check = True
+sanity_check_paths = {
+    'files': [
+        'bin/xpython',
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'bin/',
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

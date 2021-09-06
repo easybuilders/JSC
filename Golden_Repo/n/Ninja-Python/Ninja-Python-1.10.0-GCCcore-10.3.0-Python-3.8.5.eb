@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'Ninja-Python'
+version = '1.10.0'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://ninja-build.org/'
+description = "Ninja is a small build system with a focus on speed."
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+
+source_urls = ['https://pypi.python.org/packages/source/n/ninja']
+sources = [
+    {'download_filename': 'ninja-%(version)s.tar.gz', 'filename': SOURCE_TAR_GZ}]
+
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('scikit', '2021', versionsuffix, ('gcccoremkl', '10.3.0-2021.2.0')),
+]
+
+download_dep_fail = True
+use_pip = True
+sanity_pip_check = True
+
+
+options = {'modulename': 'ninja'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/ninja'],
+}
+
+moduleclass = 'tools'

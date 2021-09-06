@@ -1,0 +1,67 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Authors::  Inge Gutheil <i.gutheil@fz-juelich.de>
+#
+# This work implements sprng5
+# http://www.sprng.org/
+##
+
+easyblock = 'ConfigureMake'
+name = 'sprng'
+version = '5'
+versionsuffix = '-14042019'
+
+homepage = 'http://www.sprng.org/'
+description = """The Scalable Parallel Random Number Generators Library (SPRNG) version 5 has been installed as module in
+
+$EBROOTSPRNG
+
+This version contains all different random number generators in one library,
+the generator has to be chosen via an input parameter.
+"""
+
+
+toolchain = {'name': 'gpsmpi', 'version': '2021'}
+toolchainopts = {'optarch': True, 'usempi': True}
+
+source_urls = ['http://www.sprng.org/']
+sources = ['%(name)s%(version)s%(versionsuffix)s.tar.bz2']
+
+patches = [
+    'sprng-5-examples.patch',
+]
+
+configopts = '--with-mpi --with-fortran'
+
+parallel = 1
+
+postinstallcmds = [
+    "cp -r include %(installdir)s/",
+    "cp -r EXAMPLES %(installdir)s",
+    "cp DOCS/README %(installdir)s",
+    "cp AUTHORS %(installdir)s",
+    "cp COPYING %(installdir)s",
+    "cp LICENSE %(installdir)s",
+    "mv %(installdir)s/EXAMPLES/Makefile_cxx %(installdir)s/EXAMPLES/Makefile",
+    "rm %(installdir)s/EXAMPLES/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/*.sprng",
+    "mv %(installdir)s/EXAMPLES/F77/Makefile_1 %(installdir)s/EXAMPLES/F77/Makefile",
+    "rm %(installdir)s/EXAMPLES/F77/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/F77/*.sprng",
+    "mv %(installdir)s/EXAMPLES/mpisprng/Makefile_2 %(installdir)s/EXAMPLES/mpisprng/Makefile",
+    "rm %(installdir)s/EXAMPLES/mpisprng/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/mpisprng/*.sprng",
+    "mv %(installdir)s/EXAMPLES/mpisprng/F77/Makefile_1 %(installdir)s/EXAMPLES/mpisprng/F77/Makefile",
+    "rm %(installdir)s/EXAMPLES/mpisprng/F77/Makefile*.*",
+]
+
+modextravars = {
+    'SPRNG5_ROOT': '%(installdir)s',
+    'SPRNG5ROOT': '%(installdir)s',
+    'SPRNG5_LIB': '%(installdir)s/lib',
+    'SPRNG5_INCLUDE': '%(installdir)s/include'
+}
+
+moduleclass = 'math'

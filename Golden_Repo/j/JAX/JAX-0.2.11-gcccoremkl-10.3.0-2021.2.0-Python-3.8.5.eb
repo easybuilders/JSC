@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+import os
+easyblock = 'PythonPackage'
+
+name = 'JAX'
+version = '0.2.11'
+versionsuffix = '-Python-%(pyver)s'
+local_cudaver = '11.3'
+
+homepage = "https://github.com/google/jax"
+description = """JAX is Autograd and XLA, brought together for high-performance machine learning research."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+
+
+dependencies = [
+    ('binutils', '2.36.1'),
+    ('CUDA', '11.3', '', SYSTEM),
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2020', versionsuffix, ('gcccoremkl', '9.3.0-2020.2.254')),
+    ('cuDNN', '8.2.1.32', '-CUDA-%s' % local_cudaver, True),
+    ('libjpeg-turbo', '2.0.5'),
+]
+
+github_account = 'google'
+source_urls = [GITHUB_LOWER_SOURCE]
+sources = ["%(namelower)s-v%(version)s.tar.gz"]
+checksums = ['82505dca6c3171e0e5b6ba4dfe69e0322e27dc66e6bdd4a78e6119e3148ae413']
+
+download_dep_fail = True
+use_pip = True
+sanity_pip_check = True
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'sanity_pip_check': True,
+}
+
+use_pip = True
+
+exts_list = [
+    ('flatbuffers', '1.12', {
+        'source_tmpl': 'flatbuffers-%(version)s-py2.py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['9e9ef47fa92625c4721036e7c4124182668dc6021d9e7c73704edd395648deb9'],
+    }),
+    ('absl-py', '0.10.0', {
+        'modulename': 'absl',
+        'checksums': ['b20f504a7871a580be5268a18fbad48af4203df5d33dbc9272426cb806245a45'],
+    }),
+    ('jaxlib', '0.1.64', {
+        'source_tmpl': 'jaxlib-0.1.64+cuda110-cp38-none-manylinux2010_x86_64.whl',
+        'source_urls': ['https://storage.googleapis.com/jax-releases/cuda110/'],
+        'unpack_sources': False,
+        'checksums': ['36f20d9d54482da7239f38e59d5301a15a64a56fa35b6c8ba31f7871504dba2a'],
+    }),
+    ('opt_einsum', '3.3.0', {
+        'source_tmpl': 'opt_einsum-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['2455e59e3947d3c275477df7f5205b30635e266fe6dc300e3d9f9646bfcea147'],
+    }),
+]
+
+# This should be modextravars, but life is unfair
+# Jaxlib searches in hardcoded paths for CUDA, or in those variables
+modluafooter = """
+local cuda_root = os.getenv("EBROOTCUDA") or ""
+setenv("CUDA_DIR", cuda_root)
+setenv("XLA_FLAGS", "--xla_gpu_cuda_data_dir=" .. cuda_root)
+"""
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/jax',
+             'lib/python%(pyshortver)s/site-packages/jaxlib'],
+}
+
+moduleclass = 'data'

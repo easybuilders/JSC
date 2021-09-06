@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'rkcommon'
+version = '1.6.1'
+
+homepage = 'http://www.ospray.org/'
+description = """
+OSPRay is an open source, scalable, and portable ray tracing engine for
+high-performance, high-fidelity visualization on Intel® Architecture CPUs.
+"""
+
+
+toolchain = {'name': 'GCC', 'version': '10.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/ospray/rkcommon/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['b61c10f26fba3e6f00305d5828b3bac523d559c5c0e6f79893b19e8c0e30074e']
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM),
+]
+
+dependencies = [
+    ('tbb', '2020.3'),
+]
+
+separate_build_dir = True
+
+start_dir = '%(name)s-%(version)s'
+
+sanity_check_paths = {
+    'dirs': ['bin', 'include/rkcommon'],
+    'files': ['lib/librkcommon.so'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Warning: YAXT needs to be run from within an salloc, with a shared buildpath
+# Example:
+# ***** on clsuter *****
+# salloc --partition=devel --nodes=1 --time=01:30:00 --account=<  >
+# srun --cpu_bind=none --nodes=1 --pty /bin/bash -i
+# eb --buildpath=$HOME/temp  YAXT-0.9.1-ipsmpi-2020.eb
+# ***** on booster****
+# salloc --partition=develbooster --nodes=1 --gres=gpu:4 --account=< > --time=01:00:00
+# https://www.dkrz.de/redmine/attachments/download/506/yaxt-0.9.1.tar.gz
+# patch file is located in the installtion directory
+#
+easyblock = 'ConfigureMake'
+
+name = 'YAXT'
+version = '0.9.1'
+
+homepage = 'https://www.dkrz.de/redmine/projects/yaxt'
+description = """Yet Another eXchange Tool"""
+
+
+toolchain = {'name': 'ipsmpi', 'version': '2020'}
+toolchainopts = {'usempi': True}
+
+source_urls = ['https://www.dkrz.de/redmine/attachments/download/506/']
+sources = ['yaxt-%s.tar.gz' % (version)]
+patches = ['xt_redist_f.f90.patch']
+
+preconfigopts = 'MPI_LAUNCH="$(which srun)"'
+
+sanity_check_paths = {
+    'files': ["include/yaxt.h", "include/yaxt.mod", "lib/libyaxt.a", "lib/libyaxt.so"],
+    'dirs': ["include/xt"],
+}
+
+moduleclass = 'tools'

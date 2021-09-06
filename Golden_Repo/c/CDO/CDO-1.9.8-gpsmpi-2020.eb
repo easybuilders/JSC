@@ -7,6 +7,7 @@ version = '1.9.8'
 homepage = 'https://code.zmaw.de/projects/cdo'
 description = """CDO is a collection of command line Operators to manipulate and analyse Climate and NWP model Data."""
 
+
 toolchain = {'name': 'gpsmpi', 'version': '2020'}
 # stick to lowopt (-O1) to avoid internal compiler error when building on Intel Skylake
 toolchainopts = {'pic': True, 'usempi': True, 'lowopt': True}
@@ -16,18 +17,19 @@ sources = [SOURCELOWER_TAR_GZ]
 checksums = ['f2660ac6f8bf3fa071cf2a3a196b3ec75ad007deb3a782455e80f28680c5252a']
 
 dependencies = [
+    ('Szip', '2.1.1'),
     ('HDF5', '1.10.6'),
     ('netCDF', '4.7.4'),
     ('YAXT', '0.9.0'),
     ('ecCodes', '2.18.0'),
+    ('FFTW', '3.3.8'),
+    ('PROJ', '7.1.0'),
 ]
 
-
-configopts = "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-eccodes=$EBROOTECCODES --with-szlib=yes"
-
-# fix for linking issues with HDF5 libraries for libcdi, should link with both -lnetcdf and -lhdf5_hl -lhdf5
-# prebuildopts = "find libcdi -name Makefile | xargs sed -i 's/-lnetcdf -lnetcdf/-lnetcdf -lhdf5_hl -lhdf5/g' && "
+configopts = "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-eccodes=$EBROOTECCODES --with-szlib=yes "
+configopts += " --with-proj=$EBROOTPROJ --with-fftw3 --with-fftw3=$EBROOTFFTW"
 preconfigopts = 'export CFLAGS="$CFLAGS -lhdf5" && '
+
 sanity_check_paths = {
     'files': ['bin/cdo'],
     'dirs': [],

@@ -11,7 +11,7 @@ description = """Intel Math Kernel Library is a library of highly optimized,
 """
 
 
-toolchain = {'version': '2020', 'name': 'iimpi'}
+toolchain = {'version': '2020', 'name': 'ipsmpi'}
 
 source_urls = [
     'https://registrationcenter-download.intel.com/akdlm/irc_nas/tec/16917/']

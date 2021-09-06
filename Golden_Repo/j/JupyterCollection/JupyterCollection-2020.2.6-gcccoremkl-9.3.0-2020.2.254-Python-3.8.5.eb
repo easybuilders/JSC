@@ -18,7 +18,7 @@ dependencies = [
     ('JupyterProxy-XpraHTML5',       '0.3.0', '-' + version),
     #  ('JupyterProxy-Matlab',          '0.1.0', '-' + version),
     ('JupyterKernel-Bash',           '0.7.1', '-' + version),
-    ('JupyterKernel-Cling',          '0.7',   '-' + version),
+    ('JupyterKernel-Cling',          '0.9',   '-' + version),
     ('JupyterKernel-JavaScript',     '5.2.0', '-' + version),
     ('JupyterKernel-Julia',          '1.6.1', '-' + version),
     ('JupyterKernel-Octave',         '6.1.0', '-' + version),

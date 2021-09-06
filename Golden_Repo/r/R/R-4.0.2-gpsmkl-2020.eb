@@ -58,7 +58,10 @@ dependencies = [
 
 osdependencies = [('openssl-devel', 'libssl-dev', 'libopenssl-devel')]
 
-preconfigopts = 'export LDFLAGS="$LDFLAGS -lm" && '
+# lmkl_rt allows it to use the single dynamic library, and change it on runtime
+# see https://tinyurl.com/lmklrt
+
+preconfigopts = 'export LDFLAGS="$LDFLAGS -lm -lmkl_rt" && '
 
 configopts = "--with-pic --enable-threads --enable-R-shlib"
 # some recommended packages may fail in a parallel build (e.g. Matrix), and

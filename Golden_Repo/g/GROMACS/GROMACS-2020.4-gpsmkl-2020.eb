@@ -58,7 +58,7 @@ configopts += '-DGMX_CUDA_TARGET_SM="60;70;80" '
 
 mpiexec = 'srun'
 mpiexec_numproc_flag = '"--gres=gpu:1 -n"'
-mpi_numprocs = '24'
+mpi_numprocs = 24
 
 runtest = False
 

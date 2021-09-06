@@ -37,6 +37,7 @@ COMP_NAME_VERSION_TEMPLATES = {
 # Compiler relevant version numbers
 comp_relevant_versions = {
     'intel': 1,
+    'intel-compilers': 1,
     'PGI': 1,
     'NVHPC': 1,
 # The compilers load GCCcore/version. So GCC and GCCcore can't really be flexible, since GCCcore will always be loaded
@@ -51,10 +52,11 @@ mpi_relevant_versions = {
     'psmpi': 2,
     'MVAPICH2': 2,
     'OpenMPI': 2,
+    'BullMPI': 2,
 }
 
 # MPIs with settings modules
-mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2', 'OpenMPI']
+mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2', 'OpenMPI', 'BullMPI']
 
 class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
     """Class implementing an example hierarchical module naming scheme."""
@@ -65,7 +67,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             <name>/<version>[-<toolchain>]
         """
         # We rename our iccifort compiler to INTEL and this needs a hard fix because it is a toolchain
-        if name == 'iccifort':
+        if name == 'iccifort' or name == 'intel-compilers':
             modname_regex = re.compile('^%s/\S+$' % re.escape('Intel'))
         elif name == 'psmpi':
             modname_regex = re.compile('^%s/\S+$' % re.escape('ParaStationMPI'))
@@ -98,26 +100,60 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         mpi_ver = self.det_full_version(mpi_info)
         mpi_name = mpi_info['name']
 
+        # We'll start ignoring suffixes in MPI toolchains. But let's keep the code around for a bit, in case it needs
+        # to be readded. Not elegant, I know, but digging up in git is always extra effort.
+
         # Find suffix, if any, to be appended. Try to be clever, since the suffix is embedded in the version
         # and sometimes the version might include a string that looks like a suffix (ie: psmpi-5.4.0-1)
         if mpi_name in mpi_relevant_versions:
             # Find possible suffixes
             possible_suffixes = mpi_ver.split('-')[1:]
+            suffix = ''
             # Match the '-1' that is a typical part of psmpi's version
-            if possible_suffixes:
-                if re.match('^\d$', possible_suffixes[0]):
-                    suffix_index = 2
-                else:
-                    suffix_index = 1
-                suffix = '-'.join(mpi_ver.split('-')[suffix_index:])
-            else:
-                suffix = ''
+            #if possible_suffixes:
+            #    if re.match('^\d$', possible_suffixes[0]):
+            #        suffix_index = 2
+            #    else:
+            #        suffix_index = 1
+            #    suffix = '-'.join(mpi_ver.split('-')[suffix_index:])
 
             mpi_ver = '.'.join(mpi_ver.split('.')[:mpi_relevant_versions[mpi_name]])
             if suffix:
                 mpi_ver += '-%s' % suffix
 
         return mpi_name, mpi_ver
+
+    def det_toolchain_compilers_name_version(self, tc_comps):
+        """
+        Determine toolchain compiler tag, for given list of compilers.
+        """
+        if tc_comps is None:
+            # no compiler in toolchain, system toolchain
+            res = None
+        elif len(tc_comps) == 1:
+            tc_comp = tc_comps[0]
+            if tc_comp is None:
+                res = None
+            else:
+                # Rename intel-compilers to intel, just to keep it consistent with installations pre oneAPI
+                if tc_comp['name'] == 'intel-compilers':
+                    tc_comp['name'] = 'intel'
+                res = (tc_comp['name'], self.det_full_version(tc_comp))
+        else:
+            comp_versions = dict([(comp['name'], self.det_full_version(comp)) for comp in tc_comps])
+            comp_names = comp_versions.keys()
+            key = ','.join(sorted(comp_names))
+            if key in COMP_NAME_VERSION_TEMPLATES:
+                tc_comp_name, tc_comp_ver_tmpl = COMP_NAME_VERSION_TEMPLATES[key]
+                tc_comp_ver = tc_comp_ver_tmpl % comp_versions
+                # make sure that icc/ifort versions match (unless not existing as separate modules)
+                if tc_comp_name == 'intel' and comp_versions.get('icc') != comp_versions.get('ifort'):
+                    raise EasyBuildError("Bumped into different versions for Intel compilers: %s", comp_versions)
+            else:
+                raise EasyBuildError("Unknown set of toolchain compilers, module naming scheme needs work: %s",
+                                     comp_names)
+            res = (tc_comp_name, tc_comp_ver)
+        return res
 
     def det_module_subdir(self, ec):
         """
@@ -201,7 +237,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 comp_name_ver = [ec['name'], self.det_full_version(ec)]
                 # Handle the case where someone only wants iccifort to extend the path
                 # This means icc/ifort are not of the moduleclass compiler but iccifort is
-                if ec['name'] == 'iccifort':
+                if ec['name'] == 'iccifort' or ec['name'] == 'intel-compilers':
                     comp_name_ver = ['intel', self.det_full_version(ec)]
 
             # Exclude extending the path for icc/ifort, the iccifort special case is handled above

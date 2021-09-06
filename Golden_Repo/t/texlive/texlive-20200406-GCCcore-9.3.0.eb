@@ -5,6 +5,7 @@ easyblock = 'Tarball'
 
 name = 'texlive'
 version = '20200406'
+local_repo = 'ftp://tug.org/historic/systems/texlive/2020/tlnet-final'
 
 homepage = 'https://tug.org'
 description = """TeX is a typesetting language. Instead of visually formatting your text, you enter your manuscript
@@ -39,11 +40,14 @@ dependencies = [
 ]
 
 postinstallcmds = [
-    'echo "TEXDIR         %(installdir)s/" > %(installdir)s/texlive.profile && '
-    'echo "TEXMFLOCAL     %(installdir)s/texmf-local" >> %(installdir)s/texlive.profile && '
-    'echo "TEXMFSYSCONFIG %(installdir)s/texmf-config" >> %(installdir)s/texlive.profile && '
-    'echo "TEXMFSYSVAR    %(installdir)s/texmf-var" >> %(installdir)s/texlive.profile && '
-    '%(builddir)s/install-tl-%(version)s/install-tl -profile %(installdir)s/texlive.profile'
+    (
+        'echo "TEXDIR         %%(installdir)s/" > %%(installdir)s/texlive.profile && '
+        'echo "TEXMFLOCAL     %%(installdir)s/texmf-local" >> %%(installdir)s/texlive.profile && '
+        'echo "TEXMFSYSCONFIG %%(installdir)s/texmf-config" >> %%(installdir)s/texlive.profile && '
+        'echo "TEXMFSYSVAR    %%(installdir)s/texmf-var" >> %%(installdir)s/texlive.profile && '
+        '%%(builddir)s/install-tl-%%(version)s/install-tl -profile %%(installdir)s/texlive.profile '
+        '--repository %s'
+    ) % (local_repo),
 ]
 
 modextrapaths = {

@@ -14,7 +14,7 @@ sources = ['%(name)sJ-%(version)s.tgz']
 source_urls = ['https://www.giss.nasa.gov/tools/panoply/download/']
 
 dependencies = [
-    ('Java', '1.8', '', SYSTEM),
+    ('Java', '15', '', SYSTEM),
 ]
 
 postinstallcmds = [

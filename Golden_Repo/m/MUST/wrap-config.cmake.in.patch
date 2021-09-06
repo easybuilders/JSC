@@ -43,3 +43,48 @@
        set(script_arg ${Wrap_EXECUTABLE})
      else()
        set(command ${Wrap_EXECUTABLE})
+--- externals/wrap/WrapConfig.cmake.orig	2021-05-27 10:35:39.000000000 +0200
++++ externals/wrap/WrapConfig.cmake	2021-05-27 10:36:23.000000000 +0200
+@@ -29,9 +29,9 @@
+ 
+     # Play nice with FindPythonInterp -- use the interpreter if it was found,
+     # otherwise use the script directly.
+-    find_package(PythonInterp 2.6)
+-    if (PYTHON_EXECUTABLE)
+-      set(command ${PYTHON_EXECUTABLE})
++    find_package(Python)
++    if (Python_EXECUTABLE)
++      set(command ${Python_EXECUTABLE})
+       set(script_arg ${Wrap_EXECUTABLE})
+     else()
+       set(command ${Wrap_EXECUTABLE})
+--- externals/GTI/externals/wrap/WrapConfig.cmake.orig	2021-05-27 10:35:39.000000000 +0200
++++ externals/GTI/externals/wrap/WrapConfig.cmake	2021-05-27 10:36:23.000000000 +0200
+@@ -29,9 +29,9 @@
+ 
+     # Play nice with FindPythonInterp -- use the interpreter if it was found,
+     # otherwise use the script directly.
+-    find_package(PythonInterp 2.6)
+-    if (PYTHON_EXECUTABLE)
+-      set(command ${PYTHON_EXECUTABLE})
++    find_package(Python)
++    if (Python_EXECUTABLE)
++      set(command ${Python_EXECUTABLE})
+       set(script_arg ${Wrap_EXECUTABLE})
+     else()
+       set(command ${Wrap_EXECUTABLE})
+--- externals/GTI/externals/PnMPI/externals/wrap/WrapConfig.cmake.orig	2021-05-27 10:35:39.000000000 +0200
++++ externals/GTI/externals/PnMPI/externals/wrap/WrapConfig.cmake	2021-05-27 10:36:23.000000000 +0200
+@@ -29,9 +29,9 @@
+ 
+     # Play nice with FindPythonInterp -- use the interpreter if it was found,
+     # otherwise use the script directly.
+-    find_package(PythonInterp 2.6)
+-    if (PYTHON_EXECUTABLE)
+-      set(command ${PYTHON_EXECUTABLE})
++    find_package(Python)
++    if (Python_EXECUTABLE)
++      set(command ${Python_EXECUTABLE})
+       set(script_arg ${Wrap_EXECUTABLE})
+     else()
+       set(command ${Wrap_EXECUTABLE})

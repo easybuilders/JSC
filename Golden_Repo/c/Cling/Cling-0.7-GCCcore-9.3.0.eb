@@ -17,7 +17,7 @@ toolchainopts = {'pic': True}
 source_urls = ['https://github.com/vgvassilev/cling/archive/']
 sources = ['v%(version)s.tar.gz']
 
-patches = [('patchpatch4llvmtools.patch', 1)]
+# patches = [('patchpatch4llvmtools.patch', 1)]
 
 builddependencies = [
     ('CMake', '3.18.0'),
@@ -44,7 +44,7 @@ preconfigopts += "cd ../.. && "
 # patch source (or turn off llvm tools)
 # configopts = ['-DLLVM_BUILD_TOOLS=Off']
 preconfigopts += "cd %(builddir)s/cling-%(version)s && "
-preconfigopts += "patch -s -p0 < patch4llvmtools.patch && "
+# preconfigopts += "patch -s -p0 < patch4llvmtools.patch && "
 
 # cd to easybuild standard build directory
 preconfigopts += "cd %(builddir)s/easybuild_obj/ && "

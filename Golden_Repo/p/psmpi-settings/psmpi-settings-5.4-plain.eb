@@ -14,5 +14,8 @@ toolchain = SYSTEM
 source_urls = []
 
 sources = []
+modextravars = {
+    'PSP_HARD_ABORT': '1',
+}
 
 moduleclass = 'system'

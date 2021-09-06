@@ -50,6 +50,8 @@ modextravars = {
     'OMPI_MCA_opal_set_max_sys_limits': '1',
     'OMPI_MCA_opal_event_include': 'epoll',
     'OMPI_MCA_btl_openib_warn_default_gid_prefix': '0',
+    # OMPIO does not seem to work reliably on our system
+    'OMPI_MCA_io': 'romio321',
     # So mlx5_0 is not taken, given that one is an ethernet port in jusuf
     'OMPI_MCA_btl_openib_if_include': 'mlx5_1',
 }

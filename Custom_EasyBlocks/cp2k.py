@@ -105,6 +105,7 @@ class EB_CP2K(EasyBlock):
             'cuda': [True, "Enable CUDA support", CUSTOM],
             'type': ['popt', "Type of build ('popt' or 'psmp')", CUSTOM],
             'typeopt': [True, "Enable optimization", CUSTOM],
+            'dbcsr_version': ['2.0.1',"DBCSR version used",CUSTOM],
         }
         return EasyBlock.extra_options(extra_vars)
 
@@ -122,15 +123,19 @@ class EB_CP2K(EasyBlock):
         - generate Makefile
         """
 
-        known_types = ['popt', 'psmp']
+        known_types = ['psmp']
         if self.cfg['type'] not in known_types:
             raise EasyBuildError("Unknown build type specified: '%s', known types are %s",
                                  self.cfg['type'], known_types)
         self.log.info("initial start_dir %s" %self.cfg['start_dir']) 
-        cpstring="cp -r %s../dbcsr-2.0.1/* %sexts/dbcsr/" %(self.cfg['start_dir'],self.cfg['start_dir'])
+        cpstring="cp -r %s../dbcsr-%s/* %sexts/dbcsr/" %(self.cfg['start_dir'],self.cfg['dbcsr_version'],self.cfg['start_dir'])
+        cpstringb="cp -r %s../dbcsr-%s/.cp2k %sexts/dbcsr/" %(self.cfg['start_dir'],self.cfg['dbcsr_version'],self.cfg['start_dir'])
 #       run_cmd(cpstring)
         self.log.info(cpstring) 
         os.system(cpstring)
+        # cpstringb should already been included in cpstring
+        # for some odd reason, however, it was not (reproducability??)
+        os.system(cpstringb)
 
         # correct start dir, if needed
         # recent CP2K versions have a 'cp2k' dir in the unpacked 'cp2k' dir
@@ -484,7 +489,10 @@ class EB_CP2K(EasyBlock):
         options['FCFLAGSOPT'] += ' $(INCFLAGS) -heap-arrays 64'
         options['FCFLAGSOPT2'] += ' $(INCFLAGS) -heap-arrays 64'
 
-        ifortver = LooseVersion(get_software_version('ifort'))
+        ifortver_string = get_software_version('ifort')
+        if not ifortver_string:
+                ifortver_string = get_software_version('intel-compilers')
+        ifortver = LooseVersion(ifortver_string)
 
         # -i-static has been deprecated prior to 2013, but was still usable. From 2015 it is not.
         if ifortver < LooseVersion("2013"):

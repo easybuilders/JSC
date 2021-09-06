@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 # #
-# Copyright 2009-2020 Ghent University
+# Copyright 2009-2021 Ghent University
 #
 # This file is part of EasyBuild,
 # originally created by the HPC team of Ghent University (http://ugent.be/hpc/en),
@@ -39,6 +39,7 @@ Generic EasyBuild support for installing Intel tools, implemented as an easybloc
 import os
 import re
 import shutil
+import stat
 import tempfile
 from distutils.version import LooseVersion
 
@@ -47,7 +48,8 @@ from easybuild.framework.easyblock import EasyBlock
 from easybuild.framework.easyconfig import CUSTOM
 from easybuild.framework.easyconfig.types import ensure_iterable_license_specs
 from easybuild.tools.build_log import EasyBuildError
-from easybuild.tools.filetools import find_flexlm_license, mkdir, read_file, remove_file, write_file
+from easybuild.tools.filetools import adjust_permissions, find_flexlm_license
+from easybuild.tools.filetools import mkdir, read_file, remove_file, write_file
 from easybuild.tools.run import run_cmd
 
 
@@ -194,18 +196,18 @@ class IntelBase(EasyBlock):
 
     def clean_home_subdir(self):
         """Remove contents of (local) 'intel' directory home subdir, where stuff is cached."""
-
-        self.log.debug("Cleaning up %s..." % self.home_subdir_local)
-        try:
-            for tree in os.listdir(self.home_subdir_local):
-                self.log.debug("... removing %s subtree" % tree)
-                path = os.path.join(self.home_subdir_local, tree)
-                if os.path.isfile(path) or os.path.islink(path):
-                    remove_file(path)
-                else:
-                    shutil.rmtree(path)
-        except OSError as err:
-            raise EasyBuildError("Cleaning up intel dir %s failed: %s", self.home_subdir_local, err)
+        if os.path.exists(self.home_subdir_local):
+            self.log.debug("Cleaning up %s..." % self.home_subdir_local)
+            try:
+                for tree in os.listdir(self.home_subdir_local):
+                    self.log.debug("... removing %s subtree" % tree)
+                    path = os.path.join(self.home_subdir_local, tree)
+                    if os.path.isfile(path) or os.path.islink(path):
+                        remove_file(path)
+                    else:
+                        shutil.rmtree(path)
+            except OSError as err:
+                raise EasyBuildError("Cleaning up intel dir %s failed: %s", self.home_subdir_local, err)
 
     def setup_local_home_subdir(self):
         """
@@ -269,29 +271,17 @@ class IntelBase(EasyBlock):
                 else:
                     self.log.info("Using Intel license specifications from $%s: %s", self.license_env_var, lic_specs)
 
-                # if we have multiple retained lic specs, specify to 'use a license which exists on the system'
-                if len(lic_specs) > 1:
-                    # regex for license server spec; format: <port>@<server>
-                    server_port_regex = re.compile(r'^[0-9]+@\S+$')
-                    # 2020 compilers do not accept 'exist_lic' if we have a license server, or multiple servers in
-                    # 'ACTIVATION_LICENSE_FILE'
-                    if LooseVersion(self.version) >= LooseVersion('2020') and server_port_regex.match(lic_specs[0]):
-                        self.log.debug("The first license seem to be server. Using '%s' license activation instead "
-                                       "of '%s'", ACTIVATION_LIC_SERVER, self.cfg['license_activation'])
-                        self.cfg['license_activation'] = ACTIVATION_LIC_SERVER
-                        self.log.debug("Retaining just the first license server: '%s' " % lic_specs[0])
-                        lic_specs = lic_specs[0:1]
-                    else:
-                        self.log.debug("More than one license specs found, using '%s' license activation instead of "
-                                       "'%s'", ACTIVATION_EXIST_LIC, self.cfg['license_activation'])
-                        self.cfg['license_activation'] = ACTIVATION_EXIST_LIC
-
-                    # $INTEL_LICENSE_FILE should always be set during installation with existing license or server
-                    env.setvar(default_lic_env_var, self.license_file)
-
                 self.license_file = os.pathsep.join(lic_specs)
                 env.setvar(self.license_env_var, self.license_file)
 
+                # if we have multiple retained lic specs, specify to 'use a license which exists on the system'
+                if len(lic_specs) > 1:
+                    self.log.debug("More than one license specs found, using '%s' license activation instead of "
+                                   "'%s'", ACTIVATION_EXIST_LIC, self.cfg['license_activation'])
+                    self.cfg['license_activation'] = ACTIVATION_EXIST_LIC
+
+                    # $INTEL_LICENSE_FILE should always be set during installation with existing license
+                    env.setvar(default_lic_env_var, self.license_file)
             else:
                 msg = "No viable license specifications found; "
                 msg += "specify 'license_file', or define $INTEL_LICENSE_FILE or $LM_LICENSE_FILE"
@@ -314,8 +304,8 @@ class IntelBase(EasyBlock):
         """Binary installation files, so no building."""
         pass
 
-    def install_step(self, silent_cfg_names_map=None, silent_cfg_extras=None):
-        """Actual installation
+    def install_step_classic(self, silent_cfg_names_map=None, silent_cfg_extras=None):
+        """Actual installation for versions prior to 2021.x
 
         - create silent cfg file
         - set environment parameters
@@ -335,9 +325,7 @@ class IntelBase(EasyBlock):
                 lic_file_server_activations = [ACTIVATION_EXIST_LIC, ACTIVATION_LIC_FILE, ACTIVATION_LIC_SERVER]
                 other_activations = [act for act in ACTIVATION_TYPES if act not in lic_file_server_activations]
                 if self.cfg['license_activation'] in lic_file_server_activations:
-                    # 2020 products do not seem to accept 'exist_lic' if we have a license server
-                    if LooseVersion(self.version) >= LooseVersion('2020'):
-                        lic_entry = "%(license_file_name)s=%(license_file)s"
+                    lic_entry = "%(license_file_name)s=%(license_file)s"
                 elif not self.cfg['license_activation'] in other_activations:
                     raise EasyBuildError("Unknown type of activation specified: %s (known :%s)",
                                          self.cfg['license_activation'], ACTIVATION_TYPES)
@@ -421,6 +409,55 @@ class IntelBase(EasyBlock):
         ])
 
         return run_cmd(cmd, log_all=True, simple=True, log_output=True)
+
+    def install_step_oneapi(self, *args, **kwargs):
+        """
+        Actual installation for versions 2021.x onwards.
+        """
+        # require that EULA is accepted
+        intel_eula_url = 'https://software.intel.com/content/www/us/en/develop/articles/end-user-license-agreement.html'
+        self.check_accepted_eula(name='Intel-oneAPI', more_info=intel_eula_url)
+
+        # exactly one "source" file is expected: the (offline) installation script
+        if len(self.src) == 1:
+            install_script = self.src[0]['name']
+        else:
+            src_fns = ', '.join([x['name'] for x in self.src])
+            raise EasyBuildError("Expected to find exactly one 'source' file (installation script): %s", src_fns)
+
+        adjust_permissions(install_script, stat.S_IXUSR)
+
+        # see https://software.intel.com/content/www/us/en/develop/documentation/...
+        # .../installation-guide-for-intel-oneapi-toolkits-linux/top/...
+        # .../local-installer-full-package/install-with-command-line.html
+        cmd = [
+            self.cfg['preinstallopts'],
+            './' + install_script,
+            '-a',  # required to specify that following are options for installer
+            '--action install',
+            '--silent',
+            '--eula accept',
+            '--install-dir ' + self.installdir,
+        ]
+
+        if self.install_components:
+            cmd.extend([
+                '--components',
+                ':'.join(self.install_components),
+            ])
+
+        cmd.append(self.cfg['installopts'])
+
+        return run_cmd(' '.join(cmd), log_all=True, simple=True, log_output=True)
+
+    def install_step(self, *args, **kwargs):
+        """
+        Install Intel software
+        """
+        if LooseVersion(self.version) >= LooseVersion('2021'):
+            return self.install_step_oneapi(*args, **kwargs)
+        else:
+            return self.install_step_classic(*args, **kwargs)
 
     def move_after_install(self):
         """Move installed files to correct location after installation."""

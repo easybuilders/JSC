@@ -1,7 +1,7 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'nvidia-driver'
 version = 'default'
-realversion = '450.51.06'
+realversion = '465.31'
 
 homepage = 'https://developer.nvidia.com/cuda-toolkit'
 description = """This is a set of libraries normally installed by the NVIDIA driver installer."""

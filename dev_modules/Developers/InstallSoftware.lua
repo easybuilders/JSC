@@ -40,6 +40,7 @@ local overlay_path = pathJoin(common_eb_path, stage, "Overlays")
 local custom_easyblocks_path = pathJoin(common_eb_path, stage, "Custom_EasyBlocks")
 local custom_toolchains_path = pathJoin(common_eb_path, stage, "Custom_Toolchains")
 local custom_mns_path = pathJoin(common_eb_path, stage, "Custom_MNS")
+local custom_hooks = pathJoin(common_eb_path, stage, "Custom_Hooks", "eb_hooks.py")
 
 local contact = "some@contact.com"
 
@@ -87,7 +88,8 @@ if mode()=="load" then
                 "  - Setting the robot path just to our golden repository\n"..
                 "    (EASYBUILD_ROBOT)\n"..
                 "  - Setting the filter to don't include irrelevant environment information in test reports\n"..
-                "    (EASYBUILD_TEST_REPORT_ENV_FILTER)\n")
+                "    (EASYBUILD_TEST_REPORT_ENV_FILTER)\n"..
+                "  - Using JSC EasyBuild hooks (EASYBUILD_HOOKS)\n")
 end
 
 -- Unload some modules for convenience
@@ -101,6 +103,9 @@ unload("StdEnv")
 -- This should be set to only look in the golden repo. We need this here to prepend overlays
 setenv("EASYBUILD_ROBOT", gr_path)
 setenv("EASYBUILD_ROBOT_PATHS", gr_path)
+
+-- Configure use of our hooks
+setenv("EASYBUILD_HOOKS", custom_hooks)
 
 -- Fail if there are EB related modules loaded
 setenv("EASYBUILD_DETECT_LOADED_MODULES", "error")
@@ -280,7 +285,8 @@ setenv("EASYBUILD_MINIMAL_TOOLCHAINS", "1")
 setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 
 -- Enable user installations
-setenv("EASYBUILD_SUBDIR_USER_MODULES", "easybuild/modules")
+setenv("EASYBUILD_SUBDIR_USER_MODULES", pathJoin("easybuild", systemname, "modules"))
+setenv("EASYBUILD_ENVVARS_USER_MODULES", "PROJECT,HOME")
 
 -- Filter for test reports
 setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", ".*PS1.*|PROMPT.*|.*LICENSE.*|.*PROJECT.*|.*DATA.*|.*FASTDATA.*|.*SCRATCH.*|.*IMESCRATCH.*|.*HOME.*|.*ARCHIVE.*|.*LOGNAME.*|^SSH|USER|HOSTNAME|UID|.*COOKIE.*")

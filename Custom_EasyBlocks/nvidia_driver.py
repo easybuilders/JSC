@@ -100,7 +100,7 @@ class EB_nvidia_minus_driver(Binary):
         libdir = os.path.join(self.installdir, 'lib64')
 
         # Run ldconfig to create missing symlinks (libcuda.so.1, etc)
-        run_cmd("ldconfig -N %s" % libdir)
+        run_cmd("/usr/sbin/ldconfig -N %s" % libdir)
 
         # Create an extra symlink for libcuda.so, otherwise PGI 19.X breaks
         # Create an extra symlink for libnvidia-ml.so, otherwise MVAPICH2 doesn't find it if it doesn't rely on stubs

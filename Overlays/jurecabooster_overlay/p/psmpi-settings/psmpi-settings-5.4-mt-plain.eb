@@ -17,6 +17,7 @@ sources = []
 
 modextravars = {
     'PSP_READAHEAD': '4096',
+    'PSP_HARD_ABORT': '1',
     'HFI_NO_CPUAFFINITY': '1',
 }
 

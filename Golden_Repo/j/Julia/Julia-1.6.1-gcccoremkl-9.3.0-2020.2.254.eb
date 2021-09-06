@@ -1,7 +1,4 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
-# For using $SYSTEMNAME to determine compute capability. The local prefix is to appease the checker
-import os as local_os
-
 name = 'Julia'
 version = '1.6.1'
 
@@ -28,6 +25,7 @@ dependencies = [
     ('GMP', '6.2.0'),
     ('CUDA', '11.0', '', SYSTEM),
     ('SciPy-Stack', '2020', '-Python-%(pyver)s'),
+    ('OpenGL', '2020'),
 ]
 
 osdependencies = [('openssl')]
@@ -36,7 +34,6 @@ skipsteps = ['configure']
 buildopts = " USE_SYSTEM_GMP=1 USE_INTEL_MKL=1 "
 installopts = "prefix=%(installdir)s "
 
-system_name = local_os.environ['SYSTEMNAME']
 arch_name = 'gpu'
 
 exts_defaultclass = 'JuliaPackage'

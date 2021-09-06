@@ -26,7 +26,7 @@ dependencies = [
 
 # OpenSSL is required for Net::SSLeay
 osdependencies = ['openssl', ('openssl-devel', 'libssl-dev',
-                  'libopenssl-devel')]
+                              'libopenssl-devel')]
 
 # !! order of extensions is important !!
 # extensions updated on July 24th 2020
@@ -1502,6 +1502,11 @@ exts_list = [
         'source_tmpl': 'Date-Calc-%(version)s.tar.gz',
         'source_urls': ['http://search.cpan.org/CPAN/authors/id/S/ST/STBEY'],
         'checksums': ['7ce137b2e797b7c0901f3adf1a05a19343356cd1f04676aa1c56a9f624f859ad'],
+    }),
+    ('Pod::Parser', '1.63', {
+        'source_tmpl': 'Pod-Parser-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/M/MA/MAREKR/'],
+        'checksums': ['dbe0b56129975b2f83a02841e8e0ed47be80f060686c66ea37e529d97aa70ccd'],
     }),
 ]
 

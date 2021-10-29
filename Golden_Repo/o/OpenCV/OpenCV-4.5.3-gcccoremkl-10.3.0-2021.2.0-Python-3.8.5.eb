@@ -43,7 +43,7 @@ dependencies = [
     ('JasPer', '2.0.19'),
     ('GLib', '2.64.4'),
     ('GTK+', '3.24.17',),
-    ('protobuf', '3.13.0'),
+    ('protobuf', '3.17.3'),
     ('Eigen', '3.3.7'),
     ('OpenEXR', '2.5.2'),
     ('freetype', '2.10.1'),

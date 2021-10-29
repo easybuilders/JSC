@@ -2,6 +2,12 @@
 --
 -- This file is managed or was created by Ansible.
 --
+-- Terminal colors
+local red = "\027\z[01;31m"
+local yellow = "\027\z[01;33m"
+local green = "\027\z[01;32m"
+local normal = "\027\z[0m"
+
 -- Get stage currently used
 local old_stage = os.getenv("STAGE")
 if old_stage == nil then
@@ -9,7 +15,7 @@ if old_stage == nil then
 end
 
 -- Software root
-local software_root = '/p/software/juwelsbooster'
+local software_root = '/p/software/jurecadc'
 
 -- Set new stage variables
 local stage = myModuleVersion()
@@ -26,9 +32,14 @@ help([[  This module will reset your module environment for the requested stage 
 whatis([[  Module to set up the environment for requested stage ( ]] .. stage .. [[ )]])
 
 if mode() == "load" then
-    LmodMessage([[
-        Preparing the environment for use of requested stage ( ]] .. stage .. [[ ).
-    ]])
+    if string.find(stage, "Devel") or string.find(stage, "Stage1")  then
+        LmodMessage("\n  "..yellow.."Development stages are meant for testing "..
+                   "software before it gets deployed in production.\n"..
+                   "  Please do not use it for production runs, the stage is "..
+                   "not meant for that and it should\n"..
+                   "  be considered unstable"..normal)
+    end
+    LmodMessage("\n  Preparing the environment for use of requested stage ( "..stage.." ).\n")
 end
 
 -- Unload GCCcore and binutils, loaded by StdEnv. The changes in the MODULEPATH trigger the reloading of StdEnv itself

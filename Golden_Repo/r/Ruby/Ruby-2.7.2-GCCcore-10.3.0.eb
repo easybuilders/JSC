@@ -16,6 +16,10 @@ checksums = ['6e5706d0d4ee4e1e2f883db9d768586b4d06567debea353c796ec45e8321c3d4']
 
 builddependencies = [('binutils', '2.36.1')]
 
+dependencies = [
+    ('ZeroMQ', '4.3.3')
+]
+
 exts_default_options = {
     'source_urls': ['https://rubygems.org/downloads/'],
     'source_tmpl': '%(name)s-%(version)s.gem',

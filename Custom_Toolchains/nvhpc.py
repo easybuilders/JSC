@@ -32,16 +32,15 @@ EasyBuild support for NVHPC compiler toolchain.
 @author: Andreas Herten (Forschungszentrum Juelich)
 """
 
-from easybuild.toolchains.compiler.nvhpc import Nvhpc
+from easybuild.toolchains.compiler.nvhpc import NVHPC
 from easybuild.toolchains.gcccore import GCCcore
 from easybuild.tools.toolchain.toolchain import SYSTEM_TOOLCHAIN_NAME
 
 
-class NvhpcToolchain(Nvhpc):
+class NVHPCToolchain(NVHPC):
     """Simple toolchain with just the NVIDIA HPC SDK compilers."""
     NAME = 'NVHPC'
     # use GCCcore as subtoolchain rather than GCC, since two 'real' compiler-only toolchains don't mix well,
     # in particular in a hierarchical module naming scheme
     SUBTOOLCHAIN = [GCCcore.NAME, SYSTEM_TOOLCHAIN_NAME]
     OPTIONAL = False
-

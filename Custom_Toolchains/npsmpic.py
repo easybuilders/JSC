@@ -30,13 +30,15 @@ EasyBuild support for npsmpi compiler toolchain (includes NVHPC and ParaStationM
 @author: Damian Alvarez (Forschungszentrum Juelich)
 """
 
-from easybuild.toolchains.nvhpc import NvhpcToolchain
+from easybuild.toolchains.nvhpc import NVHPCToolchain
 # We pull in MPI and CUDA at once so this maps nicely to HMNS
 from easybuild.toolchains.mpi.psmpi import Psmpi
 from easybuild.toolchains.compiler.cuda import Cuda
 
 # Order matters!
-class Npsmpic(NvhpcToolchain, Cuda, Psmpi):
+
+
+class Npsmpic(NVHPCToolchain, Cuda, Psmpi):
     """Compiler toolchain with NVHPC and ParaStationMPI, with CUDA as dependency."""
     NAME = 'npsmpic'
-    SUBTOOLCHAIN = NvhpcToolchain.NAME
+    SUBTOOLCHAIN = NVHPCToolchain.NAME

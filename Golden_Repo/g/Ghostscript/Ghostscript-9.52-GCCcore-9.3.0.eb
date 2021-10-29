@@ -27,6 +27,8 @@ dependencies = [
     ('GLib', '2.64.4'),
     ('cairo', '1.17.2'),
     ('LibTIFF', '4.1.0'),
+    ('freetype', '2.10.1'),
+    ('pkg-config', '0.29.2')
 ]
 
 builddependencies = [

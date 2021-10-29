@@ -55,6 +55,9 @@ exts_list = [
         'checksums': [('sha256', 'da40dfd69b2456fad1349a894b90180b43712152b8a85d2a00f4ae2ce8ac9a5c')],
         'modulename': 'skbuild',
     }),
+    ('threadpoolctl', '2.2.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/t/threadpoolctl'],
+    }),
 ]
 
 sanity_check_paths = {

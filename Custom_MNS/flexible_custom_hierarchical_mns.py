@@ -52,11 +52,10 @@ mpi_relevant_versions = {
     'psmpi': 2,
     'MVAPICH2': 2,
     'OpenMPI': 2,
-    'BullMPI': 2,
 }
 
 # MPIs with settings modules
-mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2', 'OpenMPI', 'BullMPI']
+mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2', 'OpenMPI']
 
 class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
     """Class implementing an example hierarchical module naming scheme."""

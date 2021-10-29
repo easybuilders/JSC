@@ -17,7 +17,7 @@ checksums = ['9220bf2c4b11ba225d49a8fecf161501802246f16c00d6b0b0a49ab06fc90b02']
 builddependencies = [('binutils', '2.36.1')]
 
 dependencies = [
-    ('nodejs', '12.19.0'),
+    ('nodejs', '14.17.6'),
 ]
 
 install_cmd = 'npm install --no-package-lock -g --prefix %(installdir)s uglify-js@%(version)s v%(version)s.tar.gz'

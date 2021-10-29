@@ -117,7 +117,7 @@ class EB_nvidia_minus_driver(Binary):
 
         chk_libdir = ["lib64"]
 
-        nvlibs = ["cuda", "nvidia-ml"]
+        nvlibs = ["cuda"]
         custom_paths = {
             'files': [os.path.join("bin", x) for x in ["nvidia-smi"]] +
                 [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext) for x in chk_libdir for y in nvlibs],

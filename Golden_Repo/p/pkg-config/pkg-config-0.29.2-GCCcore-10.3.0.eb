@@ -28,6 +28,7 @@ tar_config_opts = True
 
 configopts = " --with-internal-glib"
 configopts += " --with-pc-path=/usr/lib64/pkgconfig:/usr/share/pkgconfig"
+configopts += ":/usr/lib/x86_64-linux-gnu/pkgconfig"
 
 sanity_check_paths = {
     'files': ['bin/pkg-config'],

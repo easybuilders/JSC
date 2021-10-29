@@ -29,6 +29,7 @@ builddependencies = [
     ('SQLite', '3.32.3'),
     ('LibTIFF', '4.1.0'),
     ('cURL', '7.71.1'),
+    ('pkg-config', '0.29.2'),
 ]
 
 sanity_check_paths = {

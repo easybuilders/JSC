@@ -44,7 +44,7 @@ from easybuild.tools.toolchain.compiler import Compiler
 TC_CONSTANT_NVHPC = "NVHPC"
 
 
-class Nvhpc(Compiler):
+class NVHPC(Compiler):
     """NVHPC compiler class
     """
 
@@ -63,10 +63,10 @@ class Nvhpc(Compiler):
     COMPILER_UNIQUE_OPTION_MAP = {
         'i8': 'i8',
         'r8': 'r8',
-        'optarch': '', # PGI by default generates code for the arch it is running on!
+        'optarch': '',  # PGI by default generates code for the arch it is running on!
         'openmp': 'mp',
         'ieee': 'Kieee',
-        'strict': ['Mnoflushz','Kieee'],
+        'strict': ['Mnoflushz', 'Kieee'],
         'precise': ['Mnoflushz'],
         'defaultprec': ['Mflushz'],
         'loose': ['Mfprelaxed'],
@@ -95,18 +95,17 @@ class Nvhpc(Compiler):
 
     LINKER_TOGGLE_STATIC_DYNAMIC = {
         'static': '-Bstatic',
-        'dynamic':'-Bdynamic',
+        'dynamic': '-Bdynamic',
     }
 
     def _set_compiler_flags(self):
         """Set -tp=x64 if optarch is set to False."""
         if not self.options.get('optarch', False):
             self.variables.nextend('OPTFLAGS', ['tp=x64'])
-        super(Nvhpc, self)._set_compiler_flags()
+        super(NVHPC, self)._set_compiler_flags()
 
     def _set_compiler_vars(self):
         """Set the compiler variables"""
         nvhpc_version = self.get_software_version(self.COMPILER_MODULE_NAME)[0]
 
-        super(Nvhpc, self)._set_compiler_vars()
-
+        super(NVHPC, self)._set_compiler_vars()

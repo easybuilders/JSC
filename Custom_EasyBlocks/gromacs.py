@@ -68,6 +68,7 @@ class EB_GROMACS(CMakeMake):
             'mpiexec_numproc_flag': ['-np', "Flag to introduce the number of MPI tasks when running tests", CUSTOM],
             'mpi_numprocs': [0, "Number of MPI tasks to use when running tests", CUSTOM],
             'nocuda': [False, "Don't use CUDA even when found.", CUSTOM],
+            'force_plumed': [False, "Use PLUMED even if there is no exact version match.", CUSTOM],
         })
         extra_vars['separate_build_dir'][0] = True
         return extra_vars
@@ -209,7 +210,7 @@ class EB_GROMACS(CMakeMake):
             engine = 'gromacs-%s' % self.version
 
             (out, _) = run_cmd("plumed-patch -l", log_all=True, simple=False)
-            if not re.search(engine, out):
+            if not re.search(engine, out) and not self.cfg.get("force_plumed"):
                 raise EasyBuildError("There is no support in PLUMED version %s for GROMACS %s: %s",
                                      get_software_version('PLUMED'), self.version, out)
 

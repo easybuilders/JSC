@@ -5,7 +5,7 @@ name = 'Jupyter'
 version = '2021.3.1'
 versionsuffix = '-Python-%(pyver)s'
 
-local_jlab_version = '3.1.8'
+local_jlab_version = '3.1.12'
 
 homepage = 'http://www.jupyter.org'
 description = """
@@ -38,7 +38,7 @@ dependencies = [
     ('git', '2.28.0'),  # for jupyterlab_git (req. >=2.0)
     ('SciPy-Stack', '2021', versionsuffix),
     ('scikit', '2021', versionsuffix),
-    ('numba', '0.51.1', versionsuffix),
+    ('numba', '0.53.1', versionsuffix),
     ('Shapely', '1.7.1', versionsuffix),
 ]
 
@@ -61,7 +61,7 @@ exts_default_options = {
 }
 
 components = [
-    ('nodejs', '14.17.5', {
+    ('nodejs', '14.17.6', {
         'easyblock': 'ConfigureMake',
         'source_urls': ['http://nodejs.org/dist/v%(version)s/'],
         'sources': ['node-v%(version)s.tar.gz'],
@@ -139,11 +139,11 @@ exts_list = [
     ('ipynb', '0.5.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '8d834c777ca3885289938728cc382f081c86a58e92961e86f0aba60c96938ce5')]),
     ])),
-    ('jupyter_core', '4.7.1', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '79025cb3225efcd36847d0840f3fc672c0abd7afd0de83ba8a1d3837619122b4')]),
+    ('jupyter_core', '4.8.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'ef210dcb4fca04de07f2ead4adf408776aca94d17151d6f750ad6ded0b91ea16')]),
     ])),
-    ('jupyter_packaging', '0.10.4', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '589db027cb85a92612f9bcfaeecaa8a9072ac8a4bddaf827f648664258e587c4')]),
+    ('jupyter_packaging', '0.10.5', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'f0a12b258b9f33ac116b6a8f744a87da651dd40251513a0dd28a3ffc3dd49328')]),
     ])),
     ('retrying', '1.3.3', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '08c039560a6da2fe4f2c426d0766e284d3b736e355f8dd24b37367b0bb41973b')]),
@@ -152,7 +152,7 @@ exts_list = [
         ('checksums', [('sha256', 'bf205e74e27e9efefde70d7773675a8432dab600741ac8c0db93daaeb7fc957c')]),
     ])),
     #  Jupyter client
-    ('jupyter_client', '6.1.12', dict(list(local_common_opts.items()) + [
+    ('jupyter_client', '6.1.12', dict(list(local_common_opts.items()) + [  # voila does not support 7.x, yet
         ('checksums', [('sha256', 'c4bca1d0846186ca8be97f4d2fa6d2bae889cce4892a167ffa1ba6bd1f73e782')]),
     ])),
     ('pynvml', '8.0.4', dict(list(local_common_opts.items()) + [
@@ -341,24 +341,29 @@ exts_list = [
     ('requests-unixsocket', '0.2.0', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '9e5c1a20afc3cf786197ae59c79bcdb0e7565f218f27df5f891307ee8817c1ea')]),
     ])),
-    ('jupyter_server', '1.10.2', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'd3a3b68ebc6d7bfee1097f1712cf7709ee39c92379da2cc08724515bb85e72bf')]),
+    ('jupyter_server', '1.11.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '8ab4f484a4a2698f757cff0769d27b5d991e0232a666d54f4d6ada4e6a61330b')]),
     ])),
-    ('jupyterlab_server', '2.7.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '31457ef564febc42043bc539356c804f6f9144f602e2852150bf0820ed6d7e18')]),
+    ('jupyterlab_server', '2.8.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '39fd519e9b3275873bd15de891363c28f2649814f7bbc11c57469c60e8408e97')]),
     ])),
-    ('nbclassic', '0.3.1', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'f920f8d09849bea7950e1017ff3bd101763a8d68f565a51ce053572e65aa7947')]),
+    ('nbclassic', '0.3.2', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '863462bf6a6e0e5e502dcc479ce2ea1edf60437c969f1850d0c0823dba0c39b7')]),
     ])),
     ('jupyterlab', local_jlab_version, dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '113cf7a033547f90efba96bb3c1b5fbcf1fd194e1c1b52b24f3e3fd619083a3b')]),
+        ('checksums', [('sha256', 'd16d244b09ff6c101672637101313263bfd76d4c057bfe79a401fea54e1be0e9')]),
         ('patches', [('401html.patch', 1)])
     ])),
-    ('jupyter_kernel_gateway', '2.5.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '4e7b3ae544ae058edaf4cce4c985800fb6143291c4e9ed215539fd87a8966931')]),
+    ('jupyter_kernel_gateway', '2.5.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '1d40df18e1c5a346faf44716573dfd531343936bf479cb05e9391dbe28b90779')]),
         ('modulename', 'kernel_gateway'),
     ])),
     #  Jupyter Widgets and dependencies
+    ('nest_asyncio', '1.5.1', dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'nest_asyncio-1.5.1-py3-none-any.whl'),  # source from pip fails, ..setup.py missing
+        ('checksums', [('sha256', '76d6e972265063fe92a90b9cc4fb82616e07d586b346ed9d2c89a4187acea39c')]),
+        ('unpack_sources', False),
+    ])),
     ('traittypes', '0.2.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', 'be6fa26294733e7489822ded4ae25da5b4824a8a7a0e0c2dccfde596e3489bd6')]),
     ])),
@@ -376,9 +381,9 @@ exts_list = [
         ('checksums', [('sha256', 'ace4d2aa68c0667290873bbc8a5a2948afe40c80f7c93c7c2b19d38c2e91c08f')]),
         ('unpack_sources', False),
     ])),
-    ('jupyterlab_widgets', '1.0.0', dict(list(local_common_opts.items()) + [
-        ('source_tmpl', 'jupyterlab_widgets-1.0.0-py3-none-any.whl'),  # source from pip fails, ../tsconfigbase missing
-        ('checksums', [('sha256', 'caeaf3e6103180e654e7d8d2b81b7d645e59e432487c1d35a41d6d3ee56b3fef')]),
+    ('jupyterlab_widgets', '1.0.2', dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'jupyterlab_widgets-1.0.2-py3-none-any.whl'),  # source from pip fails, ../tsconfigbase missing
+        ('checksums', [('sha256', 'f5d9efface8ec62941173ba1cffb2edd0ecddc801c11ae2931e30b50492eb8f7')]),
         ('unpack_sources', False),
     ])),
     ('plotly', '4.14.3', dict(list(local_common_opts.items()) + [
@@ -450,11 +455,11 @@ exts_list = [
     ('simpervisor', '0.4', dict(list(local_common_opts.items()) + [  # indirect dep of jupyter-server-proxy
         ('checksums', [('sha256', 'cec79e13cdbd6edb04a5c98c1ff8d4bd9713e706c069226909a1ef0e89d393c5')]),
     ])),
-    ('jupyter-server-proxy', '3.1.0', dict(list(local_common_opts.items()) + [
-        ('source_urls', ['https://github.com/jupyterhub/jupyter-server-proxy/archive/']),
+    ('jupyter-server-proxy', '3.1.1', dict(list(local_common_opts.items()) + [
+        ('source_urls', ['https://github.com/jhgoebbert/jupyter-server-proxy/archive/']),
         ('source_tmpl', 'v%(version)s.tar.gz'),
-        ('checksums', [('sha256', '17106bb070f2b6a7cf5e78eafc73dcc8a8920e792bc43535aa383bb94037a24e')]),
-        ('patches', ['jupyterserverproxy-urlfile3.patch']),
+        ('checksums', [('sha256', '7e8b48f1df6d727d26734289abf3fadfbfe807e3ffb1aea6e14c65012e654f26')]),
+        ('patches', ['jupyter-server-proxy_timeout.patch']),  # timeout after 15s instead of 5s
     ])),
     # Jupyter Lab Extensions
     # JLab 3 support: https://github.com/jupyterlab/jupyterlab-github/pull/112
@@ -489,11 +494,8 @@ exts_list = [
         ('checksums', [('f8d03d3ee26c84300c85e570f1a9d5f69bdcfa85e9a298f5716b67e36d0d94df')]),
         ('modulename', 'jupyterlab'),  # fake sanity-check
     ])),
-    ('jupyterlab_quickopen', '1.0.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('a68b9bf1bd191bfb07fae4fadeff7334dd7940c91be7b3e3e6af091ad3d18387')]),
-    ])),
-    ('jupyterlab-spellchecker', '0.7.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('581f99e4fd9229f1bd8db6cad25ebb8599d0207177f06b5f1ae095c9394be001')]),
+    ('jupyterlab-spellchecker', '0.7.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('dad01df2b3c57aaf24ea3b9348f7e9657364262ccb3ba88dd6714b4b5af52ea5')]),
     ])),
     ('tornado_proxy_handlers', '0.0.5', dict(list(local_common_opts.items()) + [
         ('checksums', [('8250177dbc7567fa2d3cfd22d0a7de71e34cceb8e56c7b7d7c2e5f92ffb5c60a')]),
@@ -576,19 +578,19 @@ exts_list = [
     #    ('ipyauth', '0.2.5', dict(list(local_common_opts.items()) + [
     #        ('checksums', [('sha256', '189db0e9fd48cf52f333ef8ac1a71b9e3a9eec6561f5085e3d7239ca2588ba87')]),
     #    ])),
-    ('jupyterlab_latex', '3.0.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'e5555725d432f30725140746cb8ddb2d57d404f07c8e741ff18256183af993b9')]),
+    ('jupyterlab_latex', '3.1.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'f44df285405b5b552b70d10f1f0573d61ca3a4d2ca50bd3097a63a27cdcde16e')]),
     ])),
     # ('jupyterlab_slurm', '3.0.0', dict(list(local_common_opts.items()) + [
     #     ('checksums', [('sha256', '')]),
     # ])),
     # version from 6-jan-2021
-    ('jupyterlmod', '9ddb49d5f3cc6ddc196f5e1c597f2e1b76af7d2d', dict(list(local_common_opts.items()) + [
-        ('source_urls', ['https://github.com/cmd-ntrf/jupyter-lmod/archive/']),
-        ('source_tmpl', '%(version)s.tar.gz'),
-        ('checksums', [('sha256', '65c656306c9ba4948bb3d800238cb524484ef158ae6f9e1dbaa224b3635f65d8')]),
-        ('patches', ['jupyterlmod-urlfile.patch']),
-    ])),
+    # ('jupyterlmod', '9ddb49d5f3cc6ddc196f5e1c597f2e1b76af7d2d', dict(list(local_common_opts.items()) + [
+    #    ('source_urls', ['https://github.com/cmd-ntrf/jupyter-lmod/archive/']),
+    #    ('source_tmpl', '%(version)s.tar.gz'),
+    #    ('checksums', [('sha256', '65c656306c9ba4948bb3d800238cb524484ef158ae6f9e1dbaa224b3635f65d8')]),
+    #    ('patches', ['jupyterlmod-urlfile.patch']),
+    # ])),
     ('colorama', '0.4.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d')]),
     ])),
@@ -610,8 +612,8 @@ exts_list = [
         ('checksums', [('sha256', '3237caca1139d0a7aa072f6735f5fd2520de52195e0fa1d8b83a9b212a2498b2')]),
         ('modulename', 'git'),
     ])),
-    ('jupyterlab_git', '0.32.2', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '4c5743a05150ed7736e028aac15787a66735f160e9ae198dacc5a4bd1a727ce2')]),
+    ('jupyterlab_git', '0.32.4', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '9e740d6eac4c975f3f8e083fcd74b2cb47e1916503aa29af779c17d6d27ddeb2')]),
     ])),
     ('sidecar', '0.5.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '47a39299ee78ee81a55fb2aa84225b45aa649655c97a7e0e06e3728e85b90bc3')]),
@@ -644,9 +646,10 @@ exts_list = [
         ('checksums', [('sha256', '1645fd80b99d590d60fe0f3c078c9101ad62dfdbfac5e78b4c2d334896ab526f')]),
     ])),
     ('jupyterlab_favorites', '3.0.0', dict(list(local_common_opts.items()) + [
-        ('source_urls', ['https://github.com/NERSC/jupyterlab-favorites/archive/']),
-        ('source_tmpl', 'v%(version)s.tar.gz'),
-        ('checksums', [('sha256', '6834e0502daf2cc883fb40dac4e85675e0854c9f89f139e508675165985bf2b8')]),
+        ('checksums', [('sha256', 'f60ea1c270689483175cf789d243c5f16c6bb73f7168dc23a4d8be93e3ed8d70')]),
+    ])),
+    ('jupyterlab_recents', '3.0.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'bc45d51ec22c8924197044af151c401644ab649eb2bc36123b167294a396cf23')]),
     ])),
     ###############
     # extras
@@ -707,8 +710,8 @@ exts_list = [
     ('jupyterlab-lsp', '3.8.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '8c7705be6c97c39c06c31a855242d9aba0b9e74004e53c9b4540ffe539d5ccf4')]),
     ])),
-    ('jupyterlab-tour', '3.1.2', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'bc8fb0660aff3e0176647a0eb13b37b07e991199ff1d9c76496ad8189ebb1c39')]),
+    ('jupyterlab-tour', '3.1.3', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'a3eae49723d676a83b2e0c3213a14c9d4433f13a78e8e94879fab72bf9eb2c7f')]),
     ])),
 
     ####################
@@ -1047,8 +1050,8 @@ exts_list = [
         ('checksums', [('sha256', '8d59a976fb773f3e6a39c85636357c4f0e242707394cadadd9814f5cbaa20e96')]),
         ('modulename', 'jwt'),
     ])),
-    ('pyunicore', '0.9.8', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '73a7cf31df33d4c40b7bd9bb94d6fb6634a12df7d820bf614ae66d159cd61a05')]),
+    ('pyunicore', '0.9.9', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '10d399befcfcc91dfedbe3324efe0bd4e0897a5f74f774e2cf91b96468f2adab')]),
     ])),
     # misc
     #    ('rpy2', '3.2.4', dict(list(local_common_opts.items()) + [
@@ -1132,26 +1135,23 @@ postinstallcmds = [
     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab_iframe@0.3.0 --no-build',
     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-theme-toggle@0.6.1 --no-build',
     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-plotly@4.14.3 --no-build',
-    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/latex@3.0.0 --no-build',
 
     #   store default in ../share/jupyter/lab/schemas/jupyterlab-favorites/favorites.json
     #   tour-state on/off is saved in workspace-file in ~/.jupyter/lab/workspaces/
     #   respect the version lookup table at https://github.com/matplotlib/ipympl
 
     #    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/github@2.0.0 --no-build',
-    #    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-gitlab@2.0.0 --no-build',
     #    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-lmod@0.8.1 --no-build',
     #    #  this might interfer with Xpra-icon: https://github.com/cmd-ntrf/jupyter-lmod/issues/30
-    ('source %(builddir)s/env.sh && '
-     '  cd %(builddir)s/jupyterlmod/jupyter-lmod-9ddb49d5f3cc6ddc196f5e1c597f2e1b76af7d2d/jupyterlab/ && '
-     '    npm install && '                            # install npm package dependencies in current directory
-     '    npm run build && '                          # optional build step if using TypeScript, babel, etc.
-     '    jupyter labextension install --no-build'),  # install the current directory as an extension
-    #     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-nvdashboard@0.5.1 --no-build',
+    # ('source %(builddir)s/env.sh && '
+    #  '  cd %(builddir)s/jupyterlmod/jupyter-lmod-9ddb49d5f3cc6ddc196f5e1c597f2e1b76af7d2d/jupyterlab/ && '
+    #  '    npm install && '                            # install npm package dependencies in current directory
+    #  '    npm run build && '                          # optional build step if using TypeScript, babel, etc.
+    #  '    jupyter labextension install --no-build'),  # install the current directory as an extension
     #    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-slurm@2.0.0 --no-build',
-    #    'source %(builddir)s/env.sh && jupyter labextension install dicom-upload@0.2.0 --no-build',
-    #    'source %(builddir)s/env.sh && jupyter labextension install jsfileupload@0.2.0 --no-build',
-    #    'source %(builddir)s/env.sh && jupyter labextension install pvlink@0.3.1 --no-build',
+    # 'source %(builddir)s/env.sh && jupyter labextension install dicom-upload@0.2.0 --no-build',
+    'source %(builddir)s/env.sh && jupyter labextension install jsfileupload@0.2.0 --no-build',
+    'source %(builddir)s/env.sh && jupyter labextension install pvlink@0.3.1 --no-build',
     #    'source %(builddir)s/env.sh && jupyter labextension install itkwidgets@0.32.1 --no-build',  # no JLab>=3
     #    'source %(builddir)s/env.sh && jupyter labextension install @jupyterlab/hdf5@0.6.0 --no-build',  # no JLab>=3
 
@@ -1237,14 +1237,11 @@ postinstallcmds = [
         'diff -Naur share.orig/jupyter/lab/settings/overrides.json share/jupyter/lab/settings/overrides.json\n'
         '--- share.orig/jupyter/lab/settings/overrides.json      1970-01-01 01:00:00.000000000 +0100\n'
         '+++ share/jupyter/lab/settings/overrides.json   2019-11-26 13:40:46.560731000 +0100\n'
-        '@@ -0,0 +1,8 @@\n'
+        '@@ -0,0 +1,5 @@\n'
         '+{\n'
         '+    "jupyterlab-gitlab:drive": {\n'
         '+        "baseUrl": "https://gitlab.version.fz-juelich.de"\n'
         '+    },\n'
-        '+    "@parente/jupyterlab-quickopen:plugin": {\n'
-        '+        "relativeSearch": true\n'
-        '+    }\n'
         '+}\n'
         'EOF'
     ),

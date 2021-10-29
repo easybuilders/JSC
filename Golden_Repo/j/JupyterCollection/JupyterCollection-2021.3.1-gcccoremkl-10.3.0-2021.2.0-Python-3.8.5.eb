@@ -16,7 +16,8 @@ toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
 
 dependencies = [
     # ('JupyterKernel-XPython',        '0.12.3', '-' + version),
-    ('JupyterProxy-XpraHTML5',       '0.3.1', '-' + version),
+    ('JupyterProxy-XpraHTML5',       '0.3.2', '-' + version),
+    # ('JupyterProxy-RStudio',         '1.4',   '-' + version),
     # ('JupyterProxy-Matlab',          '0.2.0', '-' + version),
     ('JupyterKernel-Bash',           '0.7.1', '-' + version),
     ('JupyterKernel-Cling',          '0.9',   '-' + version),
@@ -25,7 +26,7 @@ dependencies = [
     ('JupyterKernel-Octave',         '6.1.0', '-' + version),
     ('JupyterKernel-PyParaView',     '5.9.1', '-' + version),
     ('JupyterKernel-PyQuantum',      '1.1',   '-' + version),
-    # ('JupyterKernel-PyDeepLearning', '1.0',   '-' + version),
+    ('JupyterKernel-PyDeepLearning', '1.1',   '-' + version),
     ('JupyterKernel-R',              '4.0.2', '-' + version),
     ('JupyterKernel-Ruby',           '2.7.2', '-' + version),
     ('Jupyter', version, local_pysuffix),

@@ -109,7 +109,6 @@ exts_list = [
     ('RWeka', '0.4-42', {
         'checksums': ['84e53028875d4603bd073c77709941d358152b8274977d45934fa89121b02104'],
     }),
-
     ('Rmpi', '0.6-6', {
         'patches': ['Rmpi_0_6_9_psmpi_2020.patch'],
         'checksums': [
@@ -454,8 +453,9 @@ exts_list = [
     ('lazyeval', '0.2.2', {
         'checksums': ['d6904112a21056222cfcd5eb8175a78aa063afe648a562d9c42c6b960a8820d4'],
     }),
-    ('withr', '2.3.0',
-     ),
+    ('withr', '2.3.0', {
+        'checksums': ['2cc03c9947d424717e94f301a0ab7d97eb2079eea5c6a0a3cdf2da32aedc67a0'],
+    }),
     ('nlme', '3.1-147', {
         'checksums': ['efc8d82e5758c4696458f647f2b8bb1776fdbff6c8eaad3fe3c0573a3c1f0ce7'],
     }),
@@ -1383,6 +1383,9 @@ exts_list = [
     ('spatstat', '1.63-3', {
         'checksums': ['07b4a1a1b37c91944f31779dd789598f4a5ad047a3de3e9ec2ca99b9e9565528'],
     }),
+    ('rgdal', '1.5-23', {
+        'checksums': ['9ca5744b946e7a3c4ca26598612bf54e550d3a0c5811d56e22c30b73f83ccb6e'],
+    }),
     ('pracma', '2.2.9', {
         'checksums': ['0cea0ff5e88643df121e07b9aebfe57084c61e11801680039752f371fe87bf1e'],
     }),
@@ -1665,9 +1668,6 @@ exts_list = [
     ('qgraph', '1.6.5', {
         'checksums': ['2295ccca41f84cba34ad0e6c1b31af8bde79bda7373754c255e0ee9e63d29e5f'],
     }),
-    # ('HWxtest', '1.1.9', {
-    #    'checksums': ['a37309bed4a99212ca104561239d834088217e6c5e5e136ff022544c706f25e6'],
-    # }),
     ('diveRsity', '1.9.90', {
         'checksums': ['b8f49cdbfbd82805206ad293fcb2dad65b962fb5523059a3e3aecaedf5c0ee86'],
     }),
@@ -2031,8 +2031,9 @@ exts_list = [
     ('TFisher', '0.2.0', {
         'checksums': ['bd9b7484d6fba0165841596275b446f85ba446d40e92f3b9cb37381a3827e76f'],
     }),
-    ('lsei', '1.3-0',
-     ),
+    ('lsei', '1.3-0', {
+        'checksums': ['6289058f652989ca8a5ad6fa324ce1762cc9e36c42559c00929b70f762066ab6'],
+    }),
     ('npsurv', '0.4-0', {
         'checksums': ['404cf7135dc40a04e9b81224a543307057a8278e11109ba1fcaa28e87c6204f3'],
     }),
@@ -2143,8 +2144,9 @@ exts_list = [
     ('mltools', '0.3.5', {
         'checksums': ['7093ffceccdf5d4c3f045d8c8143deaa8ab79935cc6d5463973ffc7d3812bb10'],
     }),
-    ('h2o', '3.32.1.3',
-     ),
+    ('h2o', '3.32.1.3', {
+        'checksums': ['08f3388651a2fbdcf51e82867e5cd125c82c6a8e758256d34cbfb25fd6a64f9b'],
+    }),
     ('mlegp', '3.1.7', {
         'checksums': ['d4845eaf9260f8b8112726dd7ceb5c2f5ce75125fa313191db9de121f2ee15e0'],
     }),
@@ -2550,7 +2552,6 @@ exts_list = [
     ('IRkernel', '1.1.1', {
         'checksums': ['f5a129168f44bdda6da8cc907189a2737f692d427529515d87312a17dbd806f8'],
     }),
-    # language server support
     ('collections', '0.3.5', {
         'checksums': ['bf76ab5c6a8082b6bb70b9bf3bdb30658e823e3b7b28cf7be7e8a87d117a7114'],
     }),

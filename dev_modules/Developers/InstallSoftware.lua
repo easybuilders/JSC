@@ -142,51 +142,57 @@ prepend_path("EASYBUILD_ROBOT", gr_overlay_path)
 prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
 
 -- Set optarch options for easybuild
+local optarch = ""
+local cuda_compute = ""
 -- JURECA booster
 if systemname == "jurecabooster" then
-    local opt="GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
-    if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
+    optarch = "GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
 -- JUWELS
 elseif systemname == "juwels" then
-    local opt="GCCcore:march=haswell -mtune=haswell"
-    if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
-    pushenv("EASYBUILD_PARALLEL", "40")
+    optarch = "GCCcore:march=haswell -mtune=haswell"
+    cuda_compute = "6.0,7.0"
 -- JUWELS booster
 elseif systemname == "juwelsbooster" then
-    local opt="Intel:march=core-avx2"
-    if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
-    pushenv("EASYBUILD_PARALLEL", "40")
+    optarch = "Intel:march=core-avx2"
+    cuda_compute = "8.0"
 -- JURECA-DC
 elseif systemname == "jurecadc" then
-    local opt="Intel:march=core-avx2"
-    if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
-    pushenv("EASYBUILD_PARALLEL", "64")
+    optarch = "Intel:march=core-avx2"
+    cuda_compute = "7.5,8.0"
 -- JUSUF
 elseif systemname == "jusuf" then
-    local opt="Intel:march=core-avx2"
-    if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..opt..normal)
-    end
-    pushenv("EASYBUILD_OPTARCH", opt)
-    pushenv("EASYBUILD_PARALLEL", "64")
+    optarch = "Intel:march=core-avx2"
+    cuda_compute = "7.0"
+-- HDFML
+elseif systemname == "hdfml" then
+    optarch = "GCCcore:march=haswell -mtune=haswell"
+    cuda_compute = "7.0"
+end
+
 -- Default
-else
+if optarch == nil then
     if mode()=="load" then
         LmodMessage("  - "..yellow.."No particular architecture loaded. Unsetting EASYBUILD_OPTARCH (if set)\n"..normal)
     end
     unsetenv("EASYBUILD_OPTARCH")
+else
+    if mode()=="load" then
+        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..optarch..normal)
+    end
+    pushenv("EASYBUILD_OPTARCH", optarch)
+end
+
+-- Default
+if cuda_compute == nil then
+    if mode()=="load" then
+        LmodMessage("  - "..yellow.."No particular CUDA compute capability. Unsetting EASYBUILD_CUDA_COMPUTE_CAPABILITIES (if set)\n"..normal)
+    end
+    unsetenv("EASYBUILD_CUDA_COMPUTE_CAPABILITIES")
+else
+    if mode()=="load" then
+        LmodMessage(yellow.."  - Setting EASYBUILD_CUDA_COMPUTE_CAPABILITIES to "..cuda_compute..normal)
+    end
+    pushenv("EASYBUILD_CUDA_COMPUTE_CAPABILITIES", cuda_compute)
 end
 
 -- Add license servers. Done in 3 separate groups to avoid useless servers in the environment

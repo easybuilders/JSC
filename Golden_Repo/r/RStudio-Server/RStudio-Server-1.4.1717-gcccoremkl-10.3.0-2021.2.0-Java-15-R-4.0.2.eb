@@ -1,0 +1,78 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'RStudio-Server'
+version = '1.4.1717'
+versionsuffix = '-Java-%(javaver)s-R-%(rver)s'
+
+homepage = 'https://www.rstudio.com/'
+description = """This is the RStudio Server version.
+RStudio is a set of integrated tools designed to help you be more productive with R.
+The server can be started with:
+  rserver --server-daemonize=0 --www-port 8787 --rsession-which-r=$(which R)
+"""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+
+source_urls = ['https://github.com/rstudio/rstudio/archive']
+sources = ['v%(version)s.tar.gz']
+checksums = ['3af234180fd7cef451aef40faac2c7b52860f14a322244c1c7aede029814d261']
+
+patches = ['rstudio_rootless.patch']
+
+builddependencies = [
+    ('pkg-config', '0.29.2'),
+    ('CMake', '3.18.0', '', SYSTEM),
+    ('ant', '1.10.9', '-Java-%(javaver)s', SYSTEM),
+    ('yarn', '1.22.15'),
+    ('SOCI', '4.0.2'),
+]
+
+dependencies = [
+    ('nodejs', '14.17.6'),
+    ('Boost', '1.74.0', '-nompi'),
+    ('R', '4.0.2', '-nompi'),
+    ('Java', '15', '', SYSTEM),
+    ('Pandoc', '2.11.0.4', '', SYSTEM),
+]
+
+osdependencies = [
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
+    ('pam-devel', 'libpam0g-dev')
+]
+
+build_type = "Release"
+local_dep_dir = "%(builddir)s/rstudio-%(version)s/dependencies/common"
+preconfigopts = (("export RSTUDIO_TOOLS_ROOT={} && "
+                  "cd {} && "
+                  "./install-cef && "
+                  "./install-dictionaries && "
+                  "./install-mathjax && "
+                  "./install-pandoc && "
+                  "./install-packages && "
+                  "./install-yaml-cpp && "
+                  "./install-npm-dependencies && "
+                  "cd ../../ && "
+                  "mkdir build && cd build && ").format("%(builddir)s", local_dep_dir))
+
+configopts = "-DRSTUDIO_TARGET=Server -DRSTUDIO_BOOST_SIGNALS_VERSION=2 "
+configopts += "-DSOCI_CORE_LIB=$EBROOTSOCI/lib/libsoci_core.a "
+configopts += "-DSOCI_POSTGRESQL_LIB=$EBROOTSOCI/lib/libsoci_postgresql.a "
+configopts += "-DSOCI_SQLITE_LIB=$EBROOTSOCI/lib/libsoci_sqlite3.a "
+
+prebuildopts = (("cd {} && cd build && ")).format("%(builddir)s/rstudio-%(version)s")
+preinstallopts = (("cd {} && cd build && ")).format("%(builddir)s/rstudio-%(version)s")
+
+modluafooter = """
+setenv("RSTUDIO_CONFIG_DIR", pathJoin(os.getenv("HOME"), ".config/rstudio"))
+setenv("RSTUDIO_CONFIG_HOME", pathJoin(os.getenv("HOME"), ".config/rstudio"))
+setenv("RSTUDIO_DATA_HOME", pathJoin(os.getenv("HOME"), ".local/share/rstudio"))
+"""
+
+sanity_check_paths = {
+    'files': ["bin/rstudio-server"],
+    'dirs': ['bin', 'extras', 'resources', 'www', 'www-symbolmaps', 'R'],
+}
+
+moduleclass = 'lang'

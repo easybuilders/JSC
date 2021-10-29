@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'yarn'
+version = '1.22.15'
+
+homepage = "https://yarnpkg.com"
+description = "Yarn is a package manager that doubles down as project manager."
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = ['https://github.com/yarnpkg/yarn/releases/download/v%(version)s/']
+sources = [{
+    'filename': 'yarn-v%(version)s.tar.gz',
+    'extract_cmd': "cp %s .",
+}]
+checksums = ['0c2841b9423f0fb9657ae6b18873f39551396ec242bfb882b11bed9e4648235e']
+
+dependencies = [
+    ('nodejs', '14.17.6'),
+]
+
+# Don't ever try to install unpacked source of nodejs globally!
+# Always use 'npm install -g downloaded_file.tar.gz` or you will end up having broken links and installation will fail.
+# -d (debug) and --timing can show errors while downloading dependencies
+install_cmd = "npm install -d --timing --prefix %(installdir)s -g yarn-v%(version)s.tar.gz"
+
+sanity_check_paths = {
+    'files': ['bin/yarn'],
+    'dirs': ['lib/node_modules/yarn'],
+}
+sanity_check_commands = [
+    'yarn --help'
+]
+
+moduleclass = 'tools'

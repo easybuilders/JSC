@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'psmpi-settings'
+version = '5.4'
+versionsuffix = 'UCX-UD'
+
+homepage = ''
+description = 'This is a module to load the ParaStationMPI configuration. It enables UCX with UD as transport'
+
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'PSP_OPENIB': '0',
+    'PSP_UCP': '1',
+    'PSP_HARD_ABORT': '1',
+    'UCX_TLS': 'ud_x,self,sm',
+}
+
+moduleclass = 'system'

@@ -1,0 +1,24 @@
+diff -Naur jupyter-server-proxy.orig/jupyter_server_proxy/handlers.py jupyter-server-proxy/jupyter_server_proxy/handlers.py
+--- jupyter-server-proxy.orig/jupyter_server_proxy/handlers.py  2021-10-13 23:47:07.172600888 +0200
++++ jupyter-server-proxy/jupyter_server_proxy/handlers.py       2021-10-13 23:48:39.703350797 +0200
+@@ -469,7 +469,7 @@
+         """
+         Return timeout (in s) to wait before giving up on process readiness
+         """
+-        return 5
++        return 15
+
+     async def _http_ready_func(self, p):
+         url = 'http://localhost:{}'.format(self.port)
+diff -Naur jupyter-server-proxy.orig/jupyter_server_proxy/config.py jupyter-server-proxy/jupyter_server_proxy/config.py
+--- jupyter-server-proxy.orig/jupyter_server_proxy/config.py    2021-10-13 23:47:06.723213000 +0200
++++ jupyter-server-proxy/jupyter_server_proxy/config.py 2021-10-14 14:12:16.396449527 +0200
+@@ -116,7 +116,7 @@
+         name=name,
+         command=server_process_config['command'],
+         environment=server_process_config.get('environment', {}),
+-        timeout=server_process_config.get('timeout', 5),
++        timeout=server_process_config.get('timeout', 15),
+         absolute_url=server_process_config.get('absolute_url', False),
+         port=server_process_config.get('port', 0),
+         mappath=server_process_config.get('mappath', {}),

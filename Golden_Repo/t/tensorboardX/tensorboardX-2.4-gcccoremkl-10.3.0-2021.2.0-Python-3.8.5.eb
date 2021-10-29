@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'tensorboardX'
+version = '2.4'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/lanpa/tensorboardX'
+description = "Tensorboard for PyTorch."
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+
+
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+github_account = 'lanpa'
+
+# tensorboardX v2.0 works with tensorboards generated with TensorFlow 2,
+# but TensorFlow is not needed to use tensorboardX
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', versionsuffix, ('gcccoremkl', '10.3.0-2021.2.0')),
+    ('PyTorch', '1.8.1', versionsuffix),
+    ('protobuf-python', '3.17.3'),
+    ('torchvision', '0.9.1', versionsuffix),
+]
+
+options = {'modulename': '%(name)s'}
+
+use_pip = True
+download_dep_fail = True
+
+postinstallcmds = ["cp -r %s %%(installdir)s" %
+                   f for f in ['docs', 'examples', 'tests']]
+
+sanity_pip_check = True
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages', 'docs', 'examples', 'tests'],
+}
+
+moduleclass = 'vis'

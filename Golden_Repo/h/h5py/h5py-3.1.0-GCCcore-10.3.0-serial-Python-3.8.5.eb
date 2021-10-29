@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonPackage"
+
+name = 'h5py'
+version = '3.1.0'
+local_pysuffix = '-Python-%(pyver)s'
+versionsuffix = '-serial%s' % local_pysuffix
+
+homepage = 'http://www.h5py.org/'
+description = """HDF5 for Python (h5py) is a general-purpose Python interface to the Hierarchical Data Format library,
+ version 5. HDF5 is a versatile, mature scientific software library designed for the fast, flexible storage of enormous
+ amounts of data.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '10.3.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+# checksums = ['84412798925dc870ffd7107f045d7659e60f5d46d1c70c700375248bf6bf512d']
+
+req_py_majver = 3
+req_py_minver = 0
+
+builddependencies = [
+    ('pkgconfig', '1.5.1', local_pysuffix),
+    ('binutils', '2.36.1'),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('SciPy-Stack', '2021', local_pysuffix, ('gcccoremkl', '10.3.0-2021.2.0')),  # numpy required
+    ('HDF5', '1.10.6', '-serial'),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+moduleclass = 'data'

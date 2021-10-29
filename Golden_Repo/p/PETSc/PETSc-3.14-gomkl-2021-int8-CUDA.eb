@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = "PETSc"
+version = "3.14"
+versionsuffix = '-int8-CUDA'
+
+homepage = 'http://www.mcs.anl.gov/petsc'
+description = """PETSc, pronounced PET-see (the S is silent), is a suite
+of data structures and routines for the scalable (parallel) solution
+of scientific applications modeled by partial differential equations.
+
+This version is configured with several downloads of other libraries,
+with --with-large-file-io and no debugging. It is a C and Fortran
+version with 8-Byte integer values.
+
+For more information see $PETSC_DIR/lib/petsc/conf/configure-hash.
+"""
+
+
+toolchain = {'name': 'gomkl', 'version': '2021'}
+
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
+sources = ['petsc-lite-%s.tar.gz' % version]
+
+builddependencies = [
+    ('CMake', '3.18.0', '', SYSTEM)
+]
+
+download_deps = [
+    'triangle',
+]
+
+dependencies = [
+    ('HDF5', '1.10.6'),
+    ('CUDA', '11.3', '', SYSTEM),
+]
+
+download_deps_static = [
+    'hypre',
+    'metis',
+    'parmetis',
+    'spooles',
+    'superlu_dist',
+]
+
+configopts = '--with-large-file-io --with-cxx-dialect=C++11 '
+configopts += '--with-64-bit-indices=1 '
+configopts += '--with-packages-download-dir=/p/fastdata/zam/swmanage/EasyBuild/sources/p/PETSc '
+configopts += '-CUDAC=nvcc '
+configopts += '--with-openmp=1'
+
+shared_libs = 1
+
+postinstallcmds = [
+    'cp %(builddir)s/petsc-%(version)s.?/src/mat/impls/aij/mpi/mpiaij.h %(installdir)s/include/petsc/private/',
+    'cp %(builddir)s/petsc-%(version)s.?/src/mat/impls/aij/seq/aij.h %(installdir)s/include/petsc/private/',
+    'cp %(builddir)s/petsc-%(version)s.?/src/mat/impls/dense/seq/dense.h %(installdir)s/include/petsc/private/'
+]
+
+moduleclass = 'numlib'

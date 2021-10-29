@@ -1,0 +1,165 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyDeepLearning'
+version = '1.1'
+local_jupyterver = '2021.3.2'
+versionsuffix = '-' + local_jupyterver
+
+local_pysuffix = '-Python-%(pyver)s'
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special DeepLearning kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '10.3.0-2021.2.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.36.1'),
+    # just ensure they exist
+    ('OpenCV', '4.5.3', local_pysuffix),
+    ('TensorFlow', '2.5.0', local_pysuffix),
+    ('PyTorch', '1.8.1', local_pysuffix),
+    ('PyTorch-Geometric', '2.0.1', local_pysuffix + '-PyTorch-1.8.1'),
+    ('torchvision', '0.9.1', local_pysuffix),
+    ('OpenAI-Gym', '0.18.0', local_pysuffix),
+    # ('DeepSpeed', '0.5.4', local_pysuffix),  # req. OpenMPI
+    ('Horovod', '0.22.1', local_pysuffix),
+]
+
+dependencies = [
+    ('Python', '3.8.5'),
+    ('Jupyter', local_jupyterver, local_pysuffix),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-32x32.png"},
+            {'filename': 'logo-64x64.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-64x64.png"},
+            {'filename': 'logo-128x128.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-128x128.png"},
+        ],
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('lmdb', '1.1.1', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '165cd1669b29b16c2d5cc8902b90fede15a7ee475c54d466f1444877a3f511ac')]),
+    ])),
+    ('gviz_api', '1.9.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', '43d13ccc21834d0501b33a291ef3265e933dbb4bbdca3d34b1ed0a048c0ef640')]),
+    ])),
+    ('tensorboard_plugin_profile', '2.5.0', dict(list(local_common_opts.items()) + [
+        ('checksums', [('sha256', 'f832698d87a773b9a017fc4dd5cf598a1ff942ccfbf3392c83fe12c949ab9f52')]),
+    ])),
+    ('tensorflow_hub', '0.12.0', dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'tensorflow_hub-0.12.0-py2.py3-none-any.whl'),
+        ('checksums', [('sha256', '822fe5f7338c95efcc3a534011c6689e4309ba2459def87194179c4de8a6e1fc')]),
+        ('unpack_sources', False),
+        ('modulename', False),  # skip sanity check as it will fail without TensorFlow
+    ])),
+]
+
+local_kernel_dir = 'pydeeplearning'
+local_kernel_name = 'PyDeepLearning-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+    'HOROVOD_MPI_THREADS_DISABLE': ['1'],  # no mpi by default
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module use \$OTHERSTAGES \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC/10.3.0 \n'
+        'module load OpenMPI \n'
+        'module load OpenCV/4.5.3-Python-3.8.5 \n'
+        'module load TensorFlow/2.5.0-Python-3.8.5 \n'
+        'module load PyTorch/1.8.1-Python-3.8.5 \n'
+        'module load PyTorch-Geometric/2.0.1-Python-3.8.5-PyTorch-1.8.1 \n'
+        'module load torchvision/0.9.1-Python-3.8.5 \n'
+        'module load OpenAI-Gym/0.18.0-Python-3.8.5 \n'
+        'module load DeepSpeed/0.5.4-Python-3.8.5 \n'
+        'module load Horovod/0.22.1-Python-3.8.5 \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+# full_sanity_check = True
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

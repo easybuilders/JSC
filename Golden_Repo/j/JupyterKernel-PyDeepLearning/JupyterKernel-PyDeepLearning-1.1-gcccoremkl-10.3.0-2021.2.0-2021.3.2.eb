@@ -24,11 +24,11 @@ builddependencies = [
     ('OpenCV', '4.5.3', local_pysuffix),
     ('TensorFlow', '2.5.0', local_pysuffix),
     ('PyTorch', '1.8.1', local_pysuffix),
-    ('PyTorch-Geometric', '2.0.1', local_pysuffix + '-PyTorch-1.8.1'),
+    ('PyTorch-Geometric', '2.0.2', local_pysuffix + '-PyTorch-1.8.1'),
     ('torchvision', '0.9.1', local_pysuffix),
     ('OpenAI-Gym', '0.18.0', local_pysuffix),
-    # ('DeepSpeed', '0.5.4', local_pysuffix),  # req. OpenMPI
-    ('Horovod', '0.22.1', local_pysuffix),
+    # ('DeepSpeed', '0.5.4', local_pysuffix, ('gomkl', '2021)),  # req. OpenMPI
+    # ('Horovod', '0.23.0', local_pysuffix, ('gomkl', '2021)), # req. OpenMPI
 ]
 
 dependencies = [
@@ -117,8 +117,8 @@ postinstallcmds = [
         'module load PyTorch-Geometric/2.0.1-Python-3.8.5-PyTorch-1.8.1 \n'
         'module load torchvision/0.9.1-Python-3.8.5 \n'
         'module load OpenAI-Gym/0.18.0-Python-3.8.5 \n'
-        'module load DeepSpeed/0.5.4-Python-3.8.5 \n'
-        'module load Horovod/0.22.1-Python-3.8.5 \n'
+        '# module load DeepSpeed/0.5.4-Python-3.8.5 \n'
+        '# module load Horovod/0.23.0-Python-3.8.5 \n'
         'module load %s/.%s%s \n'
         '\n'
         'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'

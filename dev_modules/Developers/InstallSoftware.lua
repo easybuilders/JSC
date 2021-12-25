@@ -23,6 +23,21 @@ end
 
 prereq("Stages")
 
+-- Mark it as conflictive with user installations, to don't allow to load both at the same time
+conflict("UserInstallations")
+
+-- Also check that $HOME/easybuild and $PROJECT/easybuild do not exist, so user installations
+-- do not interfere with system-wide installations
+local user_install_error_msg =  " exists! It might contain user installed software that could\n"..
+                                "interfere with the system wide installation. Please remove this directory "..
+                                "(temporarily if necessary, while you\nperform system-wide installations) and retry."
+if isDir(pathJoin(os.getenv("PROJECT") or "PROJECT_NOT_DEFINED", pathJoin("easybuild"))) then
+    LmodError(yellow.."$PROJECT/easybuild"..user_install_error_msg..normal)
+end
+if isDir(pathJoin(os.getenv("HOME") or "HOME_NOT_DEFINED", pathJoin("easybuild"))) then
+    LmodError(yellow.."$HOME/easybuild"..user_install_error_msg..normal)
+end
+
 -- Set local variables, taken from the environment
 local software_root = os.getenv("SOFTWAREROOT")
 local stage =  os.getenv("STAGE")
@@ -43,6 +58,10 @@ local custom_mns_path = pathJoin(common_eb_path, stage, "Custom_MNS")
 local custom_hooks = pathJoin(common_eb_path, stage, "Custom_Hooks", "eb_hooks.py")
 
 local contact = "some@contact.com"
+
+local custom_module_classes = "astro,base,bio,cae,chem,compiler,data,debugger,devel,"..
+                               "geo,ide,lang,lib,math,mpi,numlib,perf,phys,quantum,sidecompiler,"..
+                               "system,toolchain,tools,vis"
 
 -- Allow members of the software group to install *just* in the Devel stage
 local user = capture("id -u -n")
@@ -89,7 +108,8 @@ if mode()=="load" then
                 "    (EASYBUILD_ROBOT)\n"..
                 "  - Setting the filter to don't include irrelevant environment information in test reports\n"..
                 "    (EASYBUILD_TEST_REPORT_ENV_FILTER)\n"..
-                "  - Using JSC EasyBuild hooks (EASYBUILD_HOOKS)\n")
+                "  - Using JSC EasyBuild hooks (EASYBUILD_HOOKS)\n"..
+                "  - Setting module classes to include side compilers (EASYBUILD_MOODULECLASSES)\n")
 end
 
 -- Unload some modules for convenience
@@ -106,6 +126,9 @@ setenv("EASYBUILD_ROBOT_PATHS", gr_path)
 
 -- Configure use of our hooks
 setenv("EASYBUILD_HOOKS", custom_hooks)
+
+-- Adding sidecompiler to module classes
+setenv("EASYBUILD_MODULECLASSES", custom_module_classes)
 
 -- Fail if there are EB related modules loaded
 setenv("EASYBUILD_DETECT_LOADED_MODULES", "error")
@@ -170,7 +193,7 @@ elseif systemname == "hdfml" then
 end
 
 -- Default
-if optarch == nil then
+if optarch == "" then
     if mode()=="load" then
         LmodMessage("  - "..yellow.."No particular architecture loaded. Unsetting EASYBUILD_OPTARCH (if set)\n"..normal)
     end
@@ -183,7 +206,7 @@ else
 end
 
 -- Default
-if cuda_compute == nil then
+if cuda_compute == "" then
     if mode()=="load" then
         LmodMessage("  - "..yellow.."No particular CUDA compute capability. Unsetting EASYBUILD_CUDA_COMPUTE_CAPABILITIES (if set)\n"..normal)
     end
@@ -332,16 +355,25 @@ if not isloaded("EasyBuild") then
         LmodMessage("  - Loading default (typically latest) EasyBuild module")
     end
     load("EasyBuild")
+end
+if mode()=="load" then
     -- Enable bash completion in bash
     local shell = capture("echo $SHELL | xargs basename")
     -- Sanitize input
     shell = string.gsub(shell, "\n", "")
---    if shell == "bash" then
---        LmodMessage("  - Enabling bash tab completion for EasyBuild")
---        execute{cmd="source minimal_bash_completion.bash", modeA={"load"}}
---        execute{cmd="source optcomplete.bash", modeA={"load"}}
---        execute{cmd="complete -F _optcomplete eb", modeA={"load"}}
---    end
+    if shell == "bash" then
+        LmodMessage("  - Enabling bash tab completion for EasyBuild")
+        -- Enable EasyBuild autocomplete
+        execute{
+            cmd=[[
+                source $EBROOTEASYBUILD/bin/minimal_bash_completion.bash;
+                source $EBROOTEASYBUILD/bin/optcomplete.bash;
+                source $EBROOTEASYBUILD/bin/eb_bash_completion.bash;
+                complete -F _eb eb
+            ]],
+            modeA={"load"}
+        }
+    end
 end
 
 -- Let's repeat where we're installing if they've chosen one of the soft-linked Stages

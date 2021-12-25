@@ -15,7 +15,7 @@ In addition the variables ARPACK_ROOT, ARPACK_LIB, PARPACK_ROOT, and PARPACK_LIB
 examples = 'Examples can be found in $ARPACK_ROOT/EXAMPLES'
 
 
-toolchain = {'name': 'iomkl', 'version': '2021'}
+toolchain = {'name': 'gomkl', 'version': '2021'}
 toolchainopts = {'opt': True, 'optarch': True, 'pic': True, 'usempi': True}
 
 source_urls = ['https://github.com/opencollab/arpack-ng/releases/tag/']

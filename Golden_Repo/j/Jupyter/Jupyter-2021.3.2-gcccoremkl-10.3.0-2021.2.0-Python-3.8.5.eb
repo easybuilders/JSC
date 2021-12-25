@@ -5,7 +5,7 @@ name = 'Jupyter'
 version = '2021.3.2'
 versionsuffix = '-Python-%(pyver)s'
 
-local_jlab_version = '3.2.0'
+local_jlab_version = '3.2.1'
 
 homepage = 'http://www.jupyter.org'
 description = """
@@ -357,7 +357,7 @@ exts_list = [
         ('checksums', [('sha256', '863462bf6a6e0e5e502dcc479ce2ea1edf60437c969f1850d0c0823dba0c39b7')]),
     ])),
     ('jupyterlab', local_jlab_version, dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'ff761b4b43db119aeabd25326c775e8c595a05a8ae0a0926845d99f13e5de090')]),
+        ('checksums', [('sha256', '54466941bcd9b52f23373a32038fbb4e50fd652d4536df6179b53e1ffb8ef431')]),
         ('patches', [('401html.patch', 1)])
     ])),
     ('jupyter_kernel_gateway', '2.5.1', dict(list(local_common_opts.items()) + [
@@ -376,6 +376,11 @@ exts_list = [
     ('widgetsnbextension', '3.5.1', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '079f87d87270bce047512400efd70238820751a11d2d8cb137a5a5bdbaf255c7')]),
     ])),
+    ('jupyterlab_widgets', '1.0.2', dict(list(local_common_opts.items()) + [
+        ('source_tmpl', 'jupyterlab_widgets-%(version)s-py3-none-any.whl'),  # source from pip fails
+        ('checksums', [('sha256', 'f5d9efface8ec62941173ba1cffb2edd0ecddc801c11ae2931e30b50492eb8f7')]),
+        ('unpack_sources', False),
+    ])),
     ('ipywidgets', '7.6.5', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', '00974f7cb4d5f8d494c19810fedb9fa9b64bffd3cda7c2be23c133a1ad3c99c5')]),
     ])),
@@ -385,11 +390,6 @@ exts_list = [
     ('ipydatawidgets', '4.2.0', dict(list(local_common_opts.items()) + [
         ('source_tmpl', 'ipydatawidgets-4.2.0-py2.py3-none-any.whl'),  # source from pip fails, PEP 517
         ('checksums', [('sha256', 'ace4d2aa68c0667290873bbc8a5a2948afe40c80f7c93c7c2b19d38c2e91c08f')]),
-        ('unpack_sources', False),
-    ])),
-    ('jupyterlab_widgets', '1.0.2', dict(list(local_common_opts.items()) + [
-        ('source_tmpl', 'jupyterlab_widgets-1.0.2-py3-none-any.whl'),  # source from pip fails, ../tsconfigbase missing
-        ('checksums', [('sha256', 'f5d9efface8ec62941173ba1cffb2edd0ecddc801c11ae2931e30b50492eb8f7')]),
         ('unpack_sources', False),
     ])),
     ('plotly', '5.3.1', dict(list(local_common_opts.items()) + [
@@ -495,6 +495,7 @@ exts_list = [
     ])),
     ('jupyter-resource-usage', '0.6.0', dict(list(local_common_opts.items()) + [
         ('checksums', [('9d10d53525027206fb5f190964d4535bdb269fd241773fc09c87af02a974a5c7')]),
+        ('patches', ['jupyter-resource-usage_fixpsutil.patch']),
     ])),
     ('jupyterlab-system-monitor', '0.8.0', dict(list(local_common_opts.items()) + [
         ('checksums', [('f8d03d3ee26c84300c85e570f1a9d5f69bdcfa85e9a298f5716b67e36d0d94df')]),
@@ -864,15 +865,15 @@ exts_list = [
     ('pydicom', '2.2.2', dict(list(local_common_opts.items()) + [
         ('checksums', [('sha256', 'f51078da1fe1285431a6f14a5ca0273520391ef28a68b32b9de73cc7f93f38be')]),
     ])),
-    ('dicom_upload', '0.2.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'd03f309bbae2094d3db75ffaa9753cca5982d2096ec55720a1f54343cc4a6877')]),
-    ])),
-    ('jsfileupload', '0.2.0', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', '245cd74a3c2ed4356df9a33d0072d8ab295b60b6fdfd69c6795396d455fc8a77')]),
-    ])),
-    ('pvlink', '0.3.1', dict(list(local_common_opts.items()) + [
-        ('checksums', [('sha256', 'a2d5f2c204e0e779a5b865742019b4646b8592d76de87cac724dc84f64eaf80f')]),
-    ])),
+    # ('dicom_upload', '0.2.0', dict(list(local_common_opts.items()) + [
+    #     ('checksums', [('sha256', 'd03f309bbae2094d3db75ffaa9753cca5982d2096ec55720a1f54343cc4a6877')]),
+    # ])),  # too old deps: "@jupyter-widgets/base": "^1.1 || ^2|| ^3"
+    # ('jsfileupload', '0.2.0', dict(list(local_common_opts.items()) + [
+    #     ('checksums', [('sha256', '245cd74a3c2ed4356df9a33d0072d8ab295b60b6fdfd69c6795396d455fc8a77')]),
+    # ])),  # older deps: "@jupyter-widgets/base": "^1.1.10 || ^2"
+    # ('pvlink', '0.3.1', dict(list(local_common_opts.items()) + [
+    #     ('checksums', [('sha256', 'a2d5f2c204e0e779a5b865742019b4646b8592d76de87cac724dc84f64eaf80f')]),
+    # ])),  # older deps: "@jupyter-widgets/base": { "version": "3.0.0"
     ('textwrap3', '0.9.2', dict(list(local_common_opts.items()) + [
         ('source_tmpl', 'textwrap3-0.9.2.zip'),
         ('checksums', [('sha256', '5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414')]),
@@ -1139,9 +1140,9 @@ postinstallcmds = [
     'source %(builddir)s/env.sh && jupyter nbextension     enable appmode --py --user',
     'source %(builddir)s/env.sh && jupyter serverextension enable appmode --py',
 
-    #  Jupyter Notebook Extensions
+    #  JupyterLab Extensions
 
-    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab_iframe@0.3.0 --no-build',
+    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab_iframe@0.4.0 --no-build',
     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-theme-toggle@0.6.1 --no-build',
     'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-plotly@5.3.1 --no-build',
 
@@ -1158,9 +1159,9 @@ postinstallcmds = [
     #  '    npm run build && '                          # optional build step if using TypeScript, babel, etc.
     #  '    jupyter labextension install --no-build'),  # install the current directory as an extension
     #    'source %(builddir)s/env.sh && jupyter labextension install jupyterlab-slurm@2.0.0 --no-build',
-    # 'source %(builddir)s/env.sh && jupyter labextension install dicom-upload@0.2.0 --no-build',
-    'source %(builddir)s/env.sh && jupyter labextension install jsfileupload@0.2.0 --no-build',
-    'source %(builddir)s/env.sh && jupyter labextension install pvlink@0.3.1 --no-build',
+    # 'source %(builddir)s/env.sh && jupyter labextension install dicom-upload@0.2.0 --no-build',  # deps too old
+    # 'source %(builddir)s/env.sh && jupyter labextension install jsfileupload@0.2.0 --no-build',  # deps too old
+    # 'source %(builddir)s/env.sh && jupyter labextension install pvlink@0.3.1 --no-build',  # deps too old
     #    'source %(builddir)s/env.sh && jupyter labextension install itkwidgets@0.32.1 --no-build',  # no JLab>=3
 
     #  build JupyterLab app directory for all previous installed extensions in one go
@@ -1263,11 +1264,14 @@ postinstallcmds = [
     (
         '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
         'import os\n'
-        'c.ResourceUseDisplay.mem_limit = os.sysconf(\'SC_PAGE_SIZE\') * os.sysconf(\'SC_PHYS_PAGES\')\n'
-        'c.ResourceUseDisplay.mem_warning_threshold = 0.1\n'
+        '# set memory limit (not enforce it)\n'
+        'c.ResourceUseDisplay.mem_limit = '
+        'int(os.getenv("JUPYTER_MEMLIMIT", os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")))\n'
+        'c.ResourceUseDisplay.mem_warning_threshold = float(os.getenv("JUPYTER_MEMWARNTHRES", 0.1))\n'
+        '# set cpu.limit/warning (not enforce it)\n'
         'c.ResourceUseDisplay.track_cpu_percent = True\n'
-        'c.ResourceUseDisplay.cpu_limit = os.cpu_count()\n'
-        'c.ResourceUseDisplay.cpu_warning_threshold = 0.1\n'
+        'c.ResourceUseDisplay.cpu_limit = int(os.getenv("JUPYTER_CPULIMIT", os.cpu_count()))\n'
+        'c.ResourceUseDisplay.cpu_warning_threshold = float(os.getenv("JUPYTER_CPUWARNTHRES", 0.1))\n'
         'EOF'
     ),
 

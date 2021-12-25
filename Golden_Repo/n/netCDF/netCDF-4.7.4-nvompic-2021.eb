@@ -14,7 +14,15 @@ toolchainopts = {'pic': True, 'usempi': True}
 
 source_urls = ['https://github.com/Unidata/netcdf-c/archive/']
 sources = ['v%s.tar.gz' % (version)]
-checksums = ['99930ad7b3c4c1a8e8831fb061cb02b2170fc8e5ccaeda733bd99c3b9d31666b']
+patches = [
+    'netCDF-%(version)s-fix-mpi-info-f2c.patch',
+    'remove_double_shared_in_link_command.patch',
+]
+checksums = [
+    '99930ad7b3c4c1a8e8831fb061cb02b2170fc8e5ccaeda733bd99c3b9d31666b',  # v4.7.4.tar.gz
+    '7ff8a922ca3be35fca261a94f725abde32807f17c196c475053a570f03eb7396',  # netCDF-4.7.4-fix-mpi-info-f2c.patch
+    'd1f26d61676d9ded155048724290a7bbeb780b49b66454183309c8064bf6c059',  # remove_double_shared_in_link_command.patch
+]
 
 dependencies = [
     ('HDF5', '1.10.6'),
@@ -27,8 +35,6 @@ builddependencies = [
     ('CMake', '3.18.0', '', SYSTEM),
     ('Doxygen', '1.8.18'),
 ]
-
-patches = ['remove_double_shared_in_link_command.patch']
 
 # make sure both static and shared libs are built
 configopts = [

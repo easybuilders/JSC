@@ -317,13 +317,11 @@ postinstallcmds = ['python -m compileall %(installdir)s/lib64/python3.6/site-pac
 #    '', # debugedit -i --base-dir=%(builddir)s/ParaView-v%(version)s --dest-dir= %(installdir)s/src <file.debug>
 #        # change path to source in debug info    
 
-modextravars = {'CUDA_VISIBLE_DEVICES': '0,1'}
-
-# OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
-modextravars = {'MESA_GL_VERSION_OVERRIDE': '3.3'}
-modextravars = {'MESA_GLSL_VERSION_OVERRIDE': '330'}
-
 modextravars = {
+    'CUDA_VISIBLE_DEVICES': '0,1',
+    # OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
+    'MESA_GL_VERSION_OVERRIDE': '3.3',
+    'MESA_GLSL_VERSION_OVERRIDE': '330',
     #  OpenMP will choose an optimum number of threads by default, which is usually the number of cores
     # 'OMP_NUM_THREADS': '28', # fix number of threads used by paraview filters and parallel sections in the code
     #  threads used by ospray - details https://github.com/ospray/ospray/blob/release-2.0.x/ospray/api/Device.cpp#L88

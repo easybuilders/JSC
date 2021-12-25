@@ -21,7 +21,7 @@ toolchainopts = {'pic': True}
 builddependencies = [
     ('binutils', '2.36.1'),
     ('xpra', '4.0.4', '-Python-%(pyver)s'),  # check for existance
-    ('jsc-xdg-menu', '2020.4'),  # check for existance
+    ('jsc-xdg-menu', '2021.8', '', ('GCCcore', '10.3.0')),  # check for existance
 ]
 
 dependencies = [
@@ -63,7 +63,7 @@ postinstallcmds = [
         'module load Stages/${STAGE} > /dev/null \n'
         'module load GCCcore/.10.3.0 > /dev/null \n'
         'module load xpra/4.0.4-Python-3.8.5 > /dev/null \n'
-        'module load jsc-xdg-menu/.2020.4 > /dev/null \n'
+        'module load jsc-xdg-menu/.2021.8 > /dev/null \n'
         '\n'
         'if ! command -v xterm &> /dev/null \n'
         'then \n'

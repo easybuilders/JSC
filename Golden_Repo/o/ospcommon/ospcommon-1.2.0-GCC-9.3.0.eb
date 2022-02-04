@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ospcommon'
+version = '1.2.0'
+
+homepage = 'http://www.ospray.org/'
+description = """
+OSPRay is an open source, scalable, and portable ray tracing engine for
+high-performance, high-fidelity visualization on Intel® Architecture CPUs.
+"""
+
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+# optarch interferes with embree's build system, where -xAVX (or similar is specified)
+toolchainopts = {'optarch': False, 'pic': True}
+
+source_urls = ['https://github.com/ospray/ospcommon/archive/']
+sources = ['v%(version)s.tar.gz']
+
+builddependencies = [
+    ('CMake', '3.18.0'),
+]
+
+dependencies = [
+    ('tbb', '2020.3'),
+]
+
+checksums = ['62cf307d018648a78f5863b18214579097c3165e60158f67ed506805b9543756']
+
+separate_build_dir = True
+
+start_dir = '%(name)s-%(version)s'
+
+sanity_check_paths = {
+    'dirs': ['bin', 'include/ospcommon'],
+    'files': ['lib/libospcommon.so'],
+}
+
+moduleclass = 'vis'

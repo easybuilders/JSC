@@ -32,14 +32,25 @@ help([[  This module will reset your module environment for the requested stage 
 whatis([[  Module to set up the environment for requested stage ( ]] .. stage .. [[ )]])
 
 if mode() == "load" then
-    if string.find(stage, "Devel") or string.find(stage, "Stage1")  then
+    if string.find(stage, "Devel") or string.find(stage, "Stage1") then
         LmodMessage("\n  "..yellow.."Development stages are meant for testing "..
                    "software before it gets deployed in production.\n"..
                    "  Please do not use it for production runs, the stage is "..
                    "not meant for that and it should\n"..
-                   "  be considered unstable"..normal)
+                   "  be considered unstable"..normal.."\n")
+    else
+        local default_stage = capture("readlink -f $(dirname "..myFileName()..")/default | xargs basename -s .lua")
+        -- Sanitize input
+        default_stage = string.gsub(default_stage, "\n", "")
+        if stage < default_stage then
+            LmodMessage("\n  "..yellow.."This stage is deprecated. Please consider moving to a new stage ("..default_stage.." or newer)"..normal.."\n")
+        elseif stage > default_stage then
+            LmodMessage("\n  "..yellow.."This stage is in construction. Thanks for being an early adopter! If you are\n"..
+                        "  missing some software you'd like to have, please contact support at sc@fz-juelich.de"..normal.."\n")
+        else
+            LmodMessage("\n  Preparing the environment for use of "..stage.." stage.\n")
+        end
     end
-    LmodMessage("\n  Preparing the environment for use of requested stage ( "..stage.." ).\n")
 end
 
 -- Unload GCCcore and binutils, loaded by StdEnv. The changes in the MODULEPATH trigger the reloading of StdEnv itself

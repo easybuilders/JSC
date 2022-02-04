@@ -13,6 +13,7 @@ toolchainopts = {'pic': True, 'verbose': True}  # , 'usempi': True}
 
 source_urls = ['https://github.com/JuliaLang/julia/releases/download/v%(version)s/']
 sources = ['julia-%(version)s-full.tar.gz']
+checksums = ['71d8e40611361370654e8934c407b2dec04944cf3917c5ecb6482d6b85ed767f']
 
 builddependencies = [
     ('binutils', '2.36.1'),
@@ -38,139 +39,165 @@ arch_name = 'gpu'
 
 exts_defaultclass = 'JuliaPackage'
 exts_list = [
-    # General Purpose
     ('PackageCompiler.jl', '1.2.5', {
         'source_tmpl': 'v1.2.5.tar.gz',
         'source_urls': ['https://github.com/JuliaLang/PackageCompiler.jl/archive/'],
-        # 'packagespec': 'name="PackageCompiler", version="1.2.5"',
+        'checksums': ['e1d1a41b08e7f3ef8e7260928b50ad8215dee6755e5cef240beda761abb7baaa'],
     }),
     ('HTTP.jl', '0.9.5', {
         'source_tmpl': 'v0.9.5.tar.gz',
         'source_urls': ['https://github.com/JuliaWeb/HTTP.jl/archive/'],
+        'checksums': ['0ac92fa4aa76cdb15cab1b770992790ed819db2b47ecb8dd8acafedb018defc7'],
     }),
     ('Parsers.jl', '1.1.0', {
         'source_tmpl': 'v1.1.0.tar.gz',
         'source_urls': ['https://github.com/JuliaData/Parsers.jl/archive/'],
+        'checksums': ['5f7da637c92e6987e82029065d66477248cbeedd9e0629d6c4e41ffb3c27b4b5'],
     }),
     ('VersionParsing.jl', '1.2.0', {
         'source_tmpl': 'v1.2.0.tar.gz',
         'source_urls': ['https://github.com/JuliaInterop/VersionParsing.jl/archive/'],
+        'checksums': ['329f62b69dac7675cd12ede1d91fc1da2147f3e74c0d86606cb616b4d2719f51'],
     }),
     ('JSON.jl', '0.21.1', {
         'source_tmpl': 'v0.21.1.tar.gz',
         'source_urls': ['https://github.com/JuliaIO/JSON.jl/archive/'],
+        'checksums': ['5028ba5a266e5da0d193c4c1538ad8f62cda47a70e94157dbc739c0af4b1f61b'],
     }),
     ('WebIO.jl', '0.8.15', {
         'source_tmpl': 'v0.8.15.tar.gz',
         'source_urls': ['https://github.com/JuliaGizmos/WebIO.jl/archive/'],
+        'checksums': ['906be0e36486d1ab4c0371094b420b397929c5f17d5a69dbf451720cd106606c'],
     }),
     ('ProgressMeter.jl', '1.5.0', {
         'source_tmpl': 'v1.5.0.tar.gz',
         'source_urls': ['https://github.com/timholy/ProgressMeter.jl/archive/'],
+        'checksums': ['a26b2e2f006494c26d3ec94c2c019e3e63017cf83b94dda25edf53210200bca7'],
     }),
     ('Conda.jl', '1.5.2', {
         'source_tmpl': 'v1.5.2.tar.gz',
         'source_urls': ['https://github.com/JuliaPy/Conda.jl/archive/'],
+        'checksums': ['490dae31a639fd088ba2176a2adf51cb13ce9d065486f9a4ae258e3b582f0b29'],
     }),
     ('PyCall.jl', '1.92.3', {
         'source_tmpl': 'v1.92.3.tar.gz',
         'source_urls': ['https://github.com/JuliaPy/PyCall.jl/archive/'],
+        'checksums': ['3041770ef36e0a4ec6def8722606bb0cf889c1c23588e55ccf900b75dffe71c6'],
     }),
     ('LaTeXStrings.jl', '1.2.1', {
         'source_tmpl': 'v1.2.1.tar.gz',
         'source_urls': ['https://github.com/stevengj/LaTeXStrings.jl/archive/'],
+        'checksums': ['c5d21e31eae5f32d5d050ca26783b187bb8b8eb536ee2334464d0ef671ce54dc'],
     }),
     ('DocumentFormat.jl', '3.2.0', {
         'source_tmpl': 'v3.2.0.tar.gz',
         'source_urls': ['https://github.com/julia-vscode/DocumentFormat.jl/archive/'],
+        'checksums': ['757072b8df3de525e0d96bcf55fa4ae0373c8cf15a5fd8afac6a8d5f9a5897e1'],
     }),
-    # Data Science
     ('CSV.jl', '0.8.4', {
         'source_tmpl': 'v0.8.4.tar.gz',
         'source_urls': ['https://github.com/JuliaData/CSV.jl/archive/'],
+        'checksums': ['b846c284de11a51f172759e42e61ca93b2e73d0fa8af09afab20a0ea1296429f'],
     }),
     ('DataFrames.jl', '0.21.8', {
         'source_tmpl': 'v0.21.8.tar.gz',
         'source_urls': ['https://github.com/JuliaData/DataFrames.jl/archive/'],
+        'checksums': ['334afd4efc4f27b29c86762970418b5f60058cfc4eda2b6dfb89bebbabce9138'],
     }),
     ('Arrow.jl', '1.4.1', {
         'source_tmpl': 'v1.4.1.tar.gz',
         'source_urls': ['https://github.com/JuliaData/Arrow.jl/archive/'],
+        'checksums': ['e08ba4aaa26f7d266cd9c017d93700789637bfe1bdbccc215c66977dfbffe377'],
     }),
     ('OnlineStats.jl', '1.5.8', {
         'source_tmpl': 'v1.5.8.tar.gz',
         'source_urls': ['https://github.com/joshday/OnlineStats.jl/archive/'],
+        'checksums': ['47aebb58aa4fa890b645fe9908fee811ae24f42f1286f6e22f5e1d9d36d60ccb'],
     }),
     ('Query.jl', '1.0.0', {
         'source_tmpl': 'v1.0.0.tar.gz',
         'source_urls': ['https://github.com/queryverse/Query.jl/archive/'],
+        'checksums': ['76c05e3ffc8f3c2ce2cd3f6824f40a107cdba6fc58c4ce42de2289132de988e0'],
     }),
-    # Scientific Domains
     ('GSL.jl', '1.0.1', {
         'source_tmpl': 'v1.0.1.tar.gz',
         'source_urls': ['https://github.com/JuliaMath/GSL.jl/archive/refs/tags/'],
+        'checksums': ['91a5acbb752610c5989b9acef126f2231f612debb7ba6d1d4625c68d2af5776e'],
     }),
     ('DifferentialEquations.jl', '6.16.0', {
         'source_tmpl': 'v6.16.0.tar.gz',
         'source_urls': ['https://github.com/SciML/DifferentialEquations.jl/archive/'],
+        'checksums': ['865c70d17bd31bcb8d75eee63c5d92d80d9e9d3f0729411b2b0140143513fbbe'],
     }),
     ('Distributions.jl', '0.24.18', {
         'source_tmpl': 'v0.24.18.tar.gz',
         'source_urls': ['https://github.com/JuliaStats/Distributions.jl/archive/'],
+        'checksums': ['471464cf0a60be21338b9252464e5cf9f0f34a48ade1d24270fd27439e6218ac'],
     }),
     ('Optim.jl', '1.3.0', {
         'source_tmpl': 'v1.3.0.tar.gz',
         'source_urls': ['https://github.com/JuliaNLSolvers/Optim.jl/archive/'],
+        'checksums': ['9754cee3991d3a92827112b60064b381bec62e383634984dc0cad1fbc3301bda'],
     }),
     ('IterativeSolvers.jl', '0.9.0', {
         'source_tmpl': 'v0.9.0.tar.gz',
         'source_urls': ['https://github.com/JuliaLinearAlgebra/IterativeSolvers.jl/archive/'],
+        'checksums': ['172525bd76d587f5388c09daefa26aa1f254d51eb0b2bc9eb2d7ef5cd92395fb'],
     }),
     ('AbstractFFTs.jl', '1.0.1', {
         'source_tmpl': 'v1.0.1.tar.gz',
         'source_urls': ['https://github.com/JuliaMath/AbstractFFTs.jl/archive/'],
+        'checksums': ['91a5acbb752610c5989b9acef126f2231f612debb7ba6d1d4625c68d2af5776e'],
     }),
     ('OrdinaryDiffEq.jl', '5.52.7', {
         'source_tmpl': 'v5.52.7.tar.gz',
         'source_urls': ['https://github.com/SciML/OrdinaryDiffEq.jl/archive/'],
+        'checksums': ['f09e01d0121371b5e2e6851259a0590c0d1cde53002e541b07b270895e3c0755'],
     }),
     ('SpecialFunctions.jl', '1.3.0', {
         'source_tmpl': 'v1.3.0.tar.gz',
         'source_urls': ['https://github.com/JuliaMath/SpecialFunctions.jl/archive/'],
+        'checksums': ['9754cee3991d3a92827112b60064b381bec62e383634984dc0cad1fbc3301bda'],
     }),
     ('JuMP.jl', '0.21.7', {
         'source_tmpl': 'v0.21.7.tar.gz',
         'source_urls': ['https://github.com/jump-dev/JuMP.jl/archive/'],
+        'checksums': ['af74f8f0fb3444b503136b7374f69cd840b2408e976c4f88ec2c626ba957bec0'],
     }),
-    # Visualization
     ('GR.jl', '0.57.4', {
         'source_tmpl': 'v0.57.4.tar.gz',
         'source_urls': ['https://github.com/jheinen/GR.jl/archive/'],
+        'checksums': ['4a9ee9c394de90eee6ca93b523f1ed60c2a9c385691727bafcd8ee70152adc50'],
     }),
     ('PlotlyJS.jl', '0.14.1', {
         'source_tmpl': 'v0.14.1.tar.gz',
         'source_urls': ['https://github.com/JuliaPlots/PlotlyJS.jl/archive/'],
+        'checksums': ['e0789c0e7c38cfb3b8ca2b8ba7daf1ede618a931a5e4e70752d14fbff8a883ff'],
     }),
     ('PyPlot.jl', '2.9.0', {
         'source_tmpl': 'v2.9.0.tar.gz',
         'source_urls': ['https://github.com/JuliaPy/PyPlot.jl/archive/'],
+        'checksums': ['8917ab5fb1d7d12d4dcdf14fcfec88b3abcbb9c5054e2326b1fb4cce964f32ed'],
     }),
     ('Plots.jl', '1.12.0', {
         'source_tmpl': 'v1.12.0.tar.gz',
         'source_urls': ['https://github.com/JuliaPlots/Plots.jl/archive/'],
+        'checksums': ['8319cfe066aac207f12347adbb1c32e8f1ba46b9141363dfdf200875833c9187'],
     }),
     ('UnicodePlots.jl', '1.3.0', {
         'source_tmpl': 'v1.3.0.tar.gz',
         'source_urls': ['https://github.com/Evizero/UnicodePlots.jl/archive/'],
+        'checksums': ['9754cee3991d3a92827112b60064b381bec62e383634984dc0cad1fbc3301bda'],
     }),
     ('StatsPlots.jl', '0.14.19', {
         'source_tmpl': 'v0.14.19.tar.gz',
         'source_urls': ['https://github.com/JuliaPlots/StatsPlots.jl/archive/'],
+        'checksums': ['3f12763ddad9ff9f251a862870c3be2553337a9c730957d779317273107e3b6e'],
     }),
-    # CUDA
     ('CUDA.jl', '3.1.0', {
         'source_tmpl': 'v3.1.0.tar.gz',
-        'source_urls': ['https://github.com/JuliaGPU/CUDA.jl/archive/']
+        'source_urls': ['https://github.com/JuliaGPU/CUDA.jl/archive/'],
+        'checksums': ['69efc3dd9039bc6cf61dd9d7aea4fe5f0e934ccd06170577fd29253cb264c359'],
     }),
 ]
 

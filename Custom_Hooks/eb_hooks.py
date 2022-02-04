@@ -51,6 +51,8 @@ VETOED_INSTALLATIONS = {
         'jurecabooster': ['OpenMPI', 'CUDA', 'nvidia-driver', 'UCX', 'NVHPC'],
         'jusuf': ['impi'],
         'hdfml': [''],
+        'deep': [''],
+        'hdfcloud': [''],
 }
 
 # Also maintain a list of CUDA enabled compilers

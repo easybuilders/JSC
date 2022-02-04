@@ -26,16 +26,29 @@ prereq("Stages")
 -- Mark it as conflictive with user installations, to don't allow to load both at the same time
 conflict("UserInstallations")
 
+-- Read systemname to know which overlay we should prepend and where the module path points to
+local systemname = capture("cat /etc/FZJ/systemname")
+--Sanitize systemname
+systemname = string.gsub(systemname, "\n", "")
+local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
+
+-- To support cross-compilation
+if lmod_systemname == "jurecabooster" then
+    systemname = lmod_systemname
+end
+
 -- Also check that $HOME/easybuild and $PROJECT/easybuild do not exist, so user installations
 -- do not interfere with system-wide installations
-local user_install_error_msg =  " exists! It might contain user installed software that could\n"..
-                                "interfere with the system wide installation. Please remove this directory "..
-                                "(temporarily if necessary, while you\nperform system-wide installations) and retry."
-if isDir(pathJoin(os.getenv("PROJECT") or "PROJECT_NOT_DEFINED", pathJoin("easybuild"))) then
-    LmodError(yellow.."$PROJECT/easybuild"..user_install_error_msg..normal)
-end
-if isDir(pathJoin(os.getenv("HOME") or "HOME_NOT_DEFINED", pathJoin("easybuild"))) then
-    LmodError(yellow.."$HOME/easybuild"..user_install_error_msg..normal)
+if mode()=="load" then
+    local user_install_error_msg =  " exists! It might contain user installed software that could\n"..
+                                    "interfere with the system wide installation. Please remove this directory "..
+                                    "(temporarily if necessary, while you\nperform system-wide installations) and retry."
+    if isDir(pathJoin(os.getenv("PROJECT") or "PROJECT_NOT_DEFINED", pathJoin("easybuild", systemname))) then
+        LmodError(yellow.."$PROJECT/easybuild/"..systemname..user_install_error_msg..normal)
+    end
+    if isDir(pathJoin(os.getenv("HOME") or "HOME_NOT_DEFINED", pathJoin("easybuild", systemname))) then
+        LmodError(yellow.."$HOME/easybuild/"..systemname..user_install_error_msg..normal)
+    end
 end
 
 -- Set local variables, taken from the environment
@@ -144,19 +157,8 @@ if tonumber(nproc) > 64 then
     local maxparallel = "64"
     pushenv("EASYBUILD_PARALLEL", maxparallel)
     if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
+        LmodMessage("  - "..yellow.."Setting EASYBUILD_PARALLEL to "..maxparallel..normal)
     end
-end
-
--- Read systemname to know which overlay we should prepend
-local systemname = capture("cat /etc/FZJ/systemname")
---Sanitize systemname
-systemname = string.gsub(systemname, "\n", "")
-local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
-
--- To support cross-compilation
-if lmod_systemname == "jurecabooster" then
-    systemname = lmod_systemname
 end
 
 -- Set overlay
@@ -173,7 +175,7 @@ if systemname == "jurecabooster" then
 -- JUWELS
 elseif systemname == "juwels" then
     optarch = "GCCcore:march=haswell -mtune=haswell"
-    cuda_compute = "6.0,7.0"
+    cuda_compute = "7.0,6.0"
 -- JUWELS booster
 elseif systemname == "juwelsbooster" then
     optarch = "Intel:march=core-avx2"
@@ -181,7 +183,7 @@ elseif systemname == "juwelsbooster" then
 -- JURECA-DC
 elseif systemname == "jurecadc" then
     optarch = "Intel:march=core-avx2"
-    cuda_compute = "7.5,8.0"
+    cuda_compute = "8.0,7.5"
 -- JUSUF
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"
@@ -200,7 +202,7 @@ if optarch == "" then
     unsetenv("EASYBUILD_OPTARCH")
 else
     if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_OPTARCH to "..optarch..normal)
+        LmodMessage("  - "..yellow.."Setting EASYBUILD_OPTARCH to "..optarch..normal)
     end
     pushenv("EASYBUILD_OPTARCH", optarch)
 end
@@ -213,7 +215,7 @@ if cuda_compute == "" then
     unsetenv("EASYBUILD_CUDA_COMPUTE_CAPABILITIES")
 else
     if mode()=="load" then
-        LmodMessage(yellow.."  - Setting EASYBUILD_CUDA_COMPUTE_CAPABILITIES to "..cuda_compute..normal)
+        LmodMessage("  - "..yellow.."Setting EASYBUILD_CUDA_COMPUTE_CAPABILITIES to "..cuda_compute..normal)
     end
     pushenv("EASYBUILD_CUDA_COMPUTE_CAPABILITIES", cuda_compute)
 end

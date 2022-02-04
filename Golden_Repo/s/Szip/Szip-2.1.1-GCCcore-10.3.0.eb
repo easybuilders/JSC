@@ -15,7 +15,7 @@ toolchainopts = {'pic': True}
 
 source_urls = ['http://www.hdfgroup.org/ftp/lib-external/szip/%(version)s/src']
 sources = [SOURCELOWER_TAR_GZ]
-checksums = ['897dda94e1d4bf88c91adeaad88c07b468b18eaf2d6125c47acac57e540904a9']
+
 
 builddependencies = [
     ('binutils', '2.36.1')

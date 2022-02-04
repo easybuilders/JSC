@@ -15,3 +15,4 @@
  
  # BLAS library (only required for tests)
  BLAS=-lblas
+

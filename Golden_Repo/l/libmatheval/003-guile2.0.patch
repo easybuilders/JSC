@@ -400,3 +400,4 @@ Bug-Debian: https://bugs.debian.org/746013
 +AT_CHECK([matheval.sh number.scm], [ignore], [0.6443940149772542], [ignore])
  
  AT_CLEANUP
+

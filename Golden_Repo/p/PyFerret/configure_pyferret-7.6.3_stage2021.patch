@@ -66,7 +66,7 @@ diff -Naur PyFerret-7.6.3.orig/external_functions/ef_utility/site_specific.mk Py
 +# PYTHON_EXE = python2.7
 +# PYTHON_EXE = python3.6
 +# PYTHON_EXE = python3.7
-+PYTHON_EXE = python3.8
++PYTHON_EXE = python3.9
 +
 +## =========================
 +## FER_LOCAL_EXTFCNS is the directory in which to install
@@ -294,7 +294,7 @@ diff -Naur PyFerret-7.6.3.orig/site_specific.mk PyFerret-7.6.3/site_specific.mk
 +# PYTHON_EXE = python2.7
 +# PYTHON_EXE = python3.6
 +# PYTHON_EXE = python3.7
-+PYTHON_EXE = python3.8
++PYTHON_EXE = python3.9
 +
 +## =========================
 +## Full path to the python include files directory.

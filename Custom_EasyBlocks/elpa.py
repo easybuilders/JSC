@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2009-2020 Ghent University
+# Copyright 2009-2021 Ghent University
 # Copyright 2019 Micael Oliveira
 #
 # This file is part of EasyBuild,
@@ -54,8 +54,7 @@ class EB_ELPA(ConfigureMake):
         """Custom easyconfig parameters for ELPA."""
         extra_vars = {
             'auto_detect_cpu_features': [True, "Auto-detect available CPU features, and configure accordingly", CUSTOM],
-            'with_mpi': [True, "Enable building of ELPA MPI library", CUSTOM],
-            'with_openmp': [True, "Enable building of ELPA OpenMP library", CUSTOM],
+            'cuda': [None, "Enable CUDA build if CUDA is among the dependencies", CUSTOM],
             'with_shared': [True, "Enable building of shared ELPA libraries", CUSTOM],
             'with_single': [True, "Enable building of single precision ELPA functions", CUSTOM],
             'with_generic_kernel': [True, "Enable building of ELPA generic kernels", CUSTOM],
@@ -113,7 +112,7 @@ class EB_ELPA(ConfigureMake):
 
     def run_all_steps(self, *args, **kwargs):
         """
-        Put configure options in place for different builds (serial, openmp, mpi, openmp+mpi).
+        Put configure options in place for different builds (with and without openmp).
         """
 
         # the following configopts are common to all builds
@@ -152,16 +151,34 @@ class EB_ELPA(ConfigureMake):
                 else:
                     self.cfg.update('configopts', '--disable-%s' % flag)
 
-#        # By default ELPA tries to use MPI and configure fails if it's not available
-#        # so we turn off MPI support unless MPI support is requested via the usempi toolchain option.
-#        # We also set the LIBS environmet variable to detect the correct linalg library
-#        # depending on the MPI availability.
-#        if self.toolchain.options.get('usempi', None):
-#            self.cfg.update('configopts', '--with-mpi=yes')
-#            self.cfg.update('configopts', 'LIBS="$LIBSCALAPACK"')
-#        else:
-#            self.cfg.update('configopts', '--with-mpi=no')
-#            self.cfg.update('configopts', 'LIBS="$LIBLAPACK"')
+        # By default ELPA tries to use MPI and configure fails if it's not available
+        # so we turn off MPI support unless MPI support is requested via the usempi toolchain option.
+        # We also set the LIBS environmet variable to detect the correct linalg library
+        # depending on the MPI availability.
+        if self.toolchain.options.get('usempi', None):
+            self.cfg.update('configopts', '--with-mpi=yes')
+            self.cfg.update('configopts', 'LIBS="$LIBSCALAPACK"')
+        else:
+            self.cfg.update('configopts', '--with-mpi=no')
+            self.cfg.update('configopts', 'LIBS="$LIBLAPACK"')
+
+        # Add CUDA features
+        cuda_is_dep = 'CUDA' in [i['name'] for i in self.cfg.dependencies()]
+        if cuda_is_dep and (self.cfg['cuda'] is None or self.cfg['cuda']):
+            self.cfg.update('configopts', '--enable-nvidia-gpu')
+            cuda_cc_space_sep = self.cfg.template_values['cuda_cc_space_sep'].replace('.', '').split()
+            # Just one is supported, so pick the highest one (but prioritize sm_80)
+            selected_cc = "0"
+            for cc in cuda_cc_space_sep:
+                if int(cc) > int(selected_cc) and int(selected_cc) != 80:
+                    selected_cc = cc
+            self.cfg.update('configopts', '--with-NVIDIA-GPU-compute-capability=sm_%s' % selected_cc)
+            if selected_cc == "80":
+                self.cfg.update('configopts', '--enable-nvidia-sm80-gpu')
+        elif not self.cfg['cuda']:
+            self.log.warning("CUDA is disabled")
+        elif not cuda_is_dep and self.cfg['cuda']:
+            raise EasyBuildError("CUDA is not a dependency, but support for CUDA is enabled.")
 
         # make all builds verbose
         self.cfg.update('buildopts', 'V=1')
@@ -169,40 +186,14 @@ class EB_ELPA(ConfigureMake):
         # keep track of common configopts specified in easyconfig file,
         # so we can include them in each iteration later
         common_config_opts = self.cfg['configopts']
-        common_build_opts = self.cfg['buildopts']
 
         self.cfg['configopts'] = []
-        self.cfg['buildopts'] = []
 
-        with_mpi_opts = [False]
-        if self.cfg['with_mpi']:
-            with_mpi_opts.append(True)
-
-        with_omp_opts = [False]
-        if self.cfg['with_openmp']:
-            with_omp_opts.append(True)
-
-        for with_mpi in with_mpi_opts:
-            if with_mpi:
-                mpi_configopt = '--with-mpi=yes'
-                linalgopt = 'LIBS="$LIBSCALAPACK $LIBS" LD_FLAGS="$LIBSCALAPACK $LD_FLAGS"'
-            else:
-                mpi_configopt = '--with-mpi=no'
-                linalgopt = 'LIBS="$LIBLAPACK $LIBS" LD_FLAGS="$LIBLAPACK $LD_FLAGS"'
-
-            for with_omp in with_omp_opts:
-                if with_omp:
-                    omp_configopt = '--enable-openmp'
-                else:
-                    omp_configopt = '--disable-openmp'
-
-                # append additional configure and build options
-                self.cfg.update('configopts',
-                                [mpi_configopt + ' ' + omp_configopt + ' ' + linalgopt + ' ' + common_config_opts])
-                self.cfg.update('buildopts', [linalgopt + ' ' + common_build_opts])
+        self.cfg.update('configopts', ['--disable-openmp ' + common_config_opts])
+        if self.toolchain.options.get('openmp', False):
+            self.cfg.update('configopts', ['--enable-openmp ' + common_config_opts])
 
         self.log.debug("List of configure options to iterate over: %s", self.cfg['configopts'])
-        self.log.debug("List of build options to iterate over: %s", self.cfg['buildopts'])
 
         return super(EB_ELPA, self).run_all_steps(*args, **kwargs)
 
@@ -226,33 +217,27 @@ class EB_ELPA(ConfigureMake):
 
         extra_files = []
 
-        with_mpi_opts = [False]
-        if self.cfg['with_mpi']:
-            with_mpi_opts.append(True)
+        # ELPA uses the following naming scheme:
+        #  "onenode" suffix: no MPI support
+        #  "openmp" suffix: OpenMP support
+        if self.toolchain.options.get('usempi', None):
+            mpi_suff = ''
+        else:
+            mpi_suff = '_onenode'
 
-        with_omp_opts = [False]
-        if self.cfg['with_openmp']:
-            with_omp_opts.append(True)
-
-        for with_mpi in with_mpi_opts:
-            if with_mpi:
-                mpi_suff = ''
+        for with_omp in nub([False, self.toolchain.options.get('openmp', False)]):
+            if with_omp:
+                omp_suff = '_openmp'
             else:
-                mpi_suff = '_onenode'
+                omp_suff = ''
 
-            for with_omp in with_omp_opts:
-                if with_omp:
-                    omp_suff = '_openmp'
-                else:
-                    omp_suff = ''
+            extra_files.append('include/elpa%s%s-%s/elpa/elpa.h' % (mpi_suff, omp_suff, self.version))
+            extra_files.append('include/elpa%s%s-%s/modules/elpa.mod' % (mpi_suff, omp_suff, self.version))
 
-                extra_files.append('include/elpa%s%s-%s/elpa/elpa.h' % (mpi_suff, omp_suff, self.version))
-                extra_files.append('include/elpa%s%s-%s/modules/elpa.mod' % (mpi_suff, omp_suff, self.version))
+            extra_files.append('lib/libelpa%s%s.a' % (mpi_suff, omp_suff))
+            if self.cfg['with_shared']:
+                extra_files.append('lib/libelpa%s%s.%s' % (mpi_suff, omp_suff, shlib_ext))
 
-                extra_files.append('lib/libelpa%s%s.a' % (mpi_suff, omp_suff))
-                if self.cfg['with_shared']:
-                    extra_files.append('lib/libelpa%s%s.%s' % (mpi_suff, omp_suff, shlib_ext))
-
-        custom_paths['files'] = nub(extra_files)
+        custom_paths['files'] = extra_files
 
         super(EB_ELPA, self).sanity_check_step(custom_paths=custom_paths)

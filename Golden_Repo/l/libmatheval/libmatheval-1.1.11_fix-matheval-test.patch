@@ -28,5 +28,5 @@ diff -aur a/tests/matheval.c b/tests/matheval.c
 -#endif
 -
  static scm_t_bits evaluator_tag;	/* Unique identifier for Guile
- 					 * objects of evaluator type.  */
- 
+ 					 * objects of evaluator 
+

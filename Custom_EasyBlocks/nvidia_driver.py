@@ -23,6 +23,7 @@ from easybuild.tools.filetools import copy, expand_glob_paths, mkdir
 from easybuild.tools.run import run_cmd
 from easybuild.tools.systemtools import get_shared_lib_ext
 
+
 class EB_nvidia_minus_driver(Binary):
     """
     Support for installing NVIDIA libs.
@@ -55,8 +56,10 @@ class EB_nvidia_minus_driver(Binary):
         else:
             # Decompress initial file
             execpath = self.src[0]['path']
-            run_cmd("/bin/sh " + execpath + " --noexec --nox11 --target " + self.builddir)
-            execpath = os.path.join(self.builddir, run_files_dir, 'NVIDIA-Linux-x86_64-%s.run' % version)
+            run_cmd("/bin/sh " + execpath +
+                    " --noexec --nox11 --target " + self.builddir)
+            execpath = os.path.join(
+                self.builddir, run_files_dir, 'NVIDIA-Linux-x86_64-%s.run' % version)
 
         # Decompress file containing libraries
         self.libsdir = os.path.join(self.builddir, "nvidia-libs")
@@ -106,7 +109,8 @@ class EB_nvidia_minus_driver(Binary):
         # Create an extra symlink for libnvidia-ml.so, otherwise MVAPICH2 doesn't find it if it doesn't rely on stubs
         missing_links = ['libcuda.so', 'libnvidia-ml.so']
         for missing_link in missing_links:
-            run_cmd("ln -s %s/%s.1 %s/%s" % (libdir, missing_link, libdir, missing_link))
+            run_cmd("ln -s %s/%s.1 %s/%s" %
+                    (libdir, missing_link, libdir, missing_link))
 
         super(EB_nvidia_minus_driver, self).post_install_step()
 
@@ -120,8 +124,10 @@ class EB_nvidia_minus_driver(Binary):
         nvlibs = ["cuda"]
         custom_paths = {
             'files': [os.path.join("bin", x) for x in ["nvidia-smi"]] +
-                [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext) for x in chk_libdir for y in nvlibs],
+            [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext)
+             for x in chk_libdir for y in nvlibs],
             'dirs': [''],
         }
 
-        super(EB_nvidia_minus_driver, self).sanity_check_step(custom_paths=custom_paths)
+        super(EB_nvidia_minus_driver, self).sanity_check_step(
+            custom_paths=custom_paths)

@@ -20,9 +20,11 @@ CORE = 'Core'
 COMPILER = 'Compiler'
 MPI = 'MPI'
 MPI_SETTINGS = 'MPI_settings'
+PKG_SETTINGS = 'pkg_settings'
 
 MODULECLASS_COMPILER = 'compiler'
 MODULECLASS_MPI = 'mpi'
+MODULECLASS_SIDECOMPILER = 'sidecompiler'
 
 GCCCORE = 'GCCcore'
 
@@ -52,10 +54,14 @@ mpi_relevant_versions = {
     'psmpi': 2,
     'MVAPICH2': 2,
     'OpenMPI': 2,
+    'BullMPI': 2,
 }
 
 # MPIs with settings modules
-mpi_with_settings = ['psmpi', 'impi', 'MVAPICH2', 'OpenMPI']
+mpi_with_settings = ['psmpi', 'impi', 'OpenMPI', 'BullMPI']
+
+# Communication packages with settings modules
+pkg_with_settings = ['UCX', 'NCCL', 'LWP']
 
 class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
     """Class implementing an example hierarchical module naming scheme."""
@@ -74,6 +80,9 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             modname_regex = re.compile('^%s/\S+$' % re.escape('IntelMPI'))
         elif name in ['-'.join([x, 'settings']) for x in mpi_with_settings]:
             modname_regex = re.compile('^%s/\S+$' % re.escape('mpi-settings'))
+        elif name == 'LWP-settings':
+            # Match almost anything, since the name depends actually on the version, to avoid load conflicts
+            modname_regex = re.compile('^LWP-\S+/enable$')
         else:
             modname_regex = re.compile('^%s/\S+$' % re.escape(name))
         res = bool(modname_regex.match(short_modname))
@@ -167,9 +176,12 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             # no compiler in toolchain, dummy toolchain => Core module
             subdir = CORE
             # except if the module is a MPI settings module
-            stripped_name = re.sub('-settings$', '', ec['name'])
+            stripped_name = ec['name'].split('-settings')[0]
             if stripped_name in mpi_with_settings:
                 subdir = os.path.join(MPI_SETTINGS, stripped_name, ec['version'])
+            # or a module is for a package with settings
+            elif (stripped_name in pkg_with_settings and '-settings' in ec['name']):
+                subdir = os.path.join(PKG_SETTINGS, stripped_name)
         else:
             tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
             tc_mpi = det_toolchain_mpi(ec)
@@ -178,6 +190,8 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 # but we want the mpi module class to stand alone
                 if ec['moduleclass'] == MODULECLASS_MPI:
                     subdir = os.path.join(COMPILER, MODULECLASS_MPI, tc_comp_name, tc_comp_ver)
+                elif ec['moduleclass'] == MODULECLASS_SIDECOMPILER:
+                    subdir = os.path.join(COMPILER, MODULECLASS_SIDECOMPILER, tc_comp_name, tc_comp_ver)
                 else:
                     subdir = os.path.join(COMPILER, tc_comp_name, tc_comp_ver)
             else:
@@ -191,11 +205,13 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         """
         Determine short module name, i.e. the name under which modules will be exposed to users.
         Examples: GCC/4.8.3, OpenMPI/1.6.5, OpenBLAS/0.2.9, HPL/2.1, Python/2.7.5
-                  UCX-UD (for MPI settings)
+                  mpi-settings/plain, etc
         """
         stripped_name = re.sub('-settings$', '', ec['name'])
         if stripped_name in mpi_with_settings and '-settings' in ec['name']:
             return os.path.join('mpi-settings', ec['versionsuffix'])
+        elif stripped_name.startswith('LWP') and '-settings' in ec['name']:
+            return os.path.join(ec['version'], 'enable')
         else:
             return super(FlexibleCustomHierarchicalMNS, self).det_short_module_name(ec)
 
@@ -247,6 +263,9 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 # Always extend to capture the MPI implementations too (which are in a separate directory)
                 if ec['name'] not in [GCCCORE]:
                     paths.append(os.path.join(COMPILER, MODULECLASS_MPI, *comp_name_ver))
+                # Extend the MOODULEPATH to include the side compilers available in GCCcore
+                else:
+                    paths.append(os.path.join(COMPILER, MODULECLASS_SIDECOMPILER, *comp_name_ver))
 
         elif modclass == MODULECLASS_MPI:
             if tc_comp_info is None:
@@ -256,9 +275,17 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             else:
                 tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
                 mpi_name, mpi_ver = self._find_relevant_mpi_info(ec)
-                paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
+                # Hack the module path extension, so BullMPI actually reuses the stack from OpenMPI
+                # instead of building everything on top unnecessarily
+                if mpi_name in 'BullMPI':
+                    paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, 'OpenMPI', mpi_ver))
+                else:
+                    paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
 
                 if ec['name'] in mpi_with_settings:
                     paths.append(os.path.join(MPI_SETTINGS, mpi_name, mpi_ver))
+
+        elif ec['name'] in pkg_with_settings:
+            paths.append(os.path.join(PKG_SETTINGS, ec['name']))
 
         return paths

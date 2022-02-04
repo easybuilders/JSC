@@ -46,6 +46,7 @@ class EB_NAMD(MakeCp):
             'charm_arch': [None, "Charm++ target architecture", MANDATORY],
             'charm_extra_cxxflags': ['', "Extra C++ compiler options to use for building Charm++", CUSTOM],
             'charm_opts': ['--with-production', "Charm++ build options", CUSTOM],
+            'cuda': [True, "Enable CUDA build if CUDA is among the dependencies", CUSTOM],
             'namd_basearch': [None, "NAMD base target architecture (compiler family is appended)", CUSTOM],
             'namd_cfg_opts': ['', "NAMD configure options", CUSTOM],
             'runtest': [True, "Run NAMD test case after building", CUSTOM],
@@ -86,6 +87,20 @@ class EB_NAMD(MakeCp):
 
         srcdir = extract_file(self.charm_tarballs[0], os.getcwd(), change_into_dir=False)
         change_dir(srcdir)
+
+    def patch_step(self, *args, **kwargs):
+        """Patch scripts to avoid using hardcoded /bin/csh."""
+        super(EB_NAMD, self).patch_step(*args, **kwargs)
+
+        self.charm_dir = self.charm_tarballs[0][:-4]
+
+        charm_config = os.path.join(self.charm_dir, 'src', 'scripts', 'configure')
+        apply_regex_substitutions(charm_config, [(r'SHELL=/bin/csh', 'SHELL=$(which csh)')])
+
+        for csh_script in [os.path.join('plugins', 'import_tree'), os.path.join('psfgen', 'import_tree'),
+                           os.path.join(self.charm_dir, 'src', 'QuickThreads', 'time', 'raw')]:
+            if os.path.exists(csh_script):
+                apply_regex_substitutions(csh_script, [(r'^#!\s*/bin/csh\s*$', '#!/usr/bin/env csh')])
 
     def configure_step(self):
         """Custom configure step for NAMD, we build charm++ first (if required)."""
@@ -138,10 +153,9 @@ class EB_NAMD(MakeCp):
         self.cfg.update('namd_cfg_opts', '--cxx "%s" --cxx-opts "%s"' % (os.environ['CXX'], cxxflags))
 
         # NAMD dependencies: CUDA, TCL, FFTW
-        # Cuda and MPI don't mix on the latest NAMD
-        #cuda = get_software_root('CUDA')
-        #if cuda:
-        #    self.cfg.update('namd_cfg_opts', "--with-cuda --cuda-prefix %s" % cuda)
+        cuda = get_software_root('CUDA')
+        if cuda and self.cfg['cuda']:
+            self.cfg.update('namd_cfg_opts', "--with-cuda --cuda-prefix %s" % cuda)
 
         tcl = get_software_root('Tcl')
         if tcl:

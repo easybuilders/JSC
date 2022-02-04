@@ -1,7 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
-# Authors::   Stephane Thiell <sthiell@stanford.edu>
+# Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
 ##
 easyblock = 'Binary'
 
@@ -24,8 +23,7 @@ checksums = ['eca09e617a267e18403ecccc715c5bc3a88729b81589a828fcb696435100a62e']
 install_cmd = "./" + sources[0] + " --skip-license --prefix=%(installdir)s"
 
 sanity_check_paths = {
-    'files': ["include/optix.h", "include/optix_cuda.h", "lib64/liboptix.%s" % SHLIB_EXT,
-              "lib64/liboptixu.%s" % SHLIB_EXT],
+    'files': ["include/optix.h", "include/optix_device.h"],
     'dirs': []
 }
 

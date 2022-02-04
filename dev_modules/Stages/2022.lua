@@ -15,7 +15,7 @@ if old_stage == nil then
 end
 
 -- Software root
-local software_root = '/p/software/jurecadc'
+local software_root = '/p/software/juwels'
 
 -- Set new stage variables
 local stage = myModuleVersion()

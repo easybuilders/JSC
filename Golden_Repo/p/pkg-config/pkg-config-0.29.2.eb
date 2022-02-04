@@ -14,10 +14,11 @@ description = """pkg-config is a helper tool used when compiling applications an
 
 toolchain = SYSTEM
 
-sources = [SOURCELOWER_TAR_GZ]
 source_urls = ['http://pkgconfig.freedesktop.org/releases/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591']
 
-builddependencies = [('binutils', '2.34')]
+builddependencies = [('binutils', '2.37')]
 
 # don't use PAX, it might break.
 tar_config_opts = True

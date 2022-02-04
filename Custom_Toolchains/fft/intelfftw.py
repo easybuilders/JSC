@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2012-2018 Ghent University
+# Copyright 2012-2021 Ghent University
 #
 # This file is part of EasyBuild,
 # originally created by the HPC team of Ghent University (http://ugent.be/hpc/en),
@@ -48,7 +48,8 @@ class IntelFFTW(Fftw):
 
     def _set_fftw_variables(self):
         if not hasattr(self, 'BLAS_LIB_DIR'):
-            raise EasyBuildError("_set_fftw_variables: IntelFFT based on IntelMKL (no BLAS_LIB_DIR found)")
+            raise EasyBuildError(
+                "_set_fftw_variables: IntelFFT based on IntelMKL (no BLAS_LIB_DIR found)")
 
         imklver = get_software_version(self.FFT_MODULE_NAME[0])
 
@@ -58,14 +59,16 @@ class IntelFFTW(Fftw):
         bitsuff = '_lp64'
         if self.options.get('i8', None):
             bitsuff = '_ilp64'
-        compsuff = '_intel'
-        if get_software_root('icc') is None:
-            if get_software_root('PGI'):
-                compsuff = '_pgi'
-            elif get_software_root('GCC') or get_software_root('GCCcore'):
-                compsuff = '_gnu'
-            else:
-                raise EasyBuildError("Not using Intel compilers, PGI nor GCC, don't know compiler suffix for FFTW libraries.")
+
+        if get_software_root('icc') or get_software_root('intel-compilers'):
+            compsuff = '_intel'
+        elif get_software_root('PGI'):
+            compsuff = '_pgi'
+        elif get_software_root('GCC') or get_software_root('GCCcore'):
+            compsuff = '_gnu'
+        else:
+            error_msg = "Not using Intel compilers, PGI nor GCC, don't know compiler suffix for FFTW libraries."
+            raise EasyBuildError(error_msg)
 
         interface_lib = "fftw3xc%s%s" % (compsuff, picsuff)
         fftw_libs = [interface_lib]
@@ -79,37 +82,54 @@ class IntelFFTW(Fftw):
                 cluster_interface_lib = 'fftw3x_cdft%s' % suff
                 fftw_libs.append(cluster_interface_lib)
             fftw_libs.append("mkl_cdft_core")  # add cluster dft
-            fftw_libs.extend(self.variables['LIBBLACS'].flatten()) # add BLACS; use flatten because ListOfList
+            # add BLACS; use flatten because ListOfList
+            fftw_libs.extend(self.variables['LIBBLACS'].flatten())
+
+        fftw_mt_libs = fftw_libs + [x %
+                                    self.BLAS_LIB_MAP for x in self.BLAS_LIB_MT]
 
         self.log.debug('fftw_libs %s' % fftw_libs.__repr__())
-        fftw_libs.extend(self.variables['LIBBLAS'].flatten())  # add BLAS libs (contains dft)
+        # add BLAS libs (contains dft)
+        fftw_libs.extend(self.variables['LIBBLAS'].flatten())
         self.log.debug('fftw_libs %s' % fftw_libs.__repr__())
 
         self.FFT_LIB_DIR = self.BLAS_LIB_DIR
-        self.FFT_INCLUDE_DIR = [os.path.join(d, 'fftw') for d in self.BLAS_INCLUDE_DIR]
+        self.FFT_INCLUDE_DIR = [os.path.join(
+            d, 'fftw') for d in self.BLAS_INCLUDE_DIR]
 
         # building the FFTW interfaces is optional,
         # so make sure libraries are there before FFT_LIB is set
         imklroot = get_software_root(self.FFT_MODULE_NAME[0])
         fft_lib_dirs = [os.path.join(imklroot, d) for d in self.FFT_LIB_DIR]
-        fftw_lib_exists = lambda x: any([os.path.exists(os.path.join(d, "lib%s.a" % x)) for d in fft_lib_dirs])
+
+        def fftw_lib_exists(libname):
+            """Helper function to check whether FFTW library with specified name exists."""
+            return any([os.path.exists(os.path.join(d, "lib%s.a" % libname)) for d in fft_lib_dirs])
+
         if not fftw_lib_exists(interface_lib) and LooseVersion(imklver) >= LooseVersion("10.2"):
             # interface libs can be optional:
             # MKL >= 10.2 include fftw3xc and fftw3xf interfaces in LIBBLAS=libmkl_gf/libmkl_intel
             # See https://software.intel.com/en-us/articles/intel-mkl-main-libraries-contain-fftw3-interfaces
             # The cluster interface libs (libfftw3x_cdft*) can be omitted if the toolchain does not provide MPI-FFTW
             # interfaces.
-            fftw_libs = [l for l in fftw_libs if l not in [interface_lib, cluster_interface_lib]]
+            fftw_libs = [lib for lib in fftw_libs if lib not in [
+                interface_lib, cluster_interface_lib]]
+            fftw_mt_libs = [lib for lib in fftw_mt_libs if lib not in [
+                interface_lib, cluster_interface_lib]]
 
         # filter out libraries from list of FFTW libraries to check for if they are not provided by Intel MKL
-        check_fftw_libs = [lib for lib in fftw_libs if lib not in ['dl', 'gfortran']]
+        check_fftw_libs = [
+            lib for lib in fftw_libs if lib not in ['dl', 'gfortran']]
 
         if all([fftw_lib_exists(lib) for lib in check_fftw_libs]):
             self.FFT_LIB = fftw_libs
         else:
-            msg = "Not all FFTW interface libraries %s are found in %s" % (check_fftw_libs, fft_lib_dirs)
+            msg = "Not all FFTW interface libraries %s are found in %s" % (
+                check_fftw_libs, fft_lib_dirs)
             msg += ", can't set $FFT_LIB."
             if self.dry_run:
                 dry_run_warning(msg, silent=build_option('silent'))
             else:
                 raise EasyBuildError(msg)
+
+        self.FFT_LIB_MT = fftw_mt_libs

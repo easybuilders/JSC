@@ -9,9 +9,10 @@ description = """The UFTP standalone client provides high-performance file trans
 
 toolchain = SYSTEM
 
-source_urls = ['https://master.dl.sourceforge.net/project/unicore/Clients/UFTP-Client/%(version)s/']
+source_urls = [
+    'https://master.dl.sourceforge.net/project/unicore/Clients/UFTP-Client/%(version)s/']
 sources = ['uftp-client-%(version)s-all.zip']
-checksums = ['10a5db54cf90aea8ee752bdc9bfbde4e41be05b61363352c8a542e0f1f5f8db6'],
+checksums = ['10a5db54cf90aea8ee752bdc9bfbde4e41be05b61363352c8a542e0f1f5f8db6']
 
 dependencies = [
     ('Java', '15'),

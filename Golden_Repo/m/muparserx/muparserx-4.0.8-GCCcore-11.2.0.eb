@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'muparserx'
+version = '4.0.8'
+
+homepage = "https://github.com/beltoforion/muparserx"
+description = """A C++ math parser library with array and string support. 
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/beltoforion/muparserx/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['5913e0a4ca29a097baad1b78a4674963bc7a06e39ff63df3c73fbad6fadb34e1']
+
+builddependencies = [
+    ('CMake', '3.21.1', '', SYSTEM),
+    ('binutils', '2.37')
+]
+
+configopts = ['-DBUILD_SHARED_LIBS=OFF', '-DBUILD_SHARED_LIBS=ON']
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': [('include', 'lib64')]
+}

@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'nano'
+version = '5.9'
+
+homepage = 'https://www.nano-editor.org/'
+description = """GNU nano is a small and friendly text editor. Besides basic text editing, nano
+offers features like undo/redo, syntax coloring, interactive search-and-replace,
+auto-indentation, line numbers, word completion, file locking, backup files, and
+internationalization support."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCE_TAR_GZ]
+checksums = ['cb6ac9edc7fb8f723b92a7e5626537e6d546b95abfaddd3f790f65dcdc43a95d']
+
+builddependencies = [('binutils', '2.37')]
+
+sanity_check_paths = {
+    'files': ['bin/nano'],
+    'dirs': ['bin', 'share'],
+}
+
+moduleclass = 'tools'

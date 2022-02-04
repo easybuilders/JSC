@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'Pandoc'
+version = '2.16.1'
+
+homepage = 'http://pandoc.org'
+description = """
+If you need to convert files from one markup format into another,
+pandoc is your swiss-army knife"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://github.com/jgm/pandoc/releases/download/%(version)s']
+sources = ['pandoc-%(version)s-linux-amd64.tar.gz']
+checksums = ['3fe3d42179af289d4f5452b9317d2bc9cd139a4f33a37f68d70e128f1d415aa4']
+
+sanity_check_paths = {
+    'files': ['bin/pandoc'],
+    'dirs': ['share'],
+}
+
+moduleclass = 'tools'

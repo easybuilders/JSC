@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'uglifyjs'
+version = '3.14.3'
+
+homepage = 'https://github.com/mishoo/UglifyJS'
+description = """UglifyJS is a JavaScript parser, minifier, compressor and beautifier toolkit."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+
+source_urls = ['https://github.com/mishoo/UglifyJS/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['43de653dceff53ee7b3d4a360f8e9e42e9f075441b9506ba651a1885850d0ef5']
+
+builddependencies = [('binutils', '2.37')]
+
+dependencies = [
+    ('nodejs', '16.13.0'),
+]
+
+install_cmd = 'npm install --no-package-lock -g --prefix %(installdir)s uglify-js@%(version)s v%(version)s.tar.gz'
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s'],
+    'dirs': ['lib/node_modules/uglify-js'],
+}
+sanity_check_commands = ['%(namelower)s --help']
+
+moduleclass = 'vis'

@@ -1,0 +1,46 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'librsvg'
+version = '2.51.2'
+
+homepage = 'https://wiki.gnome.org/action/show/Projects/LibRsvg'
+description = """librsvg is a library to render SVG files using cairo."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = [
+    'https://download.gnome.org/sources/librsvg/%(version_major_minor)s']
+sources = [SOURCE_TAR_XZ]
+checksums = ['6b80840ef3e4724624e715398bb4470fa68368943cdbd507e681708bbe32b289']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('pkg-config', '0.29.2'),
+    ('GObject-Introspection', '1.68.0'),
+]
+
+dependencies = [
+    ('Gdk-Pixbuf', '2.42.6'),
+    ('libcroco', '0.6.13'),
+    ('Pango', '1.48.8'),
+    ('cairo', '1.16.0'),
+    ('Rust', '1.54.0'),
+]
+
+# This loader wants to install in the directory of Gdk-Pixbuf itself. If we disable it, Gdk-Pixbuf can't manage SVG
+# files, which is bad for creating icons
+# configopts = '--disable-pixbuf-loader'
+
+sanity_check_paths = {
+    'files': ['bin/rsvg-convert', 'lib/librsvg-%%(version_major)s.%s' % SHLIB_EXT, 'lib/librsvg-2.a'],
+    'dirs': ['include/librsvg-2.0', 'share']
+}
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib/girepository-1.0',
+    'XDG_DATA_DIRS': 'share',
+}
+
+moduleclass = 'vis'

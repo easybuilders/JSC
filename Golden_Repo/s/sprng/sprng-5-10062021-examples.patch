@@ -1,0 +1,533 @@
+--- sprng5/configure	2021-06-08 18:40:23.000000000 +0200
++++ sprng5_ok/configure	2021-12-09 11:47:35.147329875 +0100
+@@ -6530,7 +6530,7 @@
+ 
+ if test $use_mpi = y; then
+   MPI_DEF="-DSPRNG_MPI"
+-  MPI_CXXLIB="-lmpi_cxx"
++  MPI_CXXLIB=""
+ else
+   MPI_DEF=""
+   MPI_CXXLIB=""
+--- sprng5/EXAMPLES/Makefile_gnu	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/Makefile_gnu	2021-12-09 11:49:05.099996000 +0100
+@@ -0,0 +1,60 @@
++#####
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif90
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++
++##########################################################################
++
++EX = sprng seed sprng-simple simple-simple seed-simple \
++     spawn convert displaybytes pi-simple
++
++all : $(EX)
++
++sprng : sprng.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng sprng.cpp -L$(LIBDIR) -lsprng
++
++seed : seed.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed seed.cpp -L$(LIBDIR) -lsprng
++
++sprng-simple : sprng-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng-simple sprng-simple.cpp -L$(LIBDIR) -lsprng
++
++simple-simple : simple-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o simple-simple simple-simple.cpp -L$(LIBDIR) -lsprng
++
++seed-simple : seed-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed-simple seed-simple.cpp -L$(LIBDIR) -lsprng
++
++spawn : spawn.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o spawn spawn.cpp -L$(LIBDIR) -lsprng
++
++convert : convert.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o convert convert.cpp -L$(LIBDIR) -lsprng
++
++displaybytes : displaybytes.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o displaybytes displaybytes.cpp -L$(LIBDIR) -lsprng
++
++pi-simple : pi-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o pi-simple pi-simple.cpp -L$(LIBDIR) -lsprng
++
+--- sprng5/EXAMPLES/Makefile_Intel	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/Makefile_Intel	2021-12-17 15:03:49.365999000 +0100
+@@ -0,0 +1,60 @@
++#####
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif90
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++
++##########################################################################
++
++EX = sprng seed sprng-simple simple-simple seed-simple \
++     spawn convert displaybytes pi-simple
++
++all : $(EX)
++
++sprng : sprng.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng sprng.cpp -L$(LIBDIR) -lsprng -lirc
++
++seed : seed.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed seed.cpp -L$(LIBDIR) -lsprng -lirc
++
++sprng-simple : sprng-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng-simple sprng-simple.cpp -L$(LIBDIR) -lsprng -lirc
++
++simple-simple : simple-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o simple-simple simple-simple.cpp -L$(LIBDIR) -lsprng -lirc
++
++seed-simple : seed-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed-simple seed-simple.cpp -L$(LIBDIR) -lsprng -lirc
++
++spawn : spawn.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o spawn spawn.cpp -L$(LIBDIR) -lsprng -lirc
++
++convert : convert.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o convert convert.cpp -L$(LIBDIR) -lsprng -lirc
++
++displaybytes : displaybytes.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o displaybytes displaybytes.cpp -L$(LIBDIR) -lsprng -lirc
++
++pi-simple : pi-simple.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o pi-simple pi-simple.cpp -L$(LIBDIR) -lsprng -lirc
++
+--- sprng5/EXAMPLES/F77/Makefile_gnu	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/F77/Makefile_gnu	2021-12-09 11:51:48.380940000 +0100
+@@ -0,0 +1,61 @@
++##########################################################################
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif77
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++C++LIBS = -lstdc++ -lm -lgomp -lpthread
++
++##########################################################################
++
++FORTRAN = convertf pif-simple seedf-simple seedf simplef-simple spawnf \
++          sprngf-simple sprngf subroutinef
++
++all : $(FORTRAN)
++
++convertf : convertf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o convertf convertf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++pif-simple : pif-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o pif-simple pif-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf-simple : seedf-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o seedf-simple seedf-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf : seedf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o seedf seedf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++simplef-simple : simplef-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o simplef-simple simplef-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++spawnf : spawnf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o spawnf spawnf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf-simple : sprngf-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o sprngf-simple sprngf-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf : sprngf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o sprngf sprngf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++subroutinef : subroutinef.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o subroutinef subroutinef.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
+--- sprng5/EXAMPLES/F77/Makefile_Intel	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/F77/Makefile_Intel	2021-12-17 15:31:14.215284000 +0100
+@@ -0,0 +1,61 @@
++##########################################################################
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif77
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++C++LIBS = -lstdc++ -lm -liomp5 -lpthread -lirc
++
++##########################################################################
++
++FORTRAN = convertf pif-simple seedf-simple seedf simplef-simple spawnf \
++          sprngf-simple sprngf subroutinef
++
++all : $(FORTRAN)
++
++convertf : convertf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o convertf convertf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++pif-simple : pif-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o pif-simple pif-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf-simple : seedf-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o seedf-simple seedf-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf : seedf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o seedf seedf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++simplef-simple : simplef-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o simplef-simple simplef-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++spawnf : spawnf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o spawnf spawnf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf-simple : sprngf-simple.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o sprngf-simple sprngf-simple.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf : sprngf.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o sprngf sprngf.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++subroutinef : subroutinef.F
++	$(F77) $(FFLAGS) -I$(INCDIR) -o subroutinef subroutinef.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
+--- sprng5/EXAMPLES/mpisprng/Makefile_mpi_gnu	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/mpisprng/Makefile_mpi_gnu	2021-12-09 12:35:27.395853000 +0100
+@@ -0,0 +1,64 @@
++#####
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif90
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++
++##########################################################################
++
++MPIEX = 2streams_mpi fsprng-simple_mpi fsprng_mpi message-simple_mpi \
++        message_mpi pi-simple_mpi seed-simple_mpi seed_mpi \
++        sprng-simple_mpi sprng_mpi
++
++all : $(MPIEX)
++
++2streams_mpi : 2streams_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o 2streams_mpi 2streams_mpi.cpp -L$(LIBDIR) -lsprng
++
++fsprng-simple_mpi : fsprng-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o fsprng-simple_mpi fsprng-simple_mpi.cpp -L$(LIBDIR) -lsprng
++
++fsprng_mpi : fsprng_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o fsprng_mpi fsprng_mpi.cpp -L$(LIBDIR) -lsprng
++
++message-simple_mpi : message-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o message-simple_mpi message-simple_mpi.cpp -L$(LIBDIR) -lsprng
++
++message_mpi : message_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o message_mpi message_mpi.cpp -L$(LIBDIR) -lsprng
++
++pi-simple_mpi : pi-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o pi-simple_mpi pi-simple_mpi.cpp -L$(LIBDIR) -lsprng
++
++seed-simple_mpi : seed-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed-simple_mpi seed-simple_mpi.cpp -L$(LIBDIR) -lsprng
++
++seed_mpi : seed_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed_mpi seed_mpi.cpp -L$(LIBDIR) -lsprng
++
++sprng-simple_mpi : sprng-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng-simple_mpi sprng-simple_mpi.cpp -L$(LIBDIR) -lsprng
++
++sprng_mpi : sprng_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng_mpi sprng_mpi.cpp -L$(LIBDIR) -lsprng
++
+--- sprng5/EXAMPLES/mpisprng/Makefile_mpi_Intel	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/mpisprng/Makefile_mpi_Intel	2021-12-17 15:05:44.990180000 +0100
+@@ -0,0 +1,64 @@
++#####
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif90
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++
++##########################################################################
++
++MPIEX = 2streams_mpi fsprng-simple_mpi fsprng_mpi message-simple_mpi \
++        message_mpi pi-simple_mpi seed-simple_mpi seed_mpi \
++        sprng-simple_mpi sprng_mpi
++
++all : $(MPIEX)
++
++2streams_mpi : 2streams_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o 2streams_mpi 2streams_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++fsprng-simple_mpi : fsprng-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o fsprng-simple_mpi fsprng-simple_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++fsprng_mpi : fsprng_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o fsprng_mpi fsprng_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++message-simple_mpi : message-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o message-simple_mpi message-simple_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++message_mpi : message_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o message_mpi message_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++pi-simple_mpi : pi-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o pi-simple_mpi pi-simple_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++seed-simple_mpi : seed-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed-simple_mpi seed-simple_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++seed_mpi : seed_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o seed_mpi seed_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++sprng-simple_mpi : sprng-simple_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng-simple_mpi sprng-simple_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
++sprng_mpi : sprng_mpi.cpp
++	$(CXX) $(CXXFLAGS) -I$(INCDIR) -o sprng_mpi sprng_mpi.cpp -L$(LIBDIR) -lsprng -lirc
++
+--- sprng5/EXAMPLES/mpisprng/F77/Makefile_mpi_gnu	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/mpisprng/F77/Makefile_mpi_gnu	2022-01-11 13:13:43.951437000 +0100
+@@ -0,0 +1,64 @@
++##########################################################################
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif77
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8 --allow-argument-mismatch
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++INCLUDE = -I$(INCDIR) -I../../F77
++C++LIBS = -lstdc++ -lm -lgomp -lpthread
++
++##########################################################################
++
++MPIFORTRAN = 2streamsf_mpi fsprngf-simple_mpi fsprngf_mpi \
++             messagef-simple_mpi messagef_mpi \
++             seedf-simple_mpi seedf_mpi \
++             sprngf-simple_mpi sprngf_mpi
++
++all : $(MPIFORTRAN)
++
++fsprngf-simple_mpi : fsprngf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o fsprngf-simple_mpi fsprngf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++fsprngf_mpi : fsprngf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE)  -o fsprngf_mpi fsprngf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++messagef-simple_mpi : messagef-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o messagef-simple_mpi messagef-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++messagef_mpi : messagef_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o messagef_mpi messagef_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf-simple_mpi : seedf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o seedf-simple_mpi seedf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf_mpi : seedf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o seedf_mpi seedf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf-simple_mpi : sprngf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o sprngf-simple_mpi sprngf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf_mpi : sprngf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o sprngf_mpi sprngf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++2streamsf_mpi : 2streamsf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o 2streamsf_mpi 2streamsf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
+--- sprng5/EXAMPLES/mpisprng/F77/Makefile_mpi_Intel	1970-01-01 01:00:00.000000000 +0100
++++ sprng5_ok/EXAMPLES/mpisprng/F77/Makefile_mpi_Intel	2021-12-17 15:31:56.737183000 +0100
+@@ -0,0 +1,64 @@
++##########################################################################
++
++SHELL = /bin/sh
++MPIDEF = -DSPRNG_MPI
++
++CC = mpicc
++CLD = $(CC)
++F77 = mpif77
++F77LD = $(F77)
++FFXN = -DAdd_
++FSUFFIX = F
++CXX = mpicxx
++CXXLD = $(CXX)
++
++DEFS = -DHAVE_CONFIG_H -DLONG64=long
++CFLAGS = -O3 -DLittleEndian $(MPIDEF)
++CLDFLAGS =  -O3
++
++FFLAGS = -O2 $(MPIDEF) -DPOINTER_SIZE=8 -DLONG64=long -DINTEGER_STAR_8
++F77LDFLAGS =  -O3 
++
++CPP = cpp -P  -DPOINTER_SIZE=8
++
++LIBDIR  = $(EBROOTSPRNG)/lib
++INCDIR = $(EBROOTSPRNG)/include
++INCLUDE = -I$(INCDIR) -I../../F77
++C++LIBS = -lstdc++ -lm -liomp5 -lpthread -lirc
++
++##########################################################################
++
++MPIFORTRAN = 2streamsf_mpi fsprngf-simple_mpi fsprngf_mpi \
++             messagef-simple_mpi messagef_mpi \
++             seedf-simple_mpi seedf_mpi \
++             sprngf-simple_mpi sprngf_mpi
++
++all : $(MPIFORTRAN)
++
++fsprngf-simple_mpi : fsprngf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o fsprngf-simple_mpi fsprngf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++fsprngf_mpi : fsprngf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE)  -o fsprngf_mpi fsprngf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++messagef-simple_mpi : messagef-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o messagef-simple_mpi messagef-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++messagef_mpi : messagef_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o messagef_mpi messagef_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf-simple_mpi : seedf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o seedf-simple_mpi seedf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++seedf_mpi : seedf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o seedf_mpi seedf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf-simple_mpi : sprngf-simple_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o sprngf-simple_mpi sprngf-simple_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++sprngf_mpi : sprngf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o sprngf_mpi sprngf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++
++2streamsf_mpi : 2streamsf_mpi.F
++	$(F77) $(FFLAGS) $(INCLUDE) -o 2streamsf_mpi 2streamsf_mpi.F -L$(LIBDIR) -lsprng $(C++LIBS)
++

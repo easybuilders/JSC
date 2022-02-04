@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'scikit-uplift'
+version = '0.4.0'
+
+homepage = 'https://github.com/maks-sh/scikit-uplift'
+description = """
+scikit-uplift is a Python module for classic approaches for uplift modeling built on top of scikit-learn.
+Uplift prediction aims to estimate the causal impact of a treatment at the individual level.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10'),
+    ('scikit-learn', '1.0.1'),
+    ('matplotlib', '3.4.3'),
+    ('tqdm', '4.62.3'),
+]
+
+use_pip = True
+
+# pypi source has missing Readme.rst file, using github source instead
+exts_list = [
+    (name, version, {
+        'modulename': 'sklift',
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/maks-sh/scikit-uplift/archive'],
+        'checksums': ['1992f0ac54c9a96dd1a0c1c0ced1be2d020fca8e85c7e6118336ff882ea4987f'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'data'

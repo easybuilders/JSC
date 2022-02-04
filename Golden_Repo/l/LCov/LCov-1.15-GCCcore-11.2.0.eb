@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'LCov'
+version = '1.15'
+
+homepage = 'http://ltp.sourceforge.net/coverage/lcov.php'
+description = "LCOV - the LTP GCOV extension"
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'linux-test-project'
+source_urls = [GITHUB_LOWER_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['d88b0718f59815862785ac379aed56974b9edd8037567347ae70081cd4a3542a']
+
+builddependencies = [
+    ('binutils', '2.37')
+]
+
+skipsteps = ['configure']
+
+installopts = "PREFIX=%(installdir)s"
+
+sanity_check_paths = {
+    'files': ['bin/lcov', 'bin/genhtml'],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

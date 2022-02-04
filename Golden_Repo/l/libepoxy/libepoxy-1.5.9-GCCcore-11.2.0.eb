@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'libepoxy'
+version = '1.5.9'
+
+homepage = 'https://github.com/anholt/libepoxy'
+description = "Epoxy is a library for handling OpenGL function pointer management for you"
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'anholt'
+source_urls = [GITHUB_LOWER_SOURCE]
+sources = ['%(version)s.tar.gz']
+checksums = ['ee8048d20179a2e86156ac842ddb6428732d9cd7a2cfc2eca905165bf24887a2']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('Meson', '0.58.2'),
+    ('Ninja', '1.10.2'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('X11', '20210802'),
+    ('OpenGL', '2021b'),
+]
+
+configopts = '-Degl=yes --libdir %(installdir)s/lib '
+
+sanity_check_paths = {
+    'files': ['include/epoxy/%s.h' % x for x in ['common', 'egl_generated', 'egl', 'gl_generated',
+                                                 'gl', 'glx_generated', 'glx']] +
+             ['lib/libepoxy.%s' % SHLIB_EXT],
+    'dirs': ['lib']
+}
+
+moduleclass = 'lib'

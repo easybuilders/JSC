@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'FFTW'
+version = '3.3.10'
+versionsuffix = '-nompi'
+
+homepage = 'http://www.fftw.org'
+description = """FFTW is a C subroutine library for computing the discrete
+Fourier transform (DFT) in one or more dimensions, of arbitrary input size,
+and of both real and complex data."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+source_urls = [homepage]
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467']
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+# We hide it here since this should be used just for Jupyter and the MPI version should be preferred for normal cases
+hidden = True
+
+with_quad_prec = True
+
+use_fma4 = True
+
+# can't find mpirun/mpiexec and fails
+# runtest = 'check'
+
+modextravars = {
+    'FFTW_ROOT': '%(installdir)s',
+    'FFTW_INCLUDE': '%(installdir)s/include',
+    'FFTW_LIB': '%(installdir)s/lib',
+}
+
+moduleclass = 'numlib'

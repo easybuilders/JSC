@@ -1,0 +1,73 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'BullMPI'
+version = '4.1.0'
+
+homepage = 'https://www.open-mpi.org/'
+description = """BullMPI is an MPI runtime based on OpenMPI with specific optimizations"""
+
+toolchain = {'name': 'GCC', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+sources = [f'{name}_{version}.tar']
+checksums = ['e08cce34ce6388bd7c8203a283f48c344f25044c9efbff6a27e5f1e0cbd01b14']
+
+osdependencies = [
+    # needed for --with-verbs
+    ('libibverbs-dev', 'libibverbs-devel', 'rdma-core-devel'),
+    # needed for --with-pmix
+    ('pmix-devel'),
+]
+
+builddependencies = [
+    ('Autotools', '20210726'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('zlib', '1.2.11'),
+    ('hwloc', '2.5.0'),
+    ('UCX', '1.11.2', '', SYSTEM),
+    ('CUDA', '11.5', '', SYSTEM),
+    ('libevent', '2.1.12'),
+]
+
+start_dir = f'openmpi-{version}'
+
+unpack_options = f'&& rpm2cpio openmpi-bull-gnu-{version}-1.Bull.2.0.src.rpm | cpio -idmv && '
+unpack_options += f'tar zxvf openmpi-{version}.tar.gz'
+
+# We need to remove -march=native from CFLAGS, otherwise the compilation fails when trying to compile the op:avx
+# component, due to lack of avx512 support. avx512 is safe to enable, even on non-avx512 architectures, since it is used
+# in just one file, and the execution of that code is determined at runtime, depending on the processor ISA
+preconfigopts = 'CFLAGS="-O2 -ftree-vectorize -fno-math-errno -fPIC" '
+prebuildopts = preconfigopts
+
+# General OpenMPI options
+configopts = '--enable-shared '
+configopts += '--with-hwloc=$EBROOTHWLOC '  # hwloc support
+configopts += '--with-ucx=$EBROOTUCX '
+configopts += '--with-verbs '
+configopts += '--with-libevent=$EBROOTLIBEVENT '
+configopts += '--without-orte '
+configopts += '--without-psm2 '
+configopts += '--disable-oshmem '
+configopts += '--with-cuda=$EBROOTCUDA '
+configopts += '--with-ime=/opt/ddn/ime '
+configopts += '--with-gpfs '
+configopts += '--with-hcoll=$(pkg-config --variable prefix hcoll) '
+
+# to enable SLURM integration (site-specific)
+configopts += '--with-slurm --with-pmix=external --with-libevent=external --with-ompi-pmix-rte'
+
+local_libs = ["mpi_mpifh", "mpi", "ompitrace", "open-pal", "open-rte"]
+sanity_check_paths = {
+    'files': ["bin/%s" % local_binfile for local_binfile in ["ompi_info", "opal_wrapper"]] +
+             ["lib/lib%s.%s" % (local_libfile, SHLIB_EXT) for local_libfile in local_libs] +
+             ["include/%s.h" % x for x in ["mpi-ext", "mpif-config",
+                                           "mpif", "mpi", "mpi_portable_platform"]],
+    'dirs': [],
+}
+
+moduleclass = 'mpi'

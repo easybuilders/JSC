@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'iomkl'
+version = '2021b'
+versionsuffix = ''
+
+local_intelversion = '2021.4.0'
+
+homepage = ''
+description = """iomkl provides Intel C/C++ and Fortran compilers, ParaStationMPI & Intel MKL.
+"""
+
+toolchain = SYSTEM
+
+dependencies = [
+    ('intel-compilers', local_intelversion),
+    ('OpenMPI', '4.1.2', versionsuffix,
+     ('intel-compilers', local_intelversion)),
+    ('imkl', local_intelversion, versionsuffix, ('iompi', version)),
+]
+
+
+moduleclass = 'toolchain'

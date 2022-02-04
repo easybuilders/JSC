@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'SZ'
+version = '2.1.12'
+
+homepage = 'https://szcompressor.org'
+description = """SZ is a modular parametrizable lossy compressor framework
+for scientific data (floating point and integers)."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'szcompressor'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['3712b2cd7170d1511569e48a208f02dfb72ecd7ad053c321e2880b9083e150de']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('CMake', '3.21.1'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('HDF5', '1.12.1', '-serial'),
+    ('netCDF', '4.8.1', '-serial'),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+
+configopts += "-DBUILD_FORTRAN=ON "
+configopts += "-DBUILD_HDF5_FILTER=ON "
+configopts += "-DBUILD_NETCDF_READER=ON "
+configopts += "-DBUILD_OPENMP=ON "
+
+sanity_check_paths = {
+    'files': ['bin/sz', 'lib/libSZ.%s' % SHLIB_EXT],
+    'dirs': ['bin', 'include', 'lib'],
+}
+
+moduleclass = 'data'

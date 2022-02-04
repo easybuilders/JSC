@@ -1,0 +1,87 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Octave'
+version = '6.4.0'
+versionsuffix = '-nompi'
+
+homepage = 'https://www.gnu.org/software/octave/'
+description = """GNU Octave is a high-level interpreted language, primarily intended for numerical computations."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['b48f33d4fceaf394cfbea73a8c850000936d83a41739a24f7568b5b0a7b39acd']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('Bison', '3.7.6'),
+    ('flex', '2.6.4'),
+    ('Autotools', '20210726'),
+    ('texinfo', '6.8'),
+    ('gperf', '3.1'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('X11', '20210802'),
+    ('PCRE', '8.45'),
+    ('ncurses', '6.2'),
+    ('libreadline', '8.1'),
+    ('ARPACK-NG', '3.8.0', '-nompi'),
+    ('cURL', '7.78.0'),
+    ('FLTK', '1.3.7'),
+    ('fontconfig', '2.13.94'),
+    ('freetype', '2.11.0'),
+    ('GLPK', '5.0'),
+    ('GL2PS', '1.4.2'),
+    ('gnuplot', '5.4.2'),
+    ('Java', '15', '', SYSTEM),
+    ('zlib', '1.2.11'),
+    ('OpenGL', '2021b'),
+    ('freeglut', '3.2.1'),
+    ('Ghostscript', '9.54.0'),
+    ('Qhull', '2020.2'),
+    ('Qt5', '5.15.2'),
+    ('HDF5', '1.12.1', '-serial'),
+    ('qrupdate', '1.1.2'),
+    ('SuiteSparse', '5.10.1', '-nompi'),
+    ('libsndfile', '1.0.31'),
+    ('FFTW', '3.3.10', '-nompi'),
+    ('texlive', '20200406'),
+    ('GraphicsMagick', '1.3.36'),
+]
+
+configopts = 'MOC=$EBROOTQT5/bin/moc '
+configopts += 'UIC=$EBROOTQT5/bin/uic '
+configopts += 'RCC=$EBROOTQT5/bin/rcc '
+configopts += 'LRELEASE=$EBROOTQT5/bin/lrelease '
+configopts += '--with-blas="$LIBBLAS" --with-lapack="$LIBLAPACK" --disable-docs '
+# correct for both GCC and Intel compilers
+configopts += '--enable-fortran-calling-convention=gfortran'
+
+local_pkg_url = 'https://downloads.sourceforge.net/'
+local_pkg_url += 'project/octave/Octave%20Forge%20Packages/Individual%20Package%20Releases/'
+exts_default_options = {'source_urls': [local_pkg_url]}
+
+exts_list = [
+    ('control', '3.4.0', {
+        'checksums': ['6ec6a06e13ad288afad8631cc41f7247e47096fa1e8d04240d4ed01efbe4a77a'],
+    }),
+    ('general', '2.1.2', {
+        'checksums': ['a30cd1a79743c62528dae46ebd4a83f848ae46a1c1dac3eaabc36662d42294cf'],
+    }),
+    ('io', '2.6.4', {
+        'checksums': ['a74a400bbd19227f6c07c585892de879cd7ae52d820da1f69f1a3e3e89452f5a'],
+    }),
+    ('signal', '1.4.1', {
+        'checksums': ['d978600f8b8f61339b986136c9862cad3e8f7015f84132f214bf63e9e281aeaa'],
+    }),
+    ('statistics', '1.4.3', {
+        'checksums': ['9801b8b4feb26c58407c136a9379aba1e6a10713829701bb3959d9473a67fa05'],
+    }),
+    ('struct', '1.0.17', {
+        'checksums': ['0137bbb5df650f29104f6243502f3a2302aaaa5e42ea9f02d8a3943aaf668433'],
+    }),
+]
+
+moduleclass = 'math'

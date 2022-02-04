@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'petsc4py'
+version = '3.16.3'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://bitbucket.org/petsc/petsc4py'
+description = "petsc4py are Python bindings for PETSc, the Portable, Extensible Toolchain for Scientific Computation."
+
+toolchain = {'name': 'gpsmkl', 'version': '2021b'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+checksums = ['10e730d50716e40de55b200ff53b461bc4f3fcc798ba89b74dfe6bdf63fa7b6e']
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-Stack', '2021b', '', ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('PETSc', '3.16.3'),
+]
+
+download_dep_fail = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

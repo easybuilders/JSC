@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'LWP-settings'
+version = 'LWP-omp'
+
+homepage = ''
+description = 'Loads the LWP-omp module for LWP'
+
+toolchain = SYSTEM
+
+modextravars = {
+    'atos_lwp_module_omp': '1',
+    'LWP_MODULE_OMPT_VERBOSE_LEVEL': '0',
+}
+
+# Ugly hack, since otherwise we can't add paths from the main installation without
+# writting an easyblock
+modluafooter = '''
+prepend_path("LWP_LIBS",pathJoin(os.getenv("EBROOTLWP") or "PATH_NOT_FOUND","lib64/liblwp_omp_gather.so"))
+setenv("LWP_OMP",pathJoin(os.getenv("EBROOTLWP") or "PATH_NOT_FOUND","lib64/liblwp_omp_publish.so"))
+'''
+
+moduleclass = 'system'

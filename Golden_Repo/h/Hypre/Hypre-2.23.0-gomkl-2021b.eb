@@ -1,0 +1,57 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = "Hypre"
+version = "2.23.0"
+
+homepage = "https://computation.llnl.gov/casc/linear_solvers/sls_hypre.html"
+description = """Hypre is a library for solving large, sparse linear 
+systems of equations on massively parallel computers.
+The problems of interest arise in the simulation codes being developed 
+at LLNL and elsewhere to study physical phenomena in the defense, 
+environmental, energy, and biological sciences.
+"""
+
+examples = """Examples can be found in $EBROOTHYPRE/examples."""
+
+usage = """
+Hypre uses LAPACK, programs using Hypre can be linked with
+-L$HYPRE_LIB -lHYPRE -lm -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread
+"""
+
+toolchain = {'name': 'gomkl', 'version': '2021b'}
+
+toolchainopts = {'pic': True, 'usempi': True, 'openmp': True}
+
+source_urls = ["https://github.com/hypre-space/hypre/archive/"]
+sources = ['v%(version)s.tar.gz']
+patches = ["hypre-%(version)s_examples_mkl.patch"]
+checksums = [
+    '8a9f9fb6f65531b77e4c319bf35bfc9d34bf529c36afe08837f56b635ac052e2',  # v2.23.0.tar.gz
+    '33acfe9f0bcae8bdf3f3405351a8dd06d9c2d424f2b16d9eb1bc05c3d8dd6190',  # hypre-2.23.0_examples_mkl.patch
+]
+
+start_dir = 'src'
+
+dependencies = [('CUDA', '11.5', '', SYSTEM)]
+
+
+configopts = '--with-openmp '
+configopts += '--enable-unified-memory '
+
+
+postinstallcmds = [
+    "cp -r %(builddir)s/hypre-%(version)s/src/examples %(installdir)s/examples",
+    "mv %(installdir)s/examples/Makefile_gnu %(installdir)s/examples/Makefile",
+    "rm %(installdir)s/examples/Makefile*orig",
+    "rm %(installdir)s/examples/Makefile_*",
+    "cp %(builddir)s/hypre-%(version)s/src/HYPRE_config.h %(installdir)s/include",
+    "chmod 755 %(installdir)s/examples/vis",
+    "chmod 755 %(installdir)s/examples/docs",
+]
+
+modextravars = {
+    'HYPRE_ROOT': '%(installdir)s',
+    'HYPRE_LIB': '%(installdir)s/lib',
+    'HYPRE_INCLUDE': '%(installdir)s/include/'
+}
+
+moduleclass = 'numlib'

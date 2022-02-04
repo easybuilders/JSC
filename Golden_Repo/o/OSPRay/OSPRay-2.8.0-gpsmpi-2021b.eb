@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OSPRay'
+version = '2.8.0'
+
+homepage = 'http://www.ospray.org/'
+description = """
+OSPRay is an open source, scalable, and portable ray tracing engine for
+high-performance, high-fidelity visualization on Intel® Architecture CPUs.
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2021b'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/ospray/OSPRay/archive/']
+sources = ['v%(version)s.tar.gz']
+
+checksums = ['2dabc75446a0e2e970952d325f930853a51a9b4d1868c8135f05552a4ae04d39']
+
+builddependencies = [
+    ('ispc', '1.16.1', '', SYSTEM),
+    ('CMake', '3.21.1', '', SYSTEM),
+    ('Doxygen', '1.9.1')
+]
+
+dependencies = [
+    ('X11', '20210802'),
+    ('OpenGL', '2021b'),
+    ('freeglut', '3.2.1'),
+    ('Qt5', '5.15.2'),
+    ('tbb', '2020.3'),
+    ('Embree', '3.13.2'),
+    ('rkcommon', '1.8.0'),
+    ('openvkl', '1.1.0'),
+    ('OpenImageDenoise', '1.4.2', '', ('gcccoremkl', '11.2.0-2021.4.0')),
+]
+
+separate_build_dir = True
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DOSPRAY_TASKING_SYSTEM=OPENMP '
+configopts += '-DOSPRAY_INSTALL_DEPENDENCIES=OFF '
+configopts += '-DCMAKE_BUILD_TYPE=Release '
+configopts += '-DOSPRAY_BUILD_ISA=ALL '
+configopts += '-Dembree_DIR=$EBROOTEMBREE/lib64/cmake/embree-3.13.2 '
+configopts += '-DOSPRAY_APPS_EXAMPLES:BOOL=OFF '
+configopts += '-DOSPRAY_APPS_TESTING:BOOL=OFF '
+configopts += '-DOSPRAY_ENABLE_APPS:BOOL=OFF '
+configopts += '-DOSPRAY_MODULE_DENOISER:BOOL=ON '
+configopts += '-DOSPRAY_MODULE_MPI:BOOL=True '
+configopts += '-DOSPRAY_MPI_BUILD_TUTORIALS:BOOL=OFF '
+
+sanity_check_paths = {
+    'dirs': ['include/ospray/',
+             'lib64/cmake/%(namelower)s-%(version)s', 'share/doc/OSPRay'],
+    'files': ['include/ospray/version.h',
+              'lib64/libospray.so',
+              'share/doc/OSPRay/README.md'],
+}
+
+modextrapaths = {'CMAKE_MODULE_PATH': ['lib64/cmake/ospray-%(version)s']}
+
+moduleclass = 'vis'

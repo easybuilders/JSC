@@ -1,0 +1,34 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'trimesh'
+version = '3.9.36'
+
+homepage = 'https://trimsh.org/'
+description = """Trimesh is a Python (2.7- 3.3+) library for loading and using triangular meshes with an emphasis on
+watertight meshes. The goal of the library is to provide a fully featured Trimesh object which allows for easy
+manipulation and analysis, in the style of the excellent Polygon object in the Shapely library."""
+
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+use_pip = True
+download_dep_fail = True
+sanity_pip_check = True
+
+checksums = ['f01e8edab14d1999700c980c21a1546f37417216ad915a53be649d263130181e']
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10'),  # numpy required
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+
+moduleclass = 'lib'

@@ -1,0 +1,176 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ITK'
+version = '5.2.1'
+
+homepage = 'https://itk.org'
+description = """Insight Segmentation and Registration Toolkit (ITK) provides
+ an extensive suite of software tools for registering and segmenting
+ multidimensional imaging data."""
+
+toolchain = {'name': 'gompi', 'version': '2021b'}
+toolchainopts = {'pic': True, 'usempi': False}
+
+source_urls = ['https://github.com/InsightSoftwareConsortium/ITK/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['6022b2b64624b8bcec3333fe48d5f74ff6ebceb3bdf98258ba7d7fbbc76b99ab']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('CMake', '3.21.1', '', SYSTEM),
+    ('Bison', '3.7.6'),
+    ('pkg-config', '0.29.2'),
+    ('Perl', '5.34.0'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('HDF5', '1.12.1', '-serial'),
+    ('SWIG', '4.0.2',),
+    ('libpng', '1.6.37'),
+    ('LibTIFF', '4.3.0'),
+    ('expat', '2.4.1'),
+    ('Eigen', '3.3.9'),
+    ('FFTW', '3.3.10', '-nompi'),
+    ('ICU', '70.1'),
+    ('libjpeg-turbo', '2.1.1'),
+    ('double-conversion', '3.1.6'),
+    # ('ParaView', '5.9.1'),
+    ('tbb', '2020.3'),
+    ('Qt5', '5.15.2'),
+    ('OpenGL', '2021b'),
+    ('X11', '20210802'),
+    ('SciPy-bundle', '2021.10', '', ('gcccoremkl', '11.2.0-2021.4.0')),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_BUILD_TYPE=Release "
+configopts += "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON "
+
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBUILD_TESTING=OFF "
+# configopts += "-DITK_FORBID_DOWNLOADS=ON "
+
+configopts += "-DITK_LEGACY_SILENT=ON "
+
+configopts += "-DITK_USE_SYSTEM_SWIG=ON "
+configopts += "-DSWIG_EXECUTABLE=${EBROOTSWIG}/bin/swig "
+configopts += "-DSWIG_DIR=${EBROOTSWIG} "
+
+configopts += "-DITK_USE_SYSTEM_EIGEN=ON "
+configopts += "-DEigen3_DIR=$EBROOTEIGEN/share/eigen3/cmake "
+
+configopts += "-DITK_USE_SYSTEM_HDF5=ON "
+configopts += "-DHDF5_DIR=$EBROOTHDF5 "
+
+configopts += "-DITK_USE_SYSTEM_ICU=ON "
+configopts += "-DICU_DIR=$EBROOTICU "
+
+configopts += "-DITK_USE_SYSTEM_FFTW=ON "
+configopts += "-DFFTW_DIR=$EBROOTFFTW "
+
+configopts += "-DITK_USE_SYSTEM_JPEG=ON "
+configopts += "-DJPEG_DIR=$EBROOTLIBJPEGMINTURBO "
+
+configopts += "-DITK_USE_SYSTEM_DOUBLECONVERSION=ON "
+configopts += "-DDOUBLECONVERSION_DIR=$EBROOTDOUBLEMINCONVERSION "
+
+configopts += "-DITK_USE_SYSTEM_PNG=ON "
+configopts += "-DPNG_DIR=$EBROOTLIBPNG "
+
+configopts += "-DITK_USE_SYSTEM_TIFF=ON "
+configopts += "-DTIFF_DIR=$EBROOTTIFF "
+
+configopts += "-DITK_USE_SYSTEM_ZLIB=ON "
+configopts += "-DZLIB_DIR=$EBROOTZLIB "
+
+configopts += "-DITK_WRAP_PYTHON=ON "
+configopts += "-DModule_ITKReview=ON "
+
+# configopts += "-DITK_USE_CUFFTW=ON "
+# configopts += "-DITK_USE_GPU=ON "  # GPU acceleration via OpenCL"
+
+# configopts="-DModule_ITKVtkGlue=ON ${configopts} "
+# configopts="-DVTK_DIR=$EBROOTPARAVIEW/lib64/cmake/paraview-5.8/vtk ${configopts} "
+# configopts="-DVTK_INCLUDE_DIRS=$EBROOTPARAVIEW/include/paraview-5.8 ${configopts} "
+# configopts="-DVTK_LIBRARIES=$EBROOTPARAVIEW/lib64 ${configopts} "
+
+# Module_AdaptiveDenoising         OFF
+# Module_AnalyzeObjectLabelMap     OFF
+# Module_AnisotropicDiffusionLBR   OFF
+# Module_BSplineGradient           OFF
+# Module_BioCell                   OFF
+# Module_BoneEnhancement           OFF
+# Module_BoneMorphometry           OFF
+# Module_Cuberille                 OFF
+# Module_FixedPointInverseDispla   OFF
+# Module_GenericLabelInterpolato   OFF
+# Module_HigherOrderAccurateGrad   OFF
+# Module_IOFDF                     OFF
+# Module_IOMeshSTL                 OFF
+# Module_IOOpenSlide               OFF
+# Module_IOScanco                  OFF
+# Module_IOTransformDCMTK          OFF
+# Module_ITKDCMTK                  OFF
+# Module_ITKDeprecated             OFF
+# Module_ITKFEM                    OFF
+# Module_ITKFEMRegistration        OFF
+# Module_ITKIODCMTK                OFF
+# Module_ITKIOPhilipsREC           OFF
+# Module_ITKIOTransformMINC        OFF
+# Module_ITKReview                 ON
+# Module_ITKTBB                    OFF
+# Module_ITKVideoBridgeOpenCV      OFF
+# Module_ITKVideoBridgeVXL         OFF
+# Module_ITKVtkGlue                OFF
+# Module_IsotropicWavelets         OFF
+# Module_LabelErodeDilate          OFF
+# Module_LesionSizingToolkit       OFF
+# Module_MGHIO                     OFF
+# Module_MeshNoise                 OFF
+# Module_MinimalPathExtraction     OFF
+# Module_Montage                   OFF
+# Module_MorphologicalContourInt   OFF
+# Module_MultipleImageIterator     OFF
+# Module_ParabolicMorphology       OFF
+# Module_PerformanceBenchmarking   OFF
+# Module_PhaseSymmetry             OFF
+# Module_PolarTransform            OFF
+# Module_PrincipalComponentsAnal   OFF
+# Module_RLEImage                  OFF
+# Module_RTK                       OFF
+# Module_SCIFIO                    OFF
+# Module_SimpleITKFilters          OFF
+# Module_SkullStrip                OFF
+# Module_SmoothingRecursiveYvvGa   OFF
+# Module_SphinxExamples            OFF
+# Module_SplitComponents           OFF
+# Module_Strain                    OFF
+# Module_SubdivisionQuadEdgeMesh   OFF
+# Module_TextureFeatures           OFF
+# Module_Thickness3D               OFF
+# Module_TotalVariation            OFF
+# Module_TubeTK                    OFF
+# Module_TwoProjectionRegistrati   OFF
+# Module_Ultrasound                OFF
+# Module_VariationalRegistration   OFF
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+sanity_check_paths = {
+    'files': ['bin/itkTestDriver',
+              'lib/libITKVTK-%(version_major_minor)s.so',
+              'lib/libITKIOJPEG-%(version_major_minor)s.so',
+              'lib/libITKCommon-%(version_major_minor)s.so'],
+    'dirs': ['include/ITK-%(version_major_minor)s',
+             'lib/python%(pyshortver)s/site-packages',
+             'share'],
+}
+
+sanity_check_commands = [('python', "-c 'import %(namelower)s'")]
+
+moduleclass = 'vis'

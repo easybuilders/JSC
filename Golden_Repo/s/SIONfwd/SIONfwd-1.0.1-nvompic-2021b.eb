@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "CMakeMake"
+name = "SIONfwd"
+version = "1.0.1"
+
+homepage = 'https://gitlab.version.fz-juelich.de/SIONlib/SIONfwd'
+description = 'I/O forwarding for SIONlib'
+
+toolchain = {'name': 'nvompic', 'version': '2021b'}
+toolchainopts = {'pic': True}
+
+builddependencies = [('CMake', '3.21.1', '', SYSTEM)]
+
+source_urls = ['https://gitlab.jsc.fz-juelich.de/SIONlib/SIONfwd/-/archive/v%(version)s/']
+sources = ['SIONfwd-v%(version)s.tar.gz']
+checksums = ['bb4b0381dec8729ed792225f90b7a2b04049886989e53216bc1033585448a780']
+
+sanity_check_paths = {
+    'files': ["bin/sionfwd-server"],
+    'dirs': []
+}
+
+moduleclass = 'lib'

@@ -1,0 +1,17 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'LWP-settings'
+version = 'LWP-procstat'
+
+homepage = ''
+description = 'Loads the LWP-procstat module for LWP'
+
+toolchain = SYSTEM
+
+modextravars = {
+    'atos_lwp_module_procstat': '1',
+    'LWP_MODULE_PROCSTAT_VERBOSE_LEVEL': '0',
+}
+
+moduleclass = 'system'

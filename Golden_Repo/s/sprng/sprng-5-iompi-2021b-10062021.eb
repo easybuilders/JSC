@@ -1,0 +1,73 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+#
+# Authors::  Inge Gutheil <i.gutheil@fz-juelich.de>
+#
+# This work implements sprng5
+# http://www.sprng.org/
+##
+
+easyblock = 'ConfigureMake'
+name = 'sprng'
+version = '5'
+versionsuffix = '-10062021'
+
+homepage = 'http://www.sprng.org/'
+description = """The Scalable Parallel Random Number Generators Library (SPRNG) version 5 has been installed as module in
+
+$EBROOTSPRNG
+
+This version contains all different random number generators in one library,
+the generator has to be chosen via an input parameter.
+"""
+
+toolchain = {'name': 'iompi', 'version': '2021b'}
+toolchainopts = {'optarch': True, 'usempi': True}
+
+source_urls = ['http://www.sprng.org/Version5.0']
+sources = ['%(name)s%(version)s%(versionsuffix)s.tar.bz2']
+patches = [
+    'sprng-%(version)s%(versionsuffix)s-examples.patch',
+]
+checksums = [
+    '696ef452bdd998d2e66586e73d81dac875082e35d08de419cede1a1bb2555b59',  # sprng5-10062021.tar.bz2
+    'e2a928527d2688ca2ebe7554a0a307f1991e64b7975783f03dad472b418a2f27',  # sprng-5-10062021-examples.patch
+]
+
+configopts = '--with-mpi --with-fortran'
+
+parallel = 1
+
+postinstallcmds = [
+    "cp -r include %(installdir)s/",
+    "cp -r EXAMPLES %(installdir)s",
+    "cp DOCS/README %(installdir)s",
+    "cp AUTHORS %(installdir)s",
+    "cp COPYING %(installdir)s",
+    "cp LICENSE %(installdir)s",
+    "mv %(installdir)s/EXAMPLES/Makefile_Intel %(installdir)s/EXAMPLES/Makefile",
+    "rm %(installdir)s/EXAMPLES/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/Makefile_gnu",
+    "rm %(installdir)s/EXAMPLES/*.sprng",
+    "mv %(installdir)s/EXAMPLES/F77/Makefile_Intel %(installdir)s/EXAMPLES/F77/Makefile",
+    "rm %(installdir)s/EXAMPLES/F77/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/F77/Makefile_gnu",
+    "rm %(installdir)s/EXAMPLES/F77/*.sprng",
+    "mv %(installdir)s/EXAMPLES/mpisprng/Makefile_mpi_Intel %(installdir)s/EXAMPLES/mpisprng/Makefile",
+    "rm %(installdir)s/EXAMPLES/mpisprng/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/mpisprng/Makefile_mpi_gnu",
+    "rm %(installdir)s/EXAMPLES/mpisprng/*.sprng",
+    "mv %(installdir)s/EXAMPLES/mpisprng/F77/Makefile_mpi_Intel %(installdir)s/EXAMPLES/mpisprng/F77/Makefile",
+    "rm %(installdir)s/EXAMPLES/mpisprng/F77/Makefile*.*",
+    "rm %(installdir)s/EXAMPLES/mpisprng/F77/Makefile_mpi_gnu",
+]
+
+modextravars = {
+    'SPRNG5_ROOT': '%(installdir)s',
+    'SPRNG5ROOT': '%(installdir)s',
+    'SPRNG5_LIB': '%(installdir)s/lib',
+    'SPRNG5_INCLUDE': '%(installdir)s/include'
+}
+
+moduleclass = 'math'

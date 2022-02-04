@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'mpi4py'
+version = '3.1.3'
+
+homepage = 'https://bitbucket.org/mpi4py/mpi4py'
+description = """MPI for Python (mpi4py) provides bindings of the Message Passing Interface (MPI) standard for
+ the Python programming language, allowing any Python program to exploit multiple processors.
+"""
+
+toolchain = {'name': 'gompi', 'version': '2021b'}
+
+source_urls = ['https://github.com/%(name)s/%(name)s/archive/']
+sources = ['%(version)s.tar.gz']
+checksums = ['a25f7e521ac5706a4e7284d986df006c26a2d13cc7ccee646cfc07c05bd65f05']
+
+dependencies = [('Python', '3.9.6')]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/mpi4py'],
+}
+
+moduleclass = 'lib'

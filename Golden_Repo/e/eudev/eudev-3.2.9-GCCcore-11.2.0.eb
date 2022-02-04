@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'eudev'
+version = '3.2.9'
+
+homepage = 'https://wiki.gentoo.org/wiki/Project:Eudev'
+
+description = """
+ eudev is a fork of systemd-udev with the goal of obtaining better
+ compatibility with existing software such as OpenRC and Upstart,
+ older kernels, various toolchains and anything else required by
+ users and various distributions.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = ['http://dev.gentoo.org/~blueness/%(name)s/']
+sources = [SOURCE_TAR_GZ]
+patches = ['%(name)s-%(version)s_python3.patch']
+checksums = [
+    '89618619084a19e1451d373c43f141b469c9fd09767973d73dd268b92074d4fc',
+    '846b1e72e12853c4146d3a4e312301001bbfb13110ce76de2afdf860f4d085a8',
+]
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('gperf', '3.1'),
+    ('Python', '3.9.6'),
+]
+
+osdependencies = [('kernel-headers', 'linux-libc-dev')]
+
+configopts = '--disable-blkid --disable-selinux --disable-manpages '
+
+runtest = 'check'
+
+sanity_check_paths = {
+    'files': ['bin/udevadm', 'include/libudev.h', 'include/udev.h',
+              'lib/libudev.so.1'],
+    'dirs': [],
+}
+
+moduleclass = 'system'

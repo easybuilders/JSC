@@ -1,0 +1,20 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'UCX-settings'
+version = 'RC'
+
+homepage = ''
+description = 'This module sets UCX to use RC as the transport layer.'
+
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'UCX_TLS': 'rc_x,self,sm',
+}
+
+moduleclass = 'system'

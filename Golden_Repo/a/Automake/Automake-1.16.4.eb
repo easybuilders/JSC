@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'Automake'
+version = '1.16.4'
+
+homepage = 'https://www.gnu.org/software/automake/automake.html'
+
+description = "Automake: GNU Standards-compliant Makefile generator"
+
+
+toolchain = SYSTEM
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['8a0f0be7aaae2efa3a68482af28e5872d8830b9813a6a932a2571eac63ca1794']
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+dependencies = [
+    ('Autoconf', '2.71'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/automake', 'bin/aclocal'],
+    'dirs': []
+}
+
+hidden = True
+
+moduleclass = 'devel'

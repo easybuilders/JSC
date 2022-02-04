@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'PyGObject'
+version = '3.42.0'
+
+homepage = 'https://pygobject.readthedocs.io'
+description = """PyGObject is a Python package which provides bindings for GObject based
+libraries such as GTK, GStreamer, WebKitGTK, GLib, GIO and many more.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+checksums = ['b9803991ec0b0b4175e81fee0ad46090fa7af438fe169348a9b18ae53447afcd']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('GLib', '2.69.1'),
+    ('GObject-Introspection', '1.68.0'),
+    ('PyCairo', '1.20.1'),
+    ('libffi', '3.4.2'),
+]
+
+use_pip = True
+sanity_pip_check = True
+download_dep_fail = True
+
+# remove pyproject.toml, which causes trouble (header files and .pc file are not installed)
+preinstallopts = "rm pyproject.toml && "
+
+# Don't build a wheel or the pkg-cfg file won't be installed
+installopts = '--no-binary=%(namelower)s'
+
+sanity_check_paths = {
+    'files': [
+        'include/pygobject-%(version_major)s.0/pygobject.h',
+        'lib/pkgconfig/pygobject-%(version_major)s.0.pc',
+    ],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/gi'],
+}
+
+options = {'modulename': 'gi'}
+
+moduleclass = 'vis'

@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libmatheval'
+version = '1.1.11'  # still the latest version available on the ftp mirror
+
+homepage = 'http://www.gnu.org/software/libmatheval/'
+description = """GNU libmatheval is a library (callable from C and Fortran) to parse
+ and evaluate symbolic expressions input as text.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+patches = [
+    '003-guile2.0.patch',
+    'libmatheval-1.1.11_fix-matheval-test.patch'
+]
+
+checksums = [
+    # libmatheval-1.1.11.tar.gz
+    '474852d6715ddc3b6969e28de5e1a5fbaff9e8ece6aebb9dc1cc63e9e88e89ab',
+    '718f2cba02ee9d891976a3f078681c9e36d6c5f6050762db70fa8c9a889ec655',  # 003-guile2.0.patch
+    # libmatheval-1.1.11_fix-matheval-test.patch
+    'c619203df01157c25a384a1f3e7cbdb8838571a17b74da3b5bdabd15d8d681ff',
+]
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.7.6'),
+    ('byacc', '20210808'),
+    # guile 2.2.X, 3.0.7 removed scm_num2dbl (among others), which are needed for libmatheval (at least for 1.1.11)
+    ('guile', '2.0.14')
+]
+
+configopts = '--with-pic '
+
+# fix for guile-config being broken because shebang line contains full path to bin/guile
+configopts += 'GUILE_CONFIG="$EBROOTGUILE/bin/guile -e main -s $EBROOTGUILE/bin/guile-config"'
+
+sanity_check_paths = {
+    'files': ['lib/libmatheval.a', 'include/matheval.h'],
+    'dirs': [],
+}
+
+moduleclass = 'lib'

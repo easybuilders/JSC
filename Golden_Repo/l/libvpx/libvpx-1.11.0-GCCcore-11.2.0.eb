@@ -22,7 +22,10 @@ builddependencies = [
     ('NASM', '2.15.05'),
 ]
 
-configopts = '--enable-pic --enable-shared'
+
+configopts = '--enable-pic --enable-shared '
+# https://github.com/Xpra-org/xpra/issues/3082
+configopts += '--enable-vp9-highbitdepth'
 
 sanity_check_paths = {
     # 'lib/libvpx.%s' % SHLIB_EXT],

@@ -21,12 +21,22 @@ default_easyblock = 'PythonPackage'
 
 local_pylibdir = '%(installdir)s/lib/python%(pyshortver)s/site-packages'
 
-local_pyqt5_sip_install = "sip-install --verbose --target-dir " + local_pylibdir + " "
-local_pyqt5_sip_install += "--confirm-license --no-designer-plugin --no-qml-plugin --no-tools"
+local_pyqt5_sip_install = " ".join([
+    "sip-install",
+    "--verbose",
+    "--confirm-license",
+    "--target-dir " + local_pylibdir,
+])
 
-local_pyqtweb_configopts = "configure.py --verbose --destdir=%s/PyQt5 " % local_pylibdir
-local_pyqtweb_configopts += "--apidir=%(installdir)s/qsci --pyqt-sipdir=%(builddir)s/PyQt5-%(version)s/sip "
-local_pyqtweb_configopts += "--no-stubs --no-dist-info"
+local_pyqtweb_configopts = " ".join([
+    "configure.py",
+    "--verbose",
+    "--destdir=%s/PyQt5" % local_pylibdir,
+    "--apidir=%(installdir)s/qsci",
+    "--pyqt-sipdir=%(builddir)s/PyQt5-%(version)s/sip",
+    "--no-stubs",
+    "--no-dist-info",
+])
 
 local_setup_env = "export PATH=%(installdir)s/bin:$PATH && "
 local_setup_env += "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
@@ -82,6 +92,8 @@ sanity_check_paths = {
 
 sanity_check_commands = [
     "python -c 'import PyQt5.QtCore'",
+    "python -c 'import PyQt5.pyrcc'",
+    "python -c 'import PyQt5.uic'",
     "sip5 --help",
 ]
 

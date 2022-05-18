@@ -13,7 +13,7 @@ toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
 source_urls = [
     'https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-%(arch)s/'
 ]
-sources = ['libcutensor-linux-%(arch)s-%(version)s-archive.tar.gz']
+sources = ['libcutensor-linux-%(arch)s-%(version)s-archive.tar.xz']
 checksums = [
     {
         'libcutensor-linux-x86_64-1.4.0.6-archive.tar.xz':

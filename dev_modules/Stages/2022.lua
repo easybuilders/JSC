@@ -15,7 +15,7 @@ if old_stage == nil then
 end
 
 -- Software root
-local software_root = '/p/software/juwels'
+local software_root = '/p/software/jurecadc'
 
 -- Set new stage variables
 local stage = myModuleVersion()
@@ -47,8 +47,6 @@ if mode() == "load" then
         elseif stage > default_stage then
             LmodMessage("\n  "..yellow.."This stage is in construction. Thanks for being an early adopter! If you are\n"..
                         "  missing some software you'd like to have, please contact support at sc@fz-juelich.de"..normal.."\n")
-        else
-            LmodMessage("\n  Preparing the environment for use of "..stage.." stage.\n")
         end
     end
 end

@@ -21,7 +21,7 @@ dependencies = [
     ('SciPy-bundle', '2021.10', '', ('gcccoremkl', '11.2.0-2021.4.0')),
     ('Shapely', '1.8.0'),
     ('lxml', '4.6.3'),
-    ('Pillow-SIMD', '8.3.1'),
+    ('Pillow-SIMD', '9.0.1'),
     ('PROJ', '8.1.0'),
     ('PyYAML', '5.4.1'),
 ]

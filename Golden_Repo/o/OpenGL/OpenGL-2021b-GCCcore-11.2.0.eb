@@ -201,6 +201,7 @@ postinstallcmds = [
 ]
 
 modextravars = {
+    # '__GLX_VENDOR_LIBRARY_NAME': 'mesa' or 'nvidia'
     '__EGL_VENDOR_LIBRARY_FILENAMES': ('%(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json:'
                                        '%(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json'),
     'EGL_PLATFORM': 'surfaceless',

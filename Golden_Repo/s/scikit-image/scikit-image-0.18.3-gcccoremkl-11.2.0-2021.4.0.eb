@@ -12,7 +12,7 @@ toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
 dependencies = [
     ('Python', '3.9.6'),
     ('matplotlib', '3.4.3'),
-    ('Pillow-SIMD', '8.3.1'),
+    ('Pillow-SIMD', '9.0.1'),
     ('dask', '2021.9.1'),
 ]
 

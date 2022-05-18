@@ -19,7 +19,8 @@ sources = [
         'download_filename': 'eb6e7bb63738e29efd82ea3cf2a115238a89fa51.tar.gz',
     }
 ]
-checksums = ['92f70cbd168aaaabad33f59221013e6cee8e41aa802db592b027e4e01e0bcbba']
+# checksum changes with every download
+checksums = ['df3300c3c9d56b5d6b0ef02f330ca508ef4428b1b9af67083201004deb93991a']
 
 builddependencies = [
     ('binutils', '2.37'),
@@ -29,14 +30,12 @@ builddependencies = [
 separate_build_dir = True
 start_dir = './'
 
-maxparallel = 12
-
 configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
 
 postinstallcmds = [
     (
         '{ cat >> %(installdir)s/libyuv.pc; } << \'EOF\'\n'
-        'prefix=PREFIX_TEMPLATE\n'
+        'prefix=%(installdir)s\n'
         'exec_prefix=${prefix}\n'
         'libdir=${prefix}/lib\n'
         'includedir=${prefix}/include\n'
@@ -44,7 +43,8 @@ postinstallcmds = [
         'Name: libyuv\n'
         'Description: YUV conversion and scaling functionality library\n'
         'Version: 0\n'
-        'Libs: -lyuv\n'
+        'Cflags: -I${includedir}\n'
+        'Libs: -L${libdir} -lyuv\n'
         'EOF'
     ),
 ]

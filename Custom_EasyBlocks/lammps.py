@@ -30,7 +30,10 @@
 @author: Alan O'Cais (Juelich Supercomputing Centre)
 """
 
+import fileinput
 import os
+import re
+import sys
 import tempfile
 
 import easybuild.tools.environment as env
@@ -142,6 +145,30 @@ class EB_LAMMPS(CMakeMake):
         extra_vars['separate_build_dir'][0] = True
         return extra_vars
 
+    def patch_step(self):
+        """
+        Changes the default SM in the wrapper. One can also specify it in the command line, but we would have to
+        distinguish between when it needs to be done and when not. Seems like changing the default is easier
+        """
+
+        nvcc_wrapper = os.path.join(os.getcwd(), "lib", "kokkos", "bin", "nvcc_wrapper")
+        cuda_cc = get_cuda_cc(self)
+        if isinstance(cuda_cc, list):
+            sm = 'sm_'+''.join(cuda_cc[0].split('.'))
+        else:
+            sm = 'sm_'+''.join(cuda_cc.split('.'))
+
+        try:
+            for line in fileinput.input(nvcc_wrapper, inplace=1, backup='.orig'):
+                line = re.sub(r"^\s*(%s\s*=\s*).*\n$" % "default_arch",
+                              r'\1"%s" # patched by EasyBuild\n' % sm,
+                              line)
+                sys.stdout.write(line)
+        except IOError as err:
+            raise EasyBuildError("Failed to patch %s in: %s", fp, err)
+
+        super(EB_LAMMPS, self).patch_step()
+
     def prepare_step(self, *args, **kwargs):
         """Custom prepare step for LAMMPS."""
         super(EB_LAMMPS, self).prepare_step(*args, **kwargs)
@@ -153,15 +180,7 @@ class EB_LAMMPS(CMakeMake):
     def configure_step(self, **kwargs):
         """Custom configuration procedure for LAMMPS."""
 
-        # list of CUDA compute capabilities to use can be specifed in two ways (where (2) overrules (1)):
-        # (1) in the easyconfig file, via the custom cuda_compute_capabilities;
-        # (2) in the EasyBuild configuration, via --cuda-compute-capabilities configuration option;
-        ec_cuda_cc = self.cfg['cuda_compute_capabilities']
-        cfg_cuda_cc = build_option('cuda_compute_capabilities')
-        if cfg_cuda_cc and not isinstance(cfg_cuda_cc, list):
-            raise EasyBuildError("cuda_compute_capabilities in easyconfig should be provided as list of strings, " +
-                                 "(for example ['8.0', '7.5']). Got %s" % cfg_cuda_cc)
-        cuda_cc = check_cuda_compute_capabilities(cfg_cuda_cc, ec_cuda_cc, cuda=self.cuda)
+        cuda_cc = get_cuda_cc(self)
 
         # cmake has its own folder
         self.cfg['srcdir'] = os.path.join(self.start_dir, 'cmake')
@@ -220,7 +239,7 @@ class EB_LAMMPS(CMakeMake):
             self.cfg.update('configopts', pkg_opt + 'on')
 
         # USER-INTEL enables optimizations on Intel processors. GCC has also partial support for some of them.
-        pkg_user_intel = '-D%sINTEL=' % PKG_USER_PREFIX
+        pkg_user_intel = '-D%sINTEL=' % PKG_PREFIX
         if pkg_user_intel not in self.cfg['configopts']:
             if self.toolchain.comp_family() in [toolchain.GCC, toolchain.INTELCOMP]:
                 self.cfg.update('configopts', pkg_user_intel + 'on')
@@ -230,7 +249,7 @@ class EB_LAMMPS(CMakeMake):
             self.cfg.update('configopts', '-DBUILD_MPI=yes')
         if self.toolchain.options.get('openmp', None):
             self.cfg.update('configopts', '-DBUILD_OMP=yes')
-            self.cfg.update('configopts', '-D%sOMP=on' % PKG_USER_PREFIX)
+            self.cfg.update('configopts', '-D%sOMP=on' % PKG_PREFIX)
 
         # FFTW
         if get_software_root("imkl") or get_software_root("FFTW"):
@@ -327,7 +346,6 @@ class EB_LAMMPS(CMakeMake):
             txt += self.module_generator.prepend_paths('PYTHONPATH', [pythonpath])
 
         txt += self.module_generator.prepend_paths('PYTHONPATH', ["lib64"])
-        txt += self.module_generator.prepend_paths('LD_LIBRARY_PATH', ["lib64"])
 
         return txt
 
@@ -436,3 +454,14 @@ def get_cpu_arch():
     if ec:
         raise EasyBuildError("Failed to determine CPU architecture: %s", out)
     return out.strip()
+
+def get_cuda_cc(self):
+    # list of CUDA compute capabilities to use can be specifed in two ways (where (2) overrules (1)):
+    # (1) in the easyconfig file, via the custom cuda_compute_capabilities;
+    # (2) in the EasyBuild configuration, via --cuda-compute-capabilities configuration option;
+    ec_cuda_cc = self.cfg['cuda_compute_capabilities']
+    cfg_cuda_cc = build_option('cuda_compute_capabilities')
+    if cfg_cuda_cc and not isinstance(cfg_cuda_cc, list):
+        raise EasyBuildError("cuda_compute_capabilities in easyconfig should be provided as list of strings, " +
+                             "(for example ['8.0', '7.5']). Got %s" % cfg_cuda_cc)
+    return check_cuda_compute_capabilities(cfg_cuda_cc, ec_cuda_cc, cuda=self.cuda)

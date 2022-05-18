@@ -30,6 +30,7 @@ dependencies = [
     ('libcerf', '1.17'),
     ('X11', '20210802'),
     ('Qt5', '5.15.2'),
+    ('libreadline', '8.1'),
 ]
 
 preconfigopts = 'autoreconf && '

@@ -56,6 +56,11 @@ VETOED_INSTALLATIONS = {
         'BullMPI', 'BullMPI-settings',
         'pscom'
     ],
+    'jureca_mi200': [
+        'CUDA', 'nvidia-driver',
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings'
+    ],
     'jusuf': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
     'hdfml': ['BullMPI', 'BullMPI-settings'],
     'deep': ['BullMPI', 'BullMPI-settings'],
@@ -238,6 +243,8 @@ def parse_hook(ec, *args, **kwargs):
 
     ec = tweak_moduleclass(ec)
 
+    ec = tweak_module_conflict_side_compilers(ec)
+
     # If we are parsing we are not searching, in this case if the easyconfig is
     # located in the search path, warn that it's dependencies will (most probably)
     # not be resolved
@@ -293,6 +300,22 @@ def tweak_dependencies(ec):
 def tweak_moduleclass(ec):
     if ec['name'] in SIDECOMPILERS:
         ec['moduleclass'] = 'sidecompiler'
+
+    return ec
+
+
+def tweak_module_conflict_side_compilers(ec):
+    ec_dict = ec.asdict()
+    if ec['name'] in SIDECOMPILERS:
+        key = "modluafooter"
+        value = 'conflict(%s)' % ','.join('"'+x+'"' for x in SIDECOMPILERS)
+        if key in ec_dict:
+            if not value in ec_dict[key]:
+                ec[key] = "\n".join([ec_dict[key], value])
+        else:
+            ec[key] = value
+        ec.log.info(
+            "[parse hook] Injecting Lmod conflict property for SIDECOMPILERS")
 
     return ec
 
@@ -387,8 +410,15 @@ def inject_ucx_tweaks(ec):
     if ec.name in 'UCX' and install_path().lower().startswith('/p/software'):
         key = "modluafooter"
         value = '''
-if not ( isloaded("UCX-settings") ) then
-    load("UCX-settings")
+-- This weird construct is to prevent lmod from loading the default settings when reloading/swapping UCX
+-- Unfortunately we can't do better (like preserving the UCX transport for CUDA, since the loaded
+-- UCX-settings module is lost during the reload
+if mode()=="load" then
+    if isloaded("mpi-settings/CUDA") then
+        try_load("UCX-settings/RC-CUDA")
+    else
+        try_load("UCX-settings")
+    end
 end
         '''
         if key in ec_dict:

@@ -37,14 +37,14 @@ if lmod_systemname == "jurecabooster" then
     systemname = lmod_systemname
 end
 
--- Also check that $HOME/easybuild and $PROJECT/easybuild do not exist, so user installations
+-- Also check that $HOME/easybuild and $USERINSTALLATIONS/easybuild do not exist, so user installations
 -- do not interfere with system-wide installations
 if mode()=="load" then
     local user_install_error_msg =  " exists! It might contain user installed software that could\n"..
                                     "interfere with the system wide installation. Please remove this directory "..
                                     "(temporarily if necessary, while you\nperform system-wide installations) and retry."
-    if isDir(pathJoin(os.getenv("PROJECT") or "PROJECT_NOT_DEFINED", pathJoin("easybuild", systemname))) then
-        LmodError(yellow.."$PROJECT/easybuild/"..systemname..user_install_error_msg..normal)
+    if isDir(pathJoin(os.getenv("USERINSTALLATIONS") or "USERINSTALLATIONS_NOT_DEFINED", pathJoin("easybuild", systemname))) then
+        LmodError(yellow.."$USERINSTALLATIONS/easybuild/"..systemname..user_install_error_msg..normal)
     end
     if isDir(pathJoin(os.getenv("HOME") or "HOME_NOT_DEFINED", pathJoin("easybuild", systemname))) then
         LmodError(yellow.."$HOME/easybuild/"..systemname..user_install_error_msg..normal)
@@ -317,7 +317,7 @@ setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 
 -- Enable user installations
 setenv("EASYBUILD_SUBDIR_USER_MODULES", pathJoin("easybuild", systemname, "modules"))
-setenv("EASYBUILD_ENVVARS_USER_MODULES", "PROJECT,HOME")
+setenv("EASYBUILD_ENVVARS_USER_MODULES", "USERINSTALLATIONS,HOME")
 
 -- Filter for test reports
 setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", ".*PS1.*|PROMPT.*|.*LICENSE.*|.*PROJECT.*|.*DATA.*|.*FASTDATA.*|.*SCRATCH.*|.*IMESCRATCH.*|.*HOME.*|.*ARCHIVE.*|.*LOGNAME.*|^SSH|USER|HOSTNAME|UID|.*COOKIE.*")
@@ -364,15 +364,23 @@ if mode()=="load" then
     -- Sanitize input
     shell = string.gsub(shell, "\n", "")
     if shell == "bash" then
-        LmodMessage("  - Enabling bash tab completion for EasyBuild")
-        -- Enable EasyBuild autocomplete
+        LmodMessage("  - Enabling bash tab completion for EasyBuild and EasyConfigs")
+        local bash_completion_cmd = "source $EBROOTEASYBUILD/bin/minimal_bash_completion.bash;\nsource $EBROOTEASYBUILD/bin/optcomplete.bash;\n"
+        if os.getenv("JSC_EASYCONFIG_AUTOCOMPLETE") then
+            LmodMessage("    (You can disable easyconfig autocomplete from robot ")
+            LmodMessage("     search path by unsetting JSC_EASYCONFIG_AUTOCOMPLETE)")
+            -- Enable EasyBuild optcomplete and EasyConfig autocomplete
+            bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion.bash;\n"
+        else
+            LmodMessage("    (You can enable easyconfig autocomplete from robot ")
+            LmodMessage("     search path in addition by setting JSC_EASYCONFIG_AUTOCOMPLETE)")
+            -- Enable EasyBuild optcomplete autocomplete
+            bash_completion_cmd = bash_completion_cmd.."source /path/to/easybuild/custom/files/2022/bin/eb_bash_completion_local.bash;\n"
+--             bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion_local.bash;\n"
+        end
+        bash_completion_cmd = bash_completion_cmd.."complete -F _eb eb"
         execute{
-            cmd=[[
-                source $EBROOTEASYBUILD/bin/minimal_bash_completion.bash;
-                source $EBROOTEASYBUILD/bin/optcomplete.bash;
-                source $EBROOTEASYBUILD/bin/eb_bash_completion.bash;
-                complete -F _eb eb
-            ]],
+            cmd=bash_completion_cmd,
             modeA={"load"}
         }
     end

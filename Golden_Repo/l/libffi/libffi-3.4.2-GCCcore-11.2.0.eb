@@ -20,6 +20,9 @@ builddependencies = [
     ('binutils', '2.37'),
 ]
 
+# work-around for https://github.com/libffi/libffi/pull/647
+configopts = '--disable-exec-static-tramp '
+
 sanity_check_paths = {
     'files': ['lib/libffi.a', 'lib/libffi.%s' % SHLIB_EXT],
     'dirs': ['include', 'share'],

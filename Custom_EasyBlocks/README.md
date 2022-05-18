@@ -35,6 +35,12 @@ Overview of the custom EasyBlocks.
 - __*needed because*__ https://github.com/easybuilders/easybuild-easyblocks/pull/2593
 - __*can not be removed*__ Once the PR is merged upstream. Likely with v4.5.0
 
+## numexpr
+
+- __*added by*__ s.achilles
+- __*needed because*__ https://github.com/easybuilders/easybuild-easyblocks/pull/2678
+- __*can not be removed*__ until the PR is merged upstream. Likely with v4.5.4
+
 ## NVIDIA_DRIVER
 
 - __*added by*__ d.alvarez
@@ -90,3 +96,10 @@ Overview of the custom EasyBlocks.
 - __*needed because*__ to autodetect CUDA and support CUDA compute capabilities
 - __*difference compared to upstream*__ upstream doesn't have such a feature
 - __*can not be removed*__ until merged upstream (https://github.com/easybuilders/easybuild-easyblocks/pull/2673)
+
+## CP2K
+- __*added_by*__ th.mueller
+- __*needed because*__  support for libvori; alternative versions of dbcsr; contains loads of widely obsolete stuff; is  essentially a highly non-portable easyblock working only with intel and gnu (which I am not going to change!); running the tests will not work within an eb environment - at least not sensibly. 
+- __*difference compared to upstream*__ no support for libvori 
+- __*can not be removed*__
+

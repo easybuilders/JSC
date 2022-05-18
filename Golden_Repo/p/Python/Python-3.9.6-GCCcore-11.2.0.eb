@@ -728,11 +728,6 @@ postinstallcmds = [
 
 buildopts = "PROFILE_TASK='-m test --pgo -x test_socket'"
 
-# Needed so stuff here is picked up in virtual environments (like in the Jupyter easyconfig)
-modextrapaths = {
-    'PYTHONPATH': 'lib/python%s/site-packages' % ".".join(version.split(".")[:-1])
-}
-
 modextravars = {
     'PIP_CONFIG_FILE': '%(installdir)s/etc/pip.conf'
 }

@@ -34,15 +34,23 @@ if mode()=="load" then
     -- Sanitize input
     shell = string.gsub(shell, "\n", "")
     if shell == "bash" then
-        LmodMessage("  - Enabling bash tab completion for EasyBuild")
-        -- Enable EasyBuild autocomplete
+        LmodMessage("  - Enabling bash tab completion for EasyBuild and EasyConfigs")
+        local bash_completion_cmd = "source $EBROOTEASYBUILD/bin/minimal_bash_completion.bash;\nsource $EBROOTEASYBUILD/bin/optcomplete.bash;\n"
+        if os.getenv("JSC_EASYCONFIG_AUTOCOMPLETE") then
+            LmodMessage("    (You can disable easyconfig autocomplete from robot ")
+            LmodMessage("     search path by unsetting JSC_EASYCONFIG_AUTOCOMPLETE)")
+            -- Enable EasyBuild optcomplete and EasyConfig autocomplete
+            bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion.bash;\n"
+        else
+            LmodMessage("    (You can enable easyconfig autocomplete from robot ")
+            LmodMessage("     search path in addition by setting JSC_EASYCONFIG_AUTOCOMPLETE)")
+            -- Enable EasyBuild optcomplete autocomplete
+            bash_completion_cmd = bash_completion_cmd.."source /p/fastdata/zam/swmanage/EasyBuild/2022/bin/eb_bash_completion_local.bash;\n"
+--             bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion_local.bash;\n"
+        end
+        bash_completion_cmd = bash_completion_cmd.."complete -F _eb eb"
         execute{
-            cmd=[[
-                source $EBROOTEASYBUILD/bin/minimal_bash_completion.bash;
-                source $EBROOTEASYBUILD/bin/optcomplete.bash;
-                source $EBROOTEASYBUILD/bin/eb_bash_completion.bash;
-                complete -F _eb eb
-            ]],
+            cmd=bash_completion_cmd,
             modeA={"load"}
         }
     end
@@ -113,13 +121,13 @@ local home_eb = pathJoin(os.getenv("HOME"), subdir_user_modules)
 local project_eb = nil
 local install_eb = home_eb
 local home_install_eb = true
-if os.getenv("PROJECT") then
-    project_eb = pathJoin(os.getenv("PROJECT"), subdir_user_modules)
+if os.getenv("USERINSTALLATIONS") then
+    project_eb = pathJoin(os.getenv("USERINSTALLATIONS"), subdir_user_modules)
     if not os.getenv("PREFER_USER") then
         install_eb = project_eb
         home_install_eb = false
         if mode()=="load" then
-            LmodMessage(yellow.."\nFound $PROJECT in the environment, using that for installation. To override this and do \n"..
+            LmodMessage(yellow.."\nFound $USERINSTALLATIONS in the environment, using that for installation. To override this and do \n"..
                         "a personal installation set the environment variable PREFER_USER=1 and reload this module.\n"..normal)
         end
     end
@@ -133,7 +141,7 @@ if mode()=="load" and home_install_eb then
 
     else
         LmodMessage(yellow.."\nPerforming a personal installation. To do a project wide installation, \n"..
-                   "set the $PROJECT environment variable (for example via jutil).\n"..normal)
+                   "set the $USERINSTALLATIONS environment variable (for example via jutil).\n"..normal)
     end
 end
 
@@ -223,7 +231,7 @@ if systemname == "jurecabooster" then
 -- JUWELS
 elseif systemname == "juwels" then
     optarch = "GCCcore:march=haswell -mtune=haswell"
-    cuda_compute = "6.0,7.0"
+    cuda_compute = "7.0,6.0"
 -- JUWELS booster
 elseif systemname == "juwelsbooster" then
     optarch = "Intel:march=core-avx2"
@@ -231,7 +239,7 @@ elseif systemname == "juwelsbooster" then
 -- JURECA-DC
 elseif systemname == "jurecadc" then
     optarch = "Intel:march=core-avx2"
-    cuda_compute = "7.5,8.0"
+    cuda_compute = "8.0,7.5"
 -- JUSUF
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"

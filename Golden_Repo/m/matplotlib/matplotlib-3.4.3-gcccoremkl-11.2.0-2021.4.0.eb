@@ -22,7 +22,7 @@ dependencies = [
     ('libpng', '1.6.37'),
     ('freetype', '2.11.0'),
     ('Tkinter', '%(pyver)s'),
-    ('Pillow-SIMD', '8.3.1'),
+    ('Pillow-SIMD', '9.0.1'),
     ('Qhull', '2020.2')
 ]
 

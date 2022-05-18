@@ -11,9 +11,11 @@ toolchain = {'name': 'gpsmkl', 'version': '2021b'}
 toolchainopts = {'pic': True, 'usempi': True}
 
 local_dwnlsfx_src = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=Sources&downloadFile='
-source_urls = [('http://www.paraview.org/paraview-downloads/%s' % local_dwnlsfx_src)]
+source_urls = [('http://www.paraview.org/paraview-downloads/%s' %
+                local_dwnlsfx_src)]
 sources = [("ParaView-v%(version)s.tar.gz")]
-checksums = [('sha256', '4273dd90c858a6440a72d9c1ad054e76f336446138c895148a797b486603afbd')]
+checksums = [
+    ('sha256', '4273dd90c858a6440a72d9c1ad054e76f336446138c895148a797b486603afbd')]
 
 builddependencies = [
     ('CMake', '3.21.1', '', SYSTEM),
@@ -48,8 +50,8 @@ dependencies = [
     ('Qt5', '5.15.2'),
     ('SciPy-Stack', '2021b', '', ('gcccoremkl', '11.2.0-2021.4.0')),
     ('OpenGL', '2021b'),
-    ('ParaViewData', '%(version)s', '', SYSTEM),
-    ('VTKData', '9.1.0', '', SYSTEM),
+    ('ParaViewData', '%(version)s'),
+    ('VTKData', '9.1.0'),
 ]
 
 separate_build_dir = True
@@ -91,7 +93,8 @@ configopts += "-DPython3_EXECUTABLE=$EBROOTPYTHON/bin/python "
 
 configopts += '-DVTK_PYTHON_VERSION=3 '
 configopts += '-DVTK_NO_PYTHON_THREADS=OFF '
-configopts += '-DVTK_PYTHON_FULL_THREADSAFE=OFF '  # visibility depends on VTK_NO_PYTHON_THREADS=OFF
+# visibility depends on VTK_NO_PYTHON_THREADS=OFF
+configopts += '-DVTK_PYTHON_FULL_THREADSAFE=OFF '
 # If you pass VTK_PYTHON_FULL_THREADSAFE to true, then each and every call to python will be protected with GIL,
 # ensuring that you can have eg. other python interpreter in your application and still use python wrapping in vtk.
 
@@ -135,11 +138,11 @@ configopts += '-DVTK_USE_64BIT_IDS=ON '
 #    If VTK_OPENGL_HAS_EGL or VTK_OPENGL_HAS_OSMESA is ON, the build supports headless rendering,
 #       otherwise VTK_USE_X must be ON and the build does not support headless,
 #       but can still support offscreen rendering.
-#    If VTK_USE_X is OFF, then either VTK_OPENGL_HAS_OSMESA or VTK_OPENGL_HAS_EGL must be ON. 
+#    If VTK_USE_X is OFF, then either VTK_OPENGL_HAS_OSMESA or VTK_OPENGL_HAS_EGL must be ON.
 #       Then the build does not support onscreen rendering, but only headless rendering.
 #    If PARAVIEW_BUILD_QT_GUI is ON and VTK_USE_X is ON, while ParaView command line tools won't link against
 #       or use X calls, Qt will and hence an accessible X server is still needed to run the desktop client.
-#    If VTK_OPENGL_HAS_OSMESA is ON, and VTK_USE_X is ON, 
+#    If VTK_OPENGL_HAS_OSMESA is ON, and VTK_USE_X is ON,
 #       then all the OpenGL and OSMesa variables should point to the Mesa libraries.
 #    Likewise, if VTK_OPENGL_HAS_EGL is ON and VTK_USE_X is ON, then all the OpenGL and EGL variables
 #       should point to the system libraries providing both, typically the NVidia libraries.
@@ -162,7 +165,8 @@ configopts += "-DOPENGL_egl_LIBRARY=${EBROOTOPENGL}/lib/libEGL.so.1 "
 configopts += '-DVTK_USE_X=ON '  # OFF:headless rendering
 # already considered by Qt (https://gitlab.kitware.com/lorensen/vtk/commit/b29f6db3f746d84f830c81e4212e48db192e4dbb)
 configopts += '-DVTK_DEFAULT_RENDER_WINDOW_OFFSCREEN=OFF '
-configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF '  # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+# http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF '
 
 # EGL (off-screen rendering with OpenGL, but without the need for X)
 # call pvserver with –egl-device-index=0 or 1 and –disable-xdisplay-test
@@ -228,9 +232,12 @@ configopts += '-DPARAVIEW_BUILD_VTK_TESTING=WANT '
 # https://cmake.org/cmake/help/latest/module/ExternalData.html
 # https://gitlab.kitware.com/vtk/vtk/blob/master/Documentation/dev/git/data.md
 configopts += '-DCTEST_TEST_TIMEOUT=10800 '
-configopts += '-DExternalData_TIMEOUT_INACTIVITY=10 '  # download inactivity, 0 = no timeout
-configopts += '-DExternalData_TIMEOUT_ABSOLUTE=60 '  # download abs. time, 0 = no timeout
-configopts += '-DPARAVIEW_DATA_EXCLUDE_FROM_ALL=ON '  # Exclude test data download from default 'all' target.
+# download inactivity, 0 = no timeout
+configopts += '-DExternalData_TIMEOUT_INACTIVITY=10 '
+# download abs. time, 0 = no timeout
+configopts += '-DExternalData_TIMEOUT_ABSOLUTE=60 '
+# Exclude test data download from default 'all' target.
+configopts += '-DPARAVIEW_DATA_EXCLUDE_FROM_ALL=ON '
 # Local directory holding ExternalData objects in the layout %(algo)/%(hash).
 configopts += '-DPARAVIEW_DATA_STORE=${EBROOTPARAVIEWDATA}/.ExternalData '
 configopts += '-DVTK_DATA_STORE=${EBROOTVTKDATA}/.ExternalData '
@@ -257,7 +264,8 @@ configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_doubleconversion=ON '
 configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_eigen=ON '
 
 # --- ParaView Extra-Reader --- #
-configopts += '-DPARAVIEW_PLUGIN_ENABLE_ParFlow=OFF '  # nlohmann-bug in Plugins/ParFlow/IO/vtkVectorJSON.h
+# nlohmann-bug in Plugins/ParFlow/IO/vtkVectorJSON.h
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_ParFlow=OFF '
 configopts += '-DPARAVIEW_ENABLE_MOTIONFX=ON '
 # configopts += '-DPARAVIEW_ENABLE_FIDES=ON '  # req. ADIOS2 as dependency
 # configopts += '-DPARAVIEW_ENABLE_GDAL=ON '  # req. GDAL as dependency
@@ -274,12 +282,13 @@ configopts += '-DVTK_MODULE_ENABLE_ParaView_IOVisItBridge=YES '
 # https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7503
 # configopts += '-DVISIT_BUILD_READER_Nek5000=ON '  # MR still open
 
-postinstallcmds = ['python -m compileall %(installdir)s/lib64/python3.6/site-packages/']
+postinstallcmds = [
+    'python -m compileall %(installdir)s/lib64/python3.6/site-packages/']
 #    'cp -a %(builddir)s/ParaView-v%(version)s/  %(installdir)s/src', # copy source from build dir to install dir
-#    '', # move debug info to separate files: 
+#    '', # move debug info to separate files:
 #          http://stackoverflow.com/questions/866721/how-to-generate-gcc-debug-symbol-outside-the-build-target
 #    '', # debugedit -i --base-dir=%(builddir)s/ParaView-v%(version)s --dest-dir= %(installdir)s/src <file.debug>
-#        # change path to source in debug info    
+#        # change path to source in debug info
 
 modextravars = {
     'CUDA_VISIBLE_DEVICES': '0,1',
@@ -296,7 +305,8 @@ modextravars = {
     #    https://github.com/ospray/ospcommon/blob/master/ospcommon/tasking/detail/tasking_system_init.cpp#L47
     #    https://www.threadingbuildingblocks.org/docs/doxygen/a00150.html
     #  more ospray definitions: https://www.ospray.org/documentation.html#environment-variables
-    'KNOB_MAX_WORKER_THREADS': '65535',  # max. threads used by OpenSWR (limited by number of hardware threads)
+    # max. threads used by OpenSWR (limited by number of hardware threads)
+    'KNOB_MAX_WORKER_THREADS': '65535',
     #  details in https://gitlab.version.fz-juelich.de/vis/vis-software/issues/14
     #  more knob defs: https://github.com/mesa3d/mesa/blob/master/src/gallium/docs/source/drivers/openswr/knobs.rst
 }

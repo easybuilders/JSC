@@ -1,0 +1,13 @@
+--- a/html5/js/Protocol.js.orig    2022-03-28 12:59:40.198667996 +0200
++++ b/html5/js/Protocol.js 2022-03-28 13:02:38.099943598 +0200
+@@ -631,6 +631,10 @@
+ 		throw "unsupported encryption specified: '"+cipher+"'";
+ 	}
+ 	const key_salt = caps["cipher.key_salt"];
++	let key_salt = caps["cipher.key_salt"];
++	if (typeof key_salt !== 'string') {
++		key_salt = String.fromCharCode.apply(null, key_salt);
++	}
+ 	const iterations = caps["cipher.key_stretch_iterations"];
+ 	if (iterations<0) {
+ 		throw "invalid number of iterations: "+iterations;

@@ -1,0 +1,56 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterExtension-nvdashboard'
+version = '0.6.0'
+local_jupyterver = '2022.3.3'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/rapidsai/jupyterlab-nvdashboard'
+description = """
+A JupyterLab extension for displaying GPU usage dashboards
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('Jupyter', local_jupyterver),
+    # NVIDIA Management Library is on our clusters located at system level
+]
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check':  True,
+    'filter': ('python -c "import %(ext_name)s"', ''),
+}
+
+exts_list = [
+    ('jupyterlab_nvdashboard', '0.6.0', {
+        'checksums': ['0522834b7160046140542bf6abaeecf8527e3ebd82f89730ca5d87890807e1fd'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_EXTRA_LABEXTENSIONS_PATH': ['share/jupyter/labextensions'],
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': [
+        'share/jupyter/labextensions',
+        'lib/python%(pyshortver)s/site-packages'
+    ],
+}
+
+moduleclass = 'tools'

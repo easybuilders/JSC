@@ -1,0 +1,12 @@
+diff -Naur nbdev-1.2.5.orig/settings.ini nbdev-1.2.5/settings.ini
+--- nbdev-1.2.5.orig/settings.ini	2022-03-31 05:48:42.000000000 +0200
++++ nbdev-1.2.5/settings.ini	2022-04-08 22:11:30.666026608 +0200
+@@ -15,7 +15,7 @@
+ min_python = 3.7
+ audience = Developers
+ language = English
+-requirements = fastcore>=1.4.1 nbformat>=4.4.0 nbconvert>=6.1 pyyaml jupyter jupyter_client<8 ipykernel ghapi fastrelease Jinja2<3.1.0
++requirements = fastcore>=1.4.1 nbformat>=4.4.0 nbconvert>=6.1 pyyaml notebook jupyter-console nbconvert ipykernel ipywidgets jupyter_client<8 ipykernel ghapi fastrelease Jinja2<3.1.0
+ console_scripts = nbdev_build_lib=nbdev.export2html:nbdev_build_lib
+ 	nbdev_update_lib=nbdev.sync:nbdev_update_lib
+ 	nbdev_diff_nbs=nbdev.sync:nbdev_diff_nbs

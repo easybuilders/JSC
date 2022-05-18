@@ -1,0 +1,97 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-Bash'
+version = '0.7.2'
+local_jupyterver = '2022.3.3'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/takluyver/bash_kernel'
+description = """
+Native Bash kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('Jupyter', local_jupyterver),
+]
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'filter': ('python -c "import %(ext_name)s"', ''),
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('bash_kernel', '0.7.2', {
+        'checksums': ['a08c84eddd8179de5234105821fd5cc210015671a0bd3cd0bc4f631c475e1670'],
+    }),
+]
+
+local_jupyter_path = 'share/jupyter'
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # Create virtual environment to ensure we install in the correct directory !!!
+    'python3 -m venv %(installdir)s --system-site-packages',
+    (
+        '{ cat > %%(builddir)s/env.sh; } << \'EOF\'\n'
+        '#!/bin/bash\n'
+        'source %%(installdir)s/bin/activate\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:${PYTHONPATH}\n'
+        'export JUPYTER_DATA_DIR=%%(installdir)s/%s\n'
+        'EOF'
+    ) % (local_jupyter_path),
+
+    # Jupyter Kernel: Bash - https://github.com/takluyver/bash_kernel
+    # installs bash_kernel in $JUPYTER_DATA_DIR/kernels
+    'source %(builddir)s/env.sh && ${EBROOTPYTHON}/bin/python3 -m bash_kernel.install --user',
+    'source %(builddir)s/env.sh && chmod -R o+x %(installdir)s/share',
+
+    # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+    'rm -f %(installdir)s/pyvenv.cfg',
+    'rm -rf %(installdir)s/bin',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/_distutils_hack',
+    'rm -f %(installdir)s/lib/python%(pyshortver)s/site-packages/distutils-precedence.pth',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip-*',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pkg_resources',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
+]
+
+# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+# full_sanity_check = True
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/bash/kernel.json',
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages',
+        'share/jupyter/kernels/bash/',
+    ],
+}
+
+moduleclass = 'tools'

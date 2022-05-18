@@ -1,0 +1,188 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'VTK'
+version = '9.1.0'
+versionsuffix = '-nompi'
+
+homepage = 'http://www.vtk.org'
+description = """The Visualization Toolkit (VTK) is an open-source, freely available software system for
+ 3D computer graphics, image processing and visualization. VTK consists of a C++ class library and several
+ interpreted interface layers including Tcl/Tk, Java, and Python. VTK supports a wide variety of visualization
+ algorithms including: scalar, vector, tensor, texture, and volumetric methods; and advanced modeling techniques
+ such as: implicit modeling, polygon reduction, mesh smoothing, cutting, contouring, and Delaunay triangulation."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://www.vtk.org/files/release/%(version_major_minor)s']
+sources = [
+    SOURCE_TAR_GZ,
+    '%(name)sData-%(version)s.tar.gz',
+]
+patches = [('vtk-version.egg-info', '.')]
+checksums = [
+    '8fed42f4f8f1eb8083107b68eaa9ad71da07110161a3116ad807f43e5ca5ce96',  # VTK-9.1.0.tar.gz
+    'b9442cf1c30e1e44502e6dc36d3c6c2dc3d3f7d03306ee1d10737e9abadaa85d',  # VTKData-9.1.0.tar.gz
+    '787b82415ae7a4a1f815b4db0e25f7abc809a05fc85d7d219627f3a7e5d3867b',  # vtk-version.egg-info
+]
+
+builddependencies = [
+    ('CMake', '3.21.1', '', SYSTEM),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('HDF5', '1.12.1', '-serial'),
+    ('SciPy-Stack', '2021b', '', ('gcccoremkl', '11.2.0-2021.4.0')),
+    # ('libxc', '5.1.7'),  # not in GCCcore toolchain
+    ('netCDF', '4.8.1', '-serial'),
+    ('X11', '20210802'),
+    ('OpenGL', '2021b'),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_INSTALL_LIBDIR=lib "
+
+configopts += "-DVTK_USE_SYSTEM_MPI4PY=OFF "
+configopts += "-DVTK_USE_SYSTEM_LZMA=ON "
+configopts += "-DVTK_USE_SYSTEM_HDF5=ON "
+configopts += "-DVTK_USE_SYSTEM_NETCDF=ON "
+
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBUILD_TESTING=OFF "
+
+configopts += "-DVTK_USE_MPI=OFF "
+configopts += "-DVTK_SMP_IMPLEMENTATION_TYPE=OPENMP "
+configopts += "-DVTK_Group_MPI:BOOL=OFF "
+configopts += "-DVTK_Group_Web:BOOL=ON "
+
+configopts += '-DOpenGL_GL_PREFERENCE=GLVND '  # "GLVND" or "LEGACY"
+configopts += "-DOPENGL_EGL_INCLUDE_DIR=$EBROOTOPENGL/include "
+configopts += "-DOPENGL_GLX_INCLUDE_DIR=$EBROOTOPENGL/include "
+configopts += "-DOPENGL_INCLUDE_DIR=$EBROOTOPENGL/include "
+configopts += "-DOPENGL_egl_LIBRARY=$EBROOTOPENGL/lib/libEGL.so.1 "
+configopts += "-DOPENGL_glx_LIBRARY=$EBROOTOPENGL/lib/libGLX.so.0 "
+configopts += "-DOPENGL_opengl_LIBRARY=$EBROOTOPENGL/lib/libOpenGL.so.0 "
+configopts += "-DOPENGL_glu_LIBRARY=$EBROOTOPENGL/lib/libGLU.so "
+
+configopts += "-DVTK_WRAP_PYTHON=ON "
+configopts += "-DVTK_PYTHON_OPTIONAL_LINK=OFF "
+configopts += "-DPYTHON_EXECUTABLE:PATH=$EBROOTPYTHON/bin/python%(pyshortver)s "
+configopts += "-DPYTHON_INCLUDE_DIR:PATH=$EBROOTPYTHON/include/python%(pyshortver)s "
+configopts += "-DPYTHON_LIBRARY:PATH=$EBROOTPYTHON/lib/libpython%%(pyshortver)s.%s " % SHLIB_EXT
+
+configopts += "-DHDF5_INCLUDE_DIRS=$EBROOTHDF5/include "
+
+configopts += "-DModule_vtkAcceleratorsVTKm:BOOL=ON "
+# configopts += "-DModule_vtkDomainsMicroscopy:BOOL=OFF "
+# configopts += "-DModule_vtkDomainsParallelChemistry:BOOL=OFF "
+# configopts += "-DModule_vtkFiltersOpenTurns:BOOL=OFF "
+# configopts += "-DModule_vtkFiltersParallelDIY2:BOOL=OFF "
+# configopts += "-DModule_vtkFiltersParallelFlowPaths:BOOL=OFF "
+configopts += "-DModule_vtkFiltersParallelGeometry:BOOL=ON "
+configopts += "-DModule_vtkFiltersParallelMPI:BOOL=OFF "
+configopts += "-DModule_vtkFiltersParallelStatistics:BOOL=ON "
+# configopts += "-DModule_vtkFiltersParallelVerdict:BOOL=OFF "
+# configopts += "-DModule_vtkFiltersReebGraph:BOOL=OFF "
+# configopts += "-DModule_vtkGUISupportQt:BOOL=OFF "
+# configopts += "-DModule_vtkGUISupportQtOpenGL:BOOL=OFF "
+# configopts += "-DModule_vtkGUISupportQtSQL:BOOL=OFF "
+# configopts += "-DModule_vtkGUISupportQtWebkit:BOOL=OFF "
+# configopts += "-DModule_vtkGeovisGDAL:BOOL=OFF "
+# configopts += "-DModule_vtkIOADIOS:BOOL=OFF "
+# configopts += "-DModule_vtkIOFFMPEG:BOOL=OFF "
+# configopts += "-DModule_vtkIOGDAL:BOOL=OFF "
+# configopts += "-DModule_vtkIOGeoJSON:BOOL=OFF "
+# configopts += "-DModule_vtkIOLAS:BOOL=OFF "
+# configopts += "-DModule_vtkIOMPIImage:BOOL=ON "
+# configopts += "-DModule_vtkIOMPIParallel:BOOL=ON "
+# configopts += "-DModule_vtkIOMotionFX:BOOL=OFF "
+# configopts += "-DModule_vtkIOMySQL:BOOL=OFF "
+# configopts += "-DModule_vtkIOODBC:BOOL=OFF "
+# configopts += "-DModule_vtkIOPDAL:BOOL=OFF "
+# configopts += "-DModule_vtkIOParallelExodus:BOOL=OFF "
+# configopts += "-DModule_vtkIOParallelLSDyna:BOOL=OFF "
+# configopts += "-DModule_vtkIOParallelNetCDF:BOOL=OFF "
+# configopts += "-DModule_vtkIOParallelXdmf3:BOOL=OFF "
+# configopts += "-DModule_vtkIOPostgreSQL:BOOL=OFF "
+# configopts += "-DModule_vtkIOTRUCHAS:BOOL=OFF "
+# configopts += "-DModule_vtkIOVPIC:BOOL=OFF "
+# configopts += "-DModule_vtkIOXdmf2:BOOL=OFF "
+# configopts += "-DModule_vtkIOXdmf3:BOOL=OFF "
+# configopts += "-DModule_vtkImagingOpenGL2:BOOL=OFF "
+# configopts += "-DModule_vtkInfovisBoost:BOOL=OFF "
+# configopts += "-DModule_vtkInfovisBoostGraphAlg:BOOL=OFF
+configopts += "-DModule_vtkParallelMPI:BOOL=OFF "
+configopts += "-DModule_vtkPython:BOOL=ON "
+# configopts += "-DModule_vtkPythonInterpreter:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingExternal:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingFreeTypeFontConfig:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingLICOpenGL2:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingMatplotlib:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingOSPRay:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingOpenVR:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingOptiX:BOOL=OFF "
+configopts += "-DModule_vtkRenderingParallel:BOOL=ON "
+configopts += "-DModule_vtkRenderingParallelLIC:BOOL=ON "
+# configopts += "-DModule_vtkRenderingQt:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingSceneGraph:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingTk:BOOL=OFF "
+# configopts += "-DModule_vtkRenderingVolumeAMR:BOOL=OFF "
+# configopts += "-DModule_vtkTclTk:BOOL=OFF "
+# configopts += "-DModule_vtkTestingCore:BOOL=OFF "
+# configopts += "-DModule_vtkTestingGenericBridge:BOOL=OFF "
+# configopts += "-DModule_vtkTestingIOSQL:BOOL=OFF "
+# configopts += "-DModule_vtkTestingRendering:BOOL=OFF "
+# configopts += "-DModule_vtkUtilitiesBenchmarks:BOOL=OFF "
+# configopts += "-DModule_vtkUtilitiesEncodeString:BOOL=OFF "
+# configopts += "-DModule_vtkVPIC:BOOL=OFF "
+configopts += "-DModule_vtkVTKm:BOOL=ON "
+# configopts += "-DModule_vtkViewsGeovis:BOOL=OFF "
+# configopts += "-DModule_vtkViewsQt:BOOL=OFF "
+# configopts += "-DModule_vtkWebCore:BOOL=OFF "
+# configopts += "-DModule_vtkWebGLExporter:BOOL=OFF "
+# configopts += "-DModule_vtkWebPython:BOOL=OFF "
+# configopts += "-DModule_vtkWrappingJava:BOOL=OFF "
+# configopts += "-DModule_vtkWrappingPythonCore:BOOL=OFF "
+# configopts += "-DModule_vtkWrappingTools:BOOL=OFF "
+# configopts += "-DModule_vtkdiy2:BOOL=OFF "
+# configopts += "-DModule_vtkkissfft:BOOL=OFF "
+configopts += "-DModule_vtkmpi4py:BOOL=OFF "
+# configopts += "-DModule_vtkpegtl:BOOL=OFF "
+# configopts += "-DModule_vtkxdmf2:BOOL=OFF "
+# configopts += "-DModule_vtkxdmf3:BOOL=OFF "
+# configopts += "-DModule_vtkzfp:BOOL=OFF "
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+# Install a egg-info file so VTK is more python friendly, required for mayavi
+local_egg_info_src = '%(builddir)s/VTK-%(version)s/vtk-version.egg-info'
+local_egg_info_dest = '%(installdir)s/lib/python%(pyshortver)s/site-packages/vtk-%(version)s.egg-info'
+postinstallcmds = [
+    'sed "s/#VTK_VERSION#/%%(version)s/" %s > %s' % (local_egg_info_src, local_egg_info_dest),
+]
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+local_vtk_exec = ['vtk%s-%%(version_major_minor)s' % x
+                  for x in ['WrapJava', 'ParseJava', 'WrapPythonInit', 'WrapPython', 'WrapHierarchy']]
+local_vtk_exec += ['vtkpython']
+local_vtk_libs = ['CommonCore', 'IONetCDF', 'ParallelCore', 'RenderingOpenGL2']
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in local_vtk_exec] +
+             ['lib/libvtk%s-%%(version_major_minor)s.%s' % (l, SHLIB_EXT) for l in local_vtk_libs],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'include/vtk-%(version_major_minor)s'],
+}
+
+sanity_check_commands = [
+    "python -c 'import %(namelower)s'",
+    "python -c 'import pkg_resources; pkg_resources.get_distribution(\"vtk\")'",
+    # make sure that VTK Python libraries link to libpython (controlled via DVTK_PYTHON_OPTIONAL_LINK=OFF),
+    # see https://gitlab.kitware.com/vtk/vtk/-/issues/17881
+    "ldd $EBROOTVTK/lib/libvtkPythonContext2D-%%(version_major_minor)s.%s | grep /libpython" % SHLIB_EXT,
+]
+
+moduleclass = 'vis'

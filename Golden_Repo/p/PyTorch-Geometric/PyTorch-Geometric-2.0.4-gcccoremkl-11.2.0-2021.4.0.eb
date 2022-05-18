@@ -1,0 +1,125 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyTorch-Geometric'
+version = '2.0.4'
+local_pytorch_ver = '1.11'
+
+homepage = 'https://github.com/rusty1s/pytorch_geometric'
+description = "PyTorch Geometric (PyG) is a geometric deep learning extension library for PyTorch."
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+
+local_pysuff = '-Python-%(pyver)s'
+dependencies = [
+    ('Python', '3.9.6'),
+    ('CUDA', '11.5', '', SYSTEM),
+    ('PyTorch', '1.11', '-CUDA-%(cudaver)s', ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('SciPy-bundle', '2021.10'),
+    ('numba', '0.55.1'),
+    ('h5py', '3.5.0', '-serial'),
+    ('matplotlib', '3.4.3'),
+    ('scikit-learn', '1.0.1'),
+    ('scikit-image', '0.18.3'),
+    ('trimesh', '3.9.36'),
+    ('METIS', '5.1.0', '-IDX64'),
+    ('RDFlib', '6.0.2'),
+    ('ASE', '3.22.0', '-nompi'),
+    ('YACS', '0.1.8'),
+    ('tqdm', '4.62.3'),
+    ('torchvision', '0.12.0', '-CUDA-%(cudaver)s', ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('YACS', '0.1.8'),
+    ('Java', '15', '', True),  # for HDFML
+    # PyTorch-Lightning needs Tensorboard
+    ('TensorFlow', '2.6.0', '-CUDA-%(cudaver)s', ('gcccoremkl', '11.2.0-2021.4.0'))
+]
+
+use_pip = True
+
+exts_list = [
+    ('pyDeprecate', '0.3.2', {
+        'modulename': 'deprecate',
+        'checksums': ['d481116cc5d7f6c473e7c4be820efdd9b90a16b594b350276e9e66a6cb5bdd29'],
+    }),
+    ('calmsize', '0.1.3', {
+        'checksums': ['e1f1233228ae6b7fafc8c23e52129c7ca58fee6bcf7875ae152eee5123ba122d'],
+    }),
+    ('calmsize', '0.1.3', {
+        'checksums': ['e1f1233228ae6b7fafc8c23e52129c7ca58fee6bcf7875ae152eee5123ba122d'],
+    }),
+    ('antlr4-python3-runtime', '4.8', {
+        'modulename': 'antlr4',
+        'checksums': ['15793f5d0512a372b4e7d2284058ad32ce7dd27126b105fb0b2245130445db33'],
+    }),
+    ('omegaconf', '2.1.2', {
+        'checksums': ['35b347cda95e8ced224179a7059c216b1f38f363812847bd6c856be76936151d'],
+    }),
+    ('typing_extensions', '4.2.0', {
+        'modulename': 'typing_extensions',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708'],
+    }),
+    ('captum', '0.5.0', {
+        'checksums': ['84af2c8793d34c440a351793b5ca705b8542745e2dc8bc24afb1d9b86f3bf6ec'],
+    }),
+    ('pytorch_memlab', '0.2.4', {
+        'modulename': 'pytorch_memlab',
+        'checksums': ['bd3395c7e122441732de492bb92e5f805086da05f8bcb45a7c5967234db8e812'],
+    }),
+    ('torchmetrics', '0.8.0', {
+        'checksums': ['8516aa79edb8475504f37c6239b1176a5b1d93cf2249d961caccd1a240808208'],
+    }),
+    ('Jinja2', '3.1.1', {
+        'checksums': ['640bed4bb501cbd17194b3cace1dc2126f5b619cf068a726b98192a0fde74ae9'],
+    }),
+    ('hydra-core', '1.1.2', {
+        'modulename': 'hydra',
+        'source_urls': ['https://github.com/facebookresearch/hydra/archive/refs/tags/'],
+        'sources': ['v%(version)s.tar.gz'],
+        'checksums': ['e8d07826e5da25c26b4a1a701817bf7afaa5375a90a4cb229c111d128de56961'],
+    }),
+    ('pytorch-lightning', '1.6.1', {
+        'checksums': ['280b9c7f84f9a6b6d2efb91c7b3caad50031e318d37cfe052f3047faf1f0a2de'],
+    }),
+    ('googledrivedownloader', '0.4', {
+        'modulename': 'google_drive_downloader',
+        'checksums': ['4b34c1337b2ff3bf2bd7581818efbdcaea7d50ffd484ccf80809688f5ca0e204'],
+    }),
+    ('plyfile', '0.7.4', {
+        'checksums': ['9e9a18d22a3158fcd74df38761d43a7facc6df75126f2ab9f4e9a5d4d2188652'],
+    }),
+    ('torch_scatter', '2.0.9', {
+        'checksums': ['08f5511d64473badf0a71d156b36dc2b09b9c2f00a7cd373b935b490c477a7f1'],
+    }),
+    ('torch_sparse', '0.6.13', {
+        'checksums': ['b4896822559f9b47d8b0186d74c94b7449f91db155a57d617fbeae9b722fa1f3'],
+    }),
+    ('torch_cluster', '1.6.0', {
+        'checksums': ['249c1bd8c33a887b22bf569a59d0868545804032123594dd8c76ba1885859c39'],
+    }),
+    ('torch_spline_conv', '1.2.1', {
+        'checksums': ['364f658e0ecb4c5263a728c2961553e022fc44c11a633d5a1bf986cf169ab438'],
+    }),
+    ('python-louvain', '0.16', {
+        'modulename': 'community.community_louvain',
+        'checksums': ['b7ba2df5002fd28d3ee789a49532baad11fe648e4f2117cf0798e7520a1da56b'],
+    }),
+    ('torch_geometric', version, {
+        'checksums': ['d64e4c7486fcf0c7fa82f0acbf5dd52035855469708bf89f8bc7fc607671c8b7'],
+    }),
+]
+
+preinstallopts = 'export TORCH_CUDA_ARCH_LIST="%(cuda_cc_semicolon_sep)s" ; '
+preinstallopts += 'export WITH_METIS=1; '
+preinstallopts += 'export FORCE_CUDA=1; '
+preinstallopts += 'export CUDA_HOME=$EBROOTCUDA; '
+preinstallopts += 'export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH; '
+preinstallopts += 'export PATH=$CUDA_HOME/bin:$PATH; '
+
+sanity_check_commands = [
+    "python -c 'import torch_sparse'",
+]
+
+sanity_pip_check = True
+
+moduleclass = 'lib'

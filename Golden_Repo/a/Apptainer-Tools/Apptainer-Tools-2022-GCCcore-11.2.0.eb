@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+name = 'Apptainer-Tools'
+version = '2022'
+
+homepage = 'https://gitlab.version.fz-juelich.de/hps-public/container-build-system-cli'
+description = """Apptainer-Tools contain a bunch of tools for Apptainer,
+ e.g. the JSC Build System CLI or singularity-compose.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+builddependencies = [('binutils', '2.37')]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('pretty-yaml', '20.4.0')
+]
+
+use_pip = True
+
+exts_list = [
+    ('semver', '2.13.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/semver'],
+        'checksums': ['fa0fe2722ee1c3f57eac478820c3a5ae2f624af8264cbdf9000c980ff7f75e3f'],
+    }),
+    ('spython', '0.1.17', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/spython'],
+        'checksums': ['00991fa848c6787ffbb7dfa6efc67cc80cb5214b5faf7124515c92f4bb02de3e'],
+    }),
+    ('singularity-compose', '0.1.14', {
+        'modulename': 'scompose',
+        'source_urls': ['https://pypi.python.org/packages/source/p/singularity-compose'],
+        'checksums': ['00351fcf6b566afab77c1340be714c28383461d3af2a5586e1f0fb89b00e39a0'],
+    }),
+    ('tabulate', '0.8.9', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/tabulate'],
+        'checksums': ['eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7'],
+    }),
+    ('sib', '0.1.1', {
+        'modulename': 'singularitydb_client',
+        'sources': ['container-build-system-cli-v%(version)s.tar.gz'],
+        'checksums': ['ac008ec07b886470e916a590b965624d89e8206b491aaef697b8a425f3718dd6'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'tools'

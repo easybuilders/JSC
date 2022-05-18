@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ceres-solver'
+version = '2.0.0'
+
+homepage = 'http://ceres-solver.org'
+description = """
+Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['http://ceres-solver.org/']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = ['10298a1d75ca884aa0507d1abb0e0f04800a92871cd400d4c361b56a777a7603']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('CMake', '3.21.1', '', SYSTEM)
+]
+
+dependencies = [
+    ('Eigen', '3.3.9'),
+    ('SuiteSparse', '5.10.1', '-nompi'),  # ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('gflags', '2.2.2'),
+    ('glog', '0.5.0'),
+]
+
+configopts = '-DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF '
+configopts += '-DBUILD_SHARED_LIBS=on '
+
+sanity_check_paths = {
+    'files': ['lib/libceres.so', 'include/ceres/ceres.h'],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

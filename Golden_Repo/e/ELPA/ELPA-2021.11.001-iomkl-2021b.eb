@@ -1,0 +1,106 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ELPA'
+version = '2021.11.001'
+
+homepage = 'https://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications. ELPA has been installed as module in
+$EBROOTELPA ($ELPA_ROOT is also defined). This installation
+contains the pure MPI version and the hybrid MPI/OpenMP version.
+Notice: If you want to use OpenMP threads you have to set
+export ELPA_DEFAULT_omp=<number of threads per MPI process>
+in your batch job and start MPI with MPI_INIT_THREAD(MPI_THREAD_MULTIPLE,....
+
+Several assembly kernels have been compiled. They can be chosen at runtime when calling the library or
+with the environment variables REAL_ELPA_KERNEL or COMPLEX_ELPA_KERNEL.
+
+An example is
+export REAL_ELPA_KERNEL=REAL_ELPA_KERNEL_GENERIC
+which chooses the generic real kernel for elpa2.
+Starting with version 2019.11.001 the legacy interface is no longer available.
+"""
+
+usage = """You can get an overview over the available kernels by loading ELPA and then submitting a batch job with
+
+srun --ntasks=1 $EBROOTELPA/bin/elpa2_print_kernels
+
+Programs using this ELPA library have to be compiled with
+
+-I$ELPA_INCLUDE[_OPENMP]/ -I$ELPA_INCLUDE[_OPENMP]/elpa -I$ELPA_MODULES[_OPENMP]
+
+and linked with
+
+-L$EBROOTELPA/lib -lelpa[_openmp]
+-lmkl_scalapack_lp64
+${MKLROOT}/lib/intel64/libmkl_blacs_openmpi_lp64.a
+-lmkl_intel_lp64 -lmkl_sequential[-lmkl_intel_thread]
+-lmkl_core -liomp -lpthread -ldl -lstdc++
+"""
+
+examples = 'Examples can be found in $EBROOTELPA/examples'
+
+toolchain = {'name': 'iomkl', 'version': '2021b'}
+toolchainopts = {'openmp': True, 'usempi': True}
+
+source_urls = ['https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_%(version)s/']
+sources = ["elpa-new_release_%(version)s.tar.gz"]
+patches = [
+    '%(name)s-%(version)s_fix_hardcoded_perl_path.patch',
+    'ELPA-%(version)s_install-libelpatest.patch',
+]
+checksums = [
+    'e61048393a5e5f460858a11b216547fa3f434dd620c478cb20a52ebf543260f1',  # elpa-new_release_2021.11.001.tar.gz
+    # ELPA-2021.11.001_fix_hardcoded_perl_path.patch
+    '5fc40b6f3f948fd026efc688f9bafba0461d68ad007d9dc161bfd1507e2fc13b',
+    '2ce155ccbcdd61e8036d859aa204b48883695eff5f4decee3e5c2677516d8272',  # ELPA-2021.11.001_install-libelpatest.patch
+]
+
+builddependencies = [
+    ('Autotools', '20210726'),
+    # remove_xcompiler script requires 'python' command,
+    ('Python', '3.9.6'),
+    ('Perl', '5.34.0'),
+]
+
+preconfigopts = './autogen.sh && '
+preconfigopts += 'autoreconf && '
+
+# The checking of MPI_THREAD_MULTIPLE does not work because the check uses an
+# MPI program that is then executed by just ./conftest
+# Unfortunately you cannot turn of checking during runtime, too
+configopts = '--without-threading-support-check-during-build '
+
+with_single = False
+
+# When building in parallel, the file test_setup_mpi.mod is sometimes
+# used before it is built, leading to an error.  This must be a bug in
+# the makefile affecting parallel builds.
+maxparallel = 1
+
+postinstallcmds = [
+    'cp -r %(builddir)s/elpa-new_release_%(version)s/examples %(installdir)s/examples/',
+    'rm %(installdir)s/examples/*.orig',
+    'rm %(installdir)s/examples/*_cuda',
+    'rm %(installdir)s/examples/C/*.orig',
+    'rm %(installdir)s/examples/C/*_cuda',
+    'rm %(installdir)s/examples/Fortran/*.orig',
+    'rm %(installdir)s/examples/Fortran/*_cuda',
+    'cp %(builddir)s/elpa-new_release_%(version)s/test/shared/generated.h %(installdir)s/examples/C/generated.h',
+    'cp config.h config-f90.h %(installdir)s/include/elpa_openmp-%(version)s/elpa/',
+    'grep -v WITH_OPENMP config.h > %(installdir)s/include/elpa-%(version)s/elpa/config.h',
+    'grep -v WITH_OPENMP config-f90.h > %(installdir)s/include/elpa-%(version)s/elpa/config-f90.h',
+    'cp %(builddir)s/elpa-new_release_%(version)s/private_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+    'cp %(builddir)s/elpa-new_release_%(version)s/test_modules/* %(installdir)s/include/elpa-%(version)s/modules',
+]
+
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_INCLUDE_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_LIB_OPENMP': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules',
+    'ELPA_MODULES_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/modules',
+}
+
+moduleclass = 'math'

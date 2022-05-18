@@ -1,0 +1,60 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'JupyterKernel-Ruby'
+version = '3.0.1'
+local_jupyterver = '2022.3.3'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/SciRuby/iruby'
+description = """
+Native Ruby kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+dependencies = [
+    ('Python',  '3.9.6'),
+    ('Jupyter', local_jupyterver),
+    ('Ruby', '%(version)s'),
+]
+
+local_jupyter_path = 'share/jupyter'
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    'echo "#!/bin/bash" > %(builddir)s/env.sh',
+    'echo "export JUPYTER_DATA_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % local_jupyter_path,
+
+    # install Ruby kernel in $JUPYTHER_PATH
+    'source %(builddir)s/env.sh && iruby register --force ',
+
+    # ensure correct permissions
+    'source %(builddir)s/env.sh && chmod -R o+x %(installdir)s/share',
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/ruby/kernel.json',
+    ],
+    'dirs': [
+        'share/jupyter/kernels/ruby/',
+    ],
+}
+
+moduleclass = 'tools'

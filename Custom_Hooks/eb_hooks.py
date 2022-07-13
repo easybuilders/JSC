@@ -47,6 +47,10 @@ SUPPORTED_TOOLCHAIN_FAMILIES = (
 VETOED_INSTALLATIONS = {
     'juwelsbooster': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
     'juwels': ['BullMPI', 'BullMPI-settings'],
+    'jureca_arm': [
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings'
+    ],
     'jurecadc': [''],
     'jurecabooster': [
         'OpenMPI', 'OpenMPI-settings',

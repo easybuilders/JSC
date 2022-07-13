@@ -11,7 +11,7 @@ toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
 
 source_urls = ['https://gitlab.version.fz-juelich.de/goebbert1/jsc-xdg-menu/-/archive/%(version)s/']
 sources = ['%(name)s-%(version)s.tar.gz']
-checksums = ['25a8dc16d9e80ac150c3c3b675da8ece286e38423685a4b643f6cf827a25336a']
+checksums = ['841ca882ee551f79a393e469dc803bca69d1b13397d078e994710572c32a6fdc']
 
 builddependencies = [
     # just ensure they exist
@@ -21,7 +21,7 @@ builddependencies = [
     ('HDFView', '3.1.3'),
     ('Nsight-Compute', '2022.1.0'),
     ('Nsight-Systems', '2022.1.1'),
-    # ('ParaView', '5.10.0', '', ('gpsmkl', '2021')),
+    # ('ParaView', '5.10.1', '', ('gpsmkl', '2021')),
     ('TotalView', '2021.4.10'),
     ('Vampir', '10.0.0', '', SYSTEM),
 ]

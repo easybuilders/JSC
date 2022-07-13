@@ -20,7 +20,8 @@ builddependencies = [
     ('binutils', '2.37'),
     ('Coreutils', '9.0'),
     ('pkg-config', '0.29.2'),
-    ('GObject-Introspection', '1.68.0')
+    ('GObject-Introspection', '1.68.0'),
+    ('Autotools', '20210726')
 ]
 
 dependencies = [
@@ -35,7 +36,6 @@ configopts = "--enable-introspection=yes --with-gobject=yes --enable-static --en
 
 modextrapaths = {
     'GI_TYPELIB_PATH': 'lib64/girepository-1.0',
-    'XDG_DATA_DIRS': 'share',
 }
 
 sanity_check_paths = {

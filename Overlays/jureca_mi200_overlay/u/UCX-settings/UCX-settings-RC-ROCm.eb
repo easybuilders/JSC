@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'UCX-settings'
+version = 'RC-ROCm'
+
+homepage = ''
+description = '''
+This module sets UCX to use RC as the transport layer, together with the ROCm-aware transports.
+The maximum number of rails is limited to 1 to avoid pitfalls of blindly using multiple rails.
+'''
+
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'UCX_TLS': 'rc_x,self,sm,rocm_copy,rocm_ipc',
+    # Since most users do not share HCAs for a single process, it does not make sense to enable this in most cases.
+    # It actually has the side effect of using Ethernet and IB ports on JUSUF, which end up saturating the ethernet
+    # fabric and result in a slow down
+    'UCX_MAX_RNDV_RAILS': '1',
+}
+
+moduleclass = 'system'

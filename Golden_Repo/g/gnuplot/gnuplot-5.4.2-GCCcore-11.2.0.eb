@@ -33,6 +33,11 @@ dependencies = [
     ('libreadline', '8.1'),
 ]
 
+osdependencies = [
+    ('lua'),
+    ('lua-devel', 'liblua-dev')
+]
+
 preconfigopts = 'autoreconf && '
 
 configopts = '--with-qt=qt5 --without-latex '

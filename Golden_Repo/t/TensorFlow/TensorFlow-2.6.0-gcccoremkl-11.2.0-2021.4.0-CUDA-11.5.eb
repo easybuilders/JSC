@@ -49,6 +49,9 @@ dependencies = [
 use_pip = True
 sanity_pip_check = True
 
+postinstallcmds = [
+    'patch -p0 -d %(installdir)s < %(builddir)s/TensorFlow/tensorflow-2.6.0/tools/tensorboard-2.6.0-jupyter.fix']
+
 # Dependencies created and updated using findPythonDeps.sh:
 # https://gist.github.com/Flamefire/49426e502cd8983757bd01a08a10ae0d
 exts_list = [
@@ -97,7 +100,6 @@ exts_list = [
         'checksums': ['809fe9887682d35c1f7d1f54f0f40f98bb1f771b14265b453ca051e2ce58fca7'],
     }),
     ('tensorboard', version, {
-        #  'source_tmpl': '%(name)s-%(version)s-py3-none-any-JSC.whl',  # This is for Jens
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['f7dac4cdfb52d14c9e3f74585ce2aaf8e6203620a864e51faf84988b09f7bbdb'],
     }),
@@ -172,6 +174,7 @@ exts_list = [
             'TensorFlow-2.5.0_remove-duplicate-gpu-tests.patch',
             'TensorFlow-2.6.0_add-default-shell-env.patch',
             'TensorFlow-2.6.0_downgrade-required-versions.patch',
+            ('tensorboard-2.6.0-jupyter.fix', 'tools'),
         ],
         'source_tmpl': 'v%(version)s.tar.gz',
         'source_urls': ['https://github.com/tensorflow/tensorflow/archive/'],
@@ -253,6 +256,8 @@ exts_list = [
             '8cc54ff4bc8e5fc8edd3a5e41ad338532e16db5c64a941cc45e1011d4b40dba7',
             # TensorFlow-2.6.0_downgrade-required-versions.patch
             'e941df7025d39a6b57f508779775cf896691c34abe61d5f2eba9b891ef20d51a',
+            # Fix for tensorboard
+            '1c8071708c8d28635ecd419b136594fd39124fda58ff389115398fd7ea1207c8',
         ],
     }),
 ]

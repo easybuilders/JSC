@@ -48,7 +48,18 @@ sanity_check_paths = {
     'dirs': [],
 }
 
-# Ensure that local metric documentation is found by CubeGUI
-modextrapaths = {'CUBE_DOCPATH': 'share/doc/scalasca/patterns'}
+# note that modextrapaths can be used for relative paths only
+modextrapaths = {
+    # Ensure that local metric documentation is found by CubeGUI
+    'CUBE_DOCPATH': 'share/doc/scalasca/patterns'
+}
+
+modextravars = {
+    # Specifies an optional list of colon separated paths identifying
+    # suitable file systems for tracing. If set, the file system of
+    # trace measurements has to match at least one of the specified
+    # file systems.
+    'SCAN_TRACE_FILESYS': '/p/project:/p/scratch:/p/cscratch:/p/fastdata:/p/largedata:/p/largedata2'
+}
 
 moduleclass = 'perf'

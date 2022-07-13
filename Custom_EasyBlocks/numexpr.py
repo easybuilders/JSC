@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2019-2021 Ghent University
+# Copyright 2019-2022 Ghent University
 #
 # This file is part of EasyBuild,
 # originally created by the HPC team of Ghent University (http://ugent.be/hpc/en),
@@ -29,6 +29,7 @@ EasyBuild support for building and installing numexpr, implemented as an easyblo
 import os
 from distutils.version import LooseVersion
 
+import easybuild.tools.toolchain as toolchain
 from easybuild.easyblocks.generic.pythonpackage import PythonPackage
 from easybuild.tools.filetools import write_file
 from easybuild.tools.modules import get_software_root, get_software_version
@@ -77,6 +78,13 @@ class EB_numexpr(PythonPackage):
                 # use default kernels as fallback for non-AVX systems
                 mkl_vml_lib = 'mkl_vml_def'
 
+            if self.toolchain.comp_family() == toolchain.INTELCOMP:
+                mkl_threading_libs = ['mkl_intel_thread', 'iomp5']
+            elif self.toolchain.comp_family() == toolchain.GCC:
+                mkl_threading_libs = ['mkl_gnu_thread', 'gomp']
+            else:
+                mkl_threading_libs = []
+
             mkl_ver = get_software_version('imkl')
 
             if LooseVersion(mkl_ver) >= LooseVersion('2021'):
@@ -86,8 +94,8 @@ class EB_numexpr(PythonPackage):
                 ]
                 mkl_include_dirs = os.path.join(
                     self.imkl_root, 'mkl', 'latest', 'include')
-                mkl_libs = ['mkl_intel_lp64',
-                            'mkl_intel_thread', 'mkl_core', 'iomp5']
+                mkl_libs = ['mkl_intel_lp64', 'mkl_core',
+                            mkl_vml_lib] + mkl_threading_libs
             else:
                 mkl_lib_dirs = [
                     os.path.join(self.imkl_root, 'mkl', 'lib', 'intel64'),
@@ -95,27 +103,23 @@ class EB_numexpr(PythonPackage):
                 ]
                 mkl_include_dirs = os.path.join(
                     self.imkl_root, 'mkl', 'include')
-                mkl_libs = ['mkl_intel_lp64', 'mkl_intel_thread',
-                            'mkl_core', 'mkl_def', mkl_vml_lib, 'iomp5']
+                mkl_libs = ['mkl_intel_lp64', 'mkl_core',
+                            'mkl_def', mkl_vml_lib] + mkl_threading_libs
 
-            site_cfg_txt = '\n'.join([
+            site_cfg_lines = [
                 "[mkl]",
                 "include_dirs = %s" % mkl_include_dirs,
                 "library_dirs = %s" % os.pathsep.join(
                     mkl_lib_dirs + self.toolchain.get_variable('LDFLAGS', typ=list)),
-            ])
+            ]
 
             if LooseVersion(self.version) >= LooseVersion("2.8.0"):
-                site_cfg_txt = '\n'.join([
-                    site_cfg_txt,
-                    "libraries = %s" % os.pathsep.join(mkl_libs),
-                ])
+                site_cfg_lines.append("libraries = %s" %
+                                      os.pathsep.join(mkl_libs))
             else:
-                site_cfg_txt = '\n'.join([
-                    site_cfg_txt,
-                    "mkl_libs = %s" % ', '.join(mkl_libs),
-                ])
-            write_file('site.cfg', site_cfg_txt)
+                site_cfg_lines.append("mkl_libs = %s" % ', '.join(mkl_libs))
+
+            write_file('site.cfg', '\n'.join(site_cfg_lines))
 
     def sanity_check_step(self):
         """Custom sanity check for numexpr."""

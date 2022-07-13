@@ -1,0 +1,114 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+name = 'Python-Neuroimaging'
+version = '2022'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = ''
+description = """Python Neuroimaging is a collection of open source software for neuroimaging using Python."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+# This is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-Stack', '2021b'),
+    ('SciPy-bundle', '2021.10'),
+    ('scikit-learn', '1.0.1'),
+    ('scikit-build', '0.11.1'),
+    ('scikit-image', '0.18.3'),
+    ('h5py', '3.5.0', '-serial'),
+    ('PyOpenCL', '2021.2.13'),
+    ('tqdm', '4.62.3'),
+]
+
+# Needed to make sure that the sanity check of mdt works
+unwanted_env_vars = ['CUDA_VISIBLE_DEVICES']
+
+exts_list = [
+    ('bz2file', '0.98', {
+        'source_urls': ['https://pypi.python.org/packages/source/b/bz2file'],
+        'checksums': ['64c1f811e31556ba9931953c8ec7b397488726c63e09a4c67004f43bdd28da88'],
+    }),
+    ('nibabel', '3.2.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nibabel'],
+        'checksums': ['b0dcc174b30405ce9e8fec1eab3cbbb20f5c5e4920976c08b22e050b7c124f94'],
+        'skipsteps': ['sanitycheck'],
+    }),
+    ('dipy', '1.5.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/d/dipy'],
+        'checksums': ['a19cf40166be09c5b7c31ab00b12fed136ae9531483a9cd7019cc3f3b95f6271'],
+    }),
+    ('nilearn', '0.9.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nilearn'],
+        'checksums': ['dd821b4ff2b3b87f5e4b034ea0f95fce4375ace586de8ed17e6a667bde1925d7'],
+    }),
+    ('neurdflib', '5.0.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/neurdflib'],
+        'checksums': ['d34493cee15029ff5db16157429585ff863ba5542675a4d8a94a0da1bc6e3a50'],
+        'modulename': 'rdflib'
+    }),
+    ('etelemetry', '0.3.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/e/etelemetry'],
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['78febd59a22eb53d052d731f10f24139eb2854fd237348fba683dd8616fb4a67'],
+        'use_pip': True,
+    }),
+    ('ci-info', '0.2.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/c/ci_info'],
+        'checksums': ['dd70632c977feb8797b1e633507166b64ad5f57183cebb2b0ea56934abba4616'],
+        'modulename': 'ci_info'
+    }),
+    ('nipype', '1.7.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipype'],
+        'checksums': ['360cc5458952bf3ac00a5637ae75f4b5dc706ff123be8464c9fc5760172d1b94'],
+    }),
+    ('nipy', '0.5.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/n/nipy'],
+        'checksums': ['a8a2c97ce854fece4aced5a6394b9fdca5846150ad6d2a36b86590924af3c848'],
+    }),
+    ('mne', '1.0.1', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mne'],
+        'checksums': ['42db4d1d43dfcc668dc130b82a18b020754b4bf1b4fcac74367bc5f335efdb88'],
+    }),
+    # 0.3.1 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mot', '0.11.3', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mot'],
+        'checksums': ['20dfe5cc5ca90c562b9af8e0f822c4aad2e27d51f7cd8bf29d4dfad6d6c9311d'],
+        # to disable the test, since it needs a working OpenCL installation, which is not always the case in the logins
+        'modulename': 'os'
+    }),
+    # 0.9.38 and higher import indent from textwrap, which is a Python 3 feature and therefore it doesn't work with py2
+    ('mdt', '1.2.6', {
+        'source_urls': ['https://pypi.python.org/packages/source/m/mdt'],
+        'checksums': ['c06703597f56d91faa81a8ea9bfe9de4d86f1b82b62c7009fa376d3b86c771f7'],
+        # to disable the test, since it needs a working OpenCL installation, which is not always the case in the logins
+        'modulename': 'os'
+    }),
+    ('pysptools', '0.15.0', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/pysptools'],
+        'checksums': ['923c4e1af97c490d7d9ad86d04fdf8918b63106023493e6a4cf54323e244b05e'],
+        'modulename': 'pysptools.util'
+    }),
+]
+
+modextrapaths = {'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages'}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['bin', 'lib/python%(pyshortver)s/site-packages', 'lib64/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'vis'

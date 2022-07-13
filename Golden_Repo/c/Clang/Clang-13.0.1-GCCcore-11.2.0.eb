@@ -83,7 +83,8 @@ default_cuda_capability = {
     'juwelsbooster': '8.0',
     'jurecadc': '8.0',
     'jusuf': '7.0',
-    'hdfml': '7.0'
+    'hdfml': '7.0',
+    'deep': '7.0',
 }[local_os.environ['SYSTEMNAME']]
 
 configopts = '-DLIBOMP_INSTALL_ALIASES=OFF'

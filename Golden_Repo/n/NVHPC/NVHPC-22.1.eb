@@ -15,6 +15,8 @@ local_tarball_tmpl = 'nvhpc_2022_%%(version_major)s%%(version_minor)s_Linux_%s_c
 sources = [local_tarball_tmpl % '%(arch)s']
 checksums = [
     {
+        local_tarball_tmpl % 'aarch64':
+            '05cfa8c520a34eab01272a261b157d421a9ff7129fca7d859b944ce6a16d2255',
         local_tarball_tmpl % 'x86_64':
             '7e4366509ed9031ff271e73327dd3121909902a81ac436307801a5373efaff5e',
     }

@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ROOT'
+version = '6.26.04'
+
+homepage = 'https://root.cern.ch/drupal/'
+description = """The ROOT system provides a set of OO frameworks with all the functionality
+    needed to handle and analyze large amounts of data in a very efficient way."""
+
+toolchain = {'name': 'gpsmpi', 'version': '2021b'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://root.cern.ch/download/']
+sources = ['%(namelower)s_v%(version)s.source.tar.gz']
+checksums = ['a271cf82782d6ed2c87ea5eef6681803f2e69e17b3036df9d863636e9358421e']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('GSL', '2.7'),
+    ('libxml2', '2.9.10'),
+    ('PCRE', '8.45'),
+    ('CFITSIO', '4.0.0'),
+    ('freetype', '2.11.0'),
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10', '', ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('zlib', '1.2.11'),
+    ('X11', '20210802'),
+    ('OpenGL', '2021b'),
+    ('GL2PS', '1.4.2'),
+    ('FFTW', '3.3.10'),
+    ('SQLite', '3.36'),
+    ('XZ', '5.2.5'),
+    ('libpng', '1.6.37'),
+    ('tbb', '2020.3'),
+    ('Perl', '5.34.0'),
+    ('Go', '1.17.3', '', SYSTEM),
+    ('nlohmann-json', '3.10.4'),
+    ('LibTIFF', '4.3.0'),
+]
+
+# NOTE: Ensure that each configopts string begins with a blank
+# disable some components
+configopts = " -Dxrootd=OFF -Dmysql=OFF -Dkrb5=OFF -Dodbc=OFF -Doracle=OFF -Dpgsql=OFF -Dqt=OFF"
+
+# make sure some components are enabled
+configopts += " -Dpcre=ON -Dzlib=ON -Dpyroot=ON"
+configopts += " -Dunuran=ON -Dexplicitlink=ON -Dminuit2=ON -Droofit=ON "
+
+# Add component-specific settings based on dependencies
+configopts += ' -Dfftw3=ON -Dgsl=ON -DOpenGL_GL_PREFERENCE=GLVND'
+
+# Set C++ standard to C++17 for better stability
+configopts += ' -DCMAKE_CXX_STANDARD=17'
+
+moduleclass = 'data'

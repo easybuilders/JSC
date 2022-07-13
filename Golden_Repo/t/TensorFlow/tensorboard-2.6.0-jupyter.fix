@@ -1,5 +1,5 @@
---- tensorboard/tensorboard-2.6.0/tensorboard/notebook.py.orig	2022-04-04 15:13:24.242666542 +0200
-+++ tensorboard/tensorboard-2.6.0/tensorboard/notebook.py	2022-04-04 15:22:16.791830780 +0200
+--- lib/python3.9/site-packages/tensorboard/notebook.py.orig	2022-04-04 15:13:24.242666542 +0200
++++ lib/python3.9/site-packages/tensorboard/notebook.py	2022-04-04 15:22:16.791830780 +0200
 @@ -34,6 +34,7 @@
  # details).
  _CONTEXT_COLAB = "_CONTEXT_COLAB"

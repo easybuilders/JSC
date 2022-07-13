@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'MATLAB'
+version = '2022a'
+
+homepage = 'https://www.mathworks.com/products/matlab.html'
+description = """MATLAB is a high-level language and interactive environment
+that enables you to perform computationally intensive tasks faster than with
+traditional programming languages such as C, C++, and Fortran.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['77c3c5ca229f038cc3dab8edcf6059b3d3e0545e8854a1924739f6701f75ed4e']
+
+dependencies = [
+    ('X11', '20210802'),  # mlab req. libXt.so which is not on the computes
+    ('Java', '15', '', SYSTEM)
+]
+
+java_options = '-Xmx2048m'
+
+# Attention: before calling 'eb':
+# export EB_MATLAB_KEY as fileInstallationKey
+# or export EB_MATLAB_LICFILE as license file
+
+postinstallcmds = [
+    # create a wrapper script to ensure we do not mess up the environment
+    # because MATLAB comes with its own libstdc++ and other system libs
+    # in $EBROOTMATLAB/sys/os/glnxa64/
+    'mv %(installdir)s/bin/matlab %(installdir)s/bin/matlab.bin ',
+    (
+        '{ cat > %(installdir)s/bin/matlab; } << EOF\n'
+        '#!/bin/bash\n'
+        '\n'
+        'MYPATH=\$(readlink -f \$0)\n'
+        'export MATLAB_PATH=\$(realpath \$(dirname "\$MYPATH")/..)\n'
+        '\n'
+        'export LD_LIBRARY_PATH=\$MATLAB_PATH/runtime/glnxa64:\$LD_LIBRARY_PATH\n'
+        'export LD_LIBRARY_PATH=\$MATLAB_PATH/bin/glnxa64:\$LD_LIBRARY_PATH\n'
+        'export LD_LIBRARY_PATH=\$MATLAB_PATH/sys/os/glnxa64:\$LD_LIBRARY_PATH\n'
+        '\n'
+        '"\$MATLAB_PATH/bin/matlab.bin" "\$@"\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/matlab',
+]
+
+modloadmsg = """
+Attention: We do NOT supply MATLAB licenses but just the complete software installation.
+Without access to a valid license you are not able to run MATLAB and its toolboxes.
+"""
+
+sanity_check_paths = {
+    'files': ['bin/matlab', 'bin/glnxa64/MATLAB'],
+    'dirs': [],
+}
+
+moduleclass = 'math'

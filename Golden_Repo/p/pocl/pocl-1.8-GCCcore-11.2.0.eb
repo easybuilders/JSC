@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'pocl'
+version = '1.8'
+
+homepage = 'https://portablecl.org'
+description = "Pocl is a portable open source (MIT-licensed) implementation of the OpenCL standard"
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = ['https://github.com/pocl/pocl/archive/']
+sources = ['v%(version)s.tar.gz']
+patches = [
+    'include_cl_header_1_8.patch',
+]
+checksums = [
+    '0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2',  # v1.8.tar.gz
+    'fa9de4dcf77cbc490d9f367a1eaa91a4feba1314649af107455957b96a17a57b',  # include_cl_header_1_8.patch
+]
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('CUDA', '11.5', '', SYSTEM),
+    ('Clang', '13.0.1'),
+    ('hwloc', '2.5.0'),
+    ('libtool', '2.4.6'),
+    ('libxml2', '2.9.10'),
+]
+
+separate_build_dir = True
+
+# disable attempt to find an ICD loader, always build libOpenCL.so, enable CUDA
+configopts = "-DENABLE_ICD=0 -DINSTALL_OPENCL_HEADERS=1 -DENABLE_CUDA=1 "
+# make sure we use the easybuild Clang
+configopts += "-DWITH_LLVM_CONFIG=$EBROOTCLANG/bin/llvm-config -DSTATIC_LLVM=ON"
+
+sanity_check_paths = {
+    'files': ['bin/poclcc', 'lib64/libOpenCL.%s' % SHLIB_EXT],
+    'dirs': ['include/CL', 'lib64/pkgconfig'],
+}
+
+moduleclass = 'lib'

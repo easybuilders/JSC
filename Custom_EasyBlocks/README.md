@@ -103,3 +103,15 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ no support for libvori 
 - __*can not be removed*__
 
+
+## NVHPC
+
+- __*added by*__ s.achilles
+- __*needed because*__ https://github.com/easybuilders/easybuild-easyblocks/pull/2776
+- __*can not be removed*__ until the PR is merged upstream. Likely with v4.6.1
+
+
+## Hypre
+
+- __*added by*__ r.schoebel
+- __*needed because*__ allows an installation with and without Cuda

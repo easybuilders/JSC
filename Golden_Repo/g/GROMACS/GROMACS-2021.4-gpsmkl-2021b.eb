@@ -36,7 +36,16 @@ toolchainopts = {'openmp': True, 'usempi': True}
 
 source_urls = ['ftp://ftp.gromacs.org/pub/gromacs/']
 sources = [SOURCELOWER_TAR_GZ]
-checksums = ['cb708a3e3e83abef5ba475fdb62ef8d42ce8868d68f52dafdb6702dc9742ba1d']
+
+# Fix missing synchronization in GPU code.
+patches = [
+    'GROMACS-2021_add-missing-sync.patch',
+]
+
+checksums = [
+    'cb708a3e3e83abef5ba475fdb62ef8d42ce8868d68f52dafdb6702dc9742ba1d',
+    '52ee257309ff7761c2dd5b26de7dbc63f8ba698082adb88e2843f90e3f9168bf',  # GROMACS-2021_add-missing-sync.patch
+]
 
 builddependencies = [
     ('CMake', '3.21.1', '', SYSTEM),

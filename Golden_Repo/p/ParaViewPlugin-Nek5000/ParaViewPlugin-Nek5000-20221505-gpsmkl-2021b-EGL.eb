@@ -25,7 +25,7 @@ dependencies = [
 
 separate_build_dir = True
 
-modextrapaths = {'PV_PLUGIN_PATH': '.'}
+modextrapaths = {'PV_PLUGIN_PATH': './lib/paraview-5.10/plugins/pvNek5000Reader/'}
 
 sanity_check_paths = {
     'files': ['include/vtkNek5000Reader.h', 'lib/paraview-5.10/plugins/pvNek5000Reader/libNek5000Reader.so'],

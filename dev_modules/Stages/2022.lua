@@ -51,8 +51,8 @@ if mode() == "load" then
     end
 end
 
--- Unload GCCcore and binutils, loaded by StdEnv. The changes in the MODULEPATH trigger the reloading of StdEnv itself
-unload("GCCcore", "binutils")
+-- Unload GCCcore, binutils and zlib, loaded by StdEnv. The changes in the MODULEPATH trigger the reloading of StdEnv itself
+unload("GCCcore", "binutils", "zlib")
 
 -- Let's tidy things up a little and remove everything Stage/UI related
 local old_modulepath = os.getenv("MODULEPATH")
@@ -75,6 +75,9 @@ end
 prepend_path("MODULEPATH", pathJoin(pkgroot, "UI/Compilers"))
 prepend_path("MODULEPATH", pathJoin(pkgroot, "UI/Tools"))
 prepend_path("MODULEPATH", pathJoin(pkgroot, "UI/Defaults"))
+
+-- Set the modulerc file per stage
+prepend_path("LMOD_MODULERCFILE", pathJoin(pkgroot, "lmod/modulerc.lua"))
 
 -- Make the module 'sticky' so it is hard to unload
 add_property("lmod", "sticky")

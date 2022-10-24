@@ -291,7 +291,7 @@ postinstallcmds = [
 #        # change path to source in debug info
 
 modextravars = {
-    'CUDA_VISIBLE_DEVICES': '0,1',
+    # 'CUDA_VISIBLE_DEVICES': '0,1',
     # OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
     'MESA_GL_VERSION_OVERRIDE': '3.3',
     'MESA_GLSL_VERSION_OVERRIDE': '330',

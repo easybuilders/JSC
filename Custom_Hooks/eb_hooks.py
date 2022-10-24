@@ -68,6 +68,7 @@ VETOED_INSTALLATIONS = {
     'jusuf': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
     'hdfml': ['BullMPI', 'BullMPI-settings'],
     'deep': ['BullMPI', 'BullMPI-settings'],
+    'hdfcloud': [''],
 }
 
 TWEAKABLE_DEPENDENCIES = {
@@ -106,7 +107,7 @@ def installation_vetoer(ec):
     system_name = os.getenv('LMOD_SYSTEM_NAME')
     if system_name is None:
         with open('/etc/FZJ/systemname') as sn:
-            system_name = sn.read()
+            system_name = sn.read().strip()
     if name in VETOED_INSTALLATIONS[system_name]:
         print_warning(
             "\nYou are attempting to install software that should not be installed in this system.\n"

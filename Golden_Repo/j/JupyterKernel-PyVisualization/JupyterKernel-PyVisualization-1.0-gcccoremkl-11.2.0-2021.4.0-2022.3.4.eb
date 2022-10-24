@@ -1,0 +1,132 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyVisualization'
+version = '1.0'
+local_jupyterver = '2022.3.4'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special Jupyter kernel including visualization tools.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.37'),
+    # check for existance
+    # ('ParaView', '5.10.1', '-EGL', ('gpsmkl', '2021b')),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('Jupyter', local_jupyterver),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-32x32.png"},
+            {'filename': 'logo-64x64.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-64x64.png"},
+            {'filename': 'logo-128x128.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-128x128.png"},
+        ],
+        'checksums': [
+            ('sha256', '84323b573eabc75b9fae94109186e2978939d09bcc5df3e851a27b9888a2d844'),
+            ('sha256', 'b4e80ac4ad7f3bc319ccde862518c148727474afdb3afd098bd4fcaebb7d7bf3'),
+            ('sha256', '567e6571a1770da70df1bb0a9dbe28b3b83fee2975490a65a09731516b27d8c7'),
+        ],
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+]
+
+local_kernel_dir = 'pyvisualization'
+local_kernel_name = 'PyVisualization-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC/11.2.0 \n'
+        'module load ParaStationMPI \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'module load ParaView/5.10.1-EGL \n'
+        'module unload VTK \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

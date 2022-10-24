@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'source-highlight'
+version = '3.1.9'
+
+homepage = 'https://www.gnu.org/software/src-highlite/'
+description = "This program, given a source file, produces a document with syntax highlighting"
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'optarch': True, 'pic': True}
+
+source_urls = ['ftp://ftp.gnu.org/gnu/src-highlite/']
+sources = [SOURCELOWER_TAR_GZ]
+patches = ['source-highlight-gcc11.patch']
+checksums = [
+    '3a7fd28378cb5416f8de2c9e77196ec915145d44e30ff4e0ee8beb3fe6211c91',
+    '7dbbdb7a1363d650aee75337f1204761754d9ad82a7c873c3f8b3f0ba07e814d'
+]
+
+dependencies = [
+    ('Boost', '1.78.0'),
+]
+
+configopts = "--with-pic --with-boost=$EBROOTBOOST --with-boost-libdir=$EBROOTBOOST/lib64"
+
+local_binaries = ["check-regexp", "cpp2html", "java2html",
+                  "source-highlight", "source-highlight-esc.sh",
+                  "source-highlight-settings", "src-hilite-lesspipe.sh"]
+local_libs = ["libsource-highlight.a", "libsource-highlight.so"]
+sanity_check_paths = {
+    'files': ["bin/%s" % b for b in local_binaries] +
+             ["lib/libsource-highlight.a",
+              "lib/libsource-highlight.%s" % SHLIB_EXT] +
+             ["include/srchilite/sourcehighlight.h"],
+    'dirs': ["lib/pkgconfig"],
+}
+
+moduleclass = 'tools'

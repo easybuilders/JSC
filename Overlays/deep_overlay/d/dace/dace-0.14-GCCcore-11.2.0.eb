@@ -1,0 +1,21 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonPackage"
+name = 'dace'
+version = '0.14'
+homepage = "https://github.com/spcl/dace"
+description = "DaCe is a parallel programming framework that generates high-performance CPU, GPU, and FPGA programs."
+source_urls = ['https://github.com/spcl/dace/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['7bb9525718aca8b293f7cf3a240e6004870a6bf96dcd4e4679a99347b02538e5']
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+use_pip = True
+use_pip_for_deps = True
+pip_ignore_installed = False
+pip_no_index = False
+download_dep_fail = False
+runtest = False
+dependencies = [('Python', '3.9.6')]
+sanity_check_commands = ["sdfgcc --help"]
+sanity_pip_check = True
+installopts = "--use-feature=in-tree-build"
+

@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Stepan Nassyr, JSC/Forschungszentrum Juelich GmbH, s.nassyr@fz-juelich.de, 2022/06
+easyblock = 'CMakeNinja'
+
+name = 'Blaze'
+version = '3.8.1'
+
+homepage = 'https://bitbucket.org/blaze-lib/blaze'
+description = """Blaze is an open-source, high-performance C++ math library for dense and sparse arithmetic."""
+
+toolchain = {'name': 'gomkl', 'version': '2021b'}
+
+source_urls = ['https://bitbucket.org/blaze-lib/blaze/get']
+sources = ['v%(version)s.tar.gz']
+checksums = ['4ad32a786c45285a66a1375b39e65908e604d10596f5863c63b7ef9a13808187']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+    ('binutils', '2.37'),
+]
+# dependencies = [
+#     ('imkl', '2021.4.0', '', 'gompi-2021b'),
+# ]
+
+# BLAZE_CACHE_SIZE is calculated from /sys/devices/system/cpu/cpu0/cache/index3/size
+configopts = (" -DBLAZE_CACHE_SIZE=33554432 "
+              " -DBLAZE_BLAS_MODE=ON "
+              " -DBLAZE_BLAS_IS_64BIT=1 "
+              " -DBLAZE_BLAS_IS_PARALLEL=1 "
+              " -DBLAZE_BLAS_INCLUDE_FILE=\"<mkl_cblas.h>\" ")
+
+sanity_check_paths = {
+    'files': [
+        ['include/blaze/Blaze.h']
+    ],
+    'dirs': ['share/blaze/cmake', 'include/blaze'],
+}
+
+moduleclass = 'lib'

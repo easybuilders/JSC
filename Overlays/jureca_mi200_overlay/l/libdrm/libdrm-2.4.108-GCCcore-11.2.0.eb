@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'libdrm'
+version = '2.4.108'
+
+homepage = 'https://dri.freedesktop.org'
+description = """Direct Rendering Manager runtime library."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = ['https://dri.freedesktop.org/libdrm/']
+sources = [SOURCELOWER_TAR_XZ]
+checksums = ['a1d7948cbc536763fde14b4beb5e4da7867607966d4cf46301087e8b8fe3d6a0']
+
+# checksums = ['92d8ac54429b171e087e61c2894dc5399fe6a549b1fbba09fa6a3cb9d4e57bd4']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('pkg-config', '0.29.2'),
+    ('Meson', '0.58.2'),
+    ('Ninja', '1.10.2'),
+]
+dependencies = [('X11', '20210802')]
+
+# installing manpages requires an extra build dependency (docbook xsl)
+configopts = '-Dman-pages=false'
+
+sanity_check_paths = {
+    'files': ['lib/libdrm.%s' % SHLIB_EXT, 'include/libdrm/drm.h'],
+    'dirs': ['include', 'lib'],
+}
+
+
+moduleclass = 'lib'

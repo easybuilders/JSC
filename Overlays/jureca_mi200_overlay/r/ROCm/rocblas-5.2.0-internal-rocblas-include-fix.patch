@@ -1,0 +1,13 @@
+diff --git a/library/src/include/rocblas_device_malloc.hpp b/library/src/include/rocblas_device_malloc.hpp
+index e82f8d4a..1f65d54f 100644
+--- a/library/src/include/rocblas_device_malloc.hpp
++++ b/library/src/include/rocblas_device_malloc.hpp
+@@ -19,7 +19,7 @@
+ // This header should be included in other projects to use the rocblas_handle
+ // C++ device memory allocation API. It is unlikely to change very often.
+ 
+-#include "rocblas.h"
++#include <rocblas/rocblas.h>
+ #include <new>
+ #include <type_traits>
+ 

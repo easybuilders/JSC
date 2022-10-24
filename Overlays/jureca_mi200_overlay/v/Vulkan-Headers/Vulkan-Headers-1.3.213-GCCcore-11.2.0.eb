@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'Vulkan-Headers'
+version = '1.3.213'
+
+homepage = 'https://www.vulkan.org/'
+description = """Vulkan header files and API registry"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'KhronosGroup'
+
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'filename':          SOURCELOWER_TAR_GZ,
+    'download_filename': 'v%(version)s.tar.gz'
+}]
+checksums = ['7f4a6118dc3524703c1ce0a44089379e89eeb930fbe28188b90fdac1f10ef676']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+]
+
+sanity_check_paths = {
+    'files': ['include/vulkan/vulkan.h'],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

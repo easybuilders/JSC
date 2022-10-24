@@ -1,0 +1,96 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'JupyterKernel-Cling'
+version = '0.9'
+local_jupyterver = '2022.3.4'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/root-project/cling'
+description = """
+Native C kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('Jupyter', local_jupyterver),
+    ('Cling', version),
+]
+
+local_jupyter_path = 'share/jupyter'
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # Create virtual environment to ensure we install in the correct directory !!!
+    'python3 -m venv %(installdir)s --system-site-packages',
+    (
+        '{ cat > %%(builddir)s/env.sh; } << \'EOF\'\n'
+        '#!/bin/bash\n'
+        'source %%(installdir)s/bin/activate\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:${PYTHONPATH}\n'
+        'export JUPYTER_DATA_DIR=%%(installdir)s/%s\n'
+        'EOF'
+    ) % (local_jupyter_path),
+
+    # Jupyter Kernel: Cling (C++)
+    (
+        'source %(builddir)s/env.sh && '
+        ' pip3 install --upgrade --no-deps --force-reinstall ${EBROOTCLING}/share/cling/Jupyter/kernel && '
+        ' jupyter-kernelspec install --prefix=%(installdir)s ${EBROOTCLING}/share/cling/Jupyter/kernel/cling-cpp17 && '
+        ' install -m 0755 ${EBROOTCLING}/share/cling/Jupyter/kernel/scripts/jupyter-cling-kernel %(installdir)s/bin/ '
+    ),
+
+    # correct shebang to correct python binary
+    (
+        'source %(builddir)s/env.sh && '
+        ' abs2python="#! ${EBROOTPYTHON}/bin/python" && '
+        ' sed "1s@^.*@$abs2python@g" -i %(installdir)s/bin/jupyter-cling-kernel'
+    ),
+    'source %(builddir)s/env.sh && chmod -R o+x %(installdir)s/share',
+
+    # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+    'rm -f %(installdir)s/pyvenv.cfg',
+    'rm -f %(installdir)s/bin/python',
+    'rm -f %(installdir)s/bin/python3',
+    'rm -f %(installdir)s/bin/activate',
+    'rm -f %(installdir)s/bin/activate*',
+    'rm -f %(installdir)s/bin/easy_install*',
+    'rm -f %(installdir)s/bin/pip*',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/_distutils_hack',
+    'rm -f %(installdir)s/lib/python%(pyshortver)s/site-packages/distutils-precedence.pth',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip-*',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pkg_resources',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/cling-cpp17/kernel.json',
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages',
+        'share/jupyter/kernels/cling-cpp17/',
+    ],
+}
+
+moduleclass = 'tools'

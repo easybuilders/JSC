@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'tree-sitter'
+version = '0.20.6'
+
+homepage = 'https://github.com/tree-sitter/tree-sitter'
+description = "Tree-sitter is a parser generator tool and an incremental parsing library."
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'tree-sitter'
+source_urls = [GITHUB_SOURCE]
+sources = [
+    {
+        'download_filename': 'v%(version)s.tar.gz',
+        'filename': SOURCELOWER_TAR_GZ
+    }
+]
+checksums = ['4d37eaef8a402a385998ff9aca3e1043b4a3bba899bceeff27a7178e1165b9de']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('Autotools', '20210726'),
+]
+
+skipsteps = ['configure']
+
+installopts = 'PREFIX="%(installdir)s"'
+
+sanity_check_paths = {
+    'files': ['include/tree_sitter/api.h',
+              'include/tree_sitter/parser.h',
+              'lib/libtree-sitter.a',
+              'lib/libtree-sitter.%s' % SHLIB_EXT,
+              'lib/pkgconfig/tree-sitter.pc'],
+    'dirs': ['include/tree_sitter']
+}
+
+moduleclass = 'lib'

@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'robin-hood-hashing'
+version = '3.11.5'
+
+homepage = 'https://gitter.im/martinus/robin-hood-hashing'
+description = """Fast & memory efficient hashtable based on robin hood hashing for C++11/14/17/20"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'martinus'
+
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'filename':          SOURCELOWER_TAR_GZ,
+    'download_filename': '%(version)s.tar.gz'
+}]
+checksums = ['3693e44dda569e9a8b87ce8263f7477b23af448a3c3600c8ab9004fe79c20ad0']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+]
+
+configopts = '-DRH_STANDALONE_PROJECT=OFF'
+
+sanity_check_paths = {
+    'files': ['include/robin_hood.h'],
+    'dirs': ['lib/cmake'],
+}
+
+moduleclass = 'devel'

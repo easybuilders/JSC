@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'torchaudio'
+version = '0.11.0'
+
+homepage = 'https://github.com/pytorch/audio'
+description = """ Data manipulation and transformation for audio signal
+processing, powered by PyTorch """
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
+
+sources = [{
+    'filename': '%(name)s-%(version)s.tar.gz',
+    'git_config': {
+        'url': 'https://github.com/pytorch',
+        'repo_name': 'audio',
+        'tag': 'v%(version)s',
+        'recursive': True,
+        'keep_git_dir': True,
+    },
+}]
+patches = ['standard-libs-deps.patch']
+checksums = [
+    '02da1ecb81a36664b1ec40fb534b7c1c2498a4c94331ea92b2b09bba9743a50a',  # torchaudio-0.11.0.tar.gz
+    '8f609b9712893a0b146ffb565c9a34631c7b0ef84b922b7ad93e1ce303b093b1',  # standard-libs-deps.patch
+]
+
+builddependencies = [
+    ('Boost', '1.78.0'),
+    ('CMake', '3.21.1'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10'),
+    ('CUDA', '11.5', '', SYSTEM),
+    ('PyTorch', '1.11', '-CUDA-%(cudaver)s', ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('SoX', '14.4.2'),
+    ('zlib', '1.2.11'),
+    ('bzip2', '1.0.8'),
+    ('librosa', '0.9.2'),
+]
+
+download_dep_fail = True
+use_pip = True
+sanity_pip_check = True
+
+moduleclass = 'tools'

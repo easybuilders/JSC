@@ -1,0 +1,232 @@
+diff -Naurx jupyterlab.orig/jupyterlab/packages/services/src/kernel/default.ts jupyterlab/jupyterlab/packages/services/src/kernel/default.ts
+--- jupyterlab.orig/jupyterlab-3.4.5/packages/services/src/kernel/default.ts	2022-08-29 14:11:12.227222014 +0200
++++ jupyterlab/jupyterlab-3.4.5/packages/services/src/kernel/default.ts	2022-08-29 14:36:33.747237205 +0200
+@@ -1274,29 +1274,38 @@
+       }
+       this._reason = '';
+       this._model = undefined;
+-      try {
+-        const model = await restapi.getKernelModel(this._id, settings);
+-        this._model = model;
+-        if (model?.execution_state === 'dead') {
+-          this._updateStatus('dead');
+-        } else {
+-          this._onWSClose(evt);
+-        }
+-      } catch (err) {
+-        // Try again, if there is a network failure
+-        // Handle network errors, as well as cases where we are on a
+-        // JupyterHub and the server is not running. JupyterHub returns a
+-        // 503 (<2.0) or 424 (>2.0) in that case.
+-        if (
+-          err instanceof ServerConnection.NetworkError ||
+-          err.response?.status === 503 ||
+-          err.response?.status === 424
+-        ) {
+-          const timeout = Private.getRandomIntInclusive(10, 30) * 1e3;
+-          setTimeout(getKernelModel, timeout, evt);
+-        } else {
+-          this._reason = 'Kernel died unexpectedly';
+-          this._updateStatus('dead');
++      
++      for (let _retryAttempt = 1; _retryAttempt <= this._retryLimit ; _retryAttempt++) {
++        try {
++          const model = await restapi.getKernelModel(this._id, settings);
++          this._model = model;
++          if (model?.execution_state === 'dead') {
++            this._updateStatus('dead');
++          } else {
++            this._onWSClose(evt);
++          }
++          break;
++        } catch (err) {
++          if (_retryAttempt >= this._retryLimit) {
++            // Try again, if there is a network failure
++            // Handle network errors, as well as cases where we are on a
++            // JupyterHub and the server is not running. JupyterHub returns a
++            // 503 (<2.0) or 424 (>2.0) in that case.
++            if (
++              err instanceof ServerConnection.NetworkError ||
++              err.response?.status === 503 ||
++              err.response?.status === 424
++            ) {
++              const timeout = Private.getRandomIntInclusive(10, 30) * 1e3;
++              setTimeout(getKernelModel, timeout, evt);
++            } else {
++              this._reason = 'Kernel died unexpectedly';
++              this._updateStatus('dead');
++            }
++          } else {
++            console.log("Caught bad kernelmodel request - Try again in " + (_retryAttempt * 1000) + "seconds.");
++            await new Promise(resolve => setTimeout(resolve, _retryAttempt * 1000));
++          }
+         }
+       }
+       return;
+@@ -1641,6 +1650,7 @@
+   private _noOp = () => {
+     /* no-op */
+   };
++  private _retryLimit = 10;
+ }
+ 
+ /**
+diff -Naurx .git -x node_modules -x share -x __pycache__ ../jupyterlab/jupyterlab/packages/services/src/kernel/manager.ts ../jupyterlab-patched/jupyterlab/packages/services/src/kernel/manager.ts
+--- jupyterlab/jupyterlab/packages/services/src/kernel/manager.ts	2022-08-29 14:11:12.227222014 +0200
++++ jupyterlab-patched/jupyterlab/packages/services/src/kernel/manager.ts	2022-08-29 14:31:00.477233878 +0200
+@@ -236,22 +236,29 @@
+    */
+   protected async requestRunning(): Promise<void> {
+     let models: Kernel.IModel[];
+-    try {
+-      models = await listRunning(this.serverSettings);
+-    } catch (err) {
+-      // Handle network errors, as well as cases where we are on a
+-      // JupyterHub and the server is not running. JupyterHub returns a
+-      // 503 (<2.0) or 424 (>2.0) in that case.
+-      if (
+-        err instanceof ServerConnection.NetworkError ||
+-        err.response?.status === 503 ||
+-        err.response?.status === 424
+-      ) {
+-        this._connectionFailure.emit(err);
++    for (let _retryAttempt = 1; _retryAttempt <= this._retryLimit ; _retryAttempt++) {
++      try {
++        models = await listRunning(this.serverSettings);
++        break;
++      } catch (err) {
++        if (_retryAttempt >= this._retryLimit) {
++          // Handle network errors, as well as cases where we are on a
++          // JupyterHub and the server is not running. JupyterHub returns a
++          // 503 (<2.0) or 424 (>2.0) in that case.
++          if (
++            err instanceof ServerConnection.NetworkError ||
++            err.response?.status === 503 ||
++            err.response?.status === 424
++          ) {
++            this._connectionFailure.emit(err);
++          }
++          throw err;
++        } else {
++          console.log("Caught bad kernel request - Try again in " + (_retryAttempt * 1000) + "seconds.");
++          await new Promise(resolve => setTimeout(resolve, _retryAttempt * 1000));
++        }
+       }
+-      throw err;
+     }
+-
+     if (this.isDisposed) {
+       return;
+     }
+@@ -326,6 +333,7 @@
+   private _pollModels: Poll;
+   private _runningChanged = new Signal<this, Kernel.IModel[]>(this);
+   private _connectionFailure = new Signal<this, Error>(this);
++  private _retryLimit = 10;
+ }
+ 
+ /**
+diff -Naurx .git -x node_modules -x share -x __pycache__ ../jupyterlab/jupyterlab/packages/services/src/session/manager.ts ../jupyterlab-patched/jupyterlab/packages/services/src/session/manager.ts
+--- jupyterlab/jupyterlab/packages/services/src/session/manager.ts	2022-08-29 14:11:12.227222014 +0200
++++ jupyterlab-patched/jupyterlab/packages/services/src/session/manager.ts	2022-08-29 14:31:42.487234297 +0200
+@@ -246,20 +246,28 @@
+    */
+   protected async requestRunning(): Promise<void> {
+     let models: Session.IModel[];
+-    try {
+-      models = await listRunning(this.serverSettings);
+-    } catch (err) {
+-      // Handle network errors, as well as cases where we are on a
+-      // JupyterHub and the server is not running. JupyterHub returns a
+-      // 503 (<2.0) or 424 (>2.0) in that case.
+-      if (
+-        err instanceof ServerConnection.NetworkError ||
+-        err.response?.status === 503 ||
+-        err.response?.status === 424
+-      ) {
+-        this._connectionFailure.emit(err);
++    for (let _retryAttempt = 1; _retryAttempt <= this._retryLimit ; _retryAttempt++) {
++      try {
++        models = await listRunning(this.serverSettings);
++        break;
++      } catch (err) {
++        if (_retryAttempt >= this._retryLimit) {
++          // Handle network errors, as well as cases where we are on a
++          // JupyterHub and the server is not running. JupyterHub returns a
++          // 503 (<2.0) or 424 (>2.0) in that case.
++          if (
++            err instanceof ServerConnection.NetworkError ||
++            err.response?.status === 503 ||
++            err.response?.status === 424
++          ) {
++            this._connectionFailure.emit(err);
++          }
++          throw err;
++        } else {
++          console.log("Caught bad session request - Try again in " + (_retryAttempt * 1000) + "seconds.");
++          await new Promise(resolve => setTimeout(resolve, _retryAttempt * 1000));
++        }
+       }
+-      throw err;
+     }
+ 
+     if (this.isDisposed) {
+@@ -335,6 +343,7 @@
+   private _ready: Promise<void>;
+   private _runningChanged = new Signal<this, Session.IModel[]>(this);
+   private _connectionFailure = new Signal<this, Error>(this);
++  private _retryLimit = 10;
+ 
+   // We define these here so they bind `this` correctly
+   private readonly _connectToKernel = (
+diff -Naurx .git -x node_modules -x share -x __pycache__ ../jupyterlab/jupyterlab/packages/services/src/terminal/manager.ts ../jupyterlab-patched/jupyterlab/packages/services/src/terminal/manager.ts
+--- jupyterlab/jupyterlab/packages/services/src/terminal/manager.ts	2022-08-29 14:11:12.227222014 +0200
++++ jupyterlab-patched/jupyterlab/packages/services/src/terminal/manager.ts	2022-08-29 14:33:54.457235615 +0200
+@@ -215,20 +215,28 @@
+    */
+   protected async requestRunning(): Promise<void> {
+     let models: Terminal.IModel[];
+-    try {
+-      models = await listRunning(this.serverSettings);
+-    } catch (err) {
+-      // Handle network errors, as well as cases where we are on a
+-      // JupyterHub and the server is not running. JupyterHub returns a
+-      // 503 (<2.0) or 424 (>2.0) in that case.
+-      if (
+-        err instanceof ServerConnection.NetworkError ||
+-        err.response?.status === 503 ||
+-        err.response?.status === 424
+-      ) {
+-        this._connectionFailure.emit(err);
++    for (let _retryAttempt = 1; _retryAttempt <= this._retryLimit ; _retryAttempt++) {
++      try {
++        models = await listRunning(this.serverSettings);
++        break;
++      } catch (err) {
++        if (_retryAttempt >= this._retryLimit) {
++          // Handle network errors, as well as cases where we are on a
++          // JupyterHub and the server is not running. JupyterHub returns a
++          // 503 (<2.0) or 424 (>2.0) in that case.
++          if (
++            err instanceof ServerConnection.NetworkError ||
++            err.response?.status === 503 ||
++            err.response?.status === 424
++          ) {
++            this._connectionFailure.emit(err);
++          }
++          throw err;
++        } else {
++          console.log("Caught bad terminal request - Try again in " + (_retryAttempt * 1000) + "seconds.");
++          await new Promise(resolve => setTimeout(resolve, _retryAttempt * 1000));
++        }
+       }
+-      throw err;
+     }
+ 
+     if (this.isDisposed) {
+@@ -284,6 +292,7 @@
+   private _ready: Promise<void>;
+   private _runningChanged = new Signal<this, Terminal.IModel[]>(this);
+   private _connectionFailure = new Signal<this, Error>(this);
++  private _retryLimit = 10;
+ }

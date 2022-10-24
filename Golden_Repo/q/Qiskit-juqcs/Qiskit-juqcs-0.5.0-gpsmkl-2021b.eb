@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Qiskit-juqcs'
+version = '0.5.0'
+
+homepage = 'https://jugit.fz-juelich.de/qip/juniq-platform/qiskit-juqcs/'
+description = """Qiskit provider for JUQCS (Juelich Universal Quantum Computer Simulator)."""
+
+toolchain = {'name': 'gpsmkl', 'version': '2021b'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('Qiskit', '0.36.2'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('PyJWT', '1.7.1', {
+        'modulename': 'jwt',
+        'checksums': ['8d59a976fb773f3e6a39c85636357c4f0e242707394cadadd9814f5cbaa20e96'],
+    }),
+    ('pyunicore', '0.9.18', {
+        'checksums': ['d4675e4594777795ac7d70798955695a321f6e0feeda5e02070b12c233ff41c5'],
+    }),
+    ('qiskit-juqcs', version, {
+        'modulename': False,
+        'checksums': ['6d8800986d5924e2e07635a315d15bfbc48297649604c83a4ec282ea7d6ba737'],
+    }),
+]
+
+moduleclass = 'quantum'

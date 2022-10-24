@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "ConfigureMake"
+name = "darshan-runtime"
+version = "3.4.0"
+
+homepage = 'http://www.mcs.anl.gov/research/projects/darshan/'
+
+description = """Darshan is designed to capture an accurate picture of
+application I/O behavior, including properties such as patterns of
+access within files, with minimum overhead.  The name is taken from a
+Sanskrit word for “sight” or “vision”.
+
+Darshan can be used to investigate and tune the I/O behavior of
+complex HPC applications.  In addition, Darshan’s lightweight design
+makes it suitable for full time deployment for workload
+characterization of large systems.  We hope that such studies will
+help the storage research community to better serve the needs of
+scientific computing.
+
+Darshan was originally developed on the IBM Blue Gene series of
+computers deployed at the Argonne Leadership Computing Facility, but
+it is portable across a wide variety of platforms include the Cray
+XE6, Cray XC30, and Linux clusters.  Darshan routinely instruments
+jobs using up to 786,432 compute cores on the Mira system at ALCF.
+"""
+
+usage = """
+Export the environment variable DARSHAN_LOG_PATH to where the logging
+data should be written, e.g.
+
+LD_PRELOAD=$EBROOTDARSHANMINRUNTIME/lib/libdarshan.so \
+DARSHAN_LOG_PATH=/path/to/your/logdir \
+srun -n 32 ./executable
+
+Note:
+
+Darshan currently only works with C or C++ codes, not with Fortran.
+"""
+
+toolchain = {'name': 'nvompic', 'version': '2021b'}
+
+sources = ['ftp://ftp.mcs.anl.gov/pub/darshan/releases/darshan-%s.tar.gz' % version]
+checksums = ['7cc88b7c130ec3b574f6b73c63c3c05deec67b1350245de6d39ca91d4cff0842']
+
+local_subpath = 'darshan-runtime'
+preconfigopts = 'cd %s; ../prepare.sh;' % local_subpath
+configopts = '--with-mem-align=8 --with-log-path-by-env=DARSHAN_LOG_PATH '
+configopts += ' --with-jobid-env=SLURM_JOBID CC=mpicc --enable-hdf5-mod --with-hdf5=$EBROOTHDF5'
+
+prebuildopts = 'cd %s;' % local_subpath
+
+preinstallopts = 'cd %s;' % local_subpath
+
+sanity_check_paths = {
+    'files': ["lib/libdarshan.so"],
+    'dirs': []
+}
+
+dependencies = [
+    ("HDF5", "1.12.1"),
+]
+
+
+moduleclass = 'lib'

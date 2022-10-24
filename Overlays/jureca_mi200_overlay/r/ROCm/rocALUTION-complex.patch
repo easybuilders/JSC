@@ -1,0 +1,82 @@
+diff --git a/src/base/hip/hip_vector.hpp b/src/base/hip/hip_vector.hpp
+index 0444528..a432359 100644
+--- a/src/base/hip/hip_vector.hpp
++++ b/src/base/hip/hip_vector.hpp
+@@ -30,11 +30,77 @@
+ #include "../base_vector.hpp"
+ 
+ #include <hip/hip_runtime.h>
++#include <hip/amd_detail/amd_hip_complex.h>
+ 
+ #include <complex>
+ 
+ #include "hip_rand.hpp"
+ 
++#if defined(__HIPCC_RTC__)
++#define __HOST_DEVICE__ __device__
++#else
++#define __HOST_DEVICE__ __host__ __device__
++#endif // !defined(__HIPCC_RTC__)
++
++// Gotta put these somewhere
++__HOST_DEVICE__ inline std::complex<float> operator+(const std::complex<float> a, const std::complex<float> b)
++{
++    auto ahip = make_hipFloatComplex(a.real(), a.imag());
++    auto bhip = make_hipFloatComplex(b.real(), b.imag());
++    auto res = a+b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<float> operator-(const std::complex<float> a, const std::complex<float> b)
++{
++    auto ahip = make_hipFloatComplex(a.real(), a.imag());
++    auto bhip = make_hipFloatComplex(b.real(), b.imag());
++    auto res = a-b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<float> operator*(const std::complex<float> a, const std::complex<float> b)
++{
++    auto ahip = make_hipFloatComplex(a.real(), a.imag());
++    auto bhip = make_hipFloatComplex(b.real(), b.imag());
++    auto res = a*b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<float> operator/(const std::complex<float> a, const std::complex<float> b)
++{
++    auto ahip = make_hipFloatComplex(a.real(), a.imag());
++    auto bhip = make_hipFloatComplex(b.real(), b.imag());
++    auto res = a/b;
++    return res;
++}
++
++__HOST_DEVICE__ inline std::complex<double> operator+(const std::complex<double> a, const std::complex<double> b)
++{
++    auto ahip = make_hipDoubleComplex(a.real(), a.imag());
++    auto bhip = make_hipDoubleComplex(b.real(), b.imag());
++    auto res = a+b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<double> operator-(const std::complex<double> a, const std::complex<double> b)
++{
++    auto ahip = make_hipDoubleComplex(a.real(), a.imag());
++    auto bhip = make_hipDoubleComplex(b.real(), b.imag());
++    auto res = a-b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<double> operator*(const std::complex<double> a, const std::complex<double> b)
++{
++    auto ahip = make_hipDoubleComplex(a.real(), a.imag());
++    auto bhip = make_hipDoubleComplex(b.real(), b.imag());
++    auto res = a*b;
++    return res;
++}
++__HOST_DEVICE__ inline std::complex<double> operator/(const std::complex<double> a, const std::complex<double> b)
++{
++    auto ahip = make_hipDoubleComplex(a.real(), a.imag());
++    auto bhip = make_hipDoubleComplex(b.real(), b.imag());
++    auto res = a/b;
++    return res;
++}
++
+ namespace rocalution
+ {
+     template <typename ValueType>

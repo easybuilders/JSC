@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "ConfigureMake"
+name = "darshan-util"
+version = "3.3.1"
+
+homepage = 'http://www.mcs.anl.gov/research/projects/darshan/'
+
+description = """Darshan is designed to capture an accurate picture of
+application I/O behavior, including properties such as patterns of
+access within files, with minimum overhead.  The name is taken from a
+Sanskrit word for “sight” or “vision”.
+
+Darshan can be used to investigate and tune the I/O behavior of
+complex HPC applications.  In addition, Darshan’s lightweight design
+makes it suitable for full time deployment for workload
+characterization of large systems.  We hope that such studies will
+help the storage research community to better serve the needs of
+scientific computing.
+
+Darshan was originally developed on the IBM Blue Gene series of
+computers deployed at the Argonne Leadership Computing Facility, but
+it is portable across a wide variety of platforms include the Cray
+XE6, Cray XC30, and Linux clusters.  Darshan routinely instruments
+jobs using up to 786,432 compute cores on the Mira system at ALCF.
+"""
+
+usage = """
+The result is a darshan log file which can be converted using
+
+darshan-job-summary.pl /path/to/your/logdir/mylog.darshan.gz
+
+Note:
+
+Darshan currently only works with C or C++ codes, not with Fortran.
+"""
+
+toolchain = {'name': 'npsmpic', 'version': '2021b'}
+
+sources = ['ftp://ftp.mcs.anl.gov/pub/darshan/releases/darshan-%s.tar.gz' % version]
+checksums = ['281d871335977d0592a49d053df93d68ce1840f6fdec27fea7a59586a84395f7']  # darshan-3.3.1.tar.gz
+
+local_subpath = 'darshan-util'
+
+preconfigopts = 'cd %s;' % local_subpath
+
+prebuildopts = 'cd %s;' % local_subpath
+
+preinstallopts = 'cd %s;' % local_subpath
+
+configopts = '--enable-hdf5-mod=$EBROOTHDF5'
+
+sanity_check_paths = {
+    'files': ["bin/darshan-job-summary.pl"],
+    'dirs': []
+}
+
+dependencies = [
+    ("gnuplot", "5.4.2"),
+    ("Perl", "5.34.0"),
+    ("HDF5", "1.12.1"),
+    ('texlive', '20200406'),
+]
+
+exts_defaultclass = 'PerlModule'
+exts_list = [
+    ('Pod::Parser', '1.63', {
+        'source_tmpl': 'Pod-Parser-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/M/MA/MAREKR/'],
+        'checksums': ['dbe0b56129975b2f83a02841e8e0ed47be80f060686c66ea37e529d97aa70ccd'],
+    }),
+]
+
+modextrapaths = {'PERL5LIB': 'lib/perl5/%(perlver)s/'}
+
+moduleclass = 'lib'

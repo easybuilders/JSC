@@ -1,0 +1,58 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# EasyConfig for lpeg (NeoVim dependency)
+# Copyright 2019-2022 Stepan Nassyr @ Forschungszentrum Juelich
+easyblock = 'MakeCp'
+
+name = 'lpeg'
+version = '1.0.2'
+
+homepage = 'http://www.inf.puc-rio.br/~roberto/lpeg/'
+description = """LPeg is a new pattern-matching library for Lua, based on Parsing Expression Grammars (PEGs). 
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = ['http://www.inf.puc-rio.br/~roberto/%(name)s/']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = ['48d66576051b6c78388faad09b70493093264588fcd0f258ddaab1cdd4a15ffe']
+
+builddependencies = [
+    ('LuaJIT2-OpenResty', '2.1-20220411'),
+    ('binutils', '2.37'),
+]
+
+prebuildopts = (
+    "sed 's/^CFLAGS =/CFLAGS +=/' -i \"%(builddir)s/%(name)s-%(version)s\"/makefile &&"
+    "sed 's/^LUADIR =/LUADIR ?=/' -i \"%(builddir)s/%(name)s-%(version)s\"/makefile &&"
+    "sed 's/^COPT =/# COPT =/' -i \"%(builddir)s/%(name)s-%(version)s\"/makefile && "
+)
+build_cmd = "make LUADIR=$EBROOTLUAJIT2MINOPENRESTY/include/luajit-2.1/ DLLFLAGS=-lluajit-5.1"
+
+files_to_copy = [
+    (['%(name)s.so'], 'lib/lua/5.1/'),
+    (['re.lua'], 'share/lua/5.1/')
+]
+
+sanity_check_paths = {
+    'files': ['lib/lua/5.1/%(name)s.so',
+              'share/lua/5.1/re.lua'],
+    'dirs': [],
+}
+
+modluafooter = """
+libmpack_lua_root = os.getenv("EBROOTLPEG")
+lua_cpath         = os.getenv("LUA_CPATH")
+lua_path          = os.getenv("LUA_PATH")
+if nil == lua_cpath then
+  setenv("LUA_CPATH", libmpack_lua_root .. "/lib/lua/5.1/?.so;;")
+else
+  prepend_path("LUA_CPATH", libmpack_lua_root .. "/lib/lua/5.1/?.so", ";")
+end
+if nil == lua_path then
+  setenv("LUA_PATH", libmpack_lua_root .. "/share/lua/5.1/?.lua;;")
+else
+  prepend_path("LUA_PATH", libmpack_lua_root .. "/share/lua/5.1/?.lua", ";")
+end
+"""
+
+moduleclass = 'lib'

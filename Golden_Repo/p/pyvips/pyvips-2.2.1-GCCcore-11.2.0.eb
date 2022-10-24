@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'pyvips'
+version = '2.2.1'
+
+homepage = 'https://github.com/libvips/pyvips/tags'
+description = """Pyvips is the python bindings for libvips: a demand-driven, 
+            horizontally threaded image processing library."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+source_urls = ['https://github.com/libvips/pyvips/archive']
+sources = ['v%(version)s.tar.gz']
+checksums = ['37a0fc33556a1057ba05dc5a6f3029975539c5f0b63bd84ecd6eae3862898103']
+
+builddependencies = [('binutils', '2.37')]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('OpenSlide', '3.4.1'),
+    ('libvips', '8.13.1'),
+    ('pkgconfig', '1.5.5', '-python'),
+]
+
+use_pip = True
+download_dep_fail = True
+sanity_pip_check = True
+
+options = {'modulename': 'pyvips'}
+
+moduleclass = 'vis'

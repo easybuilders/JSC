@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# EasyConfig for Unibilium (NeoVim dependency)
+#
+# Copyright 2019-2022 Stepan Nassyr @ Forschungszentrum Juelich
+easyblock = 'CMakeNinja'
+
+name = 'unibilium'
+version = '2.1.1'
+
+homepage = 'https://github.com/neovim/unibilium'
+description = """Unibilium is a very basic terminfo library
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'neovim'
+source_urls = [GITHUB_SOURCE]
+sources = [
+    {
+        'download_filename': 'v%(version)s.tar.gz',
+        'filename': SOURCELOWER_TAR_GZ
+    }
+]
+checksums = ['6f0ee21c8605340cfbb458cbd195b4d074e6d16dd0c0e12f2627ca773f3cabf1']
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+]
+
+sanity_check_paths = {
+    'files': ['include/unibilium.h', 'lib/libunibilium.a'],
+    'dirs': []
+}
+
+moduleclass = 'lib'

@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'gfxreconstruct'
+version = '1.3.213'
+
+homepage = 'https://www.khronos.org/registry/SPIR-V/'
+description = """Graphics API Capture and Replay Tools for Reconstructing Graphics Application Behavior """
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'LunarG'
+
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'filename': SOURCELOWER_TAR_GZ,
+    # 'download_filename': 'sdk-%(version)s.tar.gz'
+    'download_filename': '365757b47e32cf8346c00300fc82deb47969b76f.tar.gz'
+}]
+checksums = ['1a72841d57cb81efea0a47797c6d4d64be449ba304e471341137d3a90a94917a']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+]
+
+dependencies = [
+    ('Vulkan-Headers', version),
+    ('Vulkan-Loader', version),
+]
+
+configopts = '-DVULKAN_HEADER=$EBROOTVULKANMINHEADERS/include/vulkan/vulkan_core.h'
+
+modextrapaths = {
+    'VK_LAYER_PATH': ['share/vulkan/explicit_layer.d/']
+}
+
+
+sanity_check_paths = {
+    'files': [
+        'bin/gfxrecon-info',
+        'bin/gfxrecon-compress',
+        'bin/gfxrecon-capture.py',
+        'bin/gfxrecon.py',
+        'bin/gfxrecon-extract',
+        'bin/gfxrecon-optimize',
+        'bin/gfxrecon-replay',
+        'share/vulkan/explicit_layer.d/VkLayer_gfxreconstruct.json',
+        'lib64/libVkLayer_gfxreconstruct.so',
+    ],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

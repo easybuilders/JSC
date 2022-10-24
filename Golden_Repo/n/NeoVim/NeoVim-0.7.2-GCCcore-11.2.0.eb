@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# NeoVim EasyConfig
+# Copyright 2019-2022 Stepan Nassyr @ Forschungszentrum Juelich
+easyblock = 'CMakeNinja'
+
+name = 'NeoVim'
+version = '0.7.2'
+# versionsuffix = "-Python-%(pyver)s"
+
+homepage = 'https://neovim.io'
+description = """hyperextensible Vim-based text editor
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'neovim'
+source_urls = [GITHUB_LOWER_SOURCE]
+sources = [
+    {
+        'download_filename': 'v%(version)s.tar.gz',
+        'filename':          SOURCELOWER_TAR_GZ,
+    }
+]
+
+checksums = [
+    'ccab8ca02a0c292de9ea14b39f84f90b635a69282de38a6b4ccc8565bc65d096',
+]
+
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+    ('binutils', '2.37'),
+    ('Autoconf', '2.71'),
+    ('Automake', '1.16.4'),
+    ('pkg-config', '0.29.2'),
+    ('UnZip',      '6.0'),
+]
+
+dependencies = [
+    ('Python',      '3.9.6'),
+    ('Perl',        '5.34.0'),
+    ('jemalloc',    '5.2.1'),
+    ('msgpack-c',   '4.0.0'),
+    ('gperf',       '3.1'),
+    ('libmpack-lua', '1.0.9'),
+    ('libvterm',    '0.1.3'),
+    ('libtermkey',  '0.22'),
+    ('libuv',       '1.44.2'),
+    ('LuaJIT2-OpenResty', '2.1-20220411'),
+    ('luv',         '1.44.2-0'),
+    ('lpeg',        '1.0.2'),
+    ('tree-sitter', '0.20.6'),
+    ('unibilium',   '2.1.1'),
+    ('utf8proc',    '2.6.1'),
+]
+
+separate_build_dir = True
+
+# Use system libs
+configopts = (" -DDEPS_CMAKE_FLAGS=\"-DUSE_BUNDLED_UNIBILIUM=OFF -DUSE_BUNDLED_LIBTERMKEY=OFF "
+              " -DUSE_BUNDLED_LIBVTERM=OFF -DUSE_BUNDLED_LUAJIT=OFF\" ")
+
+# Use bundled
+# osdependencies = ['unibilium-devel']
+
+
+sanity_check_paths = {
+    'files': ['bin/nvim'],
+    'dirs': ['bin'],
+}
+
+moduleclass = 'tools'

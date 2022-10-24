@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'NCCL'
+version = '2.14.3-1'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://developer.nvidia.com/nccl'
+description = """The NVIDIA Collective Communications Library (NCCL) implements multi-GPU and multi-node collective
+communication primitives that are performance optimized for NVIDIA GPUs."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'NVIDIA'
+sources = [{
+    'filename': '%(name)s-%(version)s.tar.gz',
+    'git_config': {
+        'url': 'https://github.com/NVIDIA/',
+        'repo_name': 'nccl',
+        'tag': 'v%(version)s',
+        'recursive': True,
+    },
+}]
+checksums = ['8108e00bcf995666330484cf24a5cc52c3a392acaa5aeabf88e2e168e07c291d']
+
+builddependencies = [('binutils', '2.37')]
+
+dependencies = [
+    ('CUDA', '11.5', '', True),
+    ('UCX', 'default', '', SYSTEM),
+]
+
+moduleclass = 'lib'

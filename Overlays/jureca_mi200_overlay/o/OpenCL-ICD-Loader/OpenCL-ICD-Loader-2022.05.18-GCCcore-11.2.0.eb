@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'OpenCL-ICD-Loader'
+version = '2022.05.18'
+
+homepage = 'https://github.com/KhronosGroup/OpenCL-ICD-Loader'
+description = """ OpenCL defines an Installable Client Driver (ICD) mechanism to allow developers to build 
+                  applications against an Installable Client Driver loader (ICD loader) rather than linking their 
+                  applications against a specific OpenCL implementation."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'KhronosGroup'
+
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['71f70bba797a501b13b6b0905dc852f3fd6e264d74ce294f2df98d29914c4303']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+    ('binutils', '2.37')
+]
+
+dependencies = [
+    ('OpenCL-Headers', version)
+]
+
+separate_build_dir = True
+
+sanity_check_paths = {
+    'files': ['lib/libOpenCL.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'lib'

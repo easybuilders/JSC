@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'Vulkan-Tools'
+version = '1.3.213'
+
+homepage = 'https://www.vulkan.org/'
+description = """Provides Khronos official Vulkan Tools and Utilities"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+github_account = 'KhronosGroup'
+
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'filename':          SOURCELOWER_TAR_GZ,
+    'download_filename': 'v%(version)s.tar.gz'
+}]
+checksums = ['2b20b9c8cefe26f8d7df5f6b270c6a6d4dcf5fe0995f779abac2f0fa658c5798']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+]
+
+dependencies = [
+    ('Vulkan-Headers', version),
+    ('Vulkan-Loader', version),
+    ('X11', '20210802'),
+]
+
+configopts = '-DBUILD_WSI_WAYLAND_SUPPORT=OFF'
+
+sanity_check_paths = {
+    'files': ['bin/%s' % f for f in ['vkcube', 'vkcubepp', 'vulkaninfo']],
+    'dirs': [],
+}
+
+moduleclass = 'devel'

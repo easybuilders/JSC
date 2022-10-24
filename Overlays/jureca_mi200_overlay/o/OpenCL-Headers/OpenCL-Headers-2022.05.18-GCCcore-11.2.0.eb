@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'OpenCL-Headers'
+version = '2022.05.18'
+
+homepage = 'https://github.com/KhronosGroup/OpenCL-Headers'
+description = "Headers for Khronos' OpenCL API"
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'KhronosGroup'
+
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['88a1177853b279eaf574e2aafad26a84be1a6f615ab1b00c20d5af2ace95c42e']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+    ('binutils', '2.37')
+]
+
+separate_build_dir = True
+
+sanity_check_paths = {
+    'files': ['include/CL/cl.h'],
+    'dirs': ['include/CL', 'share/cmake'],
+}
+
+moduleclass = 'lib'

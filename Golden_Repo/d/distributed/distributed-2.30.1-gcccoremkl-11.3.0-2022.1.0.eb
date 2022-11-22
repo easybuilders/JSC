@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'distributed'
+version = '2022.10.2'
+
+homepage = 'https://distributed.readthedocs.io/'
+description = """Dask.distributed is a lightweight library for distributed computing in Python.
+ It extends both the concurrent.futures and dask APIs to moderate sized clusters."""
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('dask', '2022.10.2'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('bokeh', '2.4.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+]
+
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'sanity_pip_check': True,
+}
+
+exts_list = [
+    (name, version, {
+        'source_urls': ['https://pypi.python.org/packages/source/d/distributed'],
+        'checksums': ['53f0a5bf6efab9a5ab3345cd913f6d3f3d4ea444ee2edbea331c7fef96fd67d0'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/dask-scheduler', 'bin/dask-ssh', 'bin/dask-worker'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+moduleclass = 'tools'

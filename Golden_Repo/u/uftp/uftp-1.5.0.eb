@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'uftp'
+version = '1.5.0'
+
+homepage = 'https://unicore-dev.zam.kfa-juelich.de/documentation/uftpclient-%(version)s/uftpclient-manual.html'
+description = """The UFTP standalone client provides high-performance file transfer."""
+
+toolchain = SYSTEM
+
+source_urls = [
+    'https://master.dl.sourceforge.net/project/unicore/Clients/UFTP-Client/%(version)s/']
+sources = ['uftp-client-%(version)s-all.zip']
+checksums = ['05e405d13156a76a839997792053f80e6f8f545f8c4516a68968eea6845fe659']
+
+dependencies = [
+    ('Java', '11'),
+]
+
+postinstallcmds = [
+    'chmod +x %(installdir)s/bin/uftp',
+]
+
+modextravars = {
+    'UFTP_SHARE_URL': 'https://uftp.fz-juelich.de:7112/UFTP_Auth/rest/share/JUDAC',
+    'UFTP_JUDAC': 'https://uftp.fz-juelich.de:7112/UFTP_Auth/rest/auth/JUDAC:'
+}
+
+sanity_check_paths = {
+    'files': ['bin/uftp'],
+    'dirs': ['bin'],
+}
+
+moduleclass = 'tools'

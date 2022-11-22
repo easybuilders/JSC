@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'byacc'
+version = '20221106'
+
+homepage = 'http://invisible-island.net/byacc/byacc.html'
+description = """Berkeley Yacc (byacc) is generally conceded to be the best yacc variant available.
+ In contrast to bison, it is written to avoid dependencies upon a particular compiler.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = ['ftp://ftp.invisible-island.net/byacc']
+sources = [SOURCELOWER_TGZ]
+checksums = ['a899be227bbcac9cf7700f7dbb5a8494688f1f9f0617b510762daeace47b9d12']
+
+builddependencies = [('binutils', '2.38')]
+
+sanity_check_paths = {
+    'files': ["bin/yacc"],
+    'dirs': []
+}

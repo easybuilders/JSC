@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'gpsmkl'
+version = '2022a'
+
+homepage = '(none)'
+description = 'GCC and GFortran based compiler toolchain, ParaStation MPICH variant for MPI support and MKL'
+
+
+toolchain = SYSTEM
+
+local_compiler = ('GCC', '11.3.0')
+
+# toolchain used to build  dependencies
+local_comp_mpi_tc = ('gpsmpi', version)
+local_mkl_ver = '2022.1.0'
+
+# compiler toolchain dependencies
+dependencies = [
+    local_compiler,
+    ('psmpi', '5.6.0-1', '', local_compiler),  # part of gpsmpi toolchain
+    ('imkl', local_mkl_ver, '', SYSTEM),
+    ('imkl-FFTW', local_mkl_ver, '', local_comp_mpi_tc),
+]
+
+moduleclass = 'toolchain'

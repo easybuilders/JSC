@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'Shapely'
+version = '1.8.5.post1'
+
+homepage = 'https://github.com/Toblerity/Shapely'
+description = """Shapely is a BSD-licensed Python package for manipulation and analysis of planar geometric objects.
+It is based on the widely deployed GEOS (the engine of PostGIS) and JTS (from which GEOS is ported) libraries."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+checksums = ['ef3be705c3eac282a28058e6c6e5503419b250f482320df2172abcbea642c831']
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('GEOS', '3.11.1'),
+]
+
+download_dep_fail = True
+use_pip = True
+sanity_pip_check = True
+
+moduleclass = 'math'

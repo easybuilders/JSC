@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# jg (CSCS)
+# AH (JSC)
+easyblock = 'Binary'
+
+name = 'Nsight-Compute'
+version = '2022.2.1'
+homepage = 'https://developer.nvidia.com/nsight-compute'
+description = 'NVIDIA Nsight Compute is an interactive kernel profiler for CUDA applications'
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+# Download source binary package manually, requires Nvidia Developer Account
+# source_urls = 'https://developer.nvidia.com/nsight-compute'
+sources = [{
+    'filename': 'nsight-compute-linux-%(version)s.3-31343264.run',
+    'extract_cmd': '/bin/sh %s'
+}]
+checksums = ['33e2ca2b26f2eb58015c7861ed77e97ef3c87545d19c93d59ac378e9e5c0a69b']
+
+# Not really necessary, but useful if we use this as a template for another package
+builddependencies = [
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('X11', '20220504')
+]
+
+extract_sources = True
+unpack_options = '--nochown --noexec --nox11 --target %(builddir)s'
+
+install_cmd = 'cp -r %(builddir)s/pkg/* %(installdir)s/'
+
+# Workaround due to wrong permissions once the files are extracted from the .run file
+postinstallcmds = [
+    'find %(installdir)s -type f -and -executable -and ! -name "lib*" -exec chmod go+x {} \;']
+
+sanity_check_paths = {
+    'files': ['ncu-ui', 'ncu'],
+    'dirs': ['docs', 'extras', 'host', 'sections', 'target']
+}
+
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'tools'

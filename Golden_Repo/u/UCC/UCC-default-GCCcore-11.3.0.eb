@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# For figuring out the correct GPU arch. Easyconfig templates can't be used,
+# since we have in some systems more than 1 compute capability.
+# The local prefix is to appease the checker
+import os as local_os
+
+easyblock = 'ConfigureMake'
+
+name = 'UCC'
+version = 'default'
+local_realversion = '1.1.0-rc1'
+
+homepage = 'https://www.openucx.org/'
+description = f"""UCC (Unified Collective Communication) is a collective
+communication operations API and library that is flexible, complete, and 
+feature-rich for current and emerging programming models and runtimes.
+
+The real version of this package is {local_realversion}
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/openucx/ucc/archive/refs/tags']
+sources = [f'v{local_realversion}.tar.gz']
+checksums = [
+    '4af76d706a788af081c4a6ce566b6d4e33d75629ce9a8a7b8eec1760eff13168',  # v1.1.0-rc1.tar.gz
+]
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('Autotools', '20220317'),
+]
+
+dependencies = [
+    ('UCX', 'default'),
+    ('CUDA', '11.7', '', SYSTEM),
+    ('NCCL', 'default', '-CUDA-%(cudashortver)s'),
+]
+
+preconfigopts = "./autogen.sh && "
+
+local_gpu_cc = local_os.environ["EASYBUILD_CUDA_COMPUTE_CAPABILITIES"].split(',')[0].replace('.', '')
+
+configopts = "--enable-optimizations "
+configopts += f"--with-nvcc-gencode=-gencode=arch=compute_{local_gpu_cc},code=sm_{local_gpu_cc} "
+configopts += "--with-ucx=$EBROOTUCX "
+configopts += "--with-cuda=$EBROOTCUDA "
+configopts += "--with-nccl=$EBROOTNCCL "
+configopts += "--with-sharp=/opt/mellanox/sharp "
+
+sanity_check_paths = {
+    'files': ['bin/ucc_info'],
+    'dirs': ['include', 'lib']
+}
+
+sanity_check_commands = ["ucc_info -c"]
+
+moduleclass = 'lib'

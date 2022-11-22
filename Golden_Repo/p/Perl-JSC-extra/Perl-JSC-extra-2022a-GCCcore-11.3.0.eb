@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Perl-JSC-extra'
+version = '2022a'
+
+homepage = 'https://www.perl.org/'
+description = """Perl-JSC-extra Stack is a collection of open source software for scientific computing in Python"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+# this is a bundle of Perl modules
+exts_defaultclass = 'PerlModule'
+exts_filter = ("perldoc -lm %(ext_name)s ", "")
+
+dependencies = [
+    ('Perl', '5.34.1'),
+    ('XML-LibXML', '2.0207'),
+    ('DB_File', '1.858'),
+    ('BioPerl', '1.7.8'),
+]
+
+# !! order of extensions is important !!
+# extensions updated on Apr 28th 2022
+exts_list = [
+    ('Date::Calc', '6.4', {
+        'source_tmpl': 'Date-Calc-%(version)s.tar.gz',
+        'source_urls': ['http://search.cpan.org/CPAN/authors/id/S/ST/STBEY'],
+        'checksums': ['7ce137b2e797b7c0901f3adf1a05a19343356cd1f04676aa1c56a9f624f859ad'],
+    }),
+]
+
+modextrapaths = {
+    'PERL5LIB': 'lib/perl5/site_perl/%(perlver)s/',
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/perl5/site_perl/%(perlver)s/Date'],
+}
+
+moduleclass = 'lang'

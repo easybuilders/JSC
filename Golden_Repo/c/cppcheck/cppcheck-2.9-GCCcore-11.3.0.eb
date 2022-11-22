@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+name = 'cppcheck'
+version = '2.9'
+
+homepage = 'http://cppcheck.sourceforge.net/'
+description = """Cppcheck is a static analysis tool for C/C++ code"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources = ['%(name)s-%(version)s.tar.bz2']
+checksums = ['d89f3282c70814fa66669e1ea0323c0484563b3f8249c7a2dcaac2ad07651dc7']
+
+dependencies = [
+    ('binutils', '2.38'),
+    ('Qt5', '5.15.5'),
+    ('PCRE', '8.45'),
+    ('CMake', '3.23.1'),
+]
+
+configopts = '-DUSE_Z3:BOOL=OFF'
+
+sanity_check_paths = {
+    'files': ['bin/cppcheck'],
+    'dirs': [],
+}
+
+moduleclass = 'lang'

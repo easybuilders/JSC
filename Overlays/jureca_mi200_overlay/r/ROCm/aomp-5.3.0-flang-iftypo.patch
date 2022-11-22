@@ -1,0 +1,13 @@
+diff --git a/bin/build_flang.sh b/bin/build_flang.sh
+index e9c3260f..ba9879b5 100755
+--- a/bin/build_flang.sh
++++ b/bin/build_flang.sh
+@@ -160,7 +160,7 @@ if [ "$1" == "install" ] ; then
+      echo "Copy flang, flang1, flang2 into $OUT_DIR/llvm/bin"
+      cp $OUT_DIR/openmp-extras/devel/bin/flang1 $OUT_DIR/llvm/bin
+      cp $OUT_DIR/openmp-extras/devel/bin/flang2 $OUT_DIR/llvm/bin
+-   elif [-d $OUT_DIR/openmp-extras ]; then
++   elif [ -d $OUT_DIR/openmp-extras ]; then
+      echo "Add flang symbolic link."
+      echo "Copy flang, flang1, flang2 into $OUT_DIR/llvm/bin"
+      cp $OUT_DIR/openmp-extras/bin/flang1 $OUT_DIR/llvm/bin

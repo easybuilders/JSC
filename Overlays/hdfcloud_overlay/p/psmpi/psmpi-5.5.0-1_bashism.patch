@@ -1,0 +1,24 @@
+diff -ruN psmpi-5.5.0-1.orig/mpich2/modules/yaksa/src/backend/cuda/cudalt.sh psmpi-5.5.0-1/mpich2/modules/yaksa/src/backend/cuda/cudalt.sh
+--- psmpi-5.5.0-1.orig/mpich2/modules/yaksa/src/backend/cuda/cudalt.sh 2021-10-21 20:06:57.000000000 +0200
++++ psmpi-5.5.0-1/mpich2/modules/yaksa/src/backend/cuda/cudalt.sh 2021-11-09 14:53:59.545886977 +0100
+@@ -14,6 +14,7 @@ fi
+
+ LO_FILEPATH="$1"
+ O_FILEPATH="${LO_FILEPATH%%.lo}.o"
++shift # handle the rest of the arguments together with ${@}
+
+ LO_DIR=$(dirname $O_FILEPATH)
+ O_FILENAME=$(basename $O_FILEPATH)
+@@ -32,11 +33,11 @@ if test ! -d "$PIC_DIR" ; then
+     mkdir -p "$PIC_DIR"
+ fi
+
+-CMD="${@:2} -Xcompiler -fPIC -o $PIC_FILEPATH"
++CMD="${@} -Xcompiler -fPIC -o $PIC_FILEPATH"
+ if test "$verbose" ; then echo "$CMD" ; fi
+ eval "$CMD"
+
+-CMD="${@:2} -o $NPIC_FILEPATH"
++CMD="${@} -o $NPIC_FILEPATH"
+ if test "$verbose" ; then echo "$CMD" ; fi
+ eval "$CMD"

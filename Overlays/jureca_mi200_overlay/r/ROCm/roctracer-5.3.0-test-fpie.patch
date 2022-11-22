@@ -1,0 +1,12 @@
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index 65d1fbd..866f87d 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -66,6 +66,7 @@ hip_add_executable(MatrixTranspose_ctest MatrixTranspose.c)
+ target_compile_definitions(MatrixTranspose_ctest PRIVATE HIP_TEST=0 __HIP_PLATFORM_HCC__)
+ target_include_directories(MatrixTranspose_ctest PRIVATE ${PROJECT_SOURCE_DIR}/inc)
+ target_link_libraries(MatrixTranspose_ctest PRIVATE roctracer roctx)
++target_compile_options(MatrixTranspose_ctest PRIVATE -fPIE)
+ add_dependencies(mytest MatrixTranspose_ctest)
+ 
+ ## Build hsaco_test reference test

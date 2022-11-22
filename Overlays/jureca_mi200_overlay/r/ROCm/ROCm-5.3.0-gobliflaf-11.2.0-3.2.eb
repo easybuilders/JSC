@@ -34,7 +34,7 @@
 
 easyblock = 'Bundle'
 name = 'ROCm'
-version = '5.1.3'
+version = '5.3.0'
 
 homepage = 'https://github.com/RadeonOpenCompute/ROCm'
 description = """AMD ROCm - Open Source Platform for HPC and Ultrascale GPU Computing."""
@@ -44,7 +44,7 @@ description = """AMD ROCm - Open Source Platform for HPC and Ultrascale GPU Comp
 # rocALUTION asks for mpi (I think it can build without it though)
 # OpenMPI needs ROCm at compile time to support it, so this might be problematic ("ROCm-Bare" package containing only
 # what OpenMPI needs?)
-toolchain = {'name': 'gompi', 'version': '2021b'}
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
 
 
 builddependencies = [
@@ -70,10 +70,7 @@ dependencies = [
     ("msgpack-c",         "4.0.0"),      # AMDMIGraphX
     ("msgpack-cpp",       "4.1.1"),      # AMDMIGraphX
     ("pybind11",          "2.7.1"),      # AMDMIGraphX
-    ("Blaze",             "3.8.1",
-     '', ('gomkl', '2021b')),            # AMDMIGraphX
-    # AMDMIGraphX, probably getting it from Blaze, but better to put explicit
-    ("imkl",              "2021.4.0"),
+    ("Blaze",             "3.8.1"),            # AMDMIGraphX
     # dependency
     # ("FFmpeg",            "4.4.1"),                              # MIVisionX
     # ("OpenCV",            "4.5.4", '', ('gcccoremkl','2021b')),  # MIVisionX
@@ -85,7 +82,9 @@ dependencies = [
 default_easyblock = 'CMakeNinja'
 github_account = "RadeonOpenCompute"
 
-local_amdgpu_targets = "gfx90a"
+local_gpus = ["gfx90a:xnack-", "gfx90a:xnack+"]
+local_amdgpu_targets = ";".join(local_gpus)
+local_hip_targets = " ".join(local_gpus)
 
 components = [
     ('ROCT-Thunk-Interface', version,
@@ -95,7 +94,7 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':  ['3c66b1aa7451571ce8bee10e601d34b93c9416b9be476610ee5685dbad81034a'],
+         'checksums':  ['c150be3958fd46e57bfc9db187819ec34b1db8f0cf9b69f8c3f8915001800ab8'],
          'srcdir':     '%(name)s-rocm-%(version)s'
      }),
     ('rocm-cmake', version,
@@ -105,7 +104,7 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums': ['19b2da0d56300aab454655b57435ab3ed9e101ecb96561336ea8865bbd993c23'],
+         'checksums': ['659a8327f13e6786103dd562d3632e89a51244548fca081f46c753857cf09d04'],
          'srcdir':    '%(name)s-rocm-%(version)s'
      }),
     ('llvm-project', version,
@@ -115,7 +114,7 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          'rocm-llvm-%(version)s.tar.gz',
          }],
-         'checksums': ['d236a2064363c0278f7ba1bb2ff1545ee4c52278c50640e8bb2b9cfef8a2f128'],
+         'checksums': ['4e3fcddb5b8ea8dcaa4417e0e31a9c2bbdc9e7d4ac3401635a636df32905c93e'],
          'srcdir':    '%(name)s-rocm-%(version)s/llvm',
          'install_target_subdir': 'llvm',
          'configopts': (" -DLLVM_HOST_TRIPLE=x86_64-linux-gnu "
@@ -136,7 +135,7 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':  ['c41958560ec29c8bf91332b9f668793463904a2081c330c0d828bf2f91d4f04e'],
+         'checksums':  ['f7e1665a1650d3d0481bec68252e8a5e68adc2c867c63c570f6190a1d2fe735c'],
          'srcdir':     '%(name)s-rocm-%(version)s',
          'configopts': " -DLLVM_DIR=%(installdir)s/llvm/lib/cmake/llvm "
      }),
@@ -147,28 +146,30 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':  ['3078c10e9a852fe8357712a263ad775b15944e083f93a879935c877511066ac9'],
+         'checksums':  ['072f849d79476d87d31d62b962e368762368d540a9da02ee2675963dc4942b2c'],
          'srcdir':     '%(name)s-rocm-%(version)s/lib/comgr',
-         'configopts': " -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+         'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+                        " -DCLANGRT_BUILTINS=\"%(installdir)s/llvm/lib/clang"
+                        "/15.0.0/lib/linux/libclang_rt.builtins-x86_64.a\"")
      }),
     ('hsa-amd-aqlprofile', version,
      {
          'easyblock':   "Binary",
-         'source_urls': ['http://repo.radeon.com/rocm/apt/%(version)s/pool/main/h/hsa-amd-aqlprofile/'],
+         'source_urls': ['http://repo.radeon.com/rocm/apt/%(version_major_minor)s/pool/main/h/hsa-amd-aqlprofile/'],
          'sources':     [{
-             'download_filename': 'hsa-amd-aqlprofile_1.0.0.50103-66_amd64.deb',
+             'download_filename': 'hsa-amd-aqlprofile_1.0.0.50300-63~22.04_amd64.deb',
              'filename':          '%(name)s-%(version)s.deb',
              'extract_cmd':       'ar x %s'
          }],
-         'checksums':   ['ba76a30f078cfd2d4927fd43840f22265ebc0dfd1c03ac3bc36f637b67ec4119'],
+         'checksums':   ['46635f4f019aba1c3a53665430b0de70b992700e852f08b36f54ff33ca7e3ec7'],
          'install_cmd': """
-             mkdir -p %(builddir)s/%(name)s
-             tar -C "%(builddir)s/%(name)s" -xf data.tar.gz;
-             cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/%(name)s/ %(installdir)s/hsa
-             cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/lib/ %(installdir)s/lib
-             cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/share/ %(installdir)s/share
-             ln -sf %(installdir)s/hsa/lib/lib%(name)s64.so %(installdir)s/lib/lib%(name)s64.so
-         """
+                 mkdir -p %(builddir)s/%(name)s
+                 tar -C "%(builddir)s/%(name)s" -xf data.tar.gz;
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/%(name)s/ %(installdir)s/hsa
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/lib/ %(installdir)s/lib
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/share/ %(installdir)s/share
+                 ln -sf %(installdir)s/hsa/lib/lib%(name)s64.so %(installdir)s/lib/lib%(name)s64.so.1
+             """
      }),
     ('ROCR-Runtime', version,
      {
@@ -177,7 +178,7 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':  ['479340ec34cdffbbdb1002c85a47d1fccd23e8394631a1f001ef6130be08287d'],
+         'checksums':  ['b51dbedbe73390e0be748b92158839c82d7fa0e514fede60aa7696dc498facf0'],
          'srcdir':     '%(name)s-rocm-%(version)s/src',
          'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
                         " -DCMAKE_CXX_FLAGS='-DNDEBUG' ")
@@ -189,12 +190,9 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'patches': [
-             ('https://patch-diff.githubusercontent.com/raw/RadeonOpenCompute/rocminfo/pull/53.patch',
-              '%(name)s-rocm-%(version)s')],
+         'patches': [],
          'checksums': [
-             '7aecd7b189e129b77c8f2af70be2926a0f3a5ee89814879bc8477924a7e6f2ae',
-             '95d6f679a7ad45ee663222c85dd5e7d456c9cf5da3cd43455c3c2fe2ee36f0a0',
+             'c279da1d946771d120611b64974fde751534e787a394ceb6b8e0b743c143d782',
          ],
          'srcdir':     '%(name)s-rocm-%(version)s',
          'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
@@ -221,17 +219,12 @@ components = [
              'filename':          'hipamd-%(version)s.tar.gz',
          }],
          'patches': [
-             ('https://github.com/ROCm-Developer-Tools/HIP/commit/d221fb6ebbe24d66855af8160687aa01b0112dec.patch',
-              'HIP-rocm-%(version)s'),
-             ('hipamd-5.1.3-git-hash.patch', 'hipamd-rocm-%(version)s')
          ],
          'checksums': [
-             'ce755ee6e407904eba3f6b3c9efcdd48eb4f58a26b06e1892166d05f19a75973',
-             '44a7fac721abcd93470e1a7e466bdea0c668c253dee93e4f1ea9a72dbce4ba31',
-             'ddee63cdc6515c90bab89572b13e1627b145916cb8ede075ef8446cbb83f0a48',
-             '707f2217f0e7aeb62d7b76830a271056d665542bf5f7a54e40adf4d5f299ca93',
-             'a7991885288152633f2d058c874278fd4e61eafa1992771b8d122c3a3ad9da35',
-             'bf5429dfb95e11844c14fe4d2aced3a023ff4bcc7dd5ded78d81ce3df1f08249',
+             '05225832fb5a4d24f49a773ac27e315239943a6f24291a50d184e2913f2cdbe0',
+             'd251e2efe95dc12f536ce119b2587bed64bbda013969fa72be58062788044a9e',
+             '2bf14116b5e2270928265f5d417b3d0f0f2e13cbc8ec5eb8c80d4d4a58ff7e94',
+             '81e9bd5209a7b400c986f9bf1d7079bcf7169bbcb06fc4fe843644559a4d612e',
          ],
          'srcdir':                'hipamd-rocm-%(version)s/',
          'install_target_subdir': 'hip',
@@ -264,12 +257,15 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          # fix stray ";" in linker flags
-         'patches':   [('llvm-project-mlir-fix-rpath-flags.patch', '%(name)s-rocm-%(version)s')],
-         'checksums': [
-             '936f92707ffe9a1973728503db6365bb7f14e5aeccfaef9f0924e54d25080c69',
-             '53c05fab666019860a60e8a32fdc99046177a1f0dd76a4a5ec9fc3dab7b5bba5',
+         'patches':   [
+             ('https://patch-diff.githubusercontent.com/raw/ROCmSoftwarePlatform/llvm-project-mlir/pull/688.patch',
+              'rocMLIR-rocm-%(version)s')
          ],
-         'srcdir':         '%(name)s-rocm-%(version)s',
+         'checksums': [
+             'e8471a13cb39d33adff34730d3162adaa5d20f9544d61a6a94b39b9b5762ad6d',
+             '7085543c8726b3b14cae675ecccef54847a2525af3a13d34d6e1d52d2a17907a',
+         ],
+         'srcdir':         'rocMLIR-rocm-%(version)s',
          'preconfigopts':  'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
          'prebuildopts':   'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
          'preinstallopts': 'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
@@ -290,7 +286,7 @@ components = [
              ('https://patch-diff.githubusercontent.com/raw/RadeonOpenCompute/rocm_smi_lib/pull/107.patch',
               '%(name)s-rocm-%(version)s')],
          'checksums': [
-             '8a19ce60dc9221545aa50e83e88d8c4be9bf7cde2425cefb13710131dc1d7b1b',
+             '8f72ad825a021d5199fb73726b4975f20682beb966e0ec31b53132bcd56c5408',
              'f1d66af131833a55bcfcac63e9af7194cc38cb1bb583fb74427e4f0f89719910',
          ],
          'srcdir':     '%(name)s-rocm-%(version)s',
@@ -307,13 +303,13 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             'a43448d77705b2b07e1758ffe8035aa6ba146abc2167984e8cb0f1615797b341',
+             'dffc0eb0bc1617843e7f728dbd6c8b12326c5c8baa34369aa267aab40f5deb6a',
          ],
          'srcdir':                '%(name)s-rocm-%(version)s/src',
          'install_target_subdir': 'atmi',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
          'configopts':    " -DROCM_VERSION=\"%(version)s\" " +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets,
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; "
      }),
     ('ROCdbgapi', version,
@@ -327,7 +323,7 @@ components = [
              ('https://patch-diff.githubusercontent.com/raw/ROCm-Developer-Tools/ROCdbgapi/pull/4.patch',
               '%(name)s-rocm-%(version)s')],
          'checksums': [
-             '880f80ebf741e3451676837f720551e02cffd0b9346ca4dfa6cf7f7043282f2b',
+             'afffec78e34fe70952cd41efc3d7ba8f64e43acb2ad20aa35c9b8b591bed48ca',
              '91b29cafec79441e6c311d50ca5653ec8315c401b1cc0f93ce65bfdfdda2e04e',
          ],
          'srcdir': '%(name)s-rocm-%(version)s',
@@ -339,14 +335,14 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':     ['ef26130829f3348d503669467ab1ea39fb67d943d88d64e7ac04b9617ec6067d'],
+         'checksums':     ['8dfb6aa442ce136207c0c089321c8099042395977b4a488e4ca219661df0cd78'],
          'srcdir':         '%(name)s-rocm-%(version)s',
          'preconfigopts':  'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
          'prebuildopts':   'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
          'preinstallopts': 'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
-         'configopts':     " -DCMAKE_HIP_ARCHITECTURES=\"%s\" " % local_amdgpu_targets +\
+         'configopts':     " -DCMAKE_HIP_ARCHITECTURES=\"%s\" " % local_hip_targets +\
                            (" -DCMAKE_PREFIX_PATH=\"%(installdir)s;%(installdir)s/hip\" "
-                            " -DCMAKE_MODULE_PATH=\"%(installdir)s/hip/cmake\" ")
+                            " -DCMAKE_MODULE_PATH=\"%(installdir)s/hip/cmake;%(installdir)s/hip/lib/cmake/hip\" ")
      }),
     ('ROCgdb', version,
      {
@@ -356,7 +352,13 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':      ['81f5e368facdcc424a37cb5809f0b436bedb9a6d9af4d17785b3c446ab0a7821'],
+         'patches': [
+             ('rocm-gdb-5.3.0-rocm-dbgapi-lib64.patch', '%(name)s-rocm-%(version)s'),
+         ],
+         'checksums':      [
+             '402537baf0779cae586d608505e81173ba85f976fe993f1633e3afe81669350f',
+             '3ade58f3a1ac81f1fe7d324bcb83e82670a25159acff7ec1d024056c545ad4bd',
+         ],
          'preconfigopts':  'cd %(name)s-rocm-%(version)s && ',
          'prebuildopts':   'cd %(name)s-rocm-%(version)s && ',
          'preinstallopts': 'cd %(name)s-rocm-%(version)s && ',
@@ -364,6 +366,7 @@ components = [
              "  --program-prefix=roc "
              "  --disable-shared "
              "  --disable-nls "
+             "  --disable-gprofng "
              "  --enable-source-highlight "
              "  --enable-tui "
              "  --enable-64-bit-bfd "
@@ -394,13 +397,22 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          'roctracer-%(version)s.tar.gz',
          }],
+         'patches': [
+             ('rocprofiler-5.3.0-aql-and-rocm-paths.patch',
+              '%(name)s-rocm-%(version)s'),
+         ],
          'checksums': [
-             'eca7be451c7bf000fd9c75683e7f5dfbed32dbb385b5ac685d2251ee8c3abc96',
-             '45f19875c15eb609b993788b47fd9c773b4216074749d7744f3a671be17ef33c',
+             'b0905a329dc1c97a362b951f3f8ef5da9d171cabb001ed4253bd59a2742e7d39',
+             '36f1da60863a113bb9fe2957949c661f00a702e249bb0523cda1fb755c053808',
+             'c3df4a644be551e4acd07ecfb1af5c9fa09bf0e8a322f81da41060c8b6f1305e',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
-         'preconfigopts': 'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
-         'prebuildopts':  'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
+         'preconfigopts': ("export ROCM_ROOT_DIR=%(installdir)s; "
+                           "export ROCM_PATH=%(installdir)s; "
+                           "export HIP_PATH=%(installdir)s/hip; "),
+         'prebuildopts': ("export ROCM_ROOT_DIR=%(installdir)s; "
+                          "export ROCM_PATH=%(installdir)s; "
+                          "export HIP_PATH=%(installdir)s/hip; "),
          'configopts':    " -DPROF_API_HEADER_PATH=%(builddir)s/roctracer-rocm-%(version)s/inc/ext",
          'installopts':   "install && " + "\n".join([
              "install -d %(installdir)s/bin",
@@ -415,18 +427,21 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'patches': [
-             ('https://patch-diff.githubusercontent.com/raw/ROCm-Developer-Tools/roctracer/pull/63.patch',
-              '%(name)s-rocm-%(version)s'),
-             ('roctracer-hsa_ostream_ops-include.patch',
-              '%(name)s-rocm-%(version)s'),
+             ('roctracer-5.3.0-test-fpie.patch', '%(name)s-rocm-%(version)s'),
          ],
          'checksums': [
-             '45f19875c15eb609b993788b47fd9c773b4216074749d7744f3a671be17ef33c',
-             '937e040a045eceddb609f18df1106f17fbe69b0ca479dea43fb794d58cacf7c2',
-             '1a614b3416a50ddcd6fcfa80730a9beb856ca3314b522aef353f0ad7baf593da',
+             '36f1da60863a113bb9fe2957949c661f00a702e249bb0523cda1fb755c053808',
+             '04474583e60ad5e5636b4678740e82d157a098c45b737fa1d37412c5b2fb2547',
          ],
-         'preconfigopts': 'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip; ',
-         'prebuildopts':  'export ROCM_PATH=%(installdir)s; export HIP_PATH=%(installdir)s/hip;  ',
+         'preconfigopts': ("export ROCM_ROOT_DIR=%(installdir)s; "
+                           "export ROCM_PATH=%(installdir)s; "
+                           "export HIP_PATH=%(installdir)s/hip; "),
+         'prebuildopts': ("export ROCM_ROOT_DIR=%(installdir)s; "
+                          "export ROCM_PATH=%(installdir)s; "
+                          "export HIP_PATH=%(installdir)s/hip; "),
+         'preinstallopts': ("export ROCM_ROOT_DIR=%(installdir)s; "
+                            "export ROCM_PATH=%(installdir)s; "
+                            "export HIP_PATH=%(installdir)s/hip; "),
          'srcdir':        '%(name)s-rocm-%(version)s',
      }),
     ('rccl', version,
@@ -436,11 +451,11 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'checksums':     ['56491257f27b48bf85f4b91434a2a6e49a448337c889db181b02c8a4a260a4bc'],
+         'checksums':     ['51da5099fa58c2be882319cebe9ceabe2062feebcc0c5849e8c109030882c10a'],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
          'configopts':    " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc " +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets,
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; "
      }),
     ('ROCclr', version,
@@ -455,8 +470,8 @@ components = [
              'filename':          'rocclr-%(version)s.tar.gz',
          }],
          'checksums': [
-             '44a7fac721abcd93470e1a7e466bdea0c668c253dee93e4f1ea9a72dbce4ba31',
-             'ddee63cdc6515c90bab89572b13e1627b145916cb8ede075ef8446cbb83f0a48',
+             'd251e2efe95dc12f536ce119b2587bed64bbda013969fa72be58062788044a9e',
+             '2bf14116b5e2270928265f5d417b3d0f0f2e13cbc8ec5eb8c80d4d4a58ff7e94',
          ],
          'srcdir':      '%(name)s-rocm-%(version)s/',
          'configopts':  (" -DAMD_OPENCL_PATH=%(builddir)s/ROCm-OpenCL-Runtime-rocm-%(version)s/ "),
@@ -470,7 +485,7 @@ components = [
              'filename':          'rocm-opencl-%(version)s.tar.gz',
          }],
          'checksums': [
-             '44a7fac721abcd93470e1a7e466bdea0c668c253dee93e4f1ea9a72dbce4ba31',
+             'd251e2efe95dc12f536ce119b2587bed64bbda013969fa72be58062788044a9e',
          ],
          'srcdir':     '%(name)s-rocm-%(version)s/',
          'configopts': (" -DCMAKE_PREFIX_PATH=\"%(builddir)s/ROCclr-rocm-%(version)s/;%(installdir)s\" "
@@ -487,7 +502,7 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             'e19ee15f26fc03309398ac73cc738508c0e1617deccfd667d369a3948b5d3552',
+             '66b80ba050848ad921496bd894e740e66afad0ba1923b385f01f2eeae97999ad',
          ],
          'srcdir':     '%(name)s-rocm-%(version)s/',
          'configopts': (" -DCLANG_BIN=\"%(installdir)s/llvm/bin\" "
@@ -501,12 +516,9 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'patches': [
-             ('https://patch-diff.githubusercontent.com/raw/ROCmSoftwarePlatform/MIOpenGEMM/pull/46.patch',
-              '%(name)s-rocm-%(version)s'),
          ],
          'checksums': [
-             'c70fc9e2a6d47356a612e24f5757bf16fdf26e671bd53a0975c1a0978da740b6',
-             '4d54249ca45623328721ec0648b7ba18697ad9f7ef0c0bd01c96b9ed5670fa33',
+             '7e299daaca8e514bdb5b5efd9d9d3fc5cbfda68ad0117fe7cdbbf946b3f842cd',
          ],
          'srcdir': '%(name)s-rocm-%(version)s/',
      }),
@@ -538,36 +550,45 @@ components = [
          'patches': [
              ('llvm-project-hostrpc-fprintf-decl.patch',
               'llvm-project-rocm-%(version)s'),
-             ('aomp-gcc8-only-for-cuda.patch',
+             ('aomp-5.3.0-openmp-buildpath.patch',
               'aomp-rocm-%(version)s'),
-             ('aomp-openmp-buildpath.patch',
+             ('aomp-5.3.0-openmp-rocm_dir.patch',
               'aomp-rocm-%(version)s'),
-             ('aomp-openmp-llvm.patch',
+             ('aomp-5.3.0-flang-iftypo.patch',
               'aomp-rocm-%(version)s'),
              ('aomp-flang-decouple-out-dir-and-rocm-install.patch',
               'aomp-rocm-%(version)s'),
-             ('aomp-flang-libomp-path.patch',
+             ('aomp-flang-5.3.0-libomp-path.patch',
               'aomp-rocm-%(version)s'),
-             ('aomp-flang-alarm-signature.patch',
+             ('aomp-flang_runtime-5.3.0-flang1-2-path.patch',
+              'aomp-rocm-%(version)s'),
+             ('flang-rocm-5.3.0-cmake-pgmath.patch',
               'flang-rocm-%(version)s'),
-             ('aomp-extras-compiler-in-rocm-dir.patch',
+             ('flang-rocm-5.3.0-flang1-2-dep-path.patch',
+              'flang-rocm-%(version)s'),
+             ('aomp-extras-5.2.0-rocm-dir-llvm.patch',
               'aomp-extras-rocm-%(version)s'),
+             ('aomp-5.2.0-extras-version-string.patch',
+              'aomp-rocm-%(version)s'),
          ],
          'checksums': [
-             '8bab3d621343f419b29043ac0cb56e062f114991dc3ec1e33e786f771deecc8f',
-             'd236a2064363c0278f7ba1bb2ff1545ee4c52278c50640e8bb2b9cfef8a2f128',
-             'c41958560ec29c8bf91332b9f668793463904a2081c330c0d828bf2f91d4f04e',
-             'd7847b5c6e1344dc0b4723dbe76a859257b4c242644dedb34e425f07738530d4',
-             '2e3151a47d77166d071213af2a1691487691aae0abd5c1718d818a6d7d09cb2d',
+             '371ed037b95b83fac64fb2ff2fc17313fe7d3befc8671f0a08f0e2072393fa5b',
+             '4e3fcddb5b8ea8dcaa4417e0e31a9c2bbdc9e7d4ac3401635a636df32905c93e',
+             'f7e1665a1650d3d0481bec68252e8a5e68adc2c867c63c570f6190a1d2fe735c',
+             'ef1256ddf6cd9de10a1b88df4736dce48295136983a7e31eadd942fb39b156f7',
+             'b3beee383d9c130666c230595c950bdc2ce4c7a99d728b9ddf1bca3963152223',
 
              'c846bac17580e939492b843bee092c2e1b2b414a683bdb6be2973ae044642424',
-             '705a7103c3aeff514e5645c130786172961c54673dfdd772caece3b5e7536088',
-             'f7ed1704ffb095bbe8512b1c567a111936685d35f64123c786194e4239277251',
-             '6efb9538e016e1e6e2fb6ce52408bb6317c213ebdd46a60925447d0b43f42ee6',
+             '0752145a45e3b1728c26bc627286e2ced0420107135e0b13eaf1d945c075f711',
+             '99401e192cb777f59c61fa02b6071316f05e3e08939b15e9c12263614b4a7061',
+             '7c4ef4ad7b8502bb918a2d032bb6e75f20b3606040adeade3fdd2460f7189c95',
              'e82a4f065cc259095bf96778b913b97fe39d7c207e4e25ccf59d8fa264014262',
-             'ff3c3e56bfc11c0c9a6ab5c5392168da06aed3b4a21cdfcf7a149d12a69e2906',
-             '7c796d44952da8f089dc3ee013970dba7be43c60eb90131f86ce7d15c67b4b9b',
-             'f8f57cdcc4ddf535323f4f84a4a4a4fa830fbad72b19c7ea45d74fa5579ee72f',
+             '83102ebef534ecc956b2cce1892c713ed81d01fc2216e70cc89c992f7545d810',
+             'cce2ce2feeaf798b339d4e711a87c8fd603bbf88cacccab7e539c8c148b3a6d3',
+             'c16ed90f3491434e9f7794871d6d2c638395036dc785f6b4d94a121758978352',
+             '3011cff58e353fdaa4f69761821e2182b46bc4244ac25c7f7096217a8b9436cf',
+             'bae31efe2dd3f6813e9198c210ba3390028ed89e0d47e86366bef741c70c4db7',
+             '7c5372078c74facbd7cae451c3a717bf281344dcd5c4103e1c837d980e79ccc9',
          ],
          'configure_cmd': ("ln -fs %(builddir)s/llvm-project-rocm-%(version)s %(builddir)s/llvm-project;"
                            "ln -fs %(builddir)s/flang-rocm-%(version)s %(builddir)s/flang;"
@@ -593,7 +614,9 @@ components = [
                        "./build_flang_runtime.sh && "
                        "./build_flang_runtime.sh install && echo "),  # echo -j 64 ...
          # echo install ?
-         'install_cmd': "cp -r %(builddir)s/openmp-extras/* %(installdir)s/; echo "
+         'install_cmd': ("cp -r %(builddir)s/openmp-extras/llvm/runtime/* %(builddir)s/openmp-extras/llvm/ && "
+                         "cp -r %(builddir)s/openmp-extras/llvm/devel/* %(builddir)s/openmp-extras/llvm/ && "
+                         "cp -r %(builddir)s/openmp-extras/* %(installdir)s/ && " "echo ")
      }),
     ('rocPRIM', version,
      {
@@ -603,7 +626,7 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             'b5a08d2e76388bd1ffa6c946009928fe95de846ab6b65a6475998070c0cf6dc1',
+             '4885bd662b038c6e9f058a756fd838203dbd00227bfef6adaf31496010b100e4',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s/',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
@@ -611,7 +634,7 @@ components = [
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -DBUILD_TEST=OFF "
                            " -DBUILD_BENCHMARK=OFF ") +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets,
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
          'prebuildopts': "export ROCM_PATH=%(installdir)s; "
      }),
     ('rocFFT', version,
@@ -621,17 +644,14 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'patches': [
-             ('https://github.com/ROCmSoftwarePlatform/rocFFT/commit/31589ce749a7dc27158e98dcbfbb33ab0a288fa5.patch',
-              '%(name)s-rocm-%(version)s')],
+         'patches': [],
          'checksums': [
-             'b4fcd03c1b07d465bb307ec33cc7fb50036dff688e497c5e52b2dec37f4cb618',
-             '9a8a7eae7d529eab197e3df0c6553d952633ef38ab805857140a7f98e856b030',
+             'd655c5541c4aff4267e80e36d002fc3a55c2f84a0ae8631197c12af3bf03fa7d',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
          'configopts':    " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc " +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets,
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; "
      }),
     ('rocRAND', version,
@@ -642,20 +662,20 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }, {
              'source_urls':       ['https://github.com/ROCmSoftwarePlatform/hipRAND/archive'],
-             'download_filename': '20ac3db9d7462c15a3e96a6f0507cd5f2ee089c4.tar.gz',
+             'download_filename': '12e2f070337945318295c330bf69c6c060928b9e.tar.gz',
              'filename':          'hiprand-%(version)s.tar.gz',
          }],
          'checksums': [
-             '4a19e1bcb60955a02a73ad64594c23886d6749afe06b0104e2b877dbe02c8d1c',
-             'ee38a68c9e88056b7ecd41553e496e455dbb3fe08871ff3545430d6733070e6b',
+             'be4c9f9433415bdfea50d9f47b8afb43ac315f205ed39674f863955a6c256dca',
+             '6a891b7a420ee629776b2eca792b0f0cf92a35e99f7046515ecc9fd2359eadd3',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': ("export ROCM_PATH=%(installdir)s; "
                            "rm -rf %(builddir)s/%(name)s-rocm-%(version)s/hipRAND; "
-                           "ln -sf %(builddir)s/hipRAND-20ac3db9d7462c15a3e96a6f0507cd5f2ee089c4 "
+                           "ln -sf %(builddir)s/hipRAND-12e2f070337945318295c330bf69c6c060928b9e "
                            " %(builddir)s/%(name)s-rocm-%(version)s/hipRAND && "),
          'configopts':    " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc " +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           " -DBUILD_TEST=OFF ",
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; ",
          'installopts':   "install && " + "\n".join([
@@ -671,15 +691,21 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
+         'patches': [
+             ('rocBLAS-5.2.0-find-python-if-undefined.patch',
+              '%(name)s-rocm-%(version)s'),
+         ],
          'checksums': [
-             '915374431db8f0cecdc2bf318a0ad33c3a8eceedc461d7a06b92ccb02b07313c',
+             '8ea7269604cba949a6ea84b78dc92a44fa890427db88334da6358813f6512e34',
+             'c01d9235e055a00859bf3571e5afe33e296959296ff895d89a36cd1627d15d71',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
-         'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'preconfigopts': "export ROCM_PATH=%(installdir)s; export PATH=%(installdir)s/hip/bin:$PATH; ",
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DCMAKE_PREFIX_PATH=%(installdir)s/llvm/lib/cmake/llvm "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -Damd_comgr_DIR=%(installdir)s/lib/cmake/amd_comgr "
+                           " -Dpython=$EBROOTPYTHON/bin/python3 "
                            " -DBUILD_WITH_TENSILE=ON "
                            " -DBUILD_WITH_TENSILE_HOST=ON "
                            " -DTensile_LIBRARY_FORMAT=yaml "
@@ -690,7 +716,29 @@ components = [
                            " -DBUILD_CLIENTS_BENCHMARKS=OFF "
                            " -DBUILD_CLIENTS_SAMPLES=OFF "
                            " -DBUILD_TESTING=OFF "),
-         'prebuildopts':   "export ROCM_PATH=%(installdir)s; ",
+         'prebuildopts':   "export ROCM_PATH=%(installdir)s; export PATH=%(installdir)s/hip/bin:$PATH; ",
+     }),
+    ('rocWMMA', version,
+     {
+         'sources': [{
+             'source_urls':       ['https://github.com/ROCmSoftwarePlatform/%(name)s/archive'],
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'patches': [],
+         'checksums': [
+             '04bac641ba18059118d3faa5f21fe3bf3e285055d40930489ebf27ffc8e5d16e',
+         ],
+         'srcdir':        '%(name)s-rocm-%(version)s',
+         'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
+         'configopts':    (" -DROCWMMA_BUILD_TESTS=OFF "
+                           " -DROCWMMA_BUILD_SAMPLES=OFF "
+                           " -DROCWMMA_BUILD_ASSEMBLY=ON "
+                           " -DOpenMP_CXX_FLAGS=\"-fopenmp\" "
+                           " -DOpenMP_CXX_LIB_NAMES=\"\" "
+                           " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc ") +\
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
+         'prebuildopts':  "export ROCM_PATH=%(installdir)s; ",
      }),
     ('MIOpen', version,
      {
@@ -704,21 +752,15 @@ components = [
              'filename':          'half-1.12.0.tar.gz',
          }],
          'patches': [
-             ('https://github.com/ROCmSoftwarePlatform/MIOpen/pull/1490.patch',
-              '%(name)s-rocm-%(version)s'),
-             ('https://github.com/ROCmSoftwarePlatform/MIOpen/pull/1469.patch',
-              '%(name)s-rocm-%(version)s'),
              # This might actually be some missing flag in hipamd, but disable for now
-             ('MIOpen-disable-pch-until-5.3.patch',
+             ('MIOpen-disable-pch-until-5.4.patch',
               '%(name)s-rocm-%(version)s'),
          ],
          'checksums': [
-             '510461f5c5bdbcf8dc889099d1e5960b9f84bd845a9fc9154588a9898c701c1d',
+             'c5819f593d71beeda2eb24b89182912240cc40f83b2b8f9de695a8e230aa4ea6',
              '0a08660b68abb176ebc2a0cdf8de46e3182a7f46c66443bb80dbfaaec98cf969',
 
-             '1d909db4a12832b4024ba3fdd709f6f1dc0e76078dae37c395ceb5edccd1b073',
-             '31202f23f001a27abf274d08dcfa50aee6c77f7efe8a74c800b9773ce2d7916a',
-             '2241a0ff476336947c9eccbe144169a23c7da0734737b40372d499d980bf924f',
+             '34fa8daa9fa8715dd38fc6f124ff1d6614fe9723b2af08ec825f90728b26e2d4',
          ],
          'preconfigopts': (
              # This is just completely broken. I think the only dependency missing as of 5.1.3 is "half",
@@ -737,7 +779,7 @@ components = [
              " export MIOPEN_DEBUG_COMGR_HIP_PCH_ENFORCE=0; "
          ),
          'srcdir':     '%(name)s-rocm-%(version)s/',
-         'configopts': " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts': " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                        (" -DCMAKE_CXX_COMPILER=%(installdir)s/llvm/bin/clang++ "
                         " -DCMAKE_C_COMPILER=%(installdir)s/llvm/bin/clang "
                         " -DHALF_INCLUDE_DIR=%(builddir)s/%(name)s-rocm-%(version)s/deps/half/include "
@@ -756,7 +798,7 @@ components = [
              'filename':          'half-1.12.0.tar.gz',
          }],
          'checksums': [
-             '686e068774500a46b6e6488370bbf5bd0bba6d19ecdb00636f951704d19c9ef2',
+             'd0b7283f42e03fb38b612868b8c94f46f27a6e0b019ae95fde5b9086582a1c69',
              '0a08660b68abb176ebc2a0cdf8de46e3182a7f46c66443bb80dbfaaec98cf969',
          ],
          'preconfigopts': (
@@ -765,10 +807,9 @@ components = [
              " export ROCM_PATH=%(installdir)s; "
          ),
          'srcdir':     '%(name)s-rocm-%(version)s/',
-         'configopts': " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts': " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                        (" -DHALF_INCLUDE_DIR=%(builddir)s/%(name)s-rocm-%(version)s/deps/half/include "
-                        " -DCMAKE_SHARED_LINKER_FLAGS=\"$LDFLAGS "
-                        "$EBROOTIMKL/mkl/$EBVERSIONIMKL/lib/intel64/libmkl_avx2.so.1\" "),  # explicitly link mkl
+                        " -DCMAKE_SHARED_LINKER_FLAGS=\"$LDFLAGS -lblis-mt\" "),  # explicitly link BLIS
          'prebuildopts': "export ROCM_PATH=%(installdir)s; ",
      }),
     # ('MIVisionX', version,
@@ -789,7 +830,7 @@ components = [
     #      ),
     #      'srcdir'        : '%(name)s-rocm-%(version)s/',
     #      'install_target_subdir' : 'mivisionx',
-    #      'configopts'    : " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+    #      'configopts'    : " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
     #                        (
     #                            " -DHALF_INCLUDE_DIR=%(builddir)s/%(name)s-rocm-%(version)s/deps/half/include "
     #                            " -DBACKEND=HIP "
@@ -805,17 +846,14 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'patches': [
-             ('https://github.com/acxz/rocSOLVER/commit/0f4658e04ac7b48fea213f29b209a0206b67c43f.patch',
-              '%(name)s-rocm-%(version)s')],
+         'patches': [],
          'checksums': [
-             '5a8f3b95ac9a131c31538196e954ea53b863009c092cce0c0ef869a0cd5dd554',
-             '1f2ad0256013dcc3f3d6a494b864326d2ac0e79b528102cd5b235f55f8069c61',
+             '4569f860d240d50e94e77d498050f5cafe5ad11daddaead3e7e9eaa1957878a7',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
          'configopts':    " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc " +\
-                          " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets,
+                          " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets,
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; ",
      }),
     ('rocSPARSE', version,
@@ -825,15 +863,19 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
+         'patches': [
+             ('rocsparse-5.3.0-include-cstdint.patch', '%(name)s-rocm-%(version)s'),
+         ],
          'checksums': [
-             'ef9641045b36c9aacc87e4fe7717b41b1e29d97e21432678dce7aca633a8edc2',
+             '521ca0e7b52f26edbff8507eb1479dc26019f456756d884d7b8b192c3ea518e8',
+             'c3562202534bab3d1bb6f49eaf3dd95e3e7f593dcb9b3d72ec1e5054e5305fb2',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -Drocprim_DIR=\"%(installdir)s/rocprim/rocprim/lib/cmake/rocprim\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
-                           " -DBUILD_CLIENT_SAMPLES=OFF "),
+                           " -DBUILD_CLIENTS_SAMPLES=OFF "),
          'prebuildopts':  "export ROCM_PATH=%(installdir)s; ",
      }),
     ('rocThrust', version,
@@ -844,11 +886,11 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             '8d92de1e69815d92a423b7657f2f37c90f1d427f5bc92915c202d4c266254dad',
+             '0e11b12f208d2751e3e507e3a32403c9bd45da4e191671d765d33abd727d9b96',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -Damd_comgr_DIR=\"%(installdir)s/lib/cmake/amd_comgr\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -DBUILD_TEST=OFF "),
@@ -861,14 +903,17 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
-         'patches':        [('rocALUTION-complex.patch', '%(name)s-rocm-%(version)s')],
+         'patches':        [
+             ('rocALUTION-5.2.0-fix-complex-device-operators.patch',
+              '%(name)s-rocm-%(version)s'),
+         ],
          'checksums':      [
-             '7febe8179f120cbe58ea255bc233ad5d1b4c106f3934eb8e670135a8b7bd09c7',
-             '870c69bca23a3cff3741a54e8222fefb329f9ab62fd9d0f47a3f14bfabda76b8',
+             'f623449789a5c9c9137ae51d4dbbee5c6940d8813826629cb4b7e84f07fab494',
+             'ae7fb5eeba68f7e8af2b81a1b1587c33efeee7d67d3b91cbad8886130e107720',
          ],
          'srcdir':         '%(name)s-rocm-%(version)s',
          'preconfigopts':  "export ROCM_PATH=%(installdir)s; ",
-         'configopts':     " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':     " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                            " -DROCM_PATH=\"%(installdir)s\" ",
          'prebuildopts':   "export ROCM_PATH=%(installdir)s; ",
          'preinstallopts': "export ROCM_PATH=%(installdir)s; ",
@@ -881,11 +926,11 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             'dc75640689b6a5e15dd3acea643266bdf114ea63efc60be8272f484cf8f04494',
+             '4016cfc240b3cc1a97b549ecc4a5b76369610d46247661834630846391e5fad2',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DROCM_PATH=\"%(installdir)s\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -Damd_comgr_DIR=\"%(installdir)s/lib/cmake/amd_comgr\" "),
@@ -899,12 +944,14 @@ components = [
              'download_filename': 'rocm-%(version)s.tar.gz',
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
+         'patches': [
+         ],
          'checksums': [
-             'f0fdaa851971b41b48ec2e7d640746fbd6f9f433da2020c5fd95c91a7473d9e1',
+             '873d55749479873994679840906c4257316dfb09a6200411204ad4a8c2480565',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DROCM_PATH=\"%(installdir)s\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -Damd_comgr_DIR=\"%(installdir)s/lib/cmake/amd_comgr\" "
@@ -921,11 +968,11 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             'c26fa64499293b25d0686bed04feb61378c878a4bb4a6d559e6cb7be1f6bf2ec',
+             'ebbe2009b86b688809b6b4d5c3929fc589db455218d54a37790f21339147c5df',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DROCM_PATH=\"%(installdir)s\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -Damd_comgr_DIR=\"%(installdir)s/lib/cmake/amd_comgr\" "
@@ -943,12 +990,12 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             '8f8849d8d0972366bafa41be35cf6a7a59480ed584d1ddff39768cb14247e9d4',
+             '9e2aa142de45b2d2c29449d6f82293fb62844d511fbf51fa597845ba05c700fa',
          ],
          'install_target_subdir': 'hipfort',
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           " -DROCM_PATH=\"%(installdir)s\" ",
          'prebuildopts':   "export ROCM_PATH=%(installdir)s; ",
          'preinstallopts': "export ROCM_PATH=%(installdir)s; ",
@@ -961,11 +1008,11 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             '96faa799a2db8078b72f9c3b5c199179875a7c20dc1064371b22a6a63397c145',
+             '6e920a59ddeefd52c9a6d164c33bc097726529e1ede3c417c711697956655b15',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DROCM_PATH=\"%(installdir)s\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "),
          'prebuildopts':   "export ROCM_PATH=%(installdir)s; ",
@@ -979,11 +1026,11 @@ components = [
              'filename':          '%(namelower)s-%(version)s.tar.gz',
          }],
          'checksums': [
-             '6e6a0752654f0d391533df8cedf4b630a78ad34c99087741520c582963ce1602',
+             '691b32b916952ed9af008aa29f60cc190322b73cfc098bb2eda3ff68c89c7b35',
          ],
          'srcdir':        '%(name)s-rocm-%(version)s',
          'preconfigopts': "export ROCM_PATH=%(installdir)s; ",
-         'configopts':    " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+         'configopts':    " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
                           (" -DROCM_PATH=\"%(installdir)s\" "
                            " -DCMAKE_CXX_COMPILER=%(installdir)s/hip/bin/hipcc "
                            " -DCMAKE_CXX_STANDARD=20 "
@@ -1013,13 +1060,22 @@ components = [
     #      'srcdir'        : '%(name)s-rocm-%(version)s',
     #      'preconfigopts' : ("export ROCM_PATH=%(installdir)s; "
     #                        ),
-    #      'configopts'    : " -DAMDGPU_TARGETS=%s " % local_amdgpu_targets +\
+    #      'configopts'    : " -DAMDGPU_TARGETS=\"%s\" " % local_amdgpu_targets +\
     #                         (" -DROCM_PATH=\"%(installdir)s\" "
     #                         ),
     #      'prebuildopts'  : "export ROCM_PATH=%(installdir)s; ",
     #      'preinstallopts': "export ROCM_PATH=%(installdir)s; ",
     #  }),
 ]
+
+
+postinstallcmds = ["mkdir -p %(installdir)s/rocm_targets/",
+                   *("echo %s >> %%(installdir)s/rocm_targets/targets.lst" % gpu for gpu in local_gpus)]
+
+modextravars = {
+    'ROCM_PATH': '%(installdir)s',
+    'ROCM_TARGET_LST': '%(installdir)s/rocm_targets/targets.lst',
+}
 
 modextrapaths = {
     'PATH': [

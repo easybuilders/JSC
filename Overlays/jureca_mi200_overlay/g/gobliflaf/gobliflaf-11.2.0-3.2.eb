@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+local_bf_version = '3.2'
+local_comp_version = '11.2.0'
+name = 'gobliflaf'
+version = '%s-%s' % (local_comp_version, local_bf_version)
+
+homepage = '(none)'
+description = """GCCcore compiler toolchain with OpenMPI + AOCL BLIS+libFLAME+FFTW+Scalapack"""
+
+
+toolchain = SYSTEM
+
+local_comp_name = 'GCCcore'
+local_comp = (local_comp_name, local_comp_version)
+local_mpi_comp = ('gompi', '2021b')
+
+# compiler toolchain dependencies
+dependencies = [
+    ('GCC', '11.2.0'),
+    ('binutils', '2.37', '', local_comp),
+    ('OpenMPI', '4.1.4', '', ('GCC', '11.2.0')),
+    ('FFTW', local_bf_version, '-amd', local_mpi_comp),
+    ('BLIS', local_bf_version, '-amd', local_comp),
+    ('libFLAME', local_bf_version, '-amd', local_comp),
+    ('ScaLAPACK', local_bf_version, '-amd', local_mpi_comp),
+]
+
+
+moduleclass = 'toolchain'

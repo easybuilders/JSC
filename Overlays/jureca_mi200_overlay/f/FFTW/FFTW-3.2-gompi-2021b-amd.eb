@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "EB_FFTWAMD"
+name = 'FFTW'
+version = '3.2'
+versionsuffix = '-amd'
+
+homepage = 'http://www.fftw.org'
+description = """FFTW is a C subroutine library for computing the discrete
+Fourier transform (DFT) in one or more dimensions, of arbitrary input size,
+and of both real and complex data."""
+
+toolchain = {'name': 'gompi', 'version': '2021b'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/amd/amd-fftw/archive/']
+sources = ['%(version)s.tar.gz']
+checksums = ['31cab17a93e03b5b606e88dd6116a1055b8f49542d7d0890dbfcca057087b8d0']
+
+builddependencies = [
+    ('binutils', '2.37'),
+]
+
+with_quad_prec = True
+
+use_amd_opt = True
+
+with_mpi = True
+
+# can't find mpirun/mpiexec and fails
+# runtest = 'check'
+
+configopts = " AMD_ARCH=znver3 "
+
+modextravars = {
+    'FFTW_ROOT': '%(installdir)s',
+    'FFTW_INCLUDE': '%(installdir)s/include',
+    'FFTW_LIB': '%(installdir)s/lib',
+}
+
+moduleclass = 'numlib'

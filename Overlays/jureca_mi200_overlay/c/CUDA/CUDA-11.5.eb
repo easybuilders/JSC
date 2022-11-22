@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'CUDA'
+version = '11.5'
+local_complete_version = '%(version)s.0'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """CUDA (formerly Compute Unified Device Architecture) is a parallel
+ computing platform and programming model created by NVIDIA and implemented by the
+ graphics processing units (GPUs) that they produce. CUDA gives developers access
+ to the virtual instruction set and memory of the parallel computational elements
+ in CUDA GPUs.
+"""
+
+
+toolchain = SYSTEM
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/cuda/%s/local_installers/' % local_complete_version,
+    'https://developer.download.nvidia.com/compute/cuda/%(version_major_minor)s/Prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/prod/local_installers/',
+    'https://developer.nvidia.com/compute/cuda/%(version_major_minor)s/Prod2/local_installers/',
+]
+sources = [
+    '%%(namelower)s_%s_495.29.05_linux%%(cudaarch)s.run' % local_complete_version,
+]
+# checksums = ['ae0a1693d9497cf3d81e6948943e3794636900db71c98d58eefdacaf7f1a1e4c']
+checksums = [
+    {
+        '%%(namelower)s_%s_495.29.05_linux.run' % local_complete_version:
+            'ae0a1693d9497cf3d81e6948943e3794636900db71c98d58eefdacaf7f1a1e4c',
+        '%%(namelower)s_%s_495.29.05_linux_ppc64le.run' % local_complete_version:
+            '95baefdc5adf165189407b119861ffb2e9800fd94d7fc81d10fb81ed36dc12db',
+        '%%(namelower)s_%s_495.29.05_linux_sbsa.run' % local_complete_version:
+            '6ea9d520cc956cc751a5ac54f4acc39109627f4e614dd0b1a82cc86f2aa7d8c4',
+    }
+]
+
+# dependencies = [
+#     ('nvidia-driver', 'default', '', SYSTEM),
+# ]
+
+installopts = '--samplespath=%(installdir)s --samples'
+
+hidden = True
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

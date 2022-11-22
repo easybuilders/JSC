@@ -1,0 +1,12 @@
+diff --git a/bin/build_flang_runtime.sh b/bin/build_flang_runtime.sh
+index 6e82b6bc..1297d1f2 100755
+--- a/bin/build_flang_runtime.sh
++++ b/bin/build_flang_runtime.sh
+@@ -66,6 +66,7 @@ MYCMAKEOPTS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+ -DLLVM_TARGETS_TO_BUILD=$TARGETS_TO_BUILD \
+ -DLLVM_INSTALL_RUNTIME=ON \
+ -DFLANG_BUILD_RUNTIME=ON \
++-DFLANG_LIBOMP=$OMPEXTRA_DIR/llvm/runtime/lib/libomp.so \
+ -DCMAKE_C_FLAGS=-I$COMP_INC_DIR \
+ -DCMAKE_CXX_FLAGS=-I$COMP_INC_DIR \
+ -DOPENMP_BUILD_DIR=$OPENMP_BUILD_DIR \

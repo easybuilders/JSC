@@ -61,7 +61,7 @@ VETOED_INSTALLATIONS = {
         'pscom'
     ],
     'jureca_mi200': [
-        'CUDA', 'nvidia-driver',
+        'nvidia-driver',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings'
     ],

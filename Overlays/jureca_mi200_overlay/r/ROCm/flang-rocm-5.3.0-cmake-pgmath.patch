@@ -1,0 +1,26 @@
+diff --git a/runtime/flangrti/CMakeLists.txt b/runtime/flangrti/CMakeLists.txt
+index 3e1d7f09..2365d088 100644
+--- a/runtime/flangrti/CMakeLists.txt
++++ b/runtime/flangrti/CMakeLists.txt
+@@ -102,10 +102,18 @@ if (NOT DEFINED LIBOMP_EXPORT_DIR)
+   target_link_libraries(flangrti_shared ${FLANG_LIBOMP})
+ endif()
+ 
+-find_library( 
++find_library(
+   LIBPGMATH
+-  libpgmath.so
+-  HINTS ${CMAKE_BINARY_DIR}/lib)
++  NAMES pgmath
++  HINTS ${CMAKE_BINARY_DIR}/../
++  PATH_SUFFIXES lib pgmath/lib)
++
++if(NOT LIBPGMATH)
++  message(FATAL_ERROR "Couldn't find libpgmath!")
++endif()
++
++
++
+ target_link_libraries(flangrti_shared ${LIBPGMATH} -Wl,-rpath,\$ORIGIN)
+ target_link_libraries(flangrti_shared ${LIBQUADMATH_LOC})
+ 

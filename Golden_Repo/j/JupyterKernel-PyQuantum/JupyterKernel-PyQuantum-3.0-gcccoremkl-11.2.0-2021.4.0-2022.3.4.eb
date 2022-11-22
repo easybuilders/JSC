@@ -18,6 +18,7 @@ toolchainopts = {'pic': True}
 
 builddependencies = [
     ('binutils', '2.37'),
+    ('Cartopy', '0.20.0'),
     ('Cirq', '0.14.1'),
     ('DWave', '4.2.0', '', ('gcccoremkl', '11.2.0-2021.4.0')),
     ('PyQuil', '3.0.1'),
@@ -91,6 +92,7 @@ postinstallcmds = [
         'module load Stages/${STAGE} \n'
         'module load GCC/11.2.0 \n'
         'module load ParaStationMPI \n'
+        'module load Cartopy/0.20.0 \n'
         'module load Cirq/0.14.1 \n'
         'module load DWave/4.2.0 \n'
         'module load PyQuil/3.0.1 \n'

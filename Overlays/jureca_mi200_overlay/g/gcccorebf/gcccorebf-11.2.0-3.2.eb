@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+local_bf_version = '3.2'
+local_comp_version = '11.2.0'
+name = 'gcccorebf'
+version = '%s-%s' % (local_comp_version, local_bf_version)
+
+homepage = '(none)'
+description = """GCCcore compiler toolchain with BLIS+libFLAME (AMD forks)"""
+
+
+toolchain = SYSTEM
+
+local_comp_name = 'GCCcore'
+local_comp = (local_comp_name, local_comp_version)
+
+# compiler toolchain dependencies
+dependencies = [
+    local_comp,
+    ('binutils', '2.37', '', local_comp),
+    ('FFTW', local_bf_version, '-amd-nompi', local_comp),
+    ('BLIS', local_bf_version, '-amd', local_comp),
+    ('libFLAME', local_bf_version, '-amd', local_comp),
+]
+
+
+moduleclass = 'toolchain'

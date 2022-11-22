@@ -1,0 +1,22 @@
+diff --git a/gdb/configure b/gdb/configure
+index d3e937b606..4fc2f5421b 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -6849,7 +6849,7 @@ CPPFLAGS=${save_CPPFLAGS}
+ 
+ save_LIBS=${LIBS}
+ save_LDFLAGS=${LDFLAGS}
+-LDFLAGS="${LDFLAGS} -L$with_rocm_dbgapi/lib"
++LDFLAGS="${LDFLAGS} -L$with_rocm_dbgapi/lib64"
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for amd_dbgapi_initialize in -lrocm-dbgapi" >&5
+ $as_echo_n "checking for amd_dbgapi_initialize in -lrocm-dbgapi... " >&6; }
+ if ${ac_cv_lib_rocm_dbgapi_amd_dbgapi_initialize+:} false; then :
+@@ -6906,7 +6906,7 @@ if test x"$ac_cv_header_amd_dbgapi_amd_dbgapi_h" = xyes \
+   fi
+ 
+   CPPFLAGS="${CPPFLAGS} -I$with_rocm_dbgapi/include"
+-  ROCM_DBGAPI_LIBS="-Wl,--rpath,\$\${LD_RUN_PATH:-$with_rocm_dbgapi/lib} $with_rocm_dbgapi/lib/librocm-dbgapi.so"
++  ROCM_DBGAPI_LIBS="-Wl,--rpath,\$\${LD_RUN_PATH:-$with_rocm_dbgapi/lib64} $with_rocm_dbgapi/lib64/librocm-dbgapi.so"
+ 
+ else
+   if test x"$require_rocm_dbgapi" = xyes; then

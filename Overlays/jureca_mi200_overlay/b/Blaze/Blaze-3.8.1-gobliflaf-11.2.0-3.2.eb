@@ -8,7 +8,7 @@ version = '3.8.1'
 homepage = 'https://bitbucket.org/blaze-lib/blaze'
 description = """Blaze is an open-source, high-performance C++ math library for dense and sparse arithmetic."""
 
-toolchain = {'name': 'gomkl', 'version': '2021b'}
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
 
 source_urls = ['https://bitbucket.org/blaze-lib/blaze/get']
 sources = ['v%(version)s.tar.gz']
@@ -19,16 +19,13 @@ builddependencies = [
     ('Ninja', '1.10.2'),
     ('binutils', '2.37'),
 ]
-# dependencies = [
-#     ('imkl', '2021.4.0', '', 'gompi-2021b'),
-# ]
 
 # BLAZE_CACHE_SIZE is calculated from /sys/devices/system/cpu/cpu0/cache/index3/size
 configopts = (" -DBLAZE_CACHE_SIZE=33554432 "
               " -DBLAZE_BLAS_MODE=ON "
               " -DBLAZE_BLAS_IS_64BIT=1 "
               " -DBLAZE_BLAS_IS_PARALLEL=1 "
-              " -DBLAZE_BLAS_INCLUDE_FILE=\"<mkl_cblas.h>\" ")
+              " -DBLAZE_BLAS_INCLUDE_FILE=\"<blis/blis.h>\" ")
 
 sanity_check_paths = {
     'files': [

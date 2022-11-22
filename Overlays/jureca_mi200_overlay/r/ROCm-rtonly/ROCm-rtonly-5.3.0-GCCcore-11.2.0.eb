@@ -1,0 +1,207 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Just enough ROCm to build UCX with ROCm support
+
+easyblock = 'Bundle'
+name = 'ROCm-rtonly'
+version = '5.3.0'
+
+homepage = 'https://github.com/RadeonOpenCompute/ROCm'
+description = """AMD ROCm - Open Source Platform for HPC and Ultrascale GPU Computing."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.2.0'}
+
+
+builddependencies = [
+    ("binutils", "2.37"),
+    ("CMake",    "3.23.1"),
+    ("Ninja",    "1.10.2"),
+]
+
+dependencies = [
+    ("libdrm", "2.4.110"),  # ROCT complains about libdrm not being found
+    ("OpenGL", "2021b"),    # hip needs mesa
+]
+
+default_easyblock = 'CMakeNinja'
+github_account = "RadeonOpenCompute"
+
+local_gpus = ["gfx90a:xnack-", "gfx90a:xnack+"]
+local_amdgpu_targets = ";".join(local_gpus)
+local_hip_targets = " ".join(local_gpus)
+
+components = [
+    ('ROCT-Thunk-Interface', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'checksums':  ['c150be3958fd46e57bfc9db187819ec34b1db8f0cf9b69f8c3f8915001800ab8'],
+         'srcdir':     '%(name)s-rocm-%(version)s'
+     }),
+    ('rocm-cmake', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'checksums': ['659a8327f13e6786103dd562d3632e89a51244548fca081f46c753857cf09d04'],
+         'srcdir':    '%(name)s-rocm-%(version)s'
+     }),
+    ('llvm-project', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          'rocm-llvm-%(version)s.tar.gz',
+         }],
+         'checksums': ['4e3fcddb5b8ea8dcaa4417e0e31a9c2bbdc9e7d4ac3401635a636df32905c93e'],
+         'srcdir':    '%(name)s-rocm-%(version)s/llvm',
+         'install_target_subdir': 'llvm',
+         'configopts': (" -DLLVM_HOST_TRIPLE=x86_64-linux-gnu "
+                        " -DLLVM_BUILD_UTILS=ON "
+                        " -DLLVM_ENABLE_BINDINGS=OFF "
+                        " -DOCAMLFIND=NO "
+                        " -DLLVM_ENABLE_OCAMLDOC=OFF "
+                        " -DLLVM_INCLUDE_BENCHMARKS=OFF "
+                        " -DLLVM_BUILD_TESTS=OFF "
+                        " -DLLVM_ENABLE_PROJECTS='llvm;clang;compiler-rt;lld' "
+                        " -DLLVM_TARGETS_TO_BUILD='AMDGPU;X86' "
+                        " -DLLVM_BINUTILS_INCDIR=$EBROOTBINUTILS/include ")
+     }),
+    ('ROCm-Device-Libs', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'checksums':  ['f7e1665a1650d3d0481bec68252e8a5e68adc2c867c63c570f6190a1d2fe735c'],
+         'srcdir':     '%(name)s-rocm-%(version)s',
+         'configopts': " -DLLVM_DIR=%(installdir)s/llvm/lib/cmake/llvm "
+     }),
+    ('ROCm-CompilerSupport', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'checksums':  ['072f849d79476d87d31d62b962e368762368d540a9da02ee2675963dc4942b2c'],
+         'srcdir':     '%(name)s-rocm-%(version)s/lib/comgr',
+         'configopts': " -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+     }),
+    ('hsa-amd-aqlprofile', version,
+     {
+         'easyblock':   "Binary",
+         'source_urls': ['http://repo.radeon.com/rocm/apt/%(version_major_minor)s/pool/main/h/hsa-amd-aqlprofile/'],
+         'sources':     [{
+             'download_filename': 'hsa-amd-aqlprofile_1.0.0.50300-63~22.04_amd64.deb',
+             'filename':          '%(name)s-%(version)s.deb',
+             'extract_cmd':       'ar x %s'
+         }],
+         'checksums':   ['46635f4f019aba1c3a53665430b0de70b992700e852f08b36f54ff33ca7e3ec7'],
+         'install_cmd': """
+                 mkdir -p %(builddir)s/%(name)s
+                 tar -C "%(builddir)s/%(name)s" -xf data.tar.gz;
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/%(name)s/ %(installdir)s/hsa
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/lib/ %(installdir)s/lib
+                 cp -r %(builddir)s/%(name)s/opt/rocm-%(version)s/share/ %(installdir)s/share
+                 ln -sf %(installdir)s/hsa/lib/lib%(name)s64.so %(installdir)s/lib/lib%(name)s64.so
+             """
+     }),
+    ('ROCR-Runtime', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'checksums':  ['b51dbedbe73390e0be748b92158839c82d7fa0e514fede60aa7696dc498facf0'],
+         'srcdir':     '%(name)s-rocm-%(version)s/src',
+         'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+                        " -DCMAKE_CXX_FLAGS='-DNDEBUG' ")
+     }),
+    ('rocminfo', version,
+     {
+         'source_urls': [GITHUB_SOURCE],
+         'sources':     [{
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          '%(namelower)s-%(version)s.tar.gz',
+         }],
+         'patches': [],
+         'checksums': [
+             'c279da1d946771d120611b64974fde751534e787a394ceb6b8e0b743c143d782',
+         ],
+         'srcdir':     '%(name)s-rocm-%(version)s',
+         'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+                        " -DROCRTST_BLD_TYPE=Release "
+                        " -DCMAKE_INSTALL_LIBDIR=lib ")
+     }),
+    ('hipamd', version,
+     {
+         'sources': [{
+             'source_urls':       ['https://github.com/ROCm-Developer-Tools/HIP/archive'],
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          'hip-%(version)s.tar.gz',
+         }, {
+             'source_urls':       ['https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime/archive'],
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          'rocm-opencl-%(version)s.tar.gz',
+         }, {
+             'source_urls':       ['https://github.com/ROCm-Developer-Tools/ROCclr/archive'],
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          'rocclr-%(version)s.tar.gz',
+         }, {
+             'source_urls':       ['https://github.com/ROCm-Developer-Tools/hipamd/archive'],
+             'download_filename': 'rocm-%(version)s.tar.gz',
+             'filename':          'hipamd-%(version)s.tar.gz',
+         }],
+         'patches': [
+         ],
+         'checksums': [
+             '05225832fb5a4d24f49a773ac27e315239943a6f24291a50d184e2913f2cdbe0',
+             'd251e2efe95dc12f536ce119b2587bed64bbda013969fa72be58062788044a9e',
+             '2bf14116b5e2270928265f5d417b3d0f0f2e13cbc8ec5eb8c80d4d4a58ff7e94',
+             '81e9bd5209a7b400c986f9bf1d7079bcf7169bbcb06fc4fe843644559a4d612e',
+         ],
+         'srcdir':                'hipamd-rocm-%(version)s/',
+         'install_target_subdir': 'hip',
+         'configopts': (" -DCMAKE_PREFIX_PATH=\"%(installdir)s/llvm;%(installdir)s\" "
+                        " -DHIP_COMMON_DIR=%(builddir)s/HIP-rocm-%(version)s/ "
+                        " -DAMD_OPENCL_PATH=%(builddir)s/ROCm-OpenCL-Runtime-rocm-%(version)s/ "
+                        " -DROCCLR_PATH=%(builddir)s/ROCclr-rocm-%(version)s/ "
+                        " -DROCCLR_INCLUDE_PATH=%(builddir)s/ROCclr-rocm-%(version)s "
+                        " -DHIP_PLATFORM=amd "
+                        " -DCMAKE_INSTALL_LIBDIR=lib "),
+         'installopts': "install && " + "\n".join([
+             "sed -i '/__noinline__/d' %(installdir)s/hip/include/hip/amd_detail/host_defines.h",
+             "install -d %(installdir)s/bin",
+             "install -d %(installdir)s/include",
+             "install -d %(installdir)s/lib/cmake",
+             ("for binary in hipcc hipconfig hipcc.pl hipconfig.pl; "
+              "  do ln -s %(installdir)s/hip/bin/$binary %(installdir)s/bin/$binary; "
+              "done"),
+             "ln -s %(installdir)s/hip/lib/libamdhip64.so %(installdir)s/lib/libamdhip64.so",
+             "ln -s %(installdir)s/hip/include/hip %(installdir)s/include/hip",
+             "ln -s %(installdir)s/hip/lib/cmake/hip %(installdir)s/lib/cmake/hip",
+             "ln -s %(installdir)s/hip/lib/cmake/hip-lang %(installdir)s/lib/cmake/hip-lang",
+         ]) + "\n echo "
+     }),
+]
+
+modextrapaths = {
+    'LD_LIBRARY_PATH': [
+        'hsa/lib',
+        'llvm/lib',
+    ],
+    'LIBRARY_PATH': [
+        'hsa/lib',
+        'llvm/lib',
+    ],
+}
+
+moduleclass = 'devel'

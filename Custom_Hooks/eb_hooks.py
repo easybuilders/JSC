@@ -18,6 +18,7 @@ SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
     "intel",
     "intel-para",
     "iomkl",
+    "foss",
     "gpsmkl",
     "gomkl",
     "npsmkl",

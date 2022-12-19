@@ -51,7 +51,7 @@ comp_relevant_versions = {
 # MPI relevant version numbers
 mpi_relevant_versions = {
     'impi': 1,
-    'psmpi': 2,
+    'psmpi': 1,
     'MVAPICH2': 2,
     'OpenMPI': 2,
     'BullMPI': 2,

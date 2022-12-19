@@ -33,7 +33,7 @@ systemname = string.gsub(systemname, "\n", "")
 local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
 
 -- To support cross-compilation
-if lmod_systemname == "jurecabooster" then
+if lmod_systemname == "jureca_mi200" then
     systemname = lmod_systemname
 end
 
@@ -169,11 +169,8 @@ prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
 -- Set optarch options for easybuild
 local optarch = ""
 local cuda_compute = ""
--- JURECA booster
-if systemname == "jurecabooster" then
-    optarch = "GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
 -- JUWELS
-elseif systemname == "juwels" then
+if systemname == "juwels" then
     optarch = "GCCcore:march=haswell -mtune=haswell"
     cuda_compute = "7.0,6.0"
 -- JUWELS booster

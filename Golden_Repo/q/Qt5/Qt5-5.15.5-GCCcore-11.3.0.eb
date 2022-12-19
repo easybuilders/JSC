@@ -24,11 +24,16 @@ patches = [
     'Qt5-5.15.5_fix-qtwebegine-HarfBuzz-3.x.patch',
 ]
 checksums = [
-    '5a97827bdf9fd515f43bc7651defaf64fecb7a55e051c79b8f80510d0e990f06',  # qt-everywhere-opensource-src-5.15.5.tar.xz
-    '6f46005f056bf9e6ff3e5d012a874d18ee03b33e685941f2979c970be91a9dbc',  # Qt5-5.13.1_fix-avx2.patch
-    '511ca9c0599ceb1989f73d8ceea9199c041512d3a26ee8c5fd870ead2c10cb63',  # Qt5-5.13.1_fix-qmake-libdir.patch
-    '0b9defb7ce75314d85bebe07e143db7f7de316fec64c17cbd13f7eec5d2d1afa',  # Qt5-5.14.1_fix-OF-Gentoo.patch
-    '599cc94535dc276a5d97e002c81907c74ead9dc8d55f35567017fb7a491aaf01',  # Qt5-5.15.5_fix-qtwebegine-HarfBuzz-3.x.patch
+    # qt-everywhere-opensource-src-5.15.5.tar.xz
+    '5a97827bdf9fd515f43bc7651defaf64fecb7a55e051c79b8f80510d0e990f06',
+    # Qt5-5.13.1_fix-avx2.patch
+    '6f46005f056bf9e6ff3e5d012a874d18ee03b33e685941f2979c970be91a9dbc',
+    # Qt5-5.13.1_fix-qmake-libdir.patch
+    '511ca9c0599ceb1989f73d8ceea9199c041512d3a26ee8c5fd870ead2c10cb63',
+    # Qt5-5.14.1_fix-OF-Gentoo.patch
+    '0b9defb7ce75314d85bebe07e143db7f7de316fec64c17cbd13f7eec5d2d1afa',
+    # Qt5-5.15.5_fix-qtwebegine-HarfBuzz-3.x.patch
+    '599cc94535dc276a5d97e002c81907c74ead9dc8d55f35567017fb7a491aaf01',
 ]
 
 builddependencies = [
@@ -56,7 +61,7 @@ dependencies = [
     ('fontconfig', '2.14.0'),
     ('DBus', '1.14.0'),
     ('libevent', '2.1.12'),
-    ('libGLU', '9.0.2'),
+    ('OpenGL', '2022a'),
     ('libjpeg-turbo', '2.1.3'),
     ('NSS', '3.79'),
     ('snappy', '1.1.9'),

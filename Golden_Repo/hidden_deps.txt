@@ -46,6 +46,7 @@ graphite2
 HarfBuzz
 ICU
 ISL
+Imath
 JSON-C
 JSON-GLib
 JUnit
@@ -245,6 +246,7 @@ pixman
 pkg-config
 pkgconfig
 pkgconf
+poppler
 popt
 printproto
 protobuf

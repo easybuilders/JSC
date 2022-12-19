@@ -22,8 +22,6 @@ checksums = [
 osdependencies = [
     # needed for --with-verbs
     ('libibverbs-dev', 'libibverbs-devel', 'rdma-core-devel'),
-    # needed for --with-pmix
-    ('pmix-devel'),
 ]
 
 builddependencies = [

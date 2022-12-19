@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libvips'
+version = '8.13.3'
+
+homepage = 'https://libvips.github.io/libvips/'
+description = """libvips is a demand-driven, horizontally threaded image processing library."""
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+
+github_account = 'libvips'
+source_urls = ['https://github.com/libvips/libvips/releases/download/v%(version)s']
+sources = ['vips-%(version)s.tar.gz']
+checksums = [None]
+
+builddependencies = [
+    ('pkgconf', '1.8.0'),
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('libpng', '1.6.37'),
+    ('libjpeg-turbo', '2.1.3'),
+    ('LibTIFF', '4.3.0'),
+    ('giflib', '5.2.1'),
+    ('FFTW', '3.3.10', '', ('GCC', '11.3.0')),
+    ('GLib', '2.72.1'),
+    ('expat', '2.4.8'),
+    ('librsvg', '2.55.1'),
+    ('ImageMagick', '7.1.0-37'),
+    ('OpenSlide', '3.4.1', '-largefiles'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/vips', 'bin/batch_image_convert', 'bin/vipsthumbnail',
+              'lib/libvips.%s' % SHLIB_EXT],
+    'dirs': ['include/vips']
+}
+
+moduleclass = 'vis'

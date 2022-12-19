@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.7.0-1'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with
+various batch systems for tighter process control.
+"""
+
+toolchain = {'name': 'intel-compilers', 'version': '2022.1.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['https://github.com/ParaStation/psmpi/archive/']
+checksums = [
+    # psmpi-5.7.0-1.tar.gz
+    '0c1c8556afedfb08cd612f379ddb6327ef1bb0867d6f6fed3d610f3d8c790883',
+    '978eb3223c978477c40987f745c07fda26ccbad2f468616faf92f0d71b81a156',  # psmpi_shebang.patch
+    # psmpi-5.5.0-1_ime.patch
+    'c2418b9511560dca197242508de9c7b6b117122912b6d3a4aa18398834f465ff',
+]
+
+dependencies = [
+    ('pscom', '5.6-default'),
+    # needed due to the inclusion of hwloc
+    ('libxml2', '2.9.13'),
+    # Including CUDA here to trigger the hook to add the gpu property, and because it is actually needed
+    ('CUDA', '11.7', '', SYSTEM)
+]
+
+patches = [
+    'psmpi_shebang.patch',
+    'psmpi-5.5.0-1_ime.patch'
+]
+
+mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
+
+preconfigopts = 'export CFLAGS="-I/opt/ddn/ime/include $CFLAGS" && '
+preconfigopts += 'export LDFLAGS="$LDFLAGS -L/opt/ddn/ime/lib -lim_client" && '
+
+threaded = False
+
+cuda = True
+
+moduleclass = 'mpi'

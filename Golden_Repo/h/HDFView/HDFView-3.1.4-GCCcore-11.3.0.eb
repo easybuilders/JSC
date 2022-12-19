@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'HDFView'
+
+version = '3.1.4'
+
+homepage = 'https://www.hdfgroup.org/downloads/hdfview/'
+
+description = "HDFView is a visual tool for browsing and editing HDF4 and HDF5 files."
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [
+    'https://support.hdfgroup.org/ftp/HDF5/releases/HDF-JAVA/hdfview-%(version)s/bin/']
+sources = ['HDFViewApp-%(version)s-centos8_64.tar.gz']
+checksums = ['17e4b5970857ac122941cd0f95dcdb8bdb3eab2ae9f6b27f128c5c9053564809']
+
+dependencies = [
+
+    ('Java', '11', '', SYSTEM)
+
+]
+
+install_cmd = "tar xfvz *.tar.gz && "
+
+install_cmd += "mkdir %(installdir)s/lib && mkdir %(installdir)s/bin && "
+
+install_cmd += "cp -a HDFView/lib/app %(installdir)s/lib && "
+
+install_cmd += "cp -a HDFView/lib/app/hdfview.sh %(installdir)s/bin/HDFView && "
+
+install_cmd += 'sed -i "s@export JAVABIN=.*@export JAVABIN=$EBROOTJAVA/bin@g" %(installdir)s/bin/HDFView && '
+
+install_cmd += 'sed -i "s@export INSTALLDIR=.*@export INSTALLDIR=%(installdir)s@g" %(installdir)s/bin/HDFView'
+
+sanity_check_paths = {
+
+    'files': ['bin/HDFView'],
+
+    'dirs': ['lib/app'],
+
+}
+
+moduleclass = 'vis'

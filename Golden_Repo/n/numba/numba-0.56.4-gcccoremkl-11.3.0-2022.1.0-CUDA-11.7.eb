@@ -1,0 +1,70 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'numba'
+version = '0.56.4'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://numba.pydata.org/'
+description = """Numba is an Open Source NumPy-aware optimizing compiler for
+Python sponsored by Continuum Analytics, Inc. It uses the remarkable LLVM
+compiler infrastructure to compile Python syntax to machine code."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.3.0-2022.1.0'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('LLVM', '14.0.3'),
+    ('CUDA', '11.7', '', SYSTEM),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+local_llvmlite_preinstallopts = "export LLVM_CONFIG=${EBROOTLLVM}/bin/llvm-config && "
+local_llvmlite_preinstallopts += "export LLVMLITE_SKIP_LLVM_VERSION_CHECK=1 && "
+
+
+exts_list = [
+    ('llvmlite', '0.39.1', {
+        'patches': [
+            'llvmlite-0.39_passmanager.patch',
+            'llvmlite-0.39_target.patch',
+            'llvmlite-0.39_test-binding.patch',
+            'llvmlite-0.39_targetregistry.patch',
+            'llvmlite-0.39_pass.patch',
+            'llvmlite-0.39_getparamattribute.patch',
+        ],
+        'preinstallopts': "export LLVM_CONFIG=${EBROOTLLVM}/bin/llvm-config &&" +
+        "export LLVMLITE_SKIP_LLVM_VERSION_CHECK=1 && ",
+        'checksums': [
+            {'llvmlite-0.39.1.tar.gz': 'b43abd7c82e805261c425d50335be9a6c4f84264e34d6d6e475207300005d572'},
+            {'llvmlite-0.39_passmanager.patch': 'acfe0b35142c73f5936399446b1dbb997389c55ca95e8924d3a2d160ffca0056'},
+            {'llvmlite-0.39_target.patch': '586f19f01e5923cd852430a900913cd4e1382f7f825c7259c42556eba7c0e5ba'},
+            {'llvmlite-0.39_test-binding.patch': '4ecb6bc4503d9f182805dccbde34e735c9d71c7e1a998f8e15e49773c7eb5d93'},
+            {'llvmlite-0.39_targetregistry.patch': '62c347a2d709c144fbe934a57d1f6703ddfccaf5b7049de2abbf93c4a9733730'},
+            {'llvmlite-0.39_pass.patch': 'fb861a0dcfd1caa4aa54786840547352d63378a39b6321aea66e893ae2718381'},
+            {'llvmlite-0.39_getparamattribute.patch':
+             'edba3e1d33efdce79be486fd3c2604ef82d95a5b8f60fb6c5591963bb42748e7'},
+        ],
+    }),
+    (name, version, {
+        'checksums': ['32d9fef412c81483d7efe0ceb6cf4d3310fde8b624a9cecca00f790573ac96ee'],
+    }),
+]
+
+fix_python_shebang_for = ['bin/*']
+
+sanity_check_paths = {
+    'files': ['bin/numba', 'bin/pycc'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    "python -m llvmlite.tests",
+    "numba --help",
+]
+
+moduleclass = 'lang'

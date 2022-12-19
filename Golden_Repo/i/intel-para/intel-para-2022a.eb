@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'intel-para'
+version = '2022a'
+versionsuffix = ''
+
+homepage = ''
+description = """intel-para provides Intel C/C++ and Fortran compilers, ParaStationMPI & Intel MKL.
+"""
+
+toolchain = SYSTEM
+
+local_comp_ver = '2022.1.0'
+local_compiler = ('intel-compilers', local_comp_ver)
+
+# toolchain used to build  dependencies
+local_comp_mpi_tc = ('ipsmpi', version)
+
+dependencies = [
+    local_compiler,
+    ('psmpi', '5.7.0-1', '', local_compiler),
+    ('imkl', local_comp_ver, '', SYSTEM),
+    ('imkl-FFTW', local_comp_ver, '', local_comp_mpi_tc),
+]
+
+moduleclass = 'toolchain'

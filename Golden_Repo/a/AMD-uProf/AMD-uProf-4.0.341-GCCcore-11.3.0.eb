@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+#            Ilya Zhukov <i.zhukov@fz-juelich.de>
+##
+easyblock = 'Binary'
+
+name = 'AMD-uProf'
+version = '4.0.341'
+
+homepage = 'https://developer.amd.com/amd-uprof/'
+
+description = """AMD uProf is a performance analysis tool for applications running on Windows, Linux & FreeBSD
+ operating systems. It allows developers to better understand the runtime performance of their application and
+ to identify ways to improve its performance."""
+
+usage = """
+Provide "--disable-perfparanoid" option to your sbatch command to enable collection of required perf events.
+
+Typical workflow consists of three phases:
+Provide "--disable-perfparanoid" option to your sbatch command to enable to collect all required perf events.
+
+1. Collect phase - run the application program and collect the profile data, e.g.
+   $ srun <srun_options> AMDuProfCLI collect <additional_collect_options> <program> [<args>]
+
+2. Translate phase - process the profile data to aggregate, correlate, and organize into database
+   $ AMDuProfCLI report -i <report_directory>
+
+3. Analyze phase - view and analyze the performance data to identify the bottlenecks
+   $ AMDuProf <report_directory>
+
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = ['https://developer.amd.com/wordpress/media/files/']
+sources = ['AMDuProf_Linux_x64_%(version)s.tar.bz2']
+checksums = ['7072b2b4a00a215abcd3a782600930d799e0c5335c2fd9b12283627a73a1fa68']
+
+extract_sources = True
+
+sanity_check_paths = {
+    'files': ['include/AMDTPowerProfileApi.h', 'lib/x64/libAMDProfileController.a',
+              'bin/libAMDThreadProfileAPI.%s' % SHLIB_EXT, 'bin/AMDuProf'],
+    'dirs': ['Examples']
+}
+
+sanity_check_commands = ['AMDuProfCLI info --system']
+
+modextrapaths = {
+    'LD_LIBRARY_PATH': 'bin'
+}
+
+moduleclass = 'perf'

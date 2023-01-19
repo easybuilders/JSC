@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonBundle"
+
+name = "PyDarshan"
+version = "3.4.2.0"
+
+homepage = "https://www.mcs.anl.gov/research/projects/darshan/docs/pydarshan/index.html"
+description = """PyDarshan is a Python package that provides functionality for 
+analyzing Darshan log files, first introduced as part of Darshan 3.3.0. 
+This package provides easier to use Python interfaces to Darshan log file 
+data (compared to the C-based darshan-util library), enabling Darshan users 
+to develop their own custom log file analysis utilities."""
+
+toolchain = {'name': 'ipsmpi', 'version': '2022a'}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('Seaborn', '0.12.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('darshan-util', '3.4.2'),
+]
+
+#source_urls = ['https://pypi.python.org/packages/source/d/darshan/']
+#sources = ['darshan-%(version)s.tar.gz']
+#checksums = ['eb00eb758c96899c0d523b71eb00caa3b967509c27fd504c579ac8c9b521845c']
+
+use_pip = True
+download_dep_fail = True
+sanity_pip_check = True
+
+exts_list = [
+    ('Mako', '1.2.4', {
+        'checksums': ['d60a3903dc3bb01a18ad6a89cdbe2e4eadc69c0bc8ef1e3773ba53d44c3f7a34'],
+    }),
+    (name, version, {
+        'checksums': ['eb00eb758c96899c0d523b71eb00caa3b967509c27fd504c579ac8c9b521845c'],
+	#'source_urls': ['https://pypi.python.org/packages/source/d/darshan/'],
+        'sources' : ['https://pypi.python.org/packages/source/d/darshan/darshan-%(version)s.tar.gz'],
+        'modulename': 'darshan',
+    }),
+]
+
+
+#sanity_check_paths = {
+#    'files': ['bin/jube'],
+#    'dirs': [],
+#}
+
+moduleclass = 'tools'

@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'CGAL'
+version = '5.5.1'
+
+homepage = 'http://www.cgal.org/'
+description = """The goal of the CGAL Open Source Project is to provide easy access to efficient 
+ and reliable geometric algorithms in the form of a C++ library.
+ """
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'strict': True}
+
+source_urls = [
+    'https://github.com/%(name)s/%(namelower)s/releases/download/v%(version)s/']
+sources = [SOURCE_TAR_XZ]
+checksums = ['091630def028facdcaf00eb5b68ad79eddac1b855cca6e87eef18a031566edfc']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('Eigen', '3.4.0'),
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('zlib', '1.2.12'),
+    ('Python', '3.10.4'),
+    ('Boost.Python', '1.79.0'),
+    ('MPFR', '4.1.0'),
+    ('GMP', '6.2.1'),
+    ('OpenGL', '2022a'),
+    ('Qt5', '5.15.5'),
+]
+
+configopts = "-DCGAL_HEADER_ONLY=OFF -DCMAKE_BUILD_TYPE=Release "
+configopts += "-DOPENGL_INCLUDE_DIR=$EBROOTOPENGL/include\; "
+configopts += "-DOPENGL_gl_LIBRARY=$EBROOTOPENGL/lib/libGL.%s " % SHLIB_EXT
+configopts += "-DOPENGL_glu_LIBRARY=$EBROOTOPENGL/lib/libGLU.%s " % SHLIB_EXT
+configopts += "-DWITH_ZLIB=ON -DWITH_MPFR=ON -DWITH_OpenGL=ON -DWITH_Eigen3=ON "
+configopts += "-DWITH_GMPXX=ON "
+
+
+sanity_check_paths = {
+    'files': ['bin/cgal_create_CMakeLists'],
+    'dirs': ['bin', 'include', 'lib', 'share'],
+}
+
+moduleclass = 'numlib'

@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# EasyConfig for libmpack-lua (NeoVim dependency)
+#
+# Copyright 2019-2022 Stepan Nassyr @ Forschungszentrum Juelich
+easyblock = 'ConfigureMake'
+
+name = 'libmpack-lua'
+version = '1.0.9'
+
+homepage = 'https://github.com/libmpack/libmpack-lua'
+description = """libmpack lua binding
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+github_account = 'libmpack'
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'download_filename': '%(version)s.tar.gz',
+    'filename':          SOURCELOWER_TAR_GZ,
+}]
+checksums = ['e94d5cf95d7479dca00ff23755fe05a440f11f9d203635e862ad8842de95f40a']
+
+builddependencies = [
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('LuaJIT2-OpenResty', '2.1-20220915')
+]
+
+
+skipsteps = ['configure']
+build_cmd = ("LUA_TARGET=linux LUA=$EBROOTLUAJIT2MINOPENRESTY/bin/luajit "
+             "LUA_IMPL=luajit MPACK_LUA_VERSION=5.1 "
+             "LUA_CMOD_INSTALLDIR=/lib/lua/5.1/ "
+             "make PREFIX=%(installdir)s USE_SYSTEM_LUA=yes USE_SYSTEM_MPACK=no")
+install_cmd = ("LUA_TARGET=linux LUA=$EBROOTLUAJIT2MINOPENRESTY/bin/luajit "
+               "LUA_IMPL=luajit MPACK_LUA_VERSION=5.1 "
+               "LUA_CMOD_INSTALLDIR=/lib/lua/5.1/ "
+               "make DESTDIR=%(installdir)s USE_SYSTEM_LUA=yes USE_SYSTEM_MPACK=no install")
+
+sanity_check_paths = {
+    'files': ['lib/lua/5.1/mpack.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+modluafooter = """
+libmpack_lua_root = os.getenv("EBROOTLIBMPACKMINLUA")
+lua_cpath          = os.getenv("LUA_CPATH")
+if nil == lua_cpath then
+  setenv("LUA_CPATH", libmpack_lua_root .. "/lib/lua/5.1/?.so;;")
+else
+  prepend_path("LUA_CPATH", libmpack_lua_root .. "/lib/lua/5.1/?.so", ";")
+end
+"""
+
+
+moduleclass = 'lib'

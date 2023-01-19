@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
+#
+# Copyright:: Copyright 2012-2016 University of Luxembourg / LCSB, Cyprus Institute / CaSToRC,
+#                                 Ghent University / The Francis Crick Institute
+# Authors::
+# * Wiktor Jurkowski <wiktor.jurkowski@gmail.com>
+# * Fotis Georgatos <fotis@cern.ch>
+# * George Tsouloupas <g.tsouloupas@cyi.ac.cy>
+# * Kenneth Hoste <kenneth.hoste@ugent.be>
+# * Adam Huffman <adam.huffman@crick.ac.uk>
+# License::   MIT/GPL
+##
+
+name = 'GROMACS'
+version = '2022.4'
+
+homepage = 'http://www.gromacs.org'
+docurls = ['http://manual.gromacs.org/documentation/current/user-guide/index.html']
+description = """
+GROMACS is a versatile package to perform molecular dynamics, i.e. simulate the Newtonian equations
+of motion for systems with hundreds to millions of particles. It is primarily designed for
+biochemical molecules like proteins and lipids that have a lot of complicated bonded interactions,
+but since GROMACS is extremely fast at calculating the non-bonded interactions (that usually
+dominate simulations) many groups are also using it for research on non-biological systems, e.g.
+polymers.
+"""
+usage = """
+Use `gmx` to execute GROMACS commands on a single node, for example, to prepare your run. Use
+`gmx_mpi mdrun` in your job scripts with `srun`.
+"""
+
+toolchain = {'name': 'gpsmkl', 'version': '2022a'}
+toolchainopts = {'openmp': True, 'usempi': True}
+
+source_urls = ['ftp://ftp.gromacs.org/pub/gromacs/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['c511be602ff29402065b50906841def98752639b92a95f1b0a1060d9b5e27297']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('libxml2', '2.9.13')
+]
+
+dependencies = [
+    ('hwloc', '2.7.1'),
+    ('CUDA', '11.7', '', SYSTEM),
+]
+
+configopts = '-DCMAKE_PREFIX_PATH=$EBROOTHWLOC -DMPIEXEC_MAX_NUMPROCS="24" '
+configopts += '-DMKL_LIBRARIES="${MKLROOT}/lib/intel64/libmkl_intel_ilp64.so;'
+configopts += '${MKLROOT}/lib/intel64/libmkl_sequential.so;${MKLROOT}/lib/intel64/libmkl_core.so" '
+
+mpiexec = 'srun'
+mpiexec_numproc_flag = '"--gres=gpu:1 -n"'
+mpi_numprocs = 24
+
+runtest = False
+
+moduleclass = 'bio'

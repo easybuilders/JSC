@@ -1,0 +1,11 @@
+--- audio/setup.py.orig	2022-12-19 18:01:56.099161316 +0100
++++ audio/setup.py	2022-12-19 18:02:59.140087696 +0100
+@@ -106,7 +106,7 @@
+ 
+ def _parse_sources():
+     third_party_dir = ROOT_DIR / "third_party"
+-    libs = ["zlib", "bzip2", "lzma", "sox"]
++    libs = ["lzma"]
+     archive_dir = third_party_dir / "archives"
+     archive_dir.mkdir(exist_ok=True)
+     for lib in libs:

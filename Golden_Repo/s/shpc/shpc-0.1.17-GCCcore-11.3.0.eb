@@ -1,0 +1,71 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'shpc'
+version = '0.1.17'
+
+homepage = 'https://github.com/singularityhub/singularity-hpc'
+
+description = """Local filesystem registry for containers (intended for HPC) using Lmod or
+Environement Modules. Works for users and admins."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+#
+# sources = ['%(version)s.tar.gz']
+
+builddependencies = [('binutils', '2.38')]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('Apptainer-Tools', '2023'),
+]
+
+use_pip = True
+download_dep_fail = True
+
+exts_list = [
+    ('spython', '0.3.0', {
+        'checksums': ['1bbadb18829aaf18e68bcdb9850e6e8c1e1be9066fbd4b71e1fff88f7d80b76f'],
+    }),
+    ('ruamel.yaml.clib', '0.2.7', {
+        'modulename': False,
+        'checksums': ['1f08fd5a2bea9c4180db71678e850b995d2a5f4537be0e94557668cf0f5f9497'],
+    }),
+    ('ruamel.yaml', '0.17.21', {
+        'checksums': ['8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af'],
+    }),
+    (name, version, {
+        'source_urls': ['https://github.com/singularityhub/singularity-hpc/archive/refs/tags/'],
+        'sources': ['%(version)s.tar.gz'],
+        'checksums': ['ca5315142d0b3690a07fc12ea147c404a05ed75f9552ce7f563f833cf8832b58'],
+    }),
+]
+
+allow_prepend_abs_path = True
+
+# Tries to create its directory on the home dir during the module load, as it cannot be
+# done beforehand.
+modluafooter = """
+require "lfs"
+lfs.mkdir(pathJoin(os.getenv("HOME"), "easybuild", os.getenv("SYSTEMNAME"), "modules", "containers"))
+prepend_path("MODULEPATH", pathJoin(os.getenv("HOME"), "easybuild", os.getenv("SYSTEMNAME"), "modules", "containers"))
+"""
+
+sanity_pip_check = True
+
+sanity_check_paths = {
+    'files': ['bin/shpc'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+# Shpc needs to be installed so it can be configured. So I have to do it on sanity_check
+# instead of postinstallcmds. In any case, those commands are equally valid as sanity check
+
+sanity_check_commands = [
+    "shpc config --central set module_base:\$HOME/easybuild/\$SYSTEMNAME/modules/containers",
+    "shpc config --central set container_base:\$HOME/easybuild/\$SYSTEMNAME/modules/containers",
+    "shpc config --central set container_features:gpu:nvidia",
+]
+
+moduleclass = 'tools'

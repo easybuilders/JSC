@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'MUMPS'
+version = '5.5.1'
+versionsuffix = '-metis'
+
+homepage = 'https://graal.ens-lyon.fr/MUMPS/'
+description = "A parallel sparse direct solver"
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = ['https://graal.ens-lyon.fr/MUMPS/']
+sources = ['%(name)s_%(version)s.tar.gz']
+patches = [
+    '%(name)s-%(version)s_shared-pord.patch',    # builds the shared libs of PORD
+    '%(name)s-%(version)s_shared-mumps.patch',   # builds shared libs of MUMPS
+]
+checksums = [
+    {'MUMPS_5.5.1.tar.gz': '1abff294fa47ee4cfd50dfd5c595942b72ebfcedce08142a75a99ab35014fa15'},
+    {'MUMPS-5.5.1_shared-pord.patch': '2f32d928fe21ab918920eaf26e3112e3185f85bb22a4ab494191849af30c4b6e'},
+    {'MUMPS-5.5.1_shared-mumps.patch': '746b12844120a352902a4420b36dc5babd68d4beaa98263826ef4a7893e14504'},
+]
+
+dependencies = [
+    ('SCOTCH', '7.0.1'),
+    ('METIS', '5.1.0'),
+]
+
+parallel = 1
+
+# fix 'Type mismatch between actual argument' errors with GCC 10.x
+prebuildopts = 'export FFLAGS="$FFLAGS -fallow-argument-mismatch" && '
+
+buildopts = 'all SONAME_VERSION="%(version)s"'
+
+moduleclass = 'math'

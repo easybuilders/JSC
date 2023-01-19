@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# EasyConfig for libvterm (NeoVim dependency)
+# Copyright 2019 Stepan Nassyr @ Forschungszentrum Juelich
+easyblock = 'ConfigureMake'
+
+name = 'libvterm'
+version = '0.3'
+
+homepage = 'https://www.leonerd.org.uk/code/libvterm/'
+description = """ An abstract library implementation of a VT220/xterm/ECMA-48 terminal emulator.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = ['https://www.leonerd.org.uk/code/libvterm/']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = ['61eb0d6628c52bdf02900dfd4468aa86a1a7125228bab8a67328981887483358']
+
+builddependencies = [
+    ('libtool', '2.4.7'),
+    ('binutils', '2.38'),
+]
+
+
+skipsteps = ['configure']
+build_cmd = "make PREFIX=%(installdir)s"
+install_cmd = "make PREFIX=%(installdir)s install"
+
+sanity_check_paths = {
+    'files': ['lib/libvterm.%s' % SHLIB_EXT,
+              'include/vterm.h'],
+    'dirs': ['lib/pkgconfig'],
+}
+
+
+moduleclass = 'lib'

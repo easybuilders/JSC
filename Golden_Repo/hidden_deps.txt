@@ -73,6 +73,7 @@ LibTIFF
 LibUUID
 Libint
 LittleCMS
+LuaJIT2-OpenResty
 M4
 MATIO
 MATLAB
@@ -92,6 +93,7 @@ PnMPI
 PyCairo
 PyGObject
 Python-Xpra
+pretty-yaml
 Qhull
 Qt
 Qt5
@@ -201,6 +203,7 @@ libiconv
 libidn
 libjpeg-turbo
 libmatheval
+libmpack-lua
 libmypaint
 libpciaccess
 libpng
@@ -211,11 +214,14 @@ libsndfile
 libspatialindex
 libspng
 libsodium
+libtermkey
 libtirpc
 libtool
 libunistring
 libunwind
+libuv
 libvips
+libvterm
 libwebp
 libxcb
 libxkbcommon
@@ -224,6 +230,8 @@ libxml2-python
 libxslt
 libyaml
 libyuv
+lpeg
+luv
 lz4
 makedepend
 makeinfo
@@ -264,7 +272,10 @@ snappy
 spdlog
 SZ
 texinfo
+tree-sitter
 uglifyjs
+unibilium
+utf8proc
 util-linux
 vpx
 wxPropertyGrid

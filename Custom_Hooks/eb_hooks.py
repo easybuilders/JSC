@@ -81,11 +81,17 @@ TWEAKABLE_DEPENDENCIES = {
     'glew': ('OpenGL', '2022a'),
     'libglvnd': ('OpenGL', '2022a'),
     # 'libxc': '5.1.7',
+    'libGLU': ('OpenGL', '2022a'),
     'Mesa': ('OpenGL', '2022a'),
     'NCCL': 'default',
     'pkg-config': ('pkgconf', '1.8.0'),
     'UCC': 'default',
     'UCX': 'default',
+}
+
+MKL_THREADING_LAYER = {
+    'GCC': 'GNU',
+    'intel-compilers': 'INTEL',
 }
 
 SIDECOMPILERS = ['AOCC', 'Clang']
@@ -614,3 +620,14 @@ def pre_ready_hook(self, *args, **kwargs):
                 path_to_ec,
             )
             exit(1)
+
+
+def pre_module_hook(self, *args, **kwargs):
+    # Compilers need to set MKL_THREADING_LAYER
+    if self.name in MKL_THREADING_LAYER:
+        # Must be done this way, updating self.cfg['modextravars']
+        # directly doesn't work due to templating.
+        with self.cfg.disable_templating():
+            self.cfg['modextravars'].update({
+                'MKL_THREADING_LAYER': MKL_THREADING_LAYER[self.name]
+            })

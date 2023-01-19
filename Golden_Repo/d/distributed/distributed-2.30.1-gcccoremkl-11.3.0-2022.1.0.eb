@@ -16,7 +16,7 @@ exts_defaultclass = 'PythonPackage'
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('dask', '2022.10.2'),
+    ('dask', '2022.10.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('bokeh', '2.4.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
 ]

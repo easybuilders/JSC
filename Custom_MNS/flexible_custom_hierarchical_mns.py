@@ -37,7 +37,7 @@ COMP_NAME_VERSION_TEMPLATES = {
 }
 
 # Compiler relevant version numbers
-comp_relevant_versions = {
+COMP_RELEVANT_VERSIONS = {
     'intel': 1,
     'intel-compilers': 1,
     'PGI': 1,
@@ -48,8 +48,14 @@ comp_relevant_versions = {
 #    'GCCcore': 1,
 }
 
+# Allow to reuse the stacks from other MPIs
+SWAPPABLE_MPIS = {
+    'BullMPI': ('OpenMPI', None),
+    'impi': ('psmpi', '5.6'),
+}
+
 # MPI relevant version numbers
-mpi_relevant_versions = {
+MPI_RELEVANT_VERSIONS = {
     'impi': 1,
     'psmpi': 1,
     'MVAPICH2': 2,
@@ -58,10 +64,10 @@ mpi_relevant_versions = {
 }
 
 # MPIs with settings modules
-mpi_with_settings = ['psmpi', 'impi', 'OpenMPI', 'BullMPI']
+MPI_WITH_SETTINGS = ['psmpi', 'impi', 'OpenMPI', 'BullMPI']
 
 # Communication packages with settings modules
-pkg_with_settings = ['UCX', 'NCCL', 'LWP']
+PKG_WITH_SETTINGS = ['UCX', 'NCCL', 'LWP']
 
 class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
     """Class implementing an example hierarchical module naming scheme."""
@@ -78,7 +84,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             modname_regex = re.compile('^%s/\S+$' % re.escape('ParaStationMPI'))
         elif name == 'impi':
             modname_regex = re.compile('^%s/\S+$' % re.escape('IntelMPI'))
-        elif name in ['-'.join([x, 'settings']) for x in mpi_with_settings]:
+        elif name in ['-'.join([x, 'settings']) for x in MPI_WITH_SETTINGS]:
             modname_regex = re.compile('^%s/\S+$' % re.escape('MPI-settings'))
         elif name == 'LWP-settings':
             # Match almost anything, since the name depends actually on the version, to avoid load conflicts
@@ -96,9 +102,9 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         comp_name, comp_ver = comp_info
 
         # Strip the irrelevant bits of the version and append the suffix again
-        if comp_name in comp_relevant_versions:
+        if comp_name in COMP_RELEVANT_VERSIONS:
             suffix = '-'.join(comp_ver.split('-')[1:])
-            comp_ver = '.'.join(comp_ver.split('.')[:comp_relevant_versions[comp_name]])
+            comp_ver = '.'.join(comp_ver.split('.')[:COMP_RELEVANT_VERSIONS[comp_name]])
             if suffix:
                 comp_ver += '-%s' % suffix
 
@@ -113,7 +119,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
 
         # Find suffix, if any, to be appended. Try to be clever, since the suffix is embedded in the version
         # and sometimes the version might include a string that looks like a suffix (ie: psmpi-5.4.0-1)
-        if mpi_name in mpi_relevant_versions:
+        if mpi_name in MPI_RELEVANT_VERSIONS:
             # Find possible suffixes
             possible_suffixes = mpi_ver.split('-')[1:]
             suffix = ''
@@ -125,7 +131,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             #        suffix_index = 1
             #    suffix = '-'.join(mpi_ver.split('-')[suffix_index:])
 
-            mpi_ver = '.'.join(mpi_ver.split('.')[:mpi_relevant_versions[mpi_name]])
+            mpi_ver = '.'.join(mpi_ver.split('.')[:MPI_RELEVANT_VERSIONS[mpi_name]])
             if suffix:
                 mpi_ver += '-%s' % suffix
 
@@ -177,10 +183,10 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             subdir = CORE
             # except if the module is a MPI settings module
             stripped_name = ec['name'].split('-settings')[0]
-            if stripped_name in mpi_with_settings:
+            if stripped_name in MPI_WITH_SETTINGS:
                 subdir = os.path.join(MPI_SETTINGS, stripped_name, ec['version'])
             # or a module is for a package with settings
-            elif (stripped_name in pkg_with_settings and '-settings' in ec['name']):
+            elif (stripped_name in PKG_WITH_SETTINGS and '-settings' in ec['name']):
                 subdir = os.path.join(PKG_SETTINGS, stripped_name)
         else:
             tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
@@ -208,7 +214,7 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                   MPI-settings/plain, etc
         """
         stripped_name = re.sub('-settings$', '', ec['name'])
-        if stripped_name in mpi_with_settings and '-settings' in ec['name']:
+        if stripped_name in MPI_WITH_SETTINGS and '-settings' in ec['name']:
             return os.path.join('MPI-settings', ec['versionsuffix'])
         elif stripped_name.startswith('LWP') and '-settings' in ec['name']:
             return os.path.join(ec['version'], 'enable')
@@ -276,16 +282,16 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
                 mpi_name, mpi_ver = self._find_relevant_mpi_info(ec)
                 # Hack the module path extension, so BullMPI actually reuses the stack from OpenMPI
-                # instead of building everything on top unnecessarily
-                if mpi_name in 'BullMPI':
-                    paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, 'OpenMPI', mpi_ver))
+                # instead of building everything on top unnecessarily. Same for impi on top of psmpi
+                if mpi_name in SWAPPABLE_MPIS:
+                    paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, SWAPPABLE_MPIS[mpi_name][0], SWAPPABLE_MPIS[mpi_name][1] or mpi_ver))
                 else:
                     paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
 
-                if ec['name'] in mpi_with_settings:
+                if ec['name'] in MPI_WITH_SETTINGS:
                     paths.append(os.path.join(MPI_SETTINGS, mpi_name, mpi_ver))
 
-        elif ec['name'] in pkg_with_settings:
+        elif ec['name'] in PKG_WITH_SETTINGS:
             paths.append(os.path.join(PKG_SETTINGS, ec['name']))
 
         return paths

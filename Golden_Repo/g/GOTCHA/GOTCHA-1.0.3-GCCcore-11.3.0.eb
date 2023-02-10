@@ -1,0 +1,26 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'GOTCHA'
+version = '1.0.3'
+
+homepage = 'https://github.com/LLNL/GOTCHA'
+description = "Gotcha is a library that wraps functions."
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = ['https://github.com/LLNL/%(name)s/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['71c6400c6c7ef7de20c5f42fbb3d6713679992d7ebca7dcf2024bc8aa3a03181']
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('CMake', '3.23.1'),
+]
+
+sanity_check_paths = {
+    'files': ['lib64/libgotcha.%s' % SHLIB_EXT],
+    'dirs': ['include/%(namelower)s'],
+}
+
+moduleclass = 'lib'

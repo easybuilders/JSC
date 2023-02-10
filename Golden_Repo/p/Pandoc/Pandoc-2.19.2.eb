@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This file is an EasyBuild reciPY as per https://easybuilders.github.io/easybuild/
+# Author: Pablo Escobar Lopez
+# sciCORE - University of Basel
+# SIB Swiss Institute of Bioinformatics 
+# Contribution from the NIHR Biomedical Research Centre
+# Guy's and St Thomas' NHS Foundation Trust and King's College London
+# uploaded by J. Sassmannshausen
+
+easyblock = 'Tarball'
+
+name = 'Pandoc'
+version = '2.19.2'
+
+homepage = 'https://pandoc.org'
+description = "If you need to convert files from one markup format into another, pandoc is your swiss-army knife"
+
+toolchain = SYSTEM
+
+source_urls = ['https://github.com/jgm/pandoc/releases/download/%(version)s/']
+_archs = {'x86_64': 'amd64', 'aarch64': 'arm64'}
+sources = ['%%(namelower)s-%%(version)s-linux-%s.tar.gz' % _archs[ARCH]]
+checksums = [{
+    'pandoc-2.19.2-linux-amd64.tar.gz': '9d55c7afb6a244e8a615451ed9cb02e6a6f187ad4d169c6d5a123fa74adb4830',
+    'pandoc-2.19.2-linux-arm64.tar.gz': '43f364915b9da64905fc3f6009f5542f224e54fb24f71043ef5154540f1a3983',
+}]
+
+sanity_check_paths = {
+    'files': ['bin/pandoc'],
+    'dirs': ['share'],
+}
+
+sanity_check_commands = ['pandoc --help']
+
+moduleclass = 'tools'

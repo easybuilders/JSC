@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/easybuilders/easybuild
+# Copyright:: Copyright 2013-2023 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# Authors::   Damian Alvarez <d.alvarez@fz-juelich.de>
+# Authors::   Benedikt Steinbusch <b.steinbusch@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+easyblock = 'CMakeMake'
+
+name = "MUST"
+version = "1.8.0"
+
+homepage = 'https://hpc.rwth-aachen.de/must/'
+description = """MUST detects usage errors of the Message Passing Interface (MPI) and reports them
+to the user. As MPI calls are complex and usage errors common, this functionality is extremely helpful
+for application developers that want to develop correct MPI applications. This includes errors that
+already manifest --segmentation faults or incorrect results -- as well as many errors that are not
+visible to the application developer or do not manifest on a certain system or MPI implementation.
+"""
+
+toolchain = {'name': 'ipsmpi', 'version': '2022a'}
+
+source_urls = ['https://hpc.rwth-aachen.de/must/files/']
+sources = ['%(name)s-v%(version)s.tar.gz']
+patches = [
+    'wrap-config.cmake.in.patch',
+]
+checksums = [
+    '9754fefd2e4c8cba812f8b56a5dd929bc84aa599b2509305e1eb8518be0a8a39',  # MUST-v1.8.0.tar.gz
+    'a7adba726fb68f928556dc6e16ad9b624c528a2c807b73e1a61e79a2b2431681',  # wrap-config.cmake.in.patch
+]
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+]
+
+dependencies = [
+    ('Graphviz', '5.0.0'),
+    ('libxml2', '2.9.13'),
+    ('Python', '3.10.4'),
+]
+
+configopts = ' -DCMAKE_BUILD_TYPE=Release -DPython_ROOT_DIR="$EBROOTPYTHON" '
+
+sanity_check_paths = {
+    'files': ["bin/mustrun", "include/mustConfig.h"],
+    'dirs': [],
+}
+
+moduleclass = 'perf'

@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'VirtualGL'
+version = '3.1beta1'
+
+homepage = 'https://virtualgl.org/'
+description = """VirtualGL is an open source toolkit that gives any Linux or 
+Unix remote display software the ability to run OpenGL applications with full 
+hardware acceleration."""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/VirtualGL/virtualgl/archive/']
+sources = ['%(version)s.tar.gz']
+patches = [
+    'virtualgl_cmake_lib_path.patch',
+]
+checksums = [
+    '67bb5d88e8a016ed92b2cb3708c49ba5d04cc086f39c85b6fa8f51403cc9d22e',
+    # virtualgl_cmake_lib_path.patch
+    'aa185d038f5e47957bd8a163107d352a1675a224b5a41f167e5b75ae42c87f1d',
+]
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('CMake', '3.23.1')
+]
+
+dependencies = [
+    ('libjpeg-turbo', '2.1.3'),
+    ('OpenGL', '2022a'),
+]
+
+separate_build_dir = True
+configopts = '-DVGL_FAKEOPENCL=OFF'
+
+local_binaries = [
+    'cpustat', 'glreadtest', 'glxinfo', 'glxspheres64', 'nettest', 'tcbench',
+    'vglclient', 'vglconfig', 'vglconnect', 'vglgenkey', 'vgllogin', 'vglrun',
+    'vglserver_config'
+]
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in local_binaries],
+    'dirs': ['lib64', 'share', 'include'],
+}
+
+moduleclass = 'vis'

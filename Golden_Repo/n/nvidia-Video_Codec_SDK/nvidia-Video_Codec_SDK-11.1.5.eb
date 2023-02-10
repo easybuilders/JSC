@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'nvidia-Video_Codec_SDK'
+version = '11.1.5'
+
+homepage = 'https://developer.nvidia.com/nvidia-video-codec-sdk'
+description = """NVDECODE and NVENCODE APIs for low-level granular control over various encode/decode parameters
+and if you want to directly tap into the hardware decoder/encoder."""
+
+toolchain = SYSTEM
+
+sources = ['Video_Codec_SDK_%(version)s.tar.gz']
+checksums = ['5facddff252cc15fd93a00f24d60e8bea85515e573ddd0341e84e756e286584a']
+
+dependencies = [
+    ('nvidia-driver', 'default', '', SYSTEM),
+]
+
+postinstallcmds = [
+    (
+        '{ cat > %(installdir)s/nvenc.pc; } << EOF\n'
+        'prefix=%(installdir)s \n'
+        'exec_prefix=\${prefix} \n'
+        'includedir=\${prefix}/Interface \n'
+        'libdir=${EBROOTNVIDIAMINDRIVER}/lib64 \n'
+        '\n'
+        'Name: nvenc \n'
+        'Description: NVENC \n'
+        'Version: %(version_major)s \n'
+        'Requires: \n'
+        'Conflicts: \n'
+        'Libs: -L\${libdir} -lnvidia-encode \n'
+        'Cflags: -I\${includedir} -Wno-error=deprecated-declarations\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'PKG_CONFIG_PATH': ''
+}
+
+sanity_check_paths = {
+    'files': ['Interface/nvEncodeAPI.h'],
+    'dirs': ['Interface', 'Lib'],
+}
+
+moduleclass = 'lib'

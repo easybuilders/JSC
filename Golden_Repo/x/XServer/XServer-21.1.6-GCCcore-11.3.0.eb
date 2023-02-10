@@ -1,0 +1,281 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'XServer'
+version = '21.1.6'
+
+homepage = 'https://www.x.org'
+
+description = """
+XServer: X Window System display server.
+
+This module provides a stripped-down installation with minimal driver support.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [
+    'https://www.x.org/archive/individual/xserver/',
+    'https://www.x.org/archive/individual/driver/'
+]
+
+# OS dependency should be preferred for security reasons
+osdependencies = [
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
+]
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('pkgconf', '1.8.0'),
+    ('Bison', '3.8.2'),
+    ('Meson', '0.62.1'),
+    ('Ninja', '1.10.2'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.8.2'),
+]
+
+dependencies = [
+    ('libdrm', '2.4.110'),
+    ('OpenGL', '2022a'),
+    ('pixman', '0.40.0'),
+    ('X11', '20220504'),
+    ('freetype', '2.12.1'),
+    ('fontconfig', '2.14.0'),
+    ('ncurses', '6.3'),
+    ('libepoxy', '1.5.10'),
+    ('eudev', '3.2.11'),
+    ('libtirpc', '1.3.2'),
+]
+
+local_font_preconfigopts = "export PKG_CONFIG_PATH=%(installdir)s/lib/pkgconfig:$PKG_CONFIG_PATH && "
+local_font_preconfigopts += "export PATH=%(installdir)s/bin:$PATH && "
+local_font_preconfigopts += "export FONTCONFIG_FILE=%(installdir)s/config/fontconfig/fonts.conf && "
+
+# https://github.com/freedesktop/xorg-xserver/blob/master/meson_options.txt
+local_xorg_configopts = "-D default_font_path=%(installdir)s/share/fonts/X11 "
+local_xorg_configopts += "-D xorg=true "
+local_xorg_configopts += "-D xvfb=true "
+local_xorg_configopts += "-D xnest=true "
+local_xorg_configopts += "-D xephyr=true "
+local_xorg_configopts += "-D udev=true "
+local_xorg_configopts += "-D glamor=true "
+local_xorg_configopts += "-D systemd_logind=false "
+# local_xorg_configopts += "-D suid_wrapper=true "
+local_xorg_configopts += "-D xkb_dir=%(installdir)s/share/X11/xkb "
+# local_xorg_configopts += "-D xkb_output_dir=/var/lib/xkb "
+
+default_easyblock = 'ConfigureMake'
+
+default_component_specs = {
+    'sources': [SOURCE_TAR_GZ],
+    'start_dir': '%(name)s-%(version)s',
+}
+
+components = [
+    ('fontconfig-config', '1.0.0', {
+        'easyblock': 'Binary',
+        'source_urls': ['https://gitlab.version.fz-juelich.de/goebbert1/fontconfig-config/-/archive/v%(version)s/'],
+        'sources': ['%(name)s-v%(version)s.tar.gz'],
+        'start_dir': '%(name)s-v%(version)s',
+        'extract_sources': True,
+        'install_cmd': (
+            'cp -a %(builddir)s/%(name)s-v%(version)s/* %(installdir)s/ && '
+            'sed -i \'s@$EBROOTXSERVER@\'"%(installdir)s"\'@g\' %(installdir)s/share/X11/xorg.conf.d/99-fonts.conf'
+        ),
+        'checksums': [('sha256', '68544c183d153f34105fa08573174650bfe643a6d750bd9da4accac399d375db')],
+        # to activate this fontconfig you need to export FONTCONFIG_FILE=${EBROOTXSERVER}/config/fontconfig/fonts.conf
+    }),
+    ('mkfontscale', '1.2.2', {
+        'source_urls': ['https://www.x.org/archive/individual/app/'],
+        'checksums': ['4a5af55e670713024639a7f7d10826d905d86faf574cd77e0f5aef2d00e70168'],
+    }),
+    ('mkfontdir', '1.0.7', {
+        'source_urls': ['https://www.x.org/archive/individual/app/'],
+        'checksums': ['bccc5fb7af1b614eabe4a22766758c87bfc36d66191d08c19d2fa97674b7b5b7'],
+    }),
+    ('bdftopcf', '1.1', {
+        'source_urls': ['https://www.x.org/archive/individual/app/'],
+        'checksums': ['699d1a62012035b1461c7f8e3f05a51c8bd6f28f348983249fb89bbff7309b47'],
+    }),
+    ('font-util', '1.3.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '2094dd4a1ca63a61deb101d2dc618682d6e287cdbe09679502223ac445d277dc')],
+    }),
+    ('encodings', '1.0.6', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', 'c89c0636cda8f34eb28304263fc9a5441635ac3cb9da23efefe8f584174cba29')],
+    }),
+    ('font-alias', '1.0.4', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '49525fa6f2c3f3b54f461b2e0649b0ac61af50c36bf40069355a25ced8ce2028')],
+    }),
+    ('dejavu', '2.37', {
+        'easyblock': 'Binary',
+        'source_urls': [SOURCEFORGE_SOURCE],
+        'sources': ['%(name)s-fonts-ttf-%(version)s.tar.bz2'],
+        'extract_sources': True,
+        'start_dir': 'dejavu-fonts-ttf-2.37',
+        'install_cmd': ('install -v -d -m755 %(installdir)s/share/fonts/dejavu && '
+                        'install -v -m644 ttf/*.ttf %(installdir)s/share/fonts/dejavu'),
+        'checksums': [('sha256', 'fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e846e17d7')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-adobe-75dpi', '1.0.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '61eb1fcfec89f7435cb92cd68712fbe4ba412ca562b1f5feec1f6daa1b8544f6')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-adobe-100dpi', '1.0.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '97d9c1e706938838e4134d74f0836ae9d9ca6705ecb405c9a0ac8fdcbd9c2159')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-cursor-misc', '1.0.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', 'a0b146139363dd0a704c7265ff9cd9150d4ae7c0d248091a9a42093e1618c427')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-adobe-utopia-type1', '1.0.4', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', 'd9e86a8805b0fb78222409169d839a8531a1f5c7284ee117ff2a0af2e5016c3f')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-misc-misc', '1.1.2', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '46142c876e176036c61c0c24c0a689079704d5ca5b510d48c025861ee2dbf829')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    #  Fails because it tries to create a directory outside of %(installdir)s
+    #  => test -z "<PKG_CONFIG-Fontconfig>/etc/fonts/conf.avail" ||
+    #              /usr/bin/mkdir -p "<PKG_CONFIG-Fontconfig>/etc/fonts/conf.avail"
+    # ('font-bh-ttf', '1.0.3', {
+    #     'source_urls': ['https://www.x.org/pub/individual/font/'],
+    #     'sources': ['%(name)s-%(version)s.tar.gz'],
+    #     'checksums': [('sha256', 'c583b4b968ffae6ea30d5b74041afeac83126682c490a9624b770d60d0e63d59')],
+    #     'preconfigopts': local_font_preconfigopts,
+    # }),
+    ('font-bh-type1', '1.0.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', 'd5602f1d749ccd31d3bc1bb6f0c5d77400de0e5e3ac5abebd2a867aa2a4081a4')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-ibm-type1', '1.0.3', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '4509703e9e581061309cf4823bffd4a93f10f48fe192a1d8be1f183fd6ab9711')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-misc-ethiopic', '1.0.4', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', 'f7901250fb746815065cfe13a814d92260348fede28d61dcab0d05c5d8eafd54')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('font-xfree86-type1', '1.0.4', {
+        'source_urls': ['https://www.x.org/pub/individual/font/'],
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': [('sha256', '02b3839ae79ba6a7750525bb3b0c281305664b95bf63b4a0baa230a277b4f928')],
+        'preconfigopts': local_font_preconfigopts,
+    }),
+    ('xkbcomp', '1.4.6', {
+        'source_urls': ['https://www.x.org/archive//individual/app/'],
+        'checksums': ['b216a2c8c0eab83f3dc4a3d5ee2bdf7827b30e49c8907035d0f222138eca0987'],
+    }),
+    ('xkeyboard-config', '2.38', {
+        'easyblock': 'MesonNinja',
+        'source_urls': ['https://www.x.org/archive//individual/data/xkeyboard-config/'],
+        'sources': ['%(name)s-%(version)s.tar.xz'],
+        'checksums': ['0690a91bab86b18868f3eee6d41e9ec4ce6894f655443d490a2184bfac56c872'],
+        # https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config/-/blob/master/meson_options.txt
+        'configopts': '-Dxorg-rules-symlinks=true',
+    }),
+    ('xauth', '1.1', {
+        'source_urls': ['https://www.x.org/releases/individual/app/'],
+        'checksums': ['e9fce796c8c5c9368594b9e8bbba237fb54b6615f5fd60e8d0a5b3c52a92c5ef'],
+    }),
+    ('libxcvt', '0.1.2', {
+        'easyblock': 'MesonNinja',
+        'source_urls': ['https://www.x.org/archive/individual/lib/'],
+        'sources': [SOURCE_TAR_XZ],
+        'checksums': ['0561690544796e25cfbd71806ba1b0d797ffe464e9796411123e79450f71db38'],
+    }),
+    ('xorg-server', version, {
+        'easyblock': 'MesonNinja',
+        'patches': [('xvfb-run', '.')],
+        'checksums': [
+            ('sha256', '6f9c73ccc50e2731adac17671c8e33687738c8cd556b49ecb9f410ce7217be11'),
+            ('sha256', 'fd6d13182b77871d4f65fccdaebb8a72387a726426066d3f8e6aa26b010ea0e8'),
+        ],
+        'configopts': local_xorg_configopts,
+    }),
+    ('xf86-video-dummy', '0.4.0', {
+        'preconfigopts': 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:%(installdir)s/lib/pkgconfig',
+        'sources': ['%(name)s-%(version)s.tar.xz'],
+        'checksums': [
+            # xf86-video-dummy-0.4.0.tar.gz
+            ('sha256', 'e78ceae5c8c0588c7cb658f2afc3a9fac9ef665b52a75b01f8e9c5449a4e1e5a'),
+            # 0002-Constant-DPI.patch
+            ('sha256', '3add13392168d271822e694aba21327dc3219f61f2091a12ef7009d3f090c662'),
+            # 0003-fix-pointer-limits.patch
+            ('sha256', '8af95b0b0e7f4d7de3bd1654260c3677d76ef91b8d6a66cb57b9c3af1e024fa2'),
+        ],
+        'patches': [
+            '0002-Constant-DPI.patch',
+            '0003-fix-pointer-limits.patch',
+        ],
+    }),
+    ('xterm', '378', {
+        'source_urls': ['http://invisible-mirror.net/archives/xterm/'],
+        'sources': ['%(name)s-%(version)s.tgz'],
+        'checksums': [
+            # xterm-369.tgz
+            ('sha256', '649dfbfd5edd0ed9e47cf8e4d953b4b0d3c30bc280166dfc4ffd14973fec3e92'),
+            # xterm-cursesloc.patch
+            ('sha256', 'ff15331ba1a2c67f68e3da3595ffc457d7aea5392a75d8cdfe40e2126ece99a2'),
+        ],
+        'patches': ['xterm-cursesloc.patch'],
+        'configopts': " --with-app-defaults=%(installdir)s/app-defaults ",
+    }),
+]
+
+# we need to set the permissions our self to ensure no-one messes in this directory
+# FIXME: easybuild does not support this in 4.3.0 -> hence you have to do it manually
+skipsteps = ['permissions']
+postinstallcmds = [
+    'chmod -R ugo-w %(installdir)s/config',
+    'chmod -R ugo-w %(installdir)s/share',
+    'install -m 0755 %(builddir)s/xorg-server-%(version)s/xvfb-run %(installdir)s/bin/',
+]
+
+modextrapaths = {
+    'XDG_CONFIG_DIRS': 'config',
+    'XUSERFILESEARCHPATH': 'app-defaults/%N-%C',
+}
+
+# FONTCONFIG_FILE is used to override the default configuration file
+modextravars = {
+    'FONTCONFIG_FILE': '%(installdir)s/config/fontconfig/fonts.conf'}
+
+sanity_check_paths = {
+    'files': ['bin/Xorg', 'bin/Xvfb', 'bin/xvfb-run',
+              'lib/xorg/modules/drivers/dummy_drv.la', 'lib/xorg/modules/drivers/dummy_drv.so',
+              'bin/xterm'],
+    'dirs': [],
+}
+
+sanity_check_commands = [
+    "xvfb-run --help",
+    "xvfb-run --error-file %(builddir)s/xvfb-run-test.err echo hello",
+]
+
+moduleclass = 'vis'

@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'muparserx'
+version = '4.0.11'
+
+homepage = 'https://beltoforion.de/en/muparserx/'
+description = 'A C++ Library for Parsing Expressions with Strings, Complex Numbers, Vectors, Matrices and more.'
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+github_account = 'beltoforion'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['8bc2773f174afd8c51cc480a293622c499fd1f46ecfa57296e59d86c75356977']
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('CMake', '3.23.1'),
+]
+
+configopts = ['-DBUILD_SHARED_LIBS=OFF', '-DBUILD_SHARED_LIBS=ON']
+
+sanity_check_paths = {
+    'files': ['lib64/libmuparserx.a', 'lib64/libmuparserx.%s' % SHLIB_EXT],
+    'dirs': ['include/muparserx'],
+}
+
+moduleclass = 'lib'

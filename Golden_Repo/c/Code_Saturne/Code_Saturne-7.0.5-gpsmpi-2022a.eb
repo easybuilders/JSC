@@ -1,0 +1,56 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# easyconfig file for Code_Saturne
+name = 'Code_Saturne'
+version = '7.0.5'
+
+# extra option for the SLURM batch system
+slurm = True
+
+homepage = 'https://www.code-saturne.org'
+description = """
+Code_saturne is the free, open-source software developed to analyze CFD applications.
+It solves the Navier-Stokes equations for 2D, 2D-axisymmetric and 3D flows, steady or
+unsteady, laminar or turbulent, incompressible or weakly dilatable, isothermal or not,
+with scalar transport.
+
+Code_Saturne %(version)s%(versionsuffix)s is installed in
+$EBROOTCODE_SATURNE
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2022a'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True}
+
+source_urls = ['https://github.com/code-saturne/code_saturne/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['c090049ddb6a6b73a935e2439890768a697d715eb886df6509c17660c7f7a565']  # code_saturne-7.0.5.tar.gz
+
+builddependencies = [
+    ('Autotools', '20220317'),
+    ('gettext', '0.21', ''),
+    ('Bison', '3.8.2', ''),
+    ('flex', '2.6.4', ''),
+    ('texlive', '20220321'),
+    ('Doxygen', '1.9.4'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('HDF5', '1.12.2'),
+    ('CGNS', '4.3.0'),
+    ('ParMETIS', '4.0.3'),
+    ('SCOTCH', '7.0.1'),
+    ('MED', '4.1.0'),
+    ('PyQt5', '5.15.5'),
+]
+
+configopts = '--with-med=$EBROOTMED --without-medcoupling '
+configopts += '--with-cgns=$EBROOTCGNS '
+configopts += '--with-metis=$EBROOTPARMETIS '
+configopts += '--with-scotch=$EBROOTSCOTCH '
+configopts += '--with-python_prefix=%(installdir)s --with-python_exec_prefix=%(installdir)s '
+
+modloadmsg = "To benefit from shell completion for %(name)s commands and\n"
+modloadmsg += "options, you may also source a bash completion file by;\n"
+modloadmsg += "source $CS_BASH\n"
+
+moduleclass = 'cae'

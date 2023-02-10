@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'VTKData'
+version = '9.2.5'
+
+homepage = 'https://vtk.org'
+description = "Testdata for VTK"
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [('https://www.vtk.org/files/release/%(version_major_minor)s/')]
+sources = [
+    ('VTKData-%(version)s.tar.gz'),
+    ('VTKDataFiles-%(version)s.tar.gz'),
+    ('VTKLargeData-%(version)s.tar.gz'),
+    ('VTKLargeDataFiles-%(version)s.tar.gz'),
+]
+checksums = [
+    ('sha256', '8a812f96346b3a38ff0fc3b1a1a372f3727a71ebf450c02d659a75dbe1113515'),
+    ('sha256', '3dd926bb5c8f7ba84d1eb0cf8ff97d26ed406bb2a4ccf7c51a51e739407484d0'),
+    ('sha256', '7b7f37ab6582d7a0454f717e3466437dd5ee87bb0eec3b27309c604f5fec7c18'),
+    ('sha256', 'c851fe78c1b4c86a60a940279f5ba194e7f3c335d834632d99877144dc1b2b31'),
+]
+
+sanity_check_paths = {
+    'files': ['.ExternalData/README.rst'],
+    'dirs': ['.ExternalData', 'Common', 'Examples', 'Filters', 'IO', 'Parallel', 'Rendering', 'Testing'],
+}
+
+moduleclass = 'vis'

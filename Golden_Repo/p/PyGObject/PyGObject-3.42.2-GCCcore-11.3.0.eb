@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'PyGObject'
+version = '3.42.2'
+
+homepage = 'https://pygobject.readthedocs.io'
+description = """PyGObject is a Python package which provides bindings for GObject based
+libraries such as GTK, GStreamer, WebKitGTK, GLib, GIO and many more.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [PYPI_SOURCE]
+sources = [SOURCE_TAR_GZ]
+checksums = ['21524cef33100c8fd59dc135948b703d79d303e368ce71fa60521cc971cd8aa7']
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('pkgconf', '1.8.0'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('GLib', '2.72.1'),
+    ('GObject-Introspection', '1.72.0'),
+    ('PyCairo', '1.23.0'),
+    ('libffi', '3.4.2'),
+]
+
+use_pip = False
+sanity_pip_check = True
+download_dep_fail = True
+
+# install data (pkg-config and include files)
+installopts = '--root=/'
+
+sanity_check_paths = {
+    'files': [
+        'include/pygobject-%(version_major)s.0/pygobject.h',
+        'lib/pkgconfig/pygobject-%(version_major)s.0.pc',
+    ],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/gi'],
+}
+
+options = {'modulename': 'gi'}
+
+moduleclass = 'vis'

@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'eudev'
+version = '3.2.11'
+
+homepage = 'https://wiki.gentoo.org/wiki/Project:Eudev'
+
+description = """
+ eudev is a fork of systemd-udev with the goal of obtaining better
+ compatibility with existing software such as OpenRC and Upstart,
+ older kernels, various toolchains and anything else required by
+ users and various distributions.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+source_urls = [('https://github.com/eudev-project/eudev/archive')]
+sources = ['v%(version)s.tar.gz']
+patches = ['%(name)s-%(version)s_python3.patch']
+checksums = [
+    {'v3.2.11.tar.gz': 'dcfc482099f3fdfcfdb9aeabbc4d609877cf4d2d0407f50ab0c59d43fff44f92'},
+    {'eudev-3.2.11_python3.patch': '846b1e72e12853c4146d3a4e312301001bbfb13110ce76de2afdf860f4d085a8'},
+]
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('gperf', '3.1'),
+    ('Python', '3.10.4'),
+    ('Autotools', '20220317'),
+    ('pkgconf', '1.8.0'),
+]
+
+osdependencies = [('kernel-headers', 'linux-libc-dev')]
+
+preconfigopts = "./autogen.sh && "
+configopts = '--disable-blkid --disable-selinux --disable-manpages '
+
+runtest = 'check'
+
+sanity_check_paths = {
+    'files': ['bin/udevadm', 'include/libudev.h', 'include/udev.h',
+              'lib/libudev.so.1'],
+    'dirs': [],
+}
+
+moduleclass = 'system'

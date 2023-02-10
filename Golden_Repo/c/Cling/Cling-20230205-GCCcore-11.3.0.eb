@@ -1,0 +1,78 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Cling'
+version = '20230205'
+
+local_commit = '1d93ee8d5855a82bbff2aab31515760630e8c1a4'
+
+homepage = "https://root.cern/cling/"
+description = """Cling is an interactive C++ interpreter, built on the top of LLVM and Clang libraries.
+Its advantages over the standard interpreters are that it has command line prompt
+and uses just-in-time (JIT) compiler for compilation.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/root-project/cling/archive/']
+sources = ['%s.tar.gz' % local_commit]
+patches = [
+    ('disable_demo.patch'),
+]
+checksums = [
+    {'1d93ee8d5855a82bbff2aab31515760630e8c1a4.tar.gz':
+     '5cbdac0a8a5229dd2613d3f83af7e38d9e44fba1e5c1e801a4d4349fa277688a'},
+    {'disable_demo.patch': '44c74ffd74f0c1d308c68001fa87d9a95d5274a07ea797a284b3b21e6da1c712'},
+]
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('binutils', '2.38',),
+]
+
+separate_build_dir = True
+srcdir = "%(builddir)s/src"
+
+# get source
+preconfigopts = (
+
+    # get compatible LLVM version id
+    'pushd %%(builddir)s/cling-%s && '
+    'LLVM_RELEASE=$(cat LastKnownGoodLLVMSVNRevision.txt) && '
+
+    # clone compatible LLVM branch
+    'cd .. && '
+    'git clone http://root.cern.ch/git/llvm.git src && '
+    'cd src && '
+    'git checkout cling-patches-r${LLVM_RELEASE} && '
+
+    # clone compatible Clang branch to the correct position in LLVM src
+    'cd tools && '
+    'git clone http://root.cern.ch/git/clang.git && '
+    'cd clang && '
+    'git checkout cling-patches-r${LLVM_RELEASE} && '
+
+    # add cling src to the correct position LLVM src
+    'cd .. && '
+    'ln -s ../../cling-%s cling && '
+
+    # cd to easybuild standard build directory
+    'popd && '
+
+) % (local_commit, local_commit)
+
+# copy jupyter kernel files
+postinstallcmds = [
+    # copy Jupyter kernel install files
+    # https://cdn.rawgit.com/root-project/cling/master/www/jupyter.html
+    'mkdir -p %(installdir)s/share/cling/ ',
+    'cp -a %%(builddir)s/cling-%s/tools/Jupyter %%(installdir)s/share/cling ' % local_commit,
+]
+
+sanity_check_paths = {
+    'files': ['bin/cling'],
+    'dirs': ['bin', 'include', 'lib', 'share'],
+}
+
+moduleclass = 'tools'

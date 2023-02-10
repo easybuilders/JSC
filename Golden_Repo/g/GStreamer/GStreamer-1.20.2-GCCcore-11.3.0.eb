@@ -1,0 +1,82 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'GStreamer'
+version = '1.20.2'
+
+homepage = 'https://gstreamer.freedesktop.org/'
+description = """GStreamer is a library for constructing graphs of media-handling
+ components. The applications it supports range from simple
+ Ogg/Vorbis playback, audio/video streaming to complex audio
+ (mixing) and video (non-linear editing) processing."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('Meson', '0.62.1'),
+    ('Ninja', '1.10.2'),
+    ('Bison', '3.8.2'),
+    ('flex', '2.6.4'),
+    ('GObject-Introspection', '1.72.0'),
+    ('gettext', '0.21'),
+    ('pkgconf', '1.8.0'),
+    ('CMake', '3.23.1'),
+    ('git', '2.36.0', '-nodocs'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('zlib', '1.2.12'),
+    ('GMP', '6.2.1'),
+    ('GSL', '2.7'),
+    ('GLib', '2.72.1'),
+    ('GTK+', '3.24.34'),
+    ('libunwind', '1.6.2'),
+    ('double-conversion', '3.2.0'),
+    ('elfutils', '0.187'),
+]
+
+default_easyblock = 'MesonNinja'
+
+default_component_specs = {
+    'sources': [SOURCELOWER_TAR_XZ],
+    'start_dir': '%(namelower)s-%(version)s',
+}
+
+components = [
+    (name, version, {
+        'source_urls': ['https://gstreamer.freedesktop.org/src/%(namelower)s'],
+        'patches': ['GStreamer-1.18_fix_bad_suid.patch'],
+        'checksums': [
+            'df24e8792691a02dfe003b3833a51f1dbc6c3331ae625d143b17da939ceb5e0a',
+            '3d963ffdaf157ed92f46a071c4ef46f548c0b19186427e8404cb066705bbb61a',
+        ],
+        'configopts': "-Dlibdw=disabled ",
+    }),
+    ('GST-plugins-base', version, {
+        'source_urls': ['https://gstreamer.freedesktop.org/src/%(namelower)s'],
+        'checksums': ['ab0656f2ad4d38292a803e0cb4ca090943a9b43c8063f650b4d3e3606c317f17'],
+        'preconfigopts': 'export PKG_CONFIG_PATH="%(installdir)s/lib/pkgconfig:${PKG_CONFIG_PATH}" && ',
+    }),
+    ('GST-plugins-good', version, {
+        'source_urls': ['https://gstreamer.freedesktop.org/src/%(namelower)s'],
+        'checksums': ['83589007bf002b8f9ef627718f308c16d83351905f0db8e85c3060f304143aae'],
+        'preconfigopts': 'export PKG_CONFIG_PATH="%(installdir)s/lib/pkgconfig:${PKG_CONFIG_PATH}" && ',
+    }),
+    ('GST-plugins-bad', version, {
+        'source_urls': ['https://gstreamer.freedesktop.org/src/%(namelower)s'],
+        'checksums': ['4adc4c05f41051f8136b80cda99b0d049a34e777832f9fea7c5a70347658745b'],
+        'preconfigopts': 'export PKG_CONFIG_PATH="%(installdir)s/lib/pkgconfig:${PKG_CONFIG_PATH}" && ',
+    }),
+]
+
+modextrapaths = {'PKG_CONFIG_PATH': 'lib/pkgconfig'}  # required!
+
+sanity_check_paths = {
+    'files': ['bin/gst-%s-1.0' % x for x in ['discoverer', 'play', 'device-monitor']] +
+             ['lib/libgst%s-1.0.%s' % (x, SHLIB_EXT) for x in ['app', 'audio', 'video']],
+    'dirs': ['include', 'share']
+}
+
+moduleclass = 'vis'

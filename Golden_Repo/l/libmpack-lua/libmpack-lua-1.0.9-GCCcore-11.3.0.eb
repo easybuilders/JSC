@@ -46,8 +46,8 @@ sanity_check_paths = {
 }
 
 modluafooter = """
-libmpack_lua_root = os.getenv("EBROOTLIBMPACKMINLUA")
-lua_cpath          = os.getenv("LUA_CPATH")
+libmpack_lua_root = "%(installdir)s"
+lua_cpath         = os.getenv("LUA_CPATH")
 if nil == lua_cpath then
   setenv("LUA_CPATH", libmpack_lua_root .. "/lib/lua/5.1/?.so;;")
 else

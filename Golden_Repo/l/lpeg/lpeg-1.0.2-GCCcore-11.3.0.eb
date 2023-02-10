@@ -40,7 +40,7 @@ sanity_check_paths = {
 }
 
 modluafooter = """
-libmpack_lua_root = os.getenv("EBROOTLPEG")
+libmpack_lua_root = "%(installdir)s"
 lua_cpath         = os.getenv("LUA_CPATH")
 lua_path          = os.getenv("LUA_PATH")
 if nil == lua_cpath then

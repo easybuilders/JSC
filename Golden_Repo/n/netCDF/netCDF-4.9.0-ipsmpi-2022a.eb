@@ -19,9 +19,12 @@ patches = [
 ]
 checksums = [
     '9f4cb864f3ab54adb75409984c6202323d2fc66c003e5308f3cdf224ed41c0a6',  # v4.9.0.tar.gz
-    'ed45ae6c49cf8dcddaadef4c5cf403049bf3f761187413d7b03754d319345d6a',  # netCDF-4.9.0_fix-lib-name.patch
-    '2b9579c149579d137eb16ae5d790787774033dcec49c0d4993d9859f224e7b15',  # netCDF-4.9.0_fix-linking-errors.patch
-    '19d99e03c048b037dc01f03f5b8ddc910ebaceb076d0f050540d348f26dfcd2a',  # netCDF-4.9.0_skip-nasa-test.patch
+    # netCDF-4.9.0_fix-lib-name.patch
+    'ed45ae6c49cf8dcddaadef4c5cf403049bf3f761187413d7b03754d319345d6a',
+    # netCDF-4.9.0_fix-linking-errors.patch
+    '2b9579c149579d137eb16ae5d790787774033dcec49c0d4993d9859f224e7b15',
+    # netCDF-4.9.0_skip-nasa-test.patch
+    '19d99e03c048b037dc01f03f5b8ddc910ebaceb076d0f050540d348f26dfcd2a',
 ]
 
 builddependencies = [
@@ -37,18 +40,23 @@ dependencies = [
     ('zstd', '1.5.2'),
     ('bzip2', '1.0.8'),
     ('libxml2', '2.9.13'),
+    ('PnetCDF', '1.12.3'),
 ]
 
 # make sure both static and shared libs are built
+# enable PnetCDF
 # and disable "remote" tests that access a unreliable external test server over internet
 configopts = [
-    "-DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF",
-    "-DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON",
+    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DMPIEXEC='/usr/bin/srun'",
+    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON  -DMPIEXEC='/usr/bin/srun'",
 ]
 
 # some tests try to start 16 MPI ranks, so we need to allow oversubscription to avoid failing tests
-pretestopts = "OMPI_MCA_rmaps_base_oversubscribe=1 "
+# pretestopts = "OMPI_MCA_rmaps_base_oversubscribe=1 "
 
-runtest = 'test'
+# switch off tests to build with PnetCDF, as cmake configuration for pnetcdf-based tests contains bugs
+# will be fixed in 4.9.1
+# https://github.com/Unidata/netcdf-c/pull/2437
+# runtest = 'test'
 
 moduleclass = 'data'

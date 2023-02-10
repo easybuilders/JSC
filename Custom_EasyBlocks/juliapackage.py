@@ -148,7 +148,10 @@ class JuliaPackage(ExtensionEasyBlock):
         Custom sanity check for Julia packages
         """
         #NOTE: we don't use Pkg.status with arguments as only supported for Julia >=v1.1
-        cmd = "unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && julia --eval 'using Pkg; Pkg.status()'" % (self.depot, self.projectdir)
+        # if juliaver >= 1.1:
+        cmd = "unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && julia --eval 'using Pkg; Pkg.status(\"%s\")'" % (self.depot, self.projectdir, self.package_name)
+        # else:
+        #    cmd = "unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && julia --eval 'using Pkg; Pkg.status()'" % (self.depot, self.projectdir)
         cmdttdouterr, _ = run_cmd(cmd, log_all=True, simple=False, regexp=False)
         self.log.error("Julia package %s sanity returned %s" % (self.name, cmdttdouterr))
         return len(parse_log_for_error(cmdttdouterr, regExp="%s\s+v%s" % (self.package_name, self.version))) != 0

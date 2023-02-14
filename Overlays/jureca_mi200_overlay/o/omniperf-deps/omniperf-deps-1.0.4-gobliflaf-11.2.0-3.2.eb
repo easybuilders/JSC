@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'omniperf-deps'
+version = '1.0.4'
+
+
+homepage = 'https://amdresearch.github.io/omniperf/'
+description = """
+Some Python packages required by omniperf
+"""
+
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10'),
+    ('matplotlib', '3.4.3'),
+    ('dash', '2.7.0'),
+]
+
+
+# this is a bundle of Python packages
+# exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('astunparse', '1.6.3', {
+        'checksums': ['5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872'],
+    }),
+    ('colorlover', '0.3.0', {
+        'checksums': ['b8fb7246ab46e1f5e6715649453c1762e245a515de5ff2d2b4aab7a6e67fa4e2'],
+    }),
+    ('dnspython', '2.2.1', {
+        'modulename': 'dns',
+        'checksums': ['0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e'],
+    }),
+    ('pymongo', '4.3.3', {
+        'checksums': ['34e95ffb0a68bffbc3b437f2d1f25fc916fef3df5cdeed0992da5f42fae9b807'],
+    }),
+]
+
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

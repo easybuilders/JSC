@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'omniperf'
+version = '1.0.4'
+
+homepage = 'https://amdresearch.github.io/omniperf/'
+description = """
+  Omniperf is a system performance profiling tool for machine learning/HPC workloads running on AMD MI GPUs.
+  The tool presently targets usage on MI100 and MI200 accelerators.
+"""
+
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
+
+github_account = 'AMDResearch'
+
+source_urls = [GITHUB_SOURCE]
+sources = [{
+    'filename':          SOURCELOWER_TAR_GZ,
+    'download_filename': 'v%(version)s.tar.gz'
+}]
+checksums = ['36badd507825858481e8fbf4cc3155c6e0aadbc4b1716b763574e695722a2d82']
+
+builddependencies = [
+    ('CMake', '3.21.1'),
+    ('Ninja', '1.10.2'),
+]
+
+dependencies = [
+    ('ROCm', '5.4.0'),
+    ('Python', '3.9.6'),
+    ('matplotlib', '3.4.3'),
+    ('dash', '2.7.0'),
+    ('omniperf-deps', '1.0.4'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/omniperf'],
+    'dirs': [],
+}
+
+moduleclass = 'perf'

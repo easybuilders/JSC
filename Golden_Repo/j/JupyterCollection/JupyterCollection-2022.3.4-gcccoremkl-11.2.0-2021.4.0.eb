@@ -14,7 +14,7 @@ toolchain = {'name': 'gcccoremkl', 'version': '11.2.0-2021.4.0'}
 
 dependencies = [
     # ('JupyterKernel-XPython',        '0.12.3', '-' + version),
-    ('JupyterProxy-XpraHTML5',        '0.3.4',  '-' + version),
+    ('JupyterProxy-XpraHTML5',        '0.3.5',  '-' + version),
     # ('JupyterProxy-RStudio',          '1.4',    '-' + version),
     # ('JupyterProxy-Matlab',           '0.2.0',  '-' + version),
     ('JupyterKernel-Bash',            '0.7.2',  '-' + version),

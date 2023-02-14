@@ -83,9 +83,10 @@ configopts += '-DPARAVIEW_BUILD_WITH_KITS=OFF '
 configopts += '-DPARAVIEW_USE_QT=OFF '
 
 # --- tuning --- #
-configopts += '-DVTK_BUILD_SCALED_SOA_ARRAYS=ON '
-configopts += '-DVTK_DISPATCH_SOA_ARRAYS=ON '
-configopts += '-DVTK_DISPATCH_TYPED_ARRAYS=ON '
+# better disable for now: https://discourse.paraview.org/t/array-dispatch-issues/10328
+# configopts += '-DVTK_BUILD_SCALED_SOA_ARRAYS=OFF '
+# configopts += '-DVTK_DISPATCH_SOA_ARRAYS=OFF '
+# configopts += '-DVTK_DISPATCH_TYPED_ARRAYS=OFF '
 
 # --- web --- #
 configopts += '-DPARAVIEW_ENABLE_WEB=ON '

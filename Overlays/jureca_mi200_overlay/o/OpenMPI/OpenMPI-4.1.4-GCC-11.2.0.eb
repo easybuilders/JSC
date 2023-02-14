@@ -31,7 +31,7 @@ dependencies = [
     ('zlib', '1.2.11'),
     ('hwloc', '2.5.0'),
     ('UCX', 'default'),
-    ('ROCm-rtonly', '5.3.0'),
+    ('ROCm-rtonly', '5.4.0'),
     ('libevent', '2.1.12'),
 ]
 

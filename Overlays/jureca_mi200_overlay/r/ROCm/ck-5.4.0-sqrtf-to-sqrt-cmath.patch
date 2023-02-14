@@ -1,0 +1,42 @@
+diff --git a/example/34_batchnorm/batchnorm_backward_nhwc.cpp b/example/34_batchnorm/batchnorm_backward_nhwc.cpp
+index a6ca9d15..086c4889 100644
+--- a/example/34_batchnorm/batchnorm_backward_nhwc.cpp
++++ b/example/34_batchnorm/batchnorm_backward_nhwc.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: MIT
+ // Copyright (c) 2018-2022, Advanced Micro Devices, Inc. All rights reserved.
+ 
++#include <cmath>
+ #include <limits>
+ #include <iostream>
+ #include <getopt.h>
+@@ -172,7 +173,7 @@ bool bnorm_bwd_nhwc_test(bool do_verification,
+         while(it_src != savedVariance.mData.end())
+         {
+             *it_dst = type_convert<AccDataType>(
+-                1.0f / std::sqrtf(type_convert<float>(*it_src) + tmp_epsilon));
++                1.0f / std::sqrt(type_convert<float>(*it_src) + tmp_epsilon));
+ 
+             it_src++;
+             it_dst++;
+diff --git a/profiler/include/profiler/profile_batchnorm_backward_impl.hpp b/profiler/include/profiler/profile_batchnorm_backward_impl.hpp
+index 79d88620..04815175 100644
+--- a/profiler/include/profiler/profile_batchnorm_backward_impl.hpp
++++ b/profiler/include/profiler/profile_batchnorm_backward_impl.hpp
+@@ -3,6 +3,7 @@
+ 
+ #pragma once
+ 
++#include <cmath>
+ #include <iomanip>
+ #include <stdexcept>
+ 
+@@ -111,7 +112,7 @@ bool profile_batchnorm_backward_impl(bool do_verification,
+         while(it_src != savedVariance.mData.end())
+         {
+             *it_dst = type_convert<AccDataType>(
+-                1.0f / std::sqrtf(type_convert<float>(*it_src) + tmp_epsilon));
++                1.0f / std::sqrt(type_convert<float>(*it_src) + tmp_epsilon));
+ 
+             it_src++;
+             it_dst++;

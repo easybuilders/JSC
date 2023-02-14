@@ -1,0 +1,88 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'dash'
+version = '2.7.0'
+
+
+homepage = 'https://plotly.com/dash/'
+description = """
+Dash is the most downloaded, trusted Python framework for building ML & data science web apps.
+"""
+
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('UnZip', '6.0'),
+    ('Autotools', '20210726'),
+    ('pkg-config', '0.29.2'),
+]
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10'),
+    ('matplotlib', '3.4.3'),
+]
+
+osdependencies = [('openssl')]
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'filter': ('python -c "import %(ext_name)s"', ''),
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+}
+
+# Dependencies can partly tested, created and updated using findPythonDeps.sh:
+# https://gist.github.com/Flamefire/49426e502cd8983757bd01a08a10ae0d
+exts_list = [
+    ('plotly', '5.11.0', {
+        'checksums': ['4efef479c2ec1d86dcdac8405b6ca70ca65649a77408e39a7e84a1ea2db6c787'],
+    }),
+    ('tqdm', '4.64.1', {
+        'checksums': ['5f4f682a004951c1b450bc753c710e9280c5746ce6ffedee253ddbcbf54cf1e4'],
+    }),
+    ('tenacity', '8.1.0', {
+        'checksums': ['e48c437fdf9340f5666b92cd7990e96bc5fc955e1298baf4a907e3972067a445'],
+    }),
+    ('dash', '2.7.0', {
+        'checksums': ['0b8e550539760c9c4e1506f38e052a7123a15a86efc3aa9a2e0aa4e1a57f62bf'],
+    }),
+    ('dash_renderer', '1.9.1', {
+        'checksums': ['73a69e3d145880e68e42723ad10182251d92b44f3efe92b8763145cfd2158e7e'],
+    }),
+    ('dash_core_components', '2.0.0', {
+        'checksums': ['c6733874af975e552f95a1398a16c2ee7df14ce43fa60bb3718a3c6e0b63ffee'],
+    }),
+    ('dash_html_components', '2.0.0', {
+        'checksums': ['8703a601080f02619a6390998e0b3da4a5daabe97a1fd7a9cebc09d015f26e50'],
+    }),
+    ('dash_table', '5.0.0', {
+        'checksums': ['18624d693d4c8ef2ddec99a6f167593437a7ea0bf153aa20f318c170c5bc7308'],
+    }),
+    ('dash-bootstrap-components', '1.2.1', {
+        'checksums': ['249b28d3240d64274e2cc18aee39a03e44c35e0920ec810e5ed4c1359272e063'],
+    }),
+    ('dash_daq', '0.5.0', {
+        'checksums': ['a1d85b6799f7b885652fbc44aebdb58c41254616a8d350b943beeb42ade4256a'],
+    }),
+    ('dash_player', '1.0.4', {
+        'checksums': ['8c98e026d8881edf906fb8ace3bd870a2089ddbf1dcc082e893aae13b3c27dfd'],
+    }),
+    ('dash_svg', '0.0.11', {
+        'checksums': ['fd7977a03c3053a89575c7a53a7f29eba885a9403289776d3c2288a8abcab8f8'],
+    }),
+]
+
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

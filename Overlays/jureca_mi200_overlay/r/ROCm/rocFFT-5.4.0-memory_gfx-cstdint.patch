@@ -1,0 +1,13 @@
+diff --git a/library/src/device/kernels/memory_gfx.h b/library/src/device/kernels/memory_gfx.h
+index 114fb6c..883c2cf 100644
+--- a/library/src/device/kernels/memory_gfx.h
++++ b/library/src/device/kernels/memory_gfx.h
+@@ -50,6 +50,8 @@
+ #define BUFFER_RESOURCE_3RD_DWORD -1
+ #endif
+ 
++#include <cstdint>
++
+ /// Controls AMD gfx arch cache operations
+ struct CacheOperation
+ {

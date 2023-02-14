@@ -82,9 +82,11 @@ configopts += '-DPARAVIEW_BUILD_WITH_KITS=OFF '
 configopts += '-DPARAVIEW_USE_QT=OFF '
 
 # --- tuning --- #
-configopts += '-DVTK_BUILD_SCALED_SOA_ARRAYS=ON '
-configopts += '-DVTK_DISPATCH_SOA_ARRAYS=ON '
-configopts += '-DVTK_DISPATCH_TYPED_ARRAYS=ON '
+# this results in unresolved symbols and failing of pvpython
+# better disable for now: https://discourse.paraview.org/t/array-dispatch-issues/10328
+# configopts += '-DVTK_BUILD_SCALED_SOA_ARRAYS=ON '
+# configopts += '-DVTK_DISPATCH_SOA_ARRAYS=ON '
+# configopts += '-DVTK_DISPATCH_TYPED_ARRAYS=ON '
 
 # --- web --- #
 configopts += '-DPARAVIEW_ENABLE_WEB=ON '
@@ -284,7 +286,7 @@ configopts += '-DVTK_MODULE_ENABLE_ParaView_IOVisItBridge=YES '
 # configopts += '-DVISIT_BUILD_READER_Nek5000=ON '  # MR still open
 
 postinstallcmds = [
-    'python -m compileall %(installdir)s/lib64/python3.6/site-packages/']
+    'python -m compileall %(installdir)s/lib64/python%(pyshortver)s/site-packages/']
 #    'cp -a %(builddir)s/ParaView-v%(version)s/  %(installdir)s/src', # copy source from build dir to install dir
 #    '', # move debug info to separate files:
 #          http://stackoverflow.com/questions/866721/how-to-generate-gcc-debug-symbol-outside-the-build-target
@@ -292,6 +294,7 @@ postinstallcmds = [
 #        # change path to source in debug info
 
 modextravars = {
+    'PARAVIEW_VTK_DIR': '%(installdir)s/lib64/cmake/paraview-%(version_major_minor)/vtk',
     # 'CUDA_VISIBLE_DEVICES': '0,1',
     # OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
     'MESA_GL_VERSION_OVERRIDE': '3.3',

@@ -20,6 +20,20 @@ local stages =  os.getenv("STAGES")
 if stages == nil then
     LmodError(yellow.."Can't determine a value for STAGES (which is usually an environment variable)"..normal)
 end
+-- Set the path for all system EasyBuild extras
+local common_eb_path = "/p/usersoftware/swmanage/user_installations/"
+
+-- Check first if "stages" has been loaded. If not find the stage based on the install path of EasyBuild
+local stage =  os.getenv("STAGE")
+if stage == nil then
+    if mode()=="load" then
+        LmodMessage(yellow.."Determining system software installation path from EasyBuild module... "..normal)
+    end
+    stage =  string.match(os.getenv("EBROOTEASYBUILD"), stages .. "/(.-)/software") or ""
+    if stage == nil then
+        LmodError(yellow.."Can't determine a value for STAGE (which is usually an environment variable)"..normal)
+    end
+end
 
 -- If not loaded, load the default EasyBuild module
 if not isloaded("EasyBuild") then
@@ -45,8 +59,7 @@ if mode()=="load" then
             LmodMessage("    (You can enable easyconfig autocomplete from robot ")
             LmodMessage("     search path in addition by setting JSC_EASYCONFIG_AUTOCOMPLETE)")
             -- Enable EasyBuild optcomplete autocomplete
-            bash_completion_cmd = bash_completion_cmd.."source /p/fastdata/zam/swmanage/EasyBuild/2022/bin/eb_bash_completion_local.bash;\n"
---             bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion_local.bash;\n"
+            bash_completion_cmd = bash_completion_cmd.."source "..common_eb_path..stage.."/bin/eb_bash_completion_local.bash;\n"
         end
         bash_completion_cmd = bash_completion_cmd.."complete -F _eb eb"
         execute{
@@ -62,18 +75,6 @@ if mode()=="load" then
         LmodError(yellow.."Sorry but we rely on using an EasyBuild module coming from the system!\n"..
                   "If you really want to use your own installation, use a system one first, \n"..
                   "load this module, then afterwards replace the EasyBuild module."..normal)
-    end
-end
-
--- Check first if "stages" has been loaded. If not find the stage based on the install path of EasyBuild
-local stage =  os.getenv("STAGE")
-if stage == nil then
-    if mode()=="load" then
-        LmodMessage(yellow.."Determining system software installation path from EasyBuild module... "..normal)
-    end
-    stage =  string.match(os.getenv("EBROOTEASYBUILD"), stages .. "/(.-)/software") or ""
-    if stage == nil then
-        LmodError(yellow.."Can't determine a value for STAGE (which is usually an environment variable)"..normal)
     end
 end
 
@@ -93,8 +94,6 @@ if string.find(stage, "Devel") then
     is_devel = true
 end
 
--- Set the path for all system EasyBuild extras
-local common_eb_path = pathJoin("/p/fastdata/zam", "swmanage/EasyBuild")
 -- need to ensure this path is readable (or a sanitised version available)
 if mode()=="load" then
     if lfs.attributes(common_eb_path, "mode") ~= "directory" then
@@ -111,7 +110,7 @@ systemname = string.gsub(systemname, "\n", "")
 local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
 
 -- To support cross-compilation
-if lmod_systemname == "jurecabooster" then
+if lmod_systemname == "jureca_mi200" then
     systemname = lmod_systemname
 end
 
@@ -147,7 +146,6 @@ end
 
 --set up our JSC configuration specifics
 
-local sources_path = pathJoin(common_eb_path, "sources")
 local gr_path = pathJoin(common_eb_path, stage, "Golden_Repo")
 local overlay_path = pathJoin(common_eb_path, stage, "Overlays")
 local custom_easyblocks_path = pathJoin(common_eb_path, stage, "Custom_EasyBlocks")
@@ -190,7 +188,12 @@ setenv("EASYBUILD_ROBOT", gr_path)
 setenv("EASYBUILD_ROBOT_PATHS", gr_path)
 
 -- Allow people to search for software in the default path (but is not used to resolve dependencies)
-default_robot_path = os.getenv("EBROOTEASYBUILD") .. "/" .. "easybuild" .. "/" .. "easyconfigs"
+default_robot_path = os.getenv("EBROOTEASYBUILD")
+if default_robot_path then
+    default_robot_path = os.getenv("EBROOTEASYBUILD") .. "/" .. "easybuild" .. "/" .. "easyconfigs"
+else
+    default_robot_path = ""
+end
 setenv("EASYBUILD_SEARCH_PATHS", default_robot_path)
 
 -- Configure use of our hooks
@@ -225,11 +228,8 @@ prepend_path("EASYBUILD_ROBOT_PATHS", gr_overlay_path)
 -- Set optarch options for easybuild
 local optarch = ""
 local cuda_compute = ""
--- JURECA booster
-if systemname == "jurecabooster" then
-    optarch = "GCCcore:march=haswell -mtune=haswell;GCC:march=knl -mtune=knl -ftree-vectorize;Intel:xMIC-AVX512"
 -- JUWELS
-elseif systemname == "juwels" then
+if systemname == "juwels" then
     optarch = "GCCcore:march=haswell -mtune=haswell"
     cuda_compute = "7.0,6.0"
 -- JUWELS booster

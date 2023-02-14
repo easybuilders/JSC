@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeNinja'
+
+name = 'hipify'
+version = '5.4.0'
+
+homepage = 'https://github.com/ROCm-Developer-Tools/HIPIFY'
+
+description = """
+ Tools to translate CUDA source code into portable HIP C++ automatically
+"""
+
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
+
+github_account = "ROCm-Developer-Tools"
+source_urls = ['https://github.com/%(github_account)s/HIPIFY/archive']
+sources = ['rocm-%(version)s.tar.gz']
+patches = ['hipify-5.4.0-binaries-belong-in-bin.patch']
+
+checksums = [
+    '9f51eb280671ae7f7e14eb593ee3ef099899221c4bdccfbdb7a78681ad17f37f',
+    '96dc1fb1a02a95f464fb7e424989371c1619cbb83ed808c308cea9a92391397c',
+]
+
+builddependencies = [
+    ('binutils', '2.37'),
+    ('CMake', '3.23.1'),
+    ('Ninja', '1.10.2'),
+]
+
+dependencies = [
+    ('ROCm', version, '', ("gobliflaf", "11.2.0-3.2")),
+    ('CUDA', '11.5', '', SYSTEM),
+]
+
+
+sanity_check_paths = {
+    'files': ['bin/hipify-clang', 'bin/hipify-perl'],
+    'dirs': ['hip'],
+}
+
+sanity_check_commands = ['hipify-clang --version', 'hipify-perl --version']
+
+moduleclass = 'devel'

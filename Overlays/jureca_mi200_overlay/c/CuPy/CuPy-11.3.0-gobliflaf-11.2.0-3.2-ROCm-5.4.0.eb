@@ -1,0 +1,60 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'CuPy'
+version = '11.3.0'
+versionsuffix = '-ROCm-5.4.0'
+
+homepage = 'https://cupy.dev'
+description = "CuPy is an open-source array library accelerated with NVIDIA CUDA or AMD ROCM."
+
+toolchain = {'name': 'gobliflaf', 'version': '11.2.0-3.2'}
+
+dependencies = [
+    ('Python', '3.9.6'),
+    ('SciPy-bundle', '2021.10', '', ('gobliflaf', '11.2.0-3.2')),
+    ('ROCm', '5.4.0'),
+]
+
+use_pip = True
+
+exts_default_options = {'source_urls': [PYPI_LOWER_SOURCE]}
+
+local_rocm_dir = "$EBROOTROCM"
+local_rocm_vars = """
+  export ROCM_HOME=%(rocm)s;
+  export ROCM_PATH=%(rocm)s;
+  export HCC_AMDGPU_TARGET=gfx90a;
+  export __HIP_PLATFORM_HCC__;
+  export CUPY_INSTALL_USE_HIP=1;
+  export HIPCC=%(rocm)s/bin/hipcc;
+  export HIPCC_COMPILE_FLAGS_APPEND="--rocm-path=$EBROOTROCM --gcc-toolchain=$EBROOTGCCCORE";
+  export CC="%(rocm)s/bin/hipcc --rocm-path=$EBROOTROCM --gcc-toolchain=$EBROOTGCCCORE";
+  export CXX="%(rocm)s/bin/hipcc --rocm-path=$EBROOTROCM --gcc-toolchain=$EBROOTGCCCORE";
+  export CFLAGS="$CFLAGS --rocm-path=$EBROOTROCM --gcc-toolchain=$EBROOTGCCCORE";
+  export CXXFLAGS="$CXXFLAGS --rocm-path=$EBROOTROCM --gcc-toolchain=$EBROOTGCCCORE";
+  sed 's|c++11|c++17|g' -i install/cupy_builder/cupy_setup_build.py;
+""" % {"rocm": local_rocm_dir}
+
+exts_list = [
+    ('fastrlock', '0.8', {
+        'checksums': ['9cc100ed0924b32173d7de705a82fdf1257cdf60af1952a13f64759307b40931'],
+    }),
+    ('cupy', version, {
+        'patches': [
+            'cupy-10.1.0-hip-cuda-success.patch',
+            'cupy-11.2.0-thrust-constant-iterator-include.patch'
+        ],
+        'checksums': [
+            'd057cc2f73ecca06fae8b9c270d9e14116203abfd211a704810cc50a453b4c9e',
+            '7e13243bd8710ceaa8f49bd94e2473dca8ff7c5d998484fa10f670c1a5d6f46c',
+            '98e6d10d4c64e7c3fc8e696ef9c69e12f49da4f623cfe1c40db1064ed1bcd9cc',
+        ],
+        'prebuildopts': local_rocm_vars,
+        'preinstallopts': local_rocm_vars,
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'lib'

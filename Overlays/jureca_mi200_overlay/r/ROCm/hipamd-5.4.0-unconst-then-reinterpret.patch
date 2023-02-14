@@ -1,0 +1,13 @@
+diff --git a/src/hip_intercept.cpp b/src/hip_intercept.cpp
+index e4e7e769..9f8d2fa8 100644
+--- a/src/hip_intercept.cpp
++++ b/src/hip_intercept.cpp
+@@ -49,7 +49,7 @@ const char* hipKernelNameRefByPtr(const void* host_function, hipStream_t stream)
+ 
+ void hipRegisterTracerCallback(const void* function) {
+   activity_prof::report_activity.store(
+-      reinterpret_cast<decltype(activity_prof::report_activity.load())>(function),
++      reinterpret_cast<decltype(activity_prof::report_activity.load())>(const_cast<void*>(function)),
+       std::memory_order_relaxed);
+ }
+ 

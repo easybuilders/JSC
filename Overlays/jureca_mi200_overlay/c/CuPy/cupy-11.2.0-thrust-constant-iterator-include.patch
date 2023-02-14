@@ -1,0 +1,12 @@
+diff --git a/cupy/cuda/cupy_thrust.cu b/cupy/cuda/cupy_thrust.cu
+index 9980f5b0b..81f8324f3 100644
+--- a/cupy/cuda/cupy_thrust.cu
++++ b/cupy/cuda/cupy_thrust.cu
+@@ -2,6 +2,7 @@
+ #include <thrust/device_ptr.h>
+ #include <thrust/device_vector.h>
+ #include <thrust/iterator/zip_iterator.h>
++#include <thrust/iterator/constant_iterator.h>
+ #include <thrust/sequence.h>
+ #include <thrust/sort.h>
+ #include <thrust/tuple.h>

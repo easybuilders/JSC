@@ -1,0 +1,14 @@
+diff --git a/bin/build_openmp.sh b/bin/build_openmp.sh
+index 4ef95075..3304c6f7 100755
+--- a/bin/build_openmp.sh
++++ b/bin/build_openmp.sh
+@@ -100,7 +100,8 @@ COMMON_CMAKE_OPTS="-DDEVICELIBS_ROOT=$DEVICELIBS_ROOT
+ -DOPENMP_TEST_C_COMPILER=$OUT_DIR/llvm/bin/clang
+ -DOPENMP_TEST_CXX_COMPILER=$OUT_DIR/llvm/bin/clang++
+ -DCMAKE_CXX_FLAGS=-I$ROCM_DIR/include
+--DCMAKE_C_FLAGS=-I$ROCM_DIR/include"
++-DCMAKE_C_FLAGS=-I$ROCM_DIR/include
++-DCMAKE_SHARED_LINKER_FLAGS=\"-fuse-ld=lld\""
+ 
+ if [ "$AOMP_STANDALONE_BUILD" == 0 ]; then
+   COMMON_CMAKE_OPTS="$COMMON_CMAKE_OPTS -DENABLE_DEVEL_PACKAGE=ON -DENABLE_RUN_PACKAGE=ON"

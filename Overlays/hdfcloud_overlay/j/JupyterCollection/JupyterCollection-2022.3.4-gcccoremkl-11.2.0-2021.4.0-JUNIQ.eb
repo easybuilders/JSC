@@ -14,7 +14,7 @@ for interactive computing across dozens of programming languages.
 toolchain = {'name': 'gpsmkl', 'version': '2021b'}
 
 dependencies = [
-    ('JupyterProxy-XpraHTML5',        '0.3.4',  '-' + version, ('gcccoremkl', '11.2.0-2021.4.0')),
+    ('JupyterProxy-XpraHTML5',        '0.3.5',  '-' + version, ('gcccoremkl', '11.2.0-2021.4.0')),
     ('JupyterKernel-Bash',            '0.7.2',  '-' + version, ('gcccoremkl', '11.2.0-2021.4.0')),
     ('JupyterKernel-Octave',          '6.4.0',  '-' + version, ('gcccoremkl', '11.2.0-2021.4.0')),
     ('JupyterKernel-PyQuantum',       '3.0',    '-' + version, ('gcccoremkl', '11.2.0-2021.4.0')),

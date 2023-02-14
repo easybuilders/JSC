@@ -1,0 +1,13 @@
+diff --color -urN cupy-10.1.0-unpatched/cupy_backends/hip/cupy_hip_common.h cupy-10.1.0/cupy_backends/hip/cupy_hip_common.h
+--- cupy-10.1.0-unpatched/cupy_backends/hip/cupy_hip_common.h	2022-04-10 22:51:28.531772252 +0200
++++ cupy-10.1.0/cupy_backends/hip/cupy_hip_common.h	2022-04-10 22:52:14.521401921 +0200
+@@ -15,7 +15,9 @@
+ 
+ typedef int CUdevice;
+ typedef hipError_t CUresult;
++#ifndef CUDA_SUCCESS
+ const CUresult CUDA_SUCCESS = static_cast<CUresult>(0);
++#endif
+ enum CUjit_option {};
+ enum CUjitInputType {};
+ enum CUarray_format {};

@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'nvidia-driver'
+version = 'default'
+realversion = '515.86.01'
+
+homepage = 'https://developer.nvidia.com/cuda-toolkit'
+description = """This is a set of libraries normally installed by the NVIDIA driver installer."""
+
+
+toolchain = SYSTEM
+
+source_urls = ['http://us.download.nvidia.com/tesla/%s/' % realversion]
+sources = ['NVIDIA-Linux-%%(arch)s-%s.run' % realversion]
+checksums = [
+    {
+        'NVIDIA-Linux-aarch64-%s.run' % realversion:
+            '642308bd81877f8873ed28d285af71c3b3d3d92174871e765c863a3c1cde846d',
+        'NVIDIA-Linux-x86_64-%s.run' % realversion:
+            '141777e1ca2f11e97d8d33260213f1be327eb73922ae22f4ddab404bb2ef4664',
+    }
+]
+
+# To avoid conflicts between NVML and the kernel driver
+postinstallcmds = ['rm %(installdir)s/lib64/libnvidia-ml.so*']
+
+modluafooter = '''
+add_property("arch","gpu")
+'''
+
+moduleclass = 'system'

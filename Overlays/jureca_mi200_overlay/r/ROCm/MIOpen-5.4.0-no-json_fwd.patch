@@ -1,0 +1,52 @@
+diff --git a/src/include/miopen/convolution.hpp b/src/include/miopen/convolution.hpp
+index 8869277a4..6f7e1b6cb 100644
+--- a/src/include/miopen/convolution.hpp
++++ b/src/include/miopen/convolution.hpp
+@@ -37,7 +37,7 @@
+ #include <miopen/invoke_params.hpp>
+ #include <miopen/invoker.hpp>
+ 
+-#include <nlohmann/json_fwd.hpp>
++#include <nlohmann/json.hpp>
+ 
+ #include <boost/any.hpp>
+ 
+diff --git a/src/include/miopen/problem.hpp b/src/include/miopen/problem.hpp
+index bb7501dbd..6c572e738 100644
+--- a/src/include/miopen/problem.hpp
++++ b/src/include/miopen/problem.hpp
+@@ -34,7 +34,7 @@
+ #include <miopen/solver_id.hpp>
+ #include <miopen/tensor.hpp>
+ 
+-#include <nlohmann/json_fwd.hpp>
++#include <nlohmann/json.hpp>
+ 
+ #include <boost/variant.hpp>
+ 
+diff --git a/src/include/miopen/solution.hpp b/src/include/miopen/solution.hpp
+index 795e44afd..df7cd8df0 100644
+--- a/src/include/miopen/solution.hpp
++++ b/src/include/miopen/solution.hpp
+@@ -34,7 +34,7 @@
+ #include <miopen/solver_id.hpp>
+ #include <miopen/tensor.hpp>
+ 
+-#include <nlohmann/json_fwd.hpp>
++#include <nlohmann/json.hpp>
+ 
+ #include <boost/optional.hpp>
+ 
+diff --git a/src/include/miopen/tensor.hpp b/src/include/miopen/tensor.hpp
+index 1d6d0984e..b6ff5a013 100644
+--- a/src/include/miopen/tensor.hpp
++++ b/src/include/miopen/tensor.hpp
+@@ -35,7 +35,7 @@
+ #include <miopen/object.hpp>
+ #include <miopen/returns.hpp>
+ 
+-#include <nlohmann/json_fwd.hpp>
++#include <nlohmann/json.hpp>
+ 
+ #include <algorithm>
+ #include <cassert>

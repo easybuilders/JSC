@@ -1,0 +1,538 @@
+--- arpack-ng-3.8.0/PARPACK_CHANGES	2021-06-30 09:57:39.220219000 +0200
++++ arpack-ng-3.8.0-ok/PARPACK_CHANGES	2021-06-30 10:25:30.148960874 +0200
+@@ -334,4 +334,6 @@
+ 36. 09/18/2016 p*apps.f and p*aitr.f contain condition to fetch machine epsilon.
+     When different p*aupd call use communicator with different number of CPU these
+     conditions cause deadlock. Variables inside conditions are moved to global
+-    to be reset each first iteration
+\ No newline at end of file
++    to be reset each first iteration
++
++
+--- arpack-ng-3.8.0/EXAMPLES/BAND/Makefile_band	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/BAND/Makefile_band	2021-06-30 10:36:04.461587000 +0200
+@@ -0,0 +1,159 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++cnbdr1_OBJECTS = cnbdr1.o cnband.o
++cnbdr2_OBJECTS = cnbdr2.o cnband.o
++cnbdr3_OBJECTS = cnbdr3.o cnband.o
++cnbdr4_OBJECTS = cnbdr4.o cnband.o
++dnbdr1_OBJECTS = dnbdr1.o dnband.o
++dnbdr2_OBJECTS = dnbdr2.o dnband.o
++dnbdr3_OBJECTS = dnbdr3.o dnband.o
++dnbdr4_OBJECTS = dnbdr4.o dnband.o
++dnbdr5_OBJECTS = dnbdr5.o dnband.o
++dnbdr6_OBJECTS = dnbdr6.o dnband.o
++dsbdr1_OBJECTS = dsbdr1.o dsband.o
++dsbdr2_OBJECTS = dsbdr2.o dsband.o
++dsbdr3_OBJECTS = dsbdr3.o dsband.o
++dsbdr4_OBJECTS = dsbdr4.o dsband.o
++dsbdr5_OBJECTS = dsbdr5.o dsband.o
++dsbdr6_OBJECTS = dsbdr6.o dsband.o
++snbdr1_OBJECTS = snbdr1.o snband.o
++snbdr2_OBJECTS = snbdr2.o snband.o
++snbdr3_OBJECTS = snbdr3.o snband.o
++snbdr4_OBJECTS = snbdr4.o snband.o
++snbdr5_OBJECTS = snbdr5.o snband.o
++snbdr6_OBJECTS = snbdr6.o snband.o
++ssbdr1_OBJECTS = ssbdr1.o ssband.o
++ssbdr2_OBJECTS = ssbdr2.o ssband.o
++ssbdr3_OBJECTS = ssbdr3.o ssband.o
++ssbdr4_OBJECTS = ssbdr4.o ssband.o
++ssbdr5_OBJECTS = ssbdr5.o ssband.o
++ssbdr6_OBJECTS = ssbdr6.o ssband.o
++znbdr1_OBJECTS = znbdr1.o znband.o
++znbdr2_OBJECTS = znbdr2.o znband.o
++znbdr3_OBJECTS = znbdr3.o znband.o
++znbdr4_OBJECTS = znbdr4.o znband.o
++
++all : cnbdr1 cnbdr2 cnbdr3 cnbdr4 \
++	dnbdr1 dnbdr2 dnbdr3 dnbdr4 dnbdr5 dnbdr6 \
++	dsbdr1 dsbdr2 dsbdr3 dsbdr4 dsbdr5 dsbdr6 \
++	snbdr1 snbdr2 snbdr3 snbdr4 snbdr5 snbdr6 \
++	ssbdr1 ssbdr2 ssbdr3 ssbdr4 ssbdr5 ssbdr6 \
++	znbdr1 znbdr2 znbdr3 znbdr4
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++cnbdr1 : $(cnbdr1_OBJECTS)
++	$(F77LD) -o $@ $(cnbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cnbdr2 : $(cnbdr2_OBJECTS)
++	$(F77LD) -o $@ $(cnbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cnbdr3 : $(cnbdr3_OBJECTS)
++	$(F77LD) -o $@ $(cnbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cnbdr4 : $(cnbdr4_OBJECTS)
++	$(F77LD) -o $@ $(cnbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr1 : $(dnbdr1_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr2 : $(dnbdr2_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr3 : $(dnbdr3_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr4 : $(dnbdr4_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr5 : $(dnbdr5_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnbdr6 : $(dnbdr6_OBJECTS)
++	$(F77LD) -o $@ $(dnbdr6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr1 : $(dsbdr1_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr2 : $(dsbdr2_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr3 : $(dsbdr3_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr4 : $(dsbdr4_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr5 : $(dsbdr5_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsbdr6 : $(dsbdr6_OBJECTS)
++	$(F77LD) -o $@ $(dsbdr6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr1 : $(snbdr1_OBJECTS)
++	$(F77LD) -o $@ $(snbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr2 : $(snbdr2_OBJECTS)
++	$(F77LD) -o $@ $(snbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr3 : $(snbdr3_OBJECTS)
++	$(F77LD) -o $@ $(snbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr4 : $(snbdr4_OBJECTS)
++	$(F77LD) -o $@ $(snbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr5 : $(snbdr5_OBJECTS)
++	$(F77LD) -o $@ $(snbdr5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snbdr6 : $(snbdr6_OBJECTS)
++	$(F77LD) -o $@ $(snbdr6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr1 : $(ssbdr1_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr2 : $(ssbdr2_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr3 : $(ssbdr3_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr4 : $(ssbdr4_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr5 : $(ssbdr5_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssbdr6 : $(ssbdr6_OBJECTS)
++	$(F77LD) -o $@ $(ssbdr6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++znbdr1 : $(znbdr1_OBJECTS)
++	$(F77LD) -o $@ $(znbdr1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++znbdr2 : $(znbdr2_OBJECTS)
++	$(F77LD) -o $@ $(znbdr2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++znbdr3 : $(znbdr3_OBJECTS)
++	$(F77LD) -o $@ $(znbdr3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++znbdr4 : $(znbdr4_OBJECTS)
++	$(F77LD) -o $@ $(znbdr4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/EXAMPLES/COMPLEX/Makefile_complex	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/COMPLEX/Makefile_complex	2021-06-30 10:36:04.494505000 +0200
+@@ -0,0 +1,59 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++cndrv1_OBJECTS = cndrv1.o
++cndrv2_OBJECTS = cndrv2.o
++cndrv3_OBJECTS = cndrv3.o
++cndrv4_OBJECTS = cndrv4.o
++zndrv1_OBJECTS = zndrv1.o
++zndrv2_OBJECTS = zndrv2.o
++zndrv3_OBJECTS = zndrv3.o
++zndrv4_OBJECTS = zndrv4.o
++
++all : cndrv1 cndrv2 cndrv3 cndrv4 \
++	zndrv1 zndrv2 zndrv3 zndrv4
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++cndrv1 : $(cndrv1_OBJECTS)
++	$(F77LD) -o $@ $(cndrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cndrv2 : $(cndrv2_OBJECTS)
++	$(F77LD) -o $@ $(cndrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cndrv3 : $(cndrv3_OBJECTS)
++	$(F77LD) -o $@ $(cndrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++cndrv4 : $(cndrv4_OBJECTS)
++	$(F77LD) -o $@ $(cndrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++zndrv1 : $(zndrv1_OBJECTS)
++	$(F77LD) -o $@ $(zndrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++zndrv2 : $(zndrv2_OBJECTS)
++	$(F77LD) -o $@ $(zndrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++zndrv3 : $(zndrv3_OBJECTS)
++	$(F77LD) -o $@ $(zndrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++zndrv4 : $(zndrv4_OBJECTS)
++	$(F77LD) -o $@ $(zndrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/EXAMPLES/NONSYM/Makefile_nonsym	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/NONSYM/Makefile_nonsym	2021-06-30 10:36:04.498741000 +0200
+@@ -0,0 +1,75 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++dndrv1_OBJECTS = dndrv1.o
++dndrv2_OBJECTS = dndrv2.o
++dndrv3_OBJECTS = dndrv3.o
++dndrv4_OBJECTS = dndrv4.o
++dndrv5_OBJECTS = dndrv5.o
++dndrv6_OBJECTS = dndrv6.o
++sndrv1_OBJECTS = sndrv1.o
++sndrv2_OBJECTS = sndrv2.o
++sndrv3_OBJECTS = sndrv3.o
++sndrv4_OBJECTS = sndrv4.o
++sndrv5_OBJECTS = sndrv5.o
++sndrv6_OBJECTS = sndrv6.o
++
++all : dndrv1 dndrv2 dndrv3 dndrv4 dndrv5 dndrv6 \
++	sndrv1 sndrv2 sndrv3 sndrv4 sndrv5 sndrv6
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++dndrv1 : $(dndrv1_OBJECTS)
++	$(F77LD) -o $@ $(dndrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dndrv2 : $(dndrv2_OBJECTS)
++	$(F77LD) -o $@ $(dndrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dndrv3 : $(dndrv3_OBJECTS)
++	$(F77LD) -o $@ $(dndrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dndrv4 : $(dndrv4_OBJECTS)
++	$(F77LD) -o $@ $(dndrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dndrv5 : $(dndrv5_OBJECTS)
++	$(F77LD) -o $@ $(dndrv5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dndrv6 : $(dndrv6_OBJECTS)
++	$(F77LD) -o $@ $(dndrv6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv1 : $(sndrv1_OBJECTS)
++	$(F77LD) -o $@ $(sndrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv2 : $(sndrv2_OBJECTS)
++	$(F77LD) -o $@ $(sndrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv3 : $(sndrv3_OBJECTS)
++	$(F77LD) -o $@ $(sndrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv4 : $(sndrv4_OBJECTS)
++	$(F77LD) -o $@ $(sndrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv5 : $(sndrv5_OBJECTS)
++	$(F77LD) -o $@ $(sndrv5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sndrv6 : $(sndrv6_OBJECTS)
++	$(F77LD) -o $@ $(sndrv6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/PARPACK/EXAMPLES/MPI/Makefile_parpack	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/PARPACK/EXAMPLES/MPI/Makefile_parpack	2021-06-30 10:37:57.093198000 +0200
+@@ -0,0 +1,51 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++PARPACKLIB = -L$(ARPACK_LIB) -lparpack -larpack
++
++pcndrv1_OBJECTS = pcndrv1.o
++pdndrv1_OBJECTS = pdndrv1.o
++pdndrv3_OBJECTS = pdndrv3.o
++psndrv1_OBJECTS = psndrv1.o
++psndrv3_OBJECTS = psndrv3.o
++pzndrv1_OBJECTS = pzndrv1.o
++
++all : pcndrv1 pdndrv1 pdndrv3 \
++	psndrv1 psndrv3 pzndrv1
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++pcndrv1 : $(pcndrv1_OBJECTS)
++	$(F77LD) -o $@ $(pcndrv1_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++pdndrv1 : $(pdndrv1_OBJECTS)
++	$(F77LD) -o $@ $(pdndrv1_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++pdndrv3 : $(pdndrv3_OBJECTS)
++	$(F77LD) -o $@ $(pdndrv3_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++psndrv1 : $(psndrv1_OBJECTS)
++	$(F77LD) -o $@ $(psndrv1_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++psndrv3 : $(psndrv3_OBJECTS)
++	$(F77LD) -o $@ $(psndrv3_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++pzndrv1 : $(pzndrv1_OBJECTS)
++	$(F77LD) -o $@ $(pzndrv1_OBJECTS) $(PARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/EXAMPLES/SIMPLE/Makefile_simple	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/SIMPLE/Makefile_simple	2021-06-30 10:36:04.541054000 +0200
+@@ -0,0 +1,51 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++cnsimp_OBJECTS = cnsimp.o
++dnsimp_OBJECTS = dnsimp.o
++dssimp_OBJECTS = dssimp.o
++snsimp_OBJECTS = snsimp.o
++sssimp_OBJECTS = sssimp.o
++znsimp_OBJECTS = znsimp.o
++
++all : cnsimp dnsimp dssimp \
++	snsimp sssimp znsimp 
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++cnsimp : $(cnsimp_OBJECTS)
++	$(F77LD) -o $@ $(cnsimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dnsimp : $(dnsimp_OBJECTS)
++	$(F77LD) -o $@ $(dnsimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dssimp : $(dssimp_OBJECTS)
++	$(F77LD) -o $@ $(dssimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++snsimp : $(snsimp_OBJECTS)
++	$(F77LD) -o $@ $(snsimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++sssimp : $(sssimp_OBJECTS)
++	$(F77LD) -o $@ $(sssimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++znsimp : $(znsimp_OBJECTS)
++	$(F77LD) -o $@ $(znsimp_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/EXAMPLES/SVD/Makefile_svd	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/SVD/Makefile_svd	2021-06-30 10:36:04.545031000 +0200
+@@ -0,0 +1,36 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++dsvd_OBJECTS = dsvd.o
++ssvd_OBJECTS = ssvd.o
++
++all : dsvd \
++	ssvd 
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++
++dsvd : $(dsvd_OBJECTS)
++	$(F77LD) -o $@ $(dsvd_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssvd : $(ssvd_OBJECTS)
++	$(F77LD) -o $@ $(ssvd_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++
+--- arpack-ng-3.8.0/EXAMPLES/SYM/Makefile_sym	1970-01-01 01:00:00.000000000 +0100
++++ arpack-ng-3.8.0-ok/EXAMPLES/SYM/Makefile_sym	2021-06-30 10:36:04.548174000 +0200
+@@ -0,0 +1,75 @@
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++#
++CC = mpicc
++CFLAGS = -g -O2
++CPP = mpicc -E
++CPPFLAGS = 
++
++F77 = mpif77
++FFLAGS = -g -O2
++F77LD = $(F77)
++FGREP = /bin/grep -F
++
++LAPACK_LIBS = -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lgomp -lpthread
++
++ARPACKLIB = -L$(ARPACK_LIB) -larpack
++
++dsdrv1_OBJECTS = dsdrv1.o
++dsdrv2_OBJECTS = dsdrv2.o
++dsdrv3_OBJECTS = dsdrv3.o
++dsdrv4_OBJECTS = dsdrv4.o
++dsdrv5_OBJECTS = dsdrv5.o
++dsdrv6_OBJECTS = dsdrv6.o
++ssdrv1_OBJECTS = ssdrv1.o
++ssdrv2_OBJECTS = ssdrv2.o
++ssdrv3_OBJECTS = ssdrv3.o
++ssdrv4_OBJECTS = ssdrv4.o
++ssdrv5_OBJECTS = ssdrv5.o
++ssdrv6_OBJECTS = ssdrv6.o
++
++all : dsdrv1 dsdrv2 dsdrv3 dsdrv4 dsdrv5 dsdrv6 \
++	ssdrv1 ssdrv2 ssdrv3 ssdrv4 ssdrv5 ssdrv6
++
++.SUFFIXES: .f .o 
++.f.o:
++	$(F77) -c -o $@ $<
++
++dsdrv1 : $(dsdrv1_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsdrv2 : $(dsdrv2_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsdrv3 : $(dsdrv3_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsdrv4 : $(dsdrv4_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsdrv5 : $(dsdrv5_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++dsdrv6 : $(dsdrv6_OBJECTS)
++	$(F77LD) -o $@ $(dsdrv6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv1 : $(ssdrv1_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv1_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv2 : $(ssdrv2_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv2_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv3 : $(ssdrv3_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv3_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv4 : $(ssdrv4_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv4_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv5 : $(ssdrv5_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv5_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++ssdrv6 : $(ssdrv6_OBJECTS)
++	$(F77LD) -o $@ $(ssdrv6_OBJECTS) $(ARPACKLIB) $(LAPACK_LIBS)
++
++

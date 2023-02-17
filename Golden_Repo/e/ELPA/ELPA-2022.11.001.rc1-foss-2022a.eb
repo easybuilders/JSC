@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'ELPA'
+version = '2022.11.001.rc1'
+
+homepage = 'https://elpa.rzg.mpg.de'
+description = """Eigenvalue SoLvers for Petaflop-Applications."""
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+toolchainopts = {'openmp': True, 'usempi': True}
+
+source_urls = ['https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_%(version)s/']
+sources = ['elpa-new_release_%(version)s.tar.gz']
+patches = ['%(name)s-%(version)s_fix_hardcoded_perl_path.patch']
+checksums = [
+    {'elpa-new_release_2022.11.001.rc1.tar.gz': 'dfd5fa9cc6da8af4c4c0505feaf3b212df7380a3a58ce34181d0c750c20d018d'},
+    {'ELPA-2022.11.001.rc1_fix_hardcoded_perl_path.patch':
+     '1088c190a9ccfa3d88ce760bcf9de9300288cd1e4606ff79c2b66f5189a0ac72'},
+]
+
+builddependencies = [
+    ('Autotools', '20220317'),
+    ('Python', '3.10.4'),
+    ('Perl', '5.34.1'),
+]
+
+preconfigopts = './autogen.sh && '
+preconfigopts += 'export LDFLAGS="-lm $LDFLAGS" && '
+preconfigopts += 'autoreconf && '
+configopts = '--without-threading-support-check-during-build '
+with_single = False
+maxparallel = 1
+modextravars = {
+    'ELPA_ROOT': '%(installdir)s',
+    'ELPAROOT': '%(installdir)s',
+    'ELPA_INCLUDE': '%(installdir)s/include/elpa-%(version)s/',
+    'ELPA_INCLUDE_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/',
+    'ELPA_LIB': '%(installdir)s/lib',
+    'ELPA_LIB_OPENMP': '%(installdir)s/lib',
+    'ELPA_MODULES': '%(installdir)s/include/elpa-%(version)s/modules',
+    'ELPA_MODULES_OPENMP': '%(installdir)s/include/elpa_openmp-%(version)s/modules',
+}
+
+moduleclass = 'math'

@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Catalyst'
+version = '2.0.0-rc3'
+
+homepage = "https://gitlab.kitware.com/paraview/catalyst/"
+description = """
+Catalyst is an API specification developed for simulations
+(and other scientific data producers)
+to analyze and visualize data in situ.
+"""
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = [('https://gitlab.kitware.com/paraview/catalyst/-/archive/v%(version)s/')]
+sources = [('catalyst-v%(version)s.tar.gz')]
+checksums = ['8862bd0a4d0be2176b4272f9affda1ea4e5092087acbb99a2fe2621c33834e05']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('pkgconf', '1.8.0'),
+]
+
+dependencies = []
+
+separate_build_dir = True
+
+# --- general settings --- #
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DCATALYST_BUILD_TOOLS=ON '
+configopts += '-DCATALYST_USE_MPI=ON '
+
+# postinstallcmds = []
+
+sanity_check_paths = {
+    'files': ['lib/libcatalyst.so'],
+    'dirs': ['include/', 'lib'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ParaViewPlugin-Nek5000'
+version = '20230208'
+versionsuffix = '-EGL'
+
+homepage = "http://www.paraview.org"
+description = "Plugin for ParaView. Paraview is a scientific parallel visualizer."
+
+toolchain = {'name': 'foss', 'version': '2022a'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/jfavre/ParaViewNek5000Plugin/archive/']
+sources = ['bade61018d40d5ad83c1b64f3babaed2bdbe1986.tar.gz']
+checksums = ['c5ad5471299cce305adacfa2748026354628d2cc6b5321a48214a0461f2597ff']
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+]
+
+dependencies = [
+    ('ParaView', '5.11.0', '-EGL'),
+]
+
+separate_build_dir = True
+
+modextrapaths = {'PV_PLUGIN_PATH': './lib/paraview-5.11/plugins/pvNek5000Reader/'}
+
+sanity_check_paths = {
+    'files': ['include/vtkNek5000Reader.h', 'lib/paraview-5.11/plugins/pvNek5000Reader/libNek5000Reader.so'],
+    'dirs': ['include', 'lib', 'lib/paraview-5.11/plugins/pvNek5000Reader']
+}
+
+moduleclass = 'vis'

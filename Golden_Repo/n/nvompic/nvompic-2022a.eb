@@ -9,7 +9,7 @@ description = 'NVHPC based compiler toolchain, including OpenMPI for MPI support
 
 toolchain = SYSTEM
 
-local_compiler = ('NVHPC', '22.11')
+local_compiler = ('NVHPC', '23.1')
 
 dependencies = [
     local_compiler,

@@ -1,0 +1,3165 @@
+From 26251ad52273fc9d3aad86faa7cb0f56d6ebbdef Mon Sep 17 00:00:00 2001
+From: Florian Ziemen <ziemen@dkrz.de>
+Date: Fri, 22 Apr 2022 17:00:09 +0200
+Subject: [PATCH 1/5] Added support for multiple 2d levels in one file.
+
+CDI can assign different vertical axis id to 2d fields depending on
+netcdf atrribues of the variable (level_type=abc).
+We better accept that they all are 2d and merge them into one 2D thing.
+
+working towards support for multiple grids -- problems w/ ext grids.
+
+External grid files currently are trouble.
+
+Basically, the grid ids are diffent in the files, and we need to keep
+track of that and of which file we are looking at.
+
+Will be solved by having the grid and the data open simultaneously in
+commits to come.
+
+Starting to move file related things outside the main reader.
+
+Fixups for grid handling
+
+fixed a segfault in parallel mode on large grids
+
+double clon_vert[size2] is illegal in c++, as size2 is not known at
+compile time. On DKRZ's levante it leads to a segfault when accessing this
+for large (5km global) grids in parallel operation.
+
+Do not use BuildVarArrays for checking whether the variables are valid
+
+BuildVarArrays enables all variables in the SelectionStatus
+
+Caught a SetDimensions in statefile loading
+
+SetDimensinos gets called before setting the file name when loading a
+state file. This gets rid of a warning message in that case.
+---
+ Plugins/CDIReader/Reader/CMakeLists.txt   |   1 +
+ Plugins/CDIReader/Reader/DataSource.cxx   |  56 +++
+ Plugins/CDIReader/Reader/DataSource.h     |  39 ++
+ Plugins/CDIReader/Reader/vtkCDIReader.cxx | 572 +++++++++++-----------
+ Plugins/CDIReader/Reader/vtkCDIReader.h   |  26 +-
+ 5 files changed, 417 insertions(+), 277 deletions(-)
+ create mode 100644 Plugins/CDIReader/Reader/DataSource.cxx
+ create mode 100644 Plugins/CDIReader/Reader/DataSource.h
+
+diff --git a/Plugins/CDIReader/Reader/CMakeLists.txt b/Plugins/CDIReader/Reader/CMakeLists.txt
+index 274104664b..7a1a985fe0 100644
+--- a/Plugins/CDIReader/Reader/CMakeLists.txt
++++ b/Plugins/CDIReader/Reader/CMakeLists.txt
+@@ -4,6 +4,7 @@ set(classes
+ set (sources
+     cdi_tools.cxx
+     projections.cxx
++    DataSource.cxx
+     )
+ set (private_headers
+     cdi_tools.h
+diff --git a/Plugins/CDIReader/Reader/DataSource.cxx b/Plugins/CDIReader/Reader/DataSource.cxx
+new file mode 100644
+index 0000000000..4f5075bb58
+--- /dev/null
++++ b/Plugins/CDIReader/Reader/DataSource.cxx
+@@ -0,0 +1,56 @@
++//#include "cdi_tools.h"
++#include "DataSource.h"
++#include "cdi.h"
++
++namespace DataSource
++{
++
++CDIObject::CDIObject(std::string newURI)
++{
++  this->openURI(newURI);
++}
++
++int CDIObject::openURI(std::string newURI)
++{
++  this->setVoid();
++  this->URI = newURI;
++
++  // check if we got either *.Grib or *.nc data
++  std::string check = this->URI.substr((URI.size() - 4), this->URI.size());
++  if (check == "grib" || check == ".grb")
++  {
++    this->type = GRIB;
++  }
++  else
++  {
++    this->type = NC;
++  }
++
++  this->StreamID = streamOpenRead(this->URI.c_str());
++  if (this->StreamID < 0)
++  {
++    this->setVoid();
++    return 0;
++  }
++
++  this->VListID = streamInqVlist(this->StreamID);
++  return 1;
++}
++
++void CDIObject::setVoid()
++{
++  if (this->StreamID > -1)
++    streamClose(this->StreamID);
++
++  StreamID = -1;
++  VListID = -1;
++  type = VOID;
++}
++
++CDIObject::~CDIObject()
++{
++  URI = "";
++  this->setVoid();
++}
++
++};
+diff --git a/Plugins/CDIReader/Reader/DataSource.h b/Plugins/CDIReader/Reader/DataSource.h
+new file mode 100644
+index 0000000000..f3749f2f21
+--- /dev/null
++++ b/Plugins/CDIReader/Reader/DataSource.h
+@@ -0,0 +1,39 @@
++#ifndef CDI_DATA_SOURCE
++#define CDI_DATA_SOURCE
++
++#include <string>
++
++namespace DataSource
++{
++class CDIObject
++{
++  enum stype
++  {
++    VOID,
++    GRIB,
++    NC
++  };
++  std::string URI;
++  int StreamID;
++  int VListID;
++  stype type;
++
++public:
++  void setVoid();
++  CDIObject(std::string URI);
++  CDIObject()
++  {
++    this->StreamID = -1;
++    this->setVoid();
++  }
++  ~CDIObject();
++  int openURI(std::string URI);
++  std::string getURI() const { return URI; }
++  int getStreamID() const { return StreamID; }
++  int getVListID() const { return VListID; }
++  stype getType() const { return type; }
++  bool isVoid() const { return this->type == VOID; }
++};
++
++};
++#endif // CDI_DATA_SOURCE
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.cxx b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+index 2a1916bb61..28bd568721 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.cxx
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include "vtksys/FStream.hxx"
+ #include "vtksys/SystemTools.hxx"
+ 
++#include "DataSource.h"
+ #include "cdi_tools.h"
+ 
+ #include <set>
+@@ -176,8 +177,6 @@ vtkCDIReader::vtkCDIReader()
+   this->SetNumberOfInputPorts(0);
+   this->SetNumberOfOutputPorts(1);
+ 
+-  this->StreamID = -1;
+-  this->VListID = -1;
+   this->VariableDimensions = vtkSmartPointer<vtkStringArray>::New();
+   this->AllDimensions = vtkSmartPointer<vtkStringArray>::New();
+   this->AllVariableArrayNames = vtkSmartPointer<vtkStringArray>::New();
+@@ -231,13 +230,6 @@ void vtkCDIReader::DestroyData()
+ vtkCDIReader::~vtkCDIReader()
+ {
+   vtkDebugMacro("Destructing vtkCDIReader...");
+-  this->SetFileName(nullptr);
+-
+-  if (this->StreamID >= 0)
+-  {
+-    streamClose(this->StreamID);
+-    this->StreamID = -1;
+-  }
+ 
+   this->DestroyData();
+ 
+@@ -307,9 +299,13 @@ int vtkCDIReader::RequestInformation(
+ 
+   vtkDebugMacro("In vtkCDIReader::RequestInformation setting VerticalLevelRange");
+   this->VerticalLevelRange[0] = 0;
+-  this->VerticalLevelRange[1] = this->MaximumNVertLevels - 1;
++  if (VerticalLevelRange[1] != this->MaximumNVertLevels - 1)
++  {
++    this->VerticalLevelRange[1] = this->MaximumNVertLevels - 1;
++    this->Modified();
++  }
+ 
+-  if (!this->BuildVarArrays())
++  if (!this->GetVars())
+   {
+     return 0;
+   }
+@@ -334,9 +330,9 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+   if ((this->FileSeriesNumber == 0) && (!this->TimeSet))
+   {
+ 
+-    int taxisID = vlistInqTaxis(this->VListID);
++    int taxisID = vlistInqTaxis(this->DataFile.getVListID());
+     int calendar = taxisInqCalendar(taxisID);
+-    streamInqTimestep(this->StreamID, 0);
++    streamInqTimestep(this->DataFile.getStreamID(), 0);
+     int vdate = taxisInqVdate(taxisID);
+     int vtime = taxisInqVtime(taxisID);
+ 
+@@ -371,9 +367,9 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+   int end = start + this->NumberOfTimeSteps;
+   for (int step = start; step < end; step++)
+   {
+-    int taxisID = vlistInqTaxis(this->VListID);
++    int taxisID = vlistInqTaxis(this->DataFile.getVListID());
+     int calendar = taxisInqCalendar(taxisID);
+-    streamInqTimestep(this->StreamID, counter);
++    streamInqTimestep(this->DataFile.getStreamID(), counter);
+     int vdate = taxisInqVdate(taxisID);
+     int vtime = taxisInqVtime(taxisID);
+     double timevalue = date_to_julday(calendar, vdate);
+@@ -629,7 +625,7 @@ int vtkCDIReader::RegenerateVariables()
+   this->NumberOfCellVars = 0;
+   this->NumberOfDomainVars = 0;
+ 
+-  if (!this->GetDims())
++  if (this->FileName.empty() || !this->GetDims())
+   {
+     return 0;
+   }
+@@ -769,9 +765,8 @@ void vtkCDIReader::SetDefaults()
+   this->DTime = 0;
+   this->FileSeriesNumber = 0;
+   this->NumberOfFiles = 1;
+-  this->NeedHorizontalGridFile = false;
+   this->NeedVerticalGridFile = false;
+-
++  this->GridID = -1;
+   this->NumberOfProcesses = 1;
+ 
+   this->BuildDomainArrays = false;
+@@ -786,50 +781,14 @@ void vtkCDIReader::SetDefaults()
+ //----------------------------------------------------------------------------
+ // Get dimensions of key NetCDF variables
+ //----------------------------------------------------------------------------
+-int vtkCDIReader::OpenFile()
+-{
+-  // check if we got either *.Grib or *.nc data
+-  std::string file = this->FileName;
+-  std::string check = file.substr((file.size() - 4), file.size());
+-  if (check == "grib" || check == ".grb")
+-  {
+-    this->Grib = true;
+-  }
+-  else
+-  {
+-    this->Grib = false;
+-  }
+-
+-  if (this->StreamID >= 0)
+-  {
+-    streamClose(this->StreamID);
+-    this->StreamID = -1;
+-    this->VListID = -1;
+-  }
+-
+-  this->StreamID = streamOpenRead(this->FileNameGrid.c_str());
+-  if (this->StreamID < 0)
+-  {
+-    return 0;
+-  }
+-
+-  vtkDebugMacro("In vtkCDIReader::RequestInformation read file okay");
+-  this->VListID = streamInqVlist(this->StreamID);
+-
+-  int nvars = vlistNvars(this->VListID);
+-  char varname[CDI_MAX_NAME];
+-  for (int varID = 0; varID < nvars; ++varID)
+-  {
+-    vlistInqVarName(this->VListID, varID, varname);
+-  }
+-
+-  return 1;
+-}
+ 
+ //----------------------------------------------------------------------------
+ void vtkCDIReader::GuessGridFile()
+ {
+-  std::string fallback = vtksys::SystemTools::GetParentDirectory(this->FileName) + "/grid.nc";
++  std::string fallback = vtksys::SystemTools::GetParentDirectory(this->FileName);
++  if (fallback.empty())
++    fallback = ".";
++  fallback += "/grid.nc";
+ 
+   std::string guess;
+   if (!this->Grib)
+@@ -839,15 +798,22 @@ void vtkCDIReader::GuessGridFile()
+   {
+     if (vtksys::SystemTools::TestFileAccess(guess, vtksys::TEST_FILE_READ))
+     {
+-      this->FileNameGrid = guess;
+-      return;
++      this->GridFile.openURI(guess);
++      if (this->GridFile.isVoid())
++      {
++        vtkWarningMacro("Cannot handle grid file "
++          << guess << " indicated by grid_file_uri attribute in " << this->FileName
++          << " Trying fallback guess " << fallback);
++      }
++      else
++        return;
+     }
+     else
+-      vtkWarningMacro("Could not find grid file "
++      vtkWarningMacro("Cannot open grid file "
+         << guess << " indicated by grid_file_uri attribute in " << this->FileName
+         << " Trying fallback guess " << fallback);
+   }
+-  this->FileNameGrid = fallback;
++  this->GridFile.openURI(fallback);
+ }
+ 
+ //----------------------------------------------------------------------------
+@@ -855,147 +821,132 @@ void vtkCDIReader::GuessGridFile()
+ //----------------------------------------------------------------------------
+ int vtkCDIReader::GetDims()
+ {
+-  if (!this->FileName.empty())
++  if (this->FileName.empty())
+   {
+-    this->FileNameGrid = this->FileName;
+-    if (this->VListID < 0 || this->StreamID < 0)
+-    {
+-      if (!this->OpenFile())
+-      {
+-        return 0;
+-      }
+-    }
+-
+-    this->ReadHorizontalGridData();
+-    if (this->NeedHorizontalGridFile)
+-    {
+-      // if there is no grid information in the data file, try opening
+-      // an additional grid file named grid.nc in the same directory to
+-      // read in the grid information
+-      if (this->StreamID >= 0)
+-      {
+-        streamClose(this->StreamID);
+-        this->StreamID = -1;
+-        this->VListID = -1;
+-      }
++    vtkErrorMacro("No file name provided. Cannot get dimensions");
++    return 0;
++  }
+ 
+-      char* directory = new char[strlen(this->FileName.c_str()) + 1];
+-      strcpy(directory, this->FileName.c_str());
++  DataFile.openURI(FileName);
++  if (DataFile.isVoid())
++  {
++    vtkErrorMacro("GetDims: Could not open " << DataFile.getURI());
++    return 0;
++  }
+ 
+-      this->GuessGridFile();
+-      if (!this->OpenFile())
+-      {
+-        return 0;
+-      }
+-      if (!this->ReadHorizontalGridData())
+-      {
+-        vtkErrorMacro("Couldn't open grid information in data nor in the grid file.");
+-        return 0;
+-      }
++  if (GridFile.isVoid())
++    GridFile.openURI(FileName);
++  if (GridFile.isVoid())
++  {
++    vtkErrorMacro("GetDims: Could not open horizontal grid file.\nTried " << GridFile.getURI());
++    return 0;
++  }
+ 
+-      this->FileNameGrid = this->FileName;
+-      if (!this->OpenFile())
+-      {
+-        return 0;
+-      }
++  if (!this->ReadHorizontalGridData())
++  {
++    this->GuessGridFile();
++    if (!this->ReadHorizontalGridData())
++    {
++      vtkErrorMacro("Could not get horizontal Grid. \nTried " << GridFile.getURI());
++      return 0;
+     }
++  }
+ 
+-    this->ReadVerticalGridData();
+-    if (this->NeedVerticalGridFile)
+-    {
+-      // if there is no grid information in the data file, try opening
+-      // an additional grid file named grid.nc in the same directory to
+-      // read in the grid information
+-      if (this->StreamID >= 0)
+-      {
+-        streamClose(this->StreamID);
+-        this->StreamID = -1;
+-        this->VListID = -1;
+-      }
++  VGridFile.openURI(FileName);
++  int found = ReadVerticalGridData();
++  if (!found)
++  {
++    VGridFile.openURI(GridFile.getURI());
++    found = ReadVerticalGridData();
++  }
+ 
+-      char* directory = new char[strlen(this->FileName.c_str()) + 1];
+-      strcpy(directory, this->FileName.c_str());
+-      if (!this->OpenFile())
+-      {
+-        return 0;
+-      }
++  if (!found)
++  {
++    vtkErrorMacro("Could not get Vertical grid");
++    return 0;
++  }
+ 
+-      if (!this->ReadVerticalGridData())
+-      {
+-        vtkDebugMacro("Couldn't neither open grid information within the data netCDF file, nor "
+-                      "in the grid.nc file.");
+-        vtkErrorMacro("Couldn't neither open grid information within the data netCDF file, nor "
+-                      "in the grid.nc file.");
+-        return 0;
+-      }
++  this->FillGridDimensions();
+ 
+-      this->FileNameGrid = this->FileName;
+-      if (!this->OpenFile())
++  try
++  {
++    if (this->DimensionSelection >= 0)
++    {
++      if (DimensionSelection >= DimensionSets.size())
+       {
++        vtkErrorMacro("Trying to select inexistent dimensionset "
++          << DimensionSelection << " " << DimensionSets.size() << " are available.");
+         return 0;
+       }
++      for (int i = 0; i < Grids.size(); i++)
++        if (this->DimensionSets.at(this->DimensionSelection).GridSize == Grids.at(i).Size)
++        {
++          this->DimensionSets.at(this->DimensionSelection).GridID = Grids.at(i).GridID;
++          this->GridID = i;
++        }
++      this->ZAxisID = this->DimensionSets.at(this->DimensionSelection).ZAxisID;
++      vtkDebugMacro("NEW ZAxisID" << ZAxisID << " from "
++                                  << this->DimensionSets.at(this->DimensionSelection).ZAxisID);
+     }
++  }
++  catch (const std::out_of_range& oor)
++  {
++    vtkErrorMacro("Out of Range error in GetDims trying to set Grid and ZAxisID: " << oor.what());
++    return 0;
++  }
+ 
+-    if (this->DimensionSelection > 0)
+-    {
+-      vlistNgrids(this->VListID);
+-      int nzaxis = vlistNzaxis(this->VListID);
+-
+-      this->GridID = vlistGrid(this->VListID, this->DimensionSelection / nzaxis);
+-      this->ZAxisID = vlistZaxis(
+-        this->VListID, this->DimensionSelection - (nzaxis * this->DimensionSelection / nzaxis));
+-    }
+-
+-    if (this->GridID != -1)
+-    {
+-      this->NumberOfCells = static_cast<int>(gridInqSize(this->GridID));
+-
+-      if (this->NumberOfPoints and
+-        this->NumberOfPoints != static_cast<int>(gridInqSize(this->GridID)))
+-        vtkDebugMacro("GetDims: Changing number of points from  "
+-          << this->NumberOfPoints << " to " << static_cast<int>(gridInqSize(this->GridID)));
+-      this->NumberOfPoints = static_cast<int>(gridInqSize(this->GridID));
+-      this->PointsPerCell = gridInqNvertex(this->GridID);
+-    }
+-
+-    int ntsteps = 0;
+-    if (this->Grib)
+-    {
+-      while (streamInqTimestep(this->StreamID, ntsteps))
+-        ntsteps++;
+-    }
+-    else
++  try
++  {
++    if (GridID != -1 && Grids.at(this->GridID).GridID != -1)
+     {
+-      ntsteps = vlistNtsteps(this->VListID);
+-    }
+-    this->NumberOfTimeSteps = ntsteps;
++      this->NumberOfCells = static_cast<int>(Grids.at(GridID).Size);
+ 
+-    this->MaximumNVertLevels = 1;
+-    if (this->ZAxisID != -1)
+-    {
+-      this->MaximumNVertLevels = zaxisInqSize(this->ZAxisID);
++      if (this->NumberOfPoints and this->NumberOfPoints != this->NumberOfCells)
++        vtkDebugMacro("GetDims: Changing number of points from  " << this->NumberOfPoints << " to "
++                                                                  << this->NumberOfCells);
++      this->NumberOfPoints = this->NumberOfCells;
++      this->PointsPerCell = Grids.at(this->GridID).PointsPerCell;
++      vtkDebugMacro("GetDims: Found PointsPerCell to be  " << this->PointsPerCell << " for grid  "
++                                                           << this->GridID);
+     }
++  }
++  catch (const std::out_of_range& oor)
++  {
++    vtkErrorMacro("Out of Range error in GetDims trying to set NumberOfPoints " << oor.what());
++    vtkErrorMacro("Grids.size " << Grids.size() << "\t GridID " << GridID);
++    return 0;
++  }
+ 
+-    this->FillGridDimensions();
++  int ntsteps = 0;
++  if (this->Grib)
++  {
++    while (streamInqTimestep(this->DataFile.getStreamID(), ntsteps))
++      ntsteps++;
+   }
+   else
+   {
+-    vtkDebugMacro("No Filename yet set!");
++    ntsteps = vlistNtsteps(this->DataFile.getVListID());
++  }
++  this->NumberOfTimeSteps = ntsteps;
++
++  this->MaximumNVertLevels = 1;
++  if (this->ZAxisID != -1)
++  {
++    this->MaximumNVertLevels = zaxisInqSize(this->ZAxisID);
+   }
+ 
+   return 1;
+ }
+ 
+-//----------------------------------------------------------------------------
++//---------------------------------------------------------------------------------------------------
+ // Read Horizontal Grid Data
+-//----------------------------------------------------------------------------
++// Checks if there is at least one grid with >= 3 vertices, and if yes, sets GridID to this grid's
++// ID
++//---------------------------------------------------------------------------------------------------
+ int vtkCDIReader::ReadHorizontalGridData()
+ {
+-  int vlistID_l = this->VListID;
+-  this->GridID = -1;
+-  this->ZAxisID = -1;
+-  this->SurfID = -1;
+-
++  Grids.resize(0);
++  int vlistID_l = this->GridFile.getVListID();
+   int ngrids = vlistNgrids(vlistID_l);
+   for (int i = 0; i < ngrids; ++i)
+   {
+@@ -1004,17 +955,13 @@ int vtkCDIReader::ReadHorizontalGridData()
+ 
+     if (nv >= 3) //  ((nv == 3 || nv == 4)) // && gridInqType(gridID_l) == GRID_UNSTRUCTURED)
+     {
+-      this->GridID = gridID_l;
+-      break;
++      Grid grid{ .GridID = gridID_l, .Size = gridInqSize(gridID_l), .PointsPerCell = nv };
++      Grids.push_back(grid);
+     }
+   }
+ 
+-  if (this->GridID == -1)
+-  {
+-    this->NeedHorizontalGridFile = true;
++  if (Grids.size() == 0)
+     return 0;
+-  }
+-
+   return 1;
+ }
+ 
+@@ -1024,37 +971,30 @@ int vtkCDIReader::ReadHorizontalGridData()
+ int vtkCDIReader::ReadVerticalGridData()
+ {
+   this->ZAxisID = -1;
+-  this->SurfID = -1;
+-  int nzaxis = vlistNzaxis(this->VListID);
+-
++  int nzaxis = vlistNzaxis(this->VGridFile.getVListID());
++  int found = 0;
+   for (int i = 0; i < nzaxis; ++i)
+   {
+-    int zaxisID_l = vlistZaxis(this->VListID, i);
++    int zaxisID_l = vlistZaxis(this->VGridFile.getVListID(), i);
+     if (zaxisInqSize(zaxisID_l) == 1 || zaxisInqType(zaxisID_l) == ZAXIS_SURFACE)
+     {
+-      this->SurfID = zaxisID_l;
+-      this->ZAxisID = zaxisID_l;
+-      break;
++      this->SurfIDs.insert(zaxisID_l);
++
++      found = 1;
+     }
+   }
+ 
+   for (int i = 0; i < nzaxis; ++i)
+   {
+-    int zaxisID_l = vlistZaxis(this->VListID, i);
++    int zaxisID_l = vlistZaxis(this->VGridFile.getVListID(), i);
+     if (zaxisInqSize(zaxisID_l) > 1)
+     {
+-      this->ZAxisID = zaxisID_l;
++      found = 1;
+       break;
+     }
+   }
+ 
+-  if (this->ZAxisID == -1)
+-  {
+-    this->NeedVerticalGridFile = true;
+-    return 0;
+-  }
+-
+-  return 1;
++  return found;
+ }
+ 
+ //----------------------------------------------------------------------------
+@@ -1065,37 +1005,42 @@ int vtkCDIReader::GetVars()
+   int cellVarIndex = -1;
+   int pointVarIndex = -1;
+   int domainVarIndex = -1;
++  int numVars = vlistNvars(this->DataFile.getVListID());
++
++  vtkDebugMacro("Found " << numVars << " as Variables for VListID " << this->DataFile.getVListID());
+ 
+-  int numVars = vlistNvars(this->VListID);
+   for (int i = 0; i < numVars; i++)
+   {
+     int varID = i;
+     cdi_tools::CDIVar aVar;
+ 
+-    aVar.StreamID = this->StreamID;
++    aVar.StreamID = this->DataFile.getStreamID();
+     aVar.VarID = varID;
+-    aVar.GridID = vlistInqVarGrid(this->VListID, varID);
+-    aVar.ZAxisID = vlistInqVarZaxis(this->VListID, varID);
++    aVar.GridID = vlistInqVarGrid(this->DataFile.getVListID(), varID);
++    aVar.ZAxisID = vlistInqVarZaxis(this->DataFile.getVListID(), varID);
+     aVar.GridSize = static_cast<int>(gridInqSize(aVar.GridID));
+     aVar.NLevel = zaxisInqSize(aVar.ZAxisID);
+     aVar.Type = 0;
+     aVar.ConstTime = 0;
++    vlistInqVarName(this->DataFile.getVListID(), varID, aVar.Name);
++    vtkDebugMacro("Processing variable " << i << '\t' << aVar.Name);
+ 
+     // to do multiple grids:
+     // - Check how many grids are available
+     // - Check if all grids can be reconstructed, or if bnds are all zero
+     // - Reform gui to load either Cell, Point or Edge data
+ 
+-    if (vlistInqVarTsteptype(this->VListID, varID) == TIME_CONSTANT)
++    if (vlistInqVarTsteptype(this->DataFile.getVListID(), varID) == TIME_CONSTANT)
+     {
+       aVar.ConstTime = 1;
+     }
+-    if (aVar.ZAxisID != this->ZAxisID && aVar.ZAxisID != this->SurfID)
++    if (aVar.ZAxisID != this->ZAxisID && SurfIDs.count(aVar.ZAxisID) == 0)
++    // We are handling a different 3D Axis.
+     {
++      vtkDebugMacro("Skipping " << aVar.Name << " as it has the wrong ZAxis " << aVar.ZAxisID);
+       continue;
+     }
+ 
+-    vlistInqVarName(this->VListID, varID, aVar.Name);
+     aVar.Type = 2;
+     if (aVar.NLevel > 1)
+     {
+@@ -1112,19 +1057,23 @@ int vtkCDIReader::GetVars()
+     }
+     else if ((aVar.GridSize < this->NumberOfCells) && (this->PointsPerCell == 3))
+     {
++      vtkDebugMacro("Skipping " << aVar.Name << " as it has the wrong GridSize " << aVar.GridSize
++                                << " != " << this->NumberOfCells);
+       if (this->NumberOfPoints and this->NumberOfPoints != aVar.GridSize)
+       {
+         vtkWarningMacro("Not adding "
+           << aVar.Name << " as point var, as it's size " << aVar.GridSize
+           << " does not correspond to our understanding of the correct size for 'the' point grid: "
+           << this->NumberOfPoints);
+-        break;
++        continue;
+       }
+       isPointData = true;
+       this->NumberOfPoints = aVar.GridSize;
+     }
+     else
+     {
++      vtkDebugMacro("Skipping " << aVar.Name << " as it has the wrong GridSize " << aVar.GridSize
++                                << " != " << this->NumberOfCells);
+       continue;
+     }
+ 
+@@ -1240,7 +1189,7 @@ int vtkCDIReader::BuildVarArrays()
+                                        << " NumberOfPointVars: " << this->NumberOfPointVars);
+     if (this->NumberOfCellVars == 0)
+     {
+-      vtkErrorMacro("No cell variables found!");
++      vtkDebugMacro("No cell variables found!");
+     }
+ 
+     for (int var = 0; var < this->NumberOfPointVars; var++)
+@@ -1443,39 +1392,63 @@ int vtkCDIReader::ConstructGridGeometry()
+   CHECK_NEW(this->DepthVar);
+ 
+   vtkDebugMacro("Start reading Vertices");
+-  gridInqXboundsPart(
+-    this->GridID, (this->BeginCell * this->PointsPerCell), size, cLonVertices.data());
+-  gridInqYboundsPart(
+-    this->GridID, (this->BeginCell * this->PointsPerCell), size, cLatVertices.data());
++  try
++  {
++    gridInqXboundsPart(Grids.at(this->GridID).GridID, (this->BeginCell * this->PointsPerCell), size,
++      cLonVertices.data());
++    gridInqYboundsPart(Grids.at(this->GridID).GridID, (this->BeginCell * this->PointsPerCell), size,
++      cLatVertices.data());
++  }
++  catch (const std::out_of_range& oor)
++  {
++    vtkErrorMacro(
++      "Out of Range error trying to get the grid id for reading vertices: " << oor.what());
++    return 0;
++  }
+   vtkDebugMacro("Done reading Vertices");
++  vtkDebugMacro("Getting vertical axis" << this->ZAxisID << " expecting up to "
++                                        << this->MaximumNVertLevels << " levels.");
+   zaxisInqLevels(this->ZAxisID, this->DepthVar);
++  vtkDebugMacro("Got vertical axis" << this->ZAxisID);
+   char units[CDI_MAX_NAME];
+   this->OrigConnections.resize(size);
+   int new_cells[2];
+-
+-  if (this->ProjectionMode != projection::CATALYST)
++  try
+   {
+-    gridInqXunits(this->GridID, units);
+-    if (strncmp(units, "degree", 6) == 0)
++    if (this->ProjectionMode != projection::CATALYST)
+     {
+-      for (int i = 0; i < size; i++)
++      gridInqXunits(Grids.at(this->GridID).GridID, units);
++      if (strncmp(units, "degree", 6) == 0)
+       {
+-        cLonVertices[i] = vtkMath::RadiansFromDegrees(cLonVertices[i]);
++        for (int i = 0; i < size; i++)
++        {
++          cLonVertices[i] = vtkMath::RadiansFromDegrees(cLonVertices[i]);
++        }
+       }
+-    }
+-    gridInqYunits(this->GridID, units);
+-    if (strncmp(units, "degree", 6) == 0)
+-    {
+-      for (int i = 0; i < size; i++)
++      gridInqYunits(Grids.at(this->GridID).GridID, units);
++      if (strncmp(units, "degree", 6) == 0)
+       {
+-        cLatVertices[i] = vtkMath::RadiansFromDegrees(cLatVertices[i]);
++        for (int i = 0; i < size; i++)
++        {
++          cLatVertices[i] = vtkMath::RadiansFromDegrees(cLatVertices[i]);
++        }
+       }
+     }
+   }
++  catch (const std::out_of_range& oor)
++  {
++    vtkErrorMacro("Out of Range error trying to get the grid id for getting the coordinate units "
++                  "for projecting: "
++      << oor.what());
++    return 0;
++  }
+ 
+   // check for duplicates in the Point list and update the triangle list
++  vtkDebugMacro("Removing duplicates for clon/clat, size = " << size);
++
+   this->RemoveDuplicates(
+     cLonVertices.data(), cLatVertices.data(), size, &this->OrigConnections[0], new_cells);
++  vtkDebugMacro("Removed duplicates for clon/clat");
+   this->NumberLocalCells = new_cells[0] / this->PointsPerCell;
+   this->NumberLocalPoints = new_cells[1];
+   if (this->NumberOfPoints and this->NumberOfPoints != new_cells[1])
+@@ -1524,31 +1497,43 @@ int vtkCDIReader::ConstructGridGeometry()
+     if (this->Piece == 0)
+     {
+       int new_cells2[2];
+-      double clon_vert2[size2];
+-      double clat_vert2[size2];
+-
+-      gridInqXboundsPart(this->GridID, 0, size2, clon_vert2);
+-      gridInqYboundsPart(this->GridID, 0, size2, clat_vert2);
+-
+-      gridInqXunits(this->GridID, units);
+-      if (strncmp(units, "degree", 6) == 0)
++      std::vector<double> clon_vert2(size2);
++      std::vector<double> clat_vert2(size2);
++      try
+       {
+-        for (int i = 0; i < size2; i++)
++        gridInqXboundsPart(Grids.at(this->GridID).GridID, 0, size2, clon_vert2.data());
++        gridInqYboundsPart(Grids.at(this->GridID).GridID, 0, size2, clat_vert2.data());
++
++        gridInqXunits(Grids.at(this->GridID).GridID, units);
++        if (strncmp(units, "degree", 6) == 0)
+         {
+-          clon_vert2[i] = vtkMath::RadiansFromDegrees(clon_vert2[i]);
++          for (int i = 0; i < size2; i++)
++          {
++            clon_vert2[i] = vtkMath::RadiansFromDegrees(clon_vert2[i]);
++          }
+         }
+-      }
+ 
+-      gridInqYunits(this->GridID, units);
+-      if (strncmp(units, "degree", 6) == 0)
+-      {
+-        for (int i = 0; i < size2; i++)
++        gridInqYunits(Grids.at(this->GridID).GridID, units);
++        if (strncmp(units, "degree", 6) == 0)
+         {
+-          clat_vert2[i] = vtkMath::RadiansFromDegrees(clat_vert2[i]);
++          for (int i = 0; i < size2; i++)
++          {
++            clat_vert2[i] = vtkMath::RadiansFromDegrees(clat_vert2[i]);
++          }
+         }
+       }
++      catch (const std::out_of_range& oor)
++      {
++        vtkErrorMacro(
++          "Out of Range error trying to get the grid id for converting lat/lon in parallel: "
++          << oor.what());
++        return 0;
++      }
++
++      vtkDebugMacro("Removing duplicates for clon/clat2");
+ 
+-      this->RemoveDuplicates(clon_vert2, clat_vert2, size2, vertex_ids2.data(), new_cells2);
++      this->RemoveDuplicates(
++        clon_vert2.data(), clat_vert2.data(), size2, vertex_ids2.data(), new_cells2);
+       for (int i = 1; i < this->NumPieces; i++)
+       {
+         this->Controller->Send(vertex_ids2.data(), size2, i, 101);
+@@ -1676,25 +1661,38 @@ int vtkCDIReader::LoadClonClatVars()
+   std::vector<double> cLon_l(this->NumberLocalCells);
+   std::vector<double> cLat_l(this->NumberLocalCells);
+ 
+-  gridInqXvalsPart(this->GridID, this->BeginCell, this->NumberLocalCells, cLon_l.data());
+-  gridInqYvalsPart(this->GridID, this->BeginCell, this->NumberLocalCells, cLat_l.data());
++  gridInqXvalsPart(
++    Grids.at(this->GridID).GridID, this->BeginCell, this->NumberLocalCells, cLon_l.data());
++  gridInqYvalsPart(
++    Grids.at(this->GridID).GridID, this->BeginCell, this->NumberLocalCells, cLat_l.data());
+ 
+   char units[CDI_MAX_NAME];
+-  gridInqXunits(this->GridID, units);
+-  if (strncmp(units, "degree", 6) == 0)
++
++  try
+   {
+-    for (int i = 0; i < this->NumberLocalCells; i++)
++    gridInqXunits(Grids.at(this->GridID).GridID, units);
++    if (strncmp(units, "degree", 6) == 0)
++    {
++      for (int i = 0; i < this->NumberLocalCells; i++)
++      {
++        cLon_l[i] = vtkMath::RadiansFromDegrees(cLon_l[i]);
++      }
++    }
++    gridInqYunits(Grids.at(this->GridID).GridID, units);
++    if (strncmp(units, "degree", 6) == 0)
+     {
+-      cLon_l[i] = vtkMath::RadiansFromDegrees(cLon_l[i]);
++      for (int i = 0; i < this->NumberLocalCells; i++)
++      {
++        cLat_l[i] = vtkMath::RadiansFromDegrees(cLat_l[i]);
++      }
+     }
+   }
+-  gridInqYunits(this->GridID, units);
+-  if (strncmp(units, "degree", 6) == 0)
++  catch (const std::out_of_range& oor)
+   {
+-    for (int i = 0; i < this->NumberLocalCells; i++)
+-    {
+-      cLat_l[i] = vtkMath::RadiansFromDegrees(cLat_l[i]);
+-    }
++    vtkErrorMacro(
++      "Out of Range error trying to get the grid id for converting lat/lon in LoadClonClatVars: "
++      << oor.what());
++    return 0;
+   }
+ 
+   if (this->ShowMultilayerView)
+@@ -1823,7 +1821,7 @@ int vtkCDIReader::CheckForMaskData()
+   {
+     const double maskVal = this->UseCustomMaskValue
+       ? this->CustomMaskValue
+-      : vlistInqVarMissval(this->VListID, this->Internals->CellVars[mask_pos].VarID);
++      : vlistInqVarMissval(this->DataFile.getVListID(), this->Internals->CellVars[mask_pos].VarID);
+ 
+     cdi_tools::CDIVar* cdiVar = &(this->Internals->CellVars[mask_pos]);
+     if (this->ShowMultilayerView)
+@@ -1923,7 +1921,7 @@ bool vtkCDIReader::BuildDomainCellVars()
+   CHECK_NEW(this->DomainCellVar);
+   double val = 0;
+   int mask_pos = 0;
+-  int numVars = vlistNvars(this->VListID);
++  int numVars = vlistNvars(this->DataFile.getVListID());
+ 
+   for (int i = 0; i < numVars; i++)
+   {
+@@ -2780,7 +2778,7 @@ int vtkCDIReader::LoadCellVarDataTemplate(
+ //------------------------------------------------------------------------------
+ int vtkCDIReader::ReplaceFillWithNan(const int varID, vtkDataArray* dataArray)
+ {
+-  double miss = vlistInqVarMissval(this->VListID, varID);
++  double miss = vlistInqVarMissval(this->DataFile.getVListID(), varID);
+ 
+   // NaN only available with float and double.
+   if (dataArray->GetDataType() == VTK_FLOAT)
+@@ -3093,11 +3091,11 @@ int vtkCDIReader::LoadDomainVarData(int variableIndex)
+ //-----------------------------------------------------------------------------
+ int vtkCDIReader::FillGridDimensions()
+ {
+-  int ngrids = vlistNgrids(this->VListID);
+-  int nzaxis = vlistNzaxis(this->VListID);
+-  int nvars = vlistNvars(this->VListID);
+-  this->AllDimensions->SetNumberOfValues(0);
+-  this->VariableDimensions->SetNumberOfValues(ngrids * nzaxis);
++  this->DimensionSets.resize(0);
++
++  int ngrids = vlistNgrids(this->DataFile.getVListID());
++  int nzaxis = vlistNzaxis(this->DataFile.getVListID());
++  int nvars = vlistNvars(this->DataFile.getVListID());
+   char nameGridX[CDI_MAX_NAME];
+   char nameGridY[CDI_MAX_NAME];
+   char nameLev[CDI_MAX_NAME];
+@@ -3106,40 +3104,59 @@ int vtkCDIReader::FillGridDimensions()
+ 
+   for (int k = 0; k < nvars; k++)
+   {
+-    int i = vlistInqVarGrid(this->VListID, k);
+-    int j = vlistInqVarZaxis(this->VListID, k);
++    int i = vlistInqVarGrid(this->DataFile.getVListID(), k);
++    int j = vlistInqVarZaxis(this->DataFile.getVListID(), k);
+     hits.insert(std::to_string(i) + "x" + std::to_string(j));
+     // IDs are not 0 to n-1 but can be 30-ish for a file with 3 grids.
+     // they map to the gridID_l and zaxisID_l values below.
+     // Thus we need to a map to catch rather unpredictable values.
+   }
+-
++  size_t counter = 0;
+   for (int i = 0; i < ngrids; ++i)
+   {
+     for (int j = 0; j < nzaxis; ++j)
+     {
+       std::string dimEncoding("(");
+-      int gridID_l = vlistGrid(this->VListID, i);
++      int gridID_l = vlistGrid(this->DataFile.getVListID(), i);
+       gridInqXname(gridID_l, nameGridX);
+       gridInqYname(gridID_l, nameGridY);
+       dimEncoding += nameGridX;
+       dimEncoding += ", ";
+       dimEncoding += nameGridY;
+       dimEncoding += ", ";
+-      int zaxisID_l = vlistZaxis(this->VListID, j);
++      int zaxisID_l = vlistZaxis(this->DataFile.getVListID(), j);
+       zaxisInqName(zaxisID_l, nameLev);
+       dimEncoding += nameLev;
+       dimEncoding += ")";
+ 
+       if (hits.count(std::to_string(gridID_l) + "x" + std::to_string(zaxisID_l)) == 0)
+       {
++        vtkDebugMacro("vtkCDIReader::FillGridDimensions: i, j, dimEncoding: "
++          << i << '\t' << j << "\t" << gridID_l << '\t' << zaxisID_l << "\t" << dimEncoding
++          << " - has no hits.\n");
+         continue; // skip empty grid combinations
+       }
++      vtkDebugMacro("vtkCDIReader::FillGridDimensions: i, j, GridID, ZAxisID, dimEncoding: "
++        << i << '\t' << j << "\t" << gridID_l << '\t' << zaxisID_l << "\t" << dimEncoding
++        << " - has hits.\n");
+ 
+-      this->AllDimensions->InsertNextValue(dimEncoding);
+-      this->VariableDimensions->SetValue(i * nzaxis + j, dimEncoding.c_str());
++      dimset ds{ .DimsetID = counter,
++        .GridID = -1,
++        .ZAxisID = zaxisID_l,
++        .GridSize = gridInqSize(gridID_l),
++        .NLevel = zaxisInqSize(zaxisID_l),
++        .label = dimEncoding };
++      DimensionSets.push_back(ds);
++      counter++;
+     }
+   }
++  this->AllDimensions->SetNumberOfValues(0);
++  this->VariableDimensions->SetNumberOfValues(counter);
++  for (int i = 0; i < counter; i++)
++  {
++    this->AllDimensions->InsertNextValue(DimensionSets[i].label);
++    this->VariableDimensions->SetValue(i, DimensionSets[i].label.c_str());
++  }
+ 
+   return 1;
+ }
+@@ -3149,6 +3166,7 @@ int vtkCDIReader::FillGridDimensions()
+ //-----------------------------------------------------------------------------
+ void vtkCDIReader::SetDimensions(const char* dimensions)
+ {
++  vtkDebugMacro("In SetDimensions");
+   for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
+   {
+     if (this->VariableDimensions->GetValue(i) == dimensions)
+@@ -3172,7 +3190,10 @@ void vtkCDIReader::SetDimensions(const char* dimensions)
+   this->DestroyData();
+   this->RegenerateVariables();
+   if (this->GridReconstructed)
++  {
+     this->RegenerateGeometry();
++  }
++  vtkDebugMacro("Out SetDimensions");
+ }
+ 
+ //----------------------------------------------------------------------------
+@@ -3319,18 +3340,13 @@ const char* vtkCDIReader::GetDomainArrayName(int index)
+ }
+ 
+ //----------------------------------------------------------------------------
+-// Set to lat/lon (equidistant cylindrical) projection.
++// Load a new file.
+ //----------------------------------------------------------------------------
+ void vtkCDIReader::SetFileName(const char* val)
+ {
+   if (this->FileName.empty() || val == nullptr || strcmp(this->FileName.c_str(), val) != 0)
+   {
+-    if (this->StreamID >= 0)
+-    {
+-      streamClose(this->StreamID);
+-      this->StreamID = -1;
+-      this->VListID = -1;
+-    }
++    this->DataFile.setVoid();
+     this->Modified();
+     if (val == nullptr)
+     {
+@@ -3351,13 +3367,21 @@ void vtkCDIReader::SetVerticalLevel(int level)
+ {
+   if (this->VerticalLevelSelected != level)
+   {
+-    if (level < 0 || level > this->MaximumNVertLevels - 1)
++    if (level < 0)
+     {
+       vtkErrorMacro("Requested inexistent vertical level: "
+         << level << ".\nThe level must be the in range [ 0 ; " << this->MaximumNVertLevels - 1
+         << " ].");
+       return;
+     }
++
++    if (level > this->MaximumNVertLevels - 1)
++    {
++      vtkWarningMacro("Requested inexistent vertical level: "
++        << level << ".\nThe level must be the in range [ 0 ; " << this->MaximumNVertLevels - 1
++        << " ]. \nTriying with 0.");
++      level = 0;
++    }
+     this->VerticalLevelSelected = level;
+     this->Modified();
+     vtkDebugMacro("Set VerticalLevelSelected to: " << level);
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.h b/Plugins/CDIReader/Reader/vtkCDIReader.h
+index 0e1001694c..44f9073a97 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.h
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.h
+@@ -46,7 +46,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include "projections.h" // for projection enum
+ 
++#include "DataSource.h"
+ #include <memory> // for unique_ptr
++#include <unordered_set>
+ #include <vector> // for std::vector
+ 
+ class vtkCallbackCommand;
+@@ -54,6 +56,23 @@ class vtkDoubleArray;
+ class vtkFieldData;
+ class vtkMultiProcessController;
+ 
++struct dimset
++{
++  size_t DimsetID;
++  int GridID;
++  int ZAxisID;
++  size_t GridSize;
++  int NLevel;
++  std::string label;
++};
++
++struct Grid
++{
++  int GridID;
++  size_t Size;
++  int PointsPerCell;
++};
++
+ /**
+  *
+  * @class vtkCDIReader
+@@ -326,6 +345,8 @@ protected:
+   double Layer0OffsetRange[2];
+ 
+   int DimensionSelection;
++  std::vector<dimset> DimensionSets;
++  std::vector<Grid> Grids;
+   bool InvertZAxis;
+   bool AddCoordinateVars;
+   projection::Projection ProjectionMode;
+@@ -370,11 +391,10 @@ protected:
+   int NumberOfDomainVars;
+   bool GridReconstructed;
+ 
+-  int StreamID;
+-  int VListID;
++  DataSource::CDIObject DataFile, GridFile, VGridFile;
+   int GridID;
+   int ZAxisID;
+-  int SurfID;
++  std::unordered_set<int> SurfIDs;
+ 
+   std::string TimeUnits;
+   std::string Calendar;
+-- 
+GitLab
+
+
+From 772c2460e34deeb47c3d716283299190f3d51e7a Mon Sep 17 00:00:00 2001
+From: Nils-Arne Dreier <dreier@dkrz.de>
+Date: Wed, 2 Nov 2022 19:38:06 +0100
+Subject: [PATCH 2/5] clean up and formating
+
+including:
+- move internal things to unnamed namespace in vtkCDIReader.cxx
+- move structs to unnamed namespace
+- captitalize struct name Dimset
+- add missing braces
+- add `this->` where appropriate
+- no need to clear std::vector before they go out of scope
+- explicit cast int to `size_t` to avoid narrowing conversion warning
+- move variables which type is in unnamed namespace to Internals
+- prevent crash if no grid file is available
+- capitalize member variable `Type`
+- fix warning `size()==0` -> `empty()`
+- add some braces
+---
+ Plugins/CDIReader/Reader/CMakeLists.txt   |   1 -
+ Plugins/CDIReader/Reader/DataSource.cxx   |  56 ----
+ Plugins/CDIReader/Reader/DataSource.h     |  39 ---
+ Plugins/CDIReader/Reader/vtkCDIReader.cxx | 336 +++++++++++++++-------
+ Plugins/CDIReader/Reader/vtkCDIReader.h   |  21 --
+ 5 files changed, 239 insertions(+), 214 deletions(-)
+ delete mode 100644 Plugins/CDIReader/Reader/DataSource.cxx
+ delete mode 100644 Plugins/CDIReader/Reader/DataSource.h
+
+diff --git a/Plugins/CDIReader/Reader/CMakeLists.txt b/Plugins/CDIReader/Reader/CMakeLists.txt
+index 7a1a985fe0..274104664b 100644
+--- a/Plugins/CDIReader/Reader/CMakeLists.txt
++++ b/Plugins/CDIReader/Reader/CMakeLists.txt
+@@ -4,7 +4,6 @@ set(classes
+ set (sources
+     cdi_tools.cxx
+     projections.cxx
+-    DataSource.cxx
+     )
+ set (private_headers
+     cdi_tools.h
+diff --git a/Plugins/CDIReader/Reader/DataSource.cxx b/Plugins/CDIReader/Reader/DataSource.cxx
+deleted file mode 100644
+index 4f5075bb58..0000000000
+--- a/Plugins/CDIReader/Reader/DataSource.cxx
++++ /dev/null
+@@ -1,56 +0,0 @@
+-//#include "cdi_tools.h"
+-#include "DataSource.h"
+-#include "cdi.h"
+-
+-namespace DataSource
+-{
+-
+-CDIObject::CDIObject(std::string newURI)
+-{
+-  this->openURI(newURI);
+-}
+-
+-int CDIObject::openURI(std::string newURI)
+-{
+-  this->setVoid();
+-  this->URI = newURI;
+-
+-  // check if we got either *.Grib or *.nc data
+-  std::string check = this->URI.substr((URI.size() - 4), this->URI.size());
+-  if (check == "grib" || check == ".grb")
+-  {
+-    this->type = GRIB;
+-  }
+-  else
+-  {
+-    this->type = NC;
+-  }
+-
+-  this->StreamID = streamOpenRead(this->URI.c_str());
+-  if (this->StreamID < 0)
+-  {
+-    this->setVoid();
+-    return 0;
+-  }
+-
+-  this->VListID = streamInqVlist(this->StreamID);
+-  return 1;
+-}
+-
+-void CDIObject::setVoid()
+-{
+-  if (this->StreamID > -1)
+-    streamClose(this->StreamID);
+-
+-  StreamID = -1;
+-  VListID = -1;
+-  type = VOID;
+-}
+-
+-CDIObject::~CDIObject()
+-{
+-  URI = "";
+-  this->setVoid();
+-}
+-
+-};
+diff --git a/Plugins/CDIReader/Reader/DataSource.h b/Plugins/CDIReader/Reader/DataSource.h
+deleted file mode 100644
+index f3749f2f21..0000000000
+--- a/Plugins/CDIReader/Reader/DataSource.h
++++ /dev/null
+@@ -1,39 +0,0 @@
+-#ifndef CDI_DATA_SOURCE
+-#define CDI_DATA_SOURCE
+-
+-#include <string>
+-
+-namespace DataSource
+-{
+-class CDIObject
+-{
+-  enum stype
+-  {
+-    VOID,
+-    GRIB,
+-    NC
+-  };
+-  std::string URI;
+-  int StreamID;
+-  int VListID;
+-  stype type;
+-
+-public:
+-  void setVoid();
+-  CDIObject(std::string URI);
+-  CDIObject()
+-  {
+-    this->StreamID = -1;
+-    this->setVoid();
+-  }
+-  ~CDIObject();
+-  int openURI(std::string URI);
+-  std::string getURI() const { return URI; }
+-  int getStreamID() const { return StreamID; }
+-  int getVListID() const { return VListID; }
+-  stype getType() const { return type; }
+-  bool isVoid() const { return this->type == VOID; }
+-};
+-
+-};
+-#endif // CDI_DATA_SOURCE
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.cxx b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+index 28bd568721..c44e81f6bb 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.cxx
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+@@ -57,13 +57,79 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include "vtksys/FStream.hxx"
+ #include "vtksys/SystemTools.hxx"
+ 
+-#include "DataSource.h"
+ #include "cdi_tools.h"
+ 
+ #include <set>
+ #include <sstream>
+ 
+-constexpr static int MAX_VARS = 100;
++namespace
++{
++class CDIObject
++{
++  enum stype
++  {
++    VOID,
++    GRIB,
++    NC
++  };
++  std::string URI;
++  int StreamID;
++  int VListID;
++  stype Type;
++
++public:
++  CDIObject(std::string URI) { this->openURI(URI); }
++  CDIObject()
++  {
++    this->StreamID = -1;
++    this->setVoid();
++  }
++  ~CDIObject() { this->setVoid(); }
++  int openURI(std::string URI)
++  {
++    this->setVoid();
++    this->URI = URI;
++
++    // check if we got either *.Grib or *.nc data
++    std::string check = this->URI.substr((URI.size() - 4), this->URI.size());
++    if (check == "grib" || check == ".grb")
++    {
++      this->Type = GRIB;
++    }
++    else
++    {
++      this->Type = NC;
++    }
++
++    this->StreamID = streamOpenRead(this->URI.c_str());
++    if (this->StreamID < 0)
++    {
++      this->setVoid();
++      return 0;
++    }
++
++    this->VListID = streamInqVlist(this->StreamID);
++    return 1;
++  }
++
++  std::string getURI() const { return this->URI; }
++  int getStreamID() const { return this->StreamID; }
++  int getVListID() const { return this->VListID; }
++  stype getType() const { return this->Type; }
++  void setVoid()
++  {
++    if (this->StreamID > -1)
++    {
++      streamClose(this->StreamID);
++    }
++
++    this->StreamID = -1;
++    this->VListID = -1;
++    this->Type = VOID;
++  }
++
++  bool isVoid() const { return this->Type == VOID; }
++};
+ 
+ struct Point
+ {
+@@ -77,6 +143,26 @@ struct PointWithIndex
+   int Idx;
+ };
+ 
++constexpr static int MAX_VARS = 100;
++
++struct Dimset
++{
++  size_t DimsetID;
++  int GridID;
++  int ZAxisID;
++  size_t GridSize;
++  int NLevel;
++  std::string label;
++};
++
++struct Grid
++{
++  int GridID;
++  size_t Size;
++  int PointsPerCell;
++};
++}
++
+ //----------------------------------------------------------------------------
+ // Internal class to avoid name pollution
+ //----------------------------------------------------------------------------
+@@ -106,6 +192,10 @@ public:
+   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcesses;
+   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesLengths;
+   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesOffsets;
++
++  std::vector<Dimset> DimensionSets;
++  std::vector<Grid> Grids;
++  CDIObject DataFile, GridFile, VGridFile;
+ };
+ 
+ namespace
+@@ -299,7 +389,7 @@ int vtkCDIReader::RequestInformation(
+ 
+   vtkDebugMacro("In vtkCDIReader::RequestInformation setting VerticalLevelRange");
+   this->VerticalLevelRange[0] = 0;
+-  if (VerticalLevelRange[1] != this->MaximumNVertLevels - 1)
++  if (this->VerticalLevelRange[1] != this->MaximumNVertLevels - 1)
+   {
+     this->VerticalLevelRange[1] = this->MaximumNVertLevels - 1;
+     this->Modified();
+@@ -330,9 +420,9 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+   if ((this->FileSeriesNumber == 0) && (!this->TimeSet))
+   {
+ 
+-    int taxisID = vlistInqTaxis(this->DataFile.getVListID());
++    int taxisID = vlistInqTaxis(this->Internals->DataFile.getVListID());
+     int calendar = taxisInqCalendar(taxisID);
+-    streamInqTimestep(this->DataFile.getStreamID(), 0);
++    streamInqTimestep(this->Internals->DataFile.getStreamID(), 0);
+     int vdate = taxisInqVdate(taxisID);
+     int vtime = taxisInqVtime(taxisID);
+ 
+@@ -345,7 +435,9 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+   if (!this->TimeSeriesTimeStepsAllSet)
+   {
+     if (this->TimeSeriesTimeSteps.size() < this->FileSeriesNumber + 1)
++    {
+       this->TimeSeriesTimeSteps.resize(this->FileSeriesNumber + 1);
++    }
+     this->TimeSeriesTimeSteps[this->FileSeriesNumber] = this->NumberOfTimeSteps;
+   }
+ 
+@@ -367,9 +459,9 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+   int end = start + this->NumberOfTimeSteps;
+   for (int step = start; step < end; step++)
+   {
+-    int taxisID = vlistInqTaxis(this->DataFile.getVListID());
++    int taxisID = vlistInqTaxis(this->Internals->DataFile.getVListID());
+     int calendar = taxisInqCalendar(taxisID);
+-    streamInqTimestep(this->DataFile.getStreamID(), counter);
++    streamInqTimestep(this->Internals->DataFile.getStreamID(), counter);
+     int vdate = taxisInqVdate(taxisID);
+     int vtime = taxisInqVtime(taxisID);
+     double timevalue = date_to_julday(calendar, vdate);
+@@ -383,8 +475,10 @@ vtkSmartPointer<vtkDoubleArray> vtkCDIReader::ReadTimeAxis()
+       timeValues->InsertNextTuple1(timevalue);
+       if (!this->TimeSeriesTimeStepsAllSet)
+       {
+-        if (TimeSteps.size() < step + 1)
+-          TimeSteps.resize(step + 1);
++        if (this->TimeSteps.size() < step + 1)
++        {
++          this->TimeSteps.resize(step + 1);
++        }
+         this->TimeSteps[step] = timevalue;
+       }
+     }
+@@ -438,7 +532,9 @@ int vtkCDIReader::GetTimeIndex(double dataTimeStep)
+   for (int step = start; step < end; step++)
+   {
+     if (this->TimeSteps[step] == dataTimeStep)
++    {
+       return (step - start);
++    }
+   }
+   return 0;
+ }
+@@ -787,33 +883,41 @@ void vtkCDIReader::GuessGridFile()
+ {
+   std::string fallback = vtksys::SystemTools::GetParentDirectory(this->FileName);
+   if (fallback.empty())
++  {
+     fallback = ".";
++  }
+   fallback += "/grid.nc";
+ 
+   std::string guess;
+   if (!this->Grib)
++  {
+     guess = cdi_tools::GuessGridFileFromUri(this->FileName);
++  }
+ 
+   if (!guess.empty())
+   {
+     if (vtksys::SystemTools::TestFileAccess(guess, vtksys::TEST_FILE_READ))
+     {
+-      this->GridFile.openURI(guess);
+-      if (this->GridFile.isVoid())
++      this->Internals->GridFile.openURI(guess);
++      if (this->Internals->GridFile.isVoid())
+       {
+         vtkWarningMacro("Cannot handle grid file "
+           << guess << " indicated by grid_file_uri attribute in " << this->FileName
+           << " Trying fallback guess " << fallback);
+       }
+       else
++      {
+         return;
++      }
+     }
+     else
++    {
+       vtkWarningMacro("Cannot open grid file "
+         << guess << " indicated by grid_file_uri attribute in " << this->FileName
+         << " Trying fallback guess " << fallback);
++    }
+   }
+-  this->GridFile.openURI(fallback);
++  this->Internals->GridFile.openURI(fallback);
+ }
+ 
+ //----------------------------------------------------------------------------
+@@ -827,18 +931,22 @@ int vtkCDIReader::GetDims()
+     return 0;
+   }
+ 
+-  DataFile.openURI(FileName);
+-  if (DataFile.isVoid())
++  this->Internals->DataFile.openURI(this->FileName);
++  if (this->Internals->DataFile.isVoid())
+   {
+-    vtkErrorMacro("GetDims: Could not open " << DataFile.getURI());
++    vtkErrorMacro("GetDims: Could not open " << this->Internals->DataFile.getURI());
+     return 0;
+   }
+ 
+-  if (GridFile.isVoid())
+-    GridFile.openURI(FileName);
+-  if (GridFile.isVoid())
++  if (this->Internals->GridFile.isVoid())
++  {
++    this->Internals->GridFile.openURI(this->FileName);
++  }
++
++  if (this->Internals->GridFile.isVoid())
+   {
+-    vtkErrorMacro("GetDims: Could not open horizontal grid file.\nTried " << GridFile.getURI());
++    vtkErrorMacro("GetDims: Could not open horizontal grid file.\nTried "
++      << this->Internals->GridFile.getURI());
+     return 0;
+   }
+ 
+@@ -847,17 +955,18 @@ int vtkCDIReader::GetDims()
+     this->GuessGridFile();
+     if (!this->ReadHorizontalGridData())
+     {
+-      vtkErrorMacro("Could not get horizontal Grid. \nTried " << GridFile.getURI());
++      vtkErrorMacro(
++        "Could not get horizontal Grid. \nTried " << this->Internals->GridFile.getURI());
+       return 0;
+     }
+   }
+ 
+-  VGridFile.openURI(FileName);
+-  int found = ReadVerticalGridData();
++  this->Internals->VGridFile.openURI(this->FileName);
++  int found = this->ReadVerticalGridData();
+   if (!found)
+   {
+-    VGridFile.openURI(GridFile.getURI());
+-    found = ReadVerticalGridData();
++    this->Internals->VGridFile.openURI(this->Internals->GridFile.getURI());
++    found = this->ReadVerticalGridData();
+   }
+ 
+   if (!found)
+@@ -872,21 +981,25 @@ int vtkCDIReader::GetDims()
+   {
+     if (this->DimensionSelection >= 0)
+     {
+-      if (DimensionSelection >= DimensionSets.size())
++      if (this->DimensionSelection >= this->Internals->DimensionSets.size())
+       {
+         vtkErrorMacro("Trying to select inexistent dimensionset "
+-          << DimensionSelection << " " << DimensionSets.size() << " are available.");
++          << this->DimensionSelection << " " << this->Internals->DimensionSets.size()
++          << " are available.");
+         return 0;
+       }
+-      for (int i = 0; i < Grids.size(); i++)
+-        if (this->DimensionSets.at(this->DimensionSelection).GridSize == Grids.at(i).Size)
++      for (int i = 0; i < this->Internals->Grids.size(); i++)
++        if (this->Internals->DimensionSets.at(this->DimensionSelection).GridSize ==
++          this->Internals->Grids.at(i).Size)
+         {
+-          this->DimensionSets.at(this->DimensionSelection).GridID = Grids.at(i).GridID;
++          this->Internals->DimensionSets.at(this->DimensionSelection).GridID =
++            this->Internals->Grids.at(i).GridID;
+           this->GridID = i;
+         }
+-      this->ZAxisID = this->DimensionSets.at(this->DimensionSelection).ZAxisID;
+-      vtkDebugMacro("NEW ZAxisID" << ZAxisID << " from "
+-                                  << this->DimensionSets.at(this->DimensionSelection).ZAxisID);
++      this->ZAxisID = this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID;
++      vtkDebugMacro(
++        "NEW ZAxisID" << this->ZAxisID << " from "
++                      << this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID);
+     }
+   }
+   catch (const std::out_of_range& oor)
+@@ -897,15 +1010,17 @@ int vtkCDIReader::GetDims()
+ 
+   try
+   {
+-    if (GridID != -1 && Grids.at(this->GridID).GridID != -1)
++    if (this->GridID != -1 && this->Internals->Grids.at(this->GridID).GridID != -1)
+     {
+-      this->NumberOfCells = static_cast<int>(Grids.at(GridID).Size);
++      this->NumberOfCells = static_cast<int>(this->Internals->Grids.at(GridID).Size);
+ 
+       if (this->NumberOfPoints and this->NumberOfPoints != this->NumberOfCells)
++      {
+         vtkDebugMacro("GetDims: Changing number of points from  " << this->NumberOfPoints << " to "
+                                                                   << this->NumberOfCells);
++      }
+       this->NumberOfPoints = this->NumberOfCells;
+-      this->PointsPerCell = Grids.at(this->GridID).PointsPerCell;
++      this->PointsPerCell = this->Internals->Grids.at(this->GridID).PointsPerCell;
+       vtkDebugMacro("GetDims: Found PointsPerCell to be  " << this->PointsPerCell << " for grid  "
+                                                            << this->GridID);
+     }
+@@ -913,19 +1028,21 @@ int vtkCDIReader::GetDims()
+   catch (const std::out_of_range& oor)
+   {
+     vtkErrorMacro("Out of Range error in GetDims trying to set NumberOfPoints " << oor.what());
+-    vtkErrorMacro("Grids.size " << Grids.size() << "\t GridID " << GridID);
++    vtkErrorMacro("Grids.size " << this->Internals->Grids.size() << "\t GridID " << this->GridID);
+     return 0;
+   }
+ 
+   int ntsteps = 0;
+   if (this->Grib)
+   {
+-    while (streamInqTimestep(this->DataFile.getStreamID(), ntsteps))
++    while (streamInqTimestep(this->Internals->DataFile.getStreamID(), ntsteps))
++    {
+       ntsteps++;
++    }
+   }
+   else
+   {
+-    ntsteps = vlistNtsteps(this->DataFile.getVListID());
++    ntsteps = vlistNtsteps(this->Internals->DataFile.getVListID());
+   }
+   this->NumberOfTimeSteps = ntsteps;
+ 
+@@ -945,8 +1062,13 @@ int vtkCDIReader::GetDims()
+ //---------------------------------------------------------------------------------------------------
+ int vtkCDIReader::ReadHorizontalGridData()
+ {
+-  Grids.resize(0);
+-  int vlistID_l = this->GridFile.getVListID();
++  this->Internals->Grids.resize(0);
++  int vlistID_l = this->Internals->GridFile.getVListID();
++  if (vlistID_l == CDI_UNDEFID)
++  {
++    vtkErrorMacro("No VList found in Grid file.");
++    return 0;
++  }
+   int ngrids = vlistNgrids(vlistID_l);
+   for (int i = 0; i < ngrids; ++i)
+   {
+@@ -955,13 +1077,17 @@ int vtkCDIReader::ReadHorizontalGridData()
+ 
+     if (nv >= 3) //  ((nv == 3 || nv == 4)) // && gridInqType(gridID_l) == GRID_UNSTRUCTURED)
+     {
+-      Grid grid{ .GridID = gridID_l, .Size = gridInqSize(gridID_l), .PointsPerCell = nv };
+-      Grids.push_back(grid);
++      Grid grid{
++        .GridID = gridID_l, .Size = static_cast<size_t>(gridInqSize(gridID_l)), .PointsPerCell = nv
++      };
++      this->Internals->Grids.push_back(grid);
+     }
+   }
+ 
+-  if (Grids.size() == 0)
++  if (this->Internals->Grids.empty())
++  {
+     return 0;
++  }
+   return 1;
+ }
+ 
+@@ -971,11 +1097,11 @@ int vtkCDIReader::ReadHorizontalGridData()
+ int vtkCDIReader::ReadVerticalGridData()
+ {
+   this->ZAxisID = -1;
+-  int nzaxis = vlistNzaxis(this->VGridFile.getVListID());
++  int nzaxis = vlistNzaxis(this->Internals->VGridFile.getVListID());
+   int found = 0;
+   for (int i = 0; i < nzaxis; ++i)
+   {
+-    int zaxisID_l = vlistZaxis(this->VGridFile.getVListID(), i);
++    int zaxisID_l = vlistZaxis(this->Internals->VGridFile.getVListID(), i);
+     if (zaxisInqSize(zaxisID_l) == 1 || zaxisInqType(zaxisID_l) == ZAXIS_SURFACE)
+     {
+       this->SurfIDs.insert(zaxisID_l);
+@@ -986,7 +1112,7 @@ int vtkCDIReader::ReadVerticalGridData()
+ 
+   for (int i = 0; i < nzaxis; ++i)
+   {
+-    int zaxisID_l = vlistZaxis(this->VGridFile.getVListID(), i);
++    int zaxisID_l = vlistZaxis(this->Internals->VGridFile.getVListID(), i);
+     if (zaxisInqSize(zaxisID_l) > 1)
+     {
+       found = 1;
+@@ -1005,24 +1131,25 @@ int vtkCDIReader::GetVars()
+   int cellVarIndex = -1;
+   int pointVarIndex = -1;
+   int domainVarIndex = -1;
+-  int numVars = vlistNvars(this->DataFile.getVListID());
++  int numVars = vlistNvars(this->Internals->DataFile.getVListID());
+ 
+-  vtkDebugMacro("Found " << numVars << " as Variables for VListID " << this->DataFile.getVListID());
++  vtkDebugMacro(
++    "Found " << numVars << " as Variables for VListID " << this->Internals->DataFile.getVListID());
+ 
+   for (int i = 0; i < numVars; i++)
+   {
+     int varID = i;
+     cdi_tools::CDIVar aVar;
+ 
+-    aVar.StreamID = this->DataFile.getStreamID();
++    aVar.StreamID = this->Internals->DataFile.getStreamID();
+     aVar.VarID = varID;
+-    aVar.GridID = vlistInqVarGrid(this->DataFile.getVListID(), varID);
+-    aVar.ZAxisID = vlistInqVarZaxis(this->DataFile.getVListID(), varID);
++    aVar.GridID = vlistInqVarGrid(this->Internals->DataFile.getVListID(), varID);
++    aVar.ZAxisID = vlistInqVarZaxis(this->Internals->DataFile.getVListID(), varID);
+     aVar.GridSize = static_cast<int>(gridInqSize(aVar.GridID));
+     aVar.NLevel = zaxisInqSize(aVar.ZAxisID);
+     aVar.Type = 0;
+     aVar.ConstTime = 0;
+-    vlistInqVarName(this->DataFile.getVListID(), varID, aVar.Name);
++    vlistInqVarName(this->Internals->DataFile.getVListID(), varID, aVar.Name);
+     vtkDebugMacro("Processing variable " << i << '\t' << aVar.Name);
+ 
+     // to do multiple grids:
+@@ -1030,11 +1157,11 @@ int vtkCDIReader::GetVars()
+     // - Check if all grids can be reconstructed, or if bnds are all zero
+     // - Reform gui to load either Cell, Point or Edge data
+ 
+-    if (vlistInqVarTsteptype(this->DataFile.getVListID(), varID) == TIME_CONSTANT)
++    if (vlistInqVarTsteptype(this->Internals->DataFile.getVListID(), varID) == TIME_CONSTANT)
+     {
+       aVar.ConstTime = 1;
+     }
+-    if (aVar.ZAxisID != this->ZAxisID && SurfIDs.count(aVar.ZAxisID) == 0)
++    if (aVar.ZAxisID != this->ZAxisID && this->SurfIDs.count(aVar.ZAxisID) == 0)
+     // We are handling a different 3D Axis.
+     {
+       vtkDebugMacro("Skipping " << aVar.Name << " as it has the wrong ZAxis " << aVar.ZAxisID);
+@@ -1180,7 +1307,7 @@ int vtkCDIReader::BuildVarArrays()
+ 
+   if (!this->FileName.empty())
+   {
+-    if (!GetVars())
++    if (!this->GetVars())
+     {
+       return 0;
+     }
+@@ -1394,10 +1521,10 @@ int vtkCDIReader::ConstructGridGeometry()
+   vtkDebugMacro("Start reading Vertices");
+   try
+   {
+-    gridInqXboundsPart(Grids.at(this->GridID).GridID, (this->BeginCell * this->PointsPerCell), size,
+-      cLonVertices.data());
+-    gridInqYboundsPart(Grids.at(this->GridID).GridID, (this->BeginCell * this->PointsPerCell), size,
+-      cLatVertices.data());
++    gridInqXboundsPart(Internals->Grids.at(this->GridID).GridID,
++      (this->BeginCell * this->PointsPerCell), size, cLonVertices.data());
++    gridInqYboundsPart(Internals->Grids.at(this->GridID).GridID,
++      (this->BeginCell * this->PointsPerCell), size, cLatVertices.data());
+   }
+   catch (const std::out_of_range& oor)
+   {
+@@ -1417,7 +1544,7 @@ int vtkCDIReader::ConstructGridGeometry()
+   {
+     if (this->ProjectionMode != projection::CATALYST)
+     {
+-      gridInqXunits(Grids.at(this->GridID).GridID, units);
++      gridInqXunits(this->Internals->Grids.at(this->GridID).GridID, units);
+       if (strncmp(units, "degree", 6) == 0)
+       {
+         for (int i = 0; i < size; i++)
+@@ -1425,7 +1552,7 @@ int vtkCDIReader::ConstructGridGeometry()
+           cLonVertices[i] = vtkMath::RadiansFromDegrees(cLonVertices[i]);
+         }
+       }
+-      gridInqYunits(Grids.at(this->GridID).GridID, units);
++      gridInqYunits(this->Internals->Grids.at(this->GridID).GridID, units);
+       if (strncmp(units, "degree", 6) == 0)
+       {
+         for (int i = 0; i < size; i++)
+@@ -1452,8 +1579,10 @@ int vtkCDIReader::ConstructGridGeometry()
+   this->NumberLocalCells = new_cells[0] / this->PointsPerCell;
+   this->NumberLocalPoints = new_cells[1];
+   if (this->NumberOfPoints and this->NumberOfPoints != new_cells[1])
++  {
+     vtkDebugMacro("ConstructGridGeometry: Changing number of points from  "
+       << this->NumberOfPoints << " to " << new_cells[1]);
++  }
+ 
+   this->NumberOfPoints = new_cells[1];
+ 
+@@ -1470,8 +1599,8 @@ int vtkCDIReader::ConstructGridGeometry()
+   // now get the individual coordinates out of the clon/clat vertices
+   for (int i = 0; i < this->NumberLocalPoints; i++)
+   {
+-    projection::longLatToCartesian(
+-      cLonVertices[i], cLatVertices[i], &PointX[i], &PointY[i], &PointZ[i], this->ProjectionMode);
++    projection::longLatToCartesian(cLonVertices[i], cLatVertices[i], &this->PointX[i],
++      &this->PointY[i], &this->PointZ[i], this->ProjectionMode);
+   }
+ 
+   // mirror the mesh if needed
+@@ -1501,10 +1630,12 @@ int vtkCDIReader::ConstructGridGeometry()
+       std::vector<double> clat_vert2(size2);
+       try
+       {
+-        gridInqXboundsPart(Grids.at(this->GridID).GridID, 0, size2, clon_vert2.data());
+-        gridInqYboundsPart(Grids.at(this->GridID).GridID, 0, size2, clat_vert2.data());
++        gridInqXboundsPart(
++          this->Internals->Grids.at(this->GridID).GridID, 0, size2, clon_vert2.data());
++        gridInqYboundsPart(
++          this->Internals->Grids.at(this->GridID).GridID, 0, size2, clat_vert2.data());
+ 
+-        gridInqXunits(Grids.at(this->GridID).GridID, units);
++        gridInqXunits(this->Internals->Grids.at(this->GridID).GridID, units);
+         if (strncmp(units, "degree", 6) == 0)
+         {
+           for (int i = 0; i < size2; i++)
+@@ -1513,7 +1644,7 @@ int vtkCDIReader::ConstructGridGeometry()
+           }
+         }
+ 
+-        gridInqYunits(Grids.at(this->GridID).GridID, units);
++        gridInqYunits(this->Internals->Grids.at(this->GridID).GridID, units);
+         if (strncmp(units, "degree", 6) == 0)
+         {
+           for (int i = 0; i < size2; i++)
+@@ -1556,8 +1687,6 @@ int vtkCDIReader::ConstructGridGeometry()
+   this->CurrentExtraPoint = this->NumberLocalPoints;
+   this->CurrentExtraCell = this->NumberLocalCells;
+ 
+-  cLonVertices.clear();
+-  cLatVertices.clear();
+   vtkDebugMacro("Grid Reconstruction complete...");
+   return 1;
+ }
+@@ -1587,7 +1716,7 @@ int vtkCDIReader::AllocSphereGeometry()
+ {
+   vtkDebugMacro("In AllocSphereGeometry...");
+ 
+-  if (!GridReconstructed || this->ReconstructNew)
++  if (!this->GridReconstructed || this->ReconstructNew)
+   {
+     this->ConstructGridGeometry();
+   }
+@@ -1624,7 +1753,7 @@ int vtkCDIReader::AllocLatLonGeometry()
+     return 0;
+   }
+ 
+-  if (!GridReconstructed || this->ReconstructNew)
++  if (!this->GridReconstructed || this->ReconstructNew)
+   {
+     this->ConstructGridGeometry();
+   }
+@@ -1661,16 +1790,16 @@ int vtkCDIReader::LoadClonClatVars()
+   std::vector<double> cLon_l(this->NumberLocalCells);
+   std::vector<double> cLat_l(this->NumberLocalCells);
+ 
+-  gridInqXvalsPart(
+-    Grids.at(this->GridID).GridID, this->BeginCell, this->NumberLocalCells, cLon_l.data());
+-  gridInqYvalsPart(
+-    Grids.at(this->GridID).GridID, this->BeginCell, this->NumberLocalCells, cLat_l.data());
++  gridInqXvalsPart(this->Internals->Grids.at(this->GridID).GridID, this->BeginCell,
++    this->NumberLocalCells, cLon_l.data());
++  gridInqYvalsPart(this->Internals->Grids.at(this->GridID).GridID, this->BeginCell,
++    this->NumberLocalCells, cLat_l.data());
+ 
+   char units[CDI_MAX_NAME];
+ 
+   try
+   {
+-    gridInqXunits(Grids.at(this->GridID).GridID, units);
++    gridInqXunits(this->Internals->Grids.at(this->GridID).GridID, units);
+     if (strncmp(units, "degree", 6) == 0)
+     {
+       for (int i = 0; i < this->NumberLocalCells; i++)
+@@ -1678,7 +1807,7 @@ int vtkCDIReader::LoadClonClatVars()
+         cLon_l[i] = vtkMath::RadiansFromDegrees(cLon_l[i]);
+       }
+     }
+-    gridInqYunits(Grids.at(this->GridID).GridID, units);
++    gridInqYunits(this->Internals->Grids.at(this->GridID).GridID, units);
+     if (strncmp(units, "degree", 6) == 0)
+     {
+       for (int i = 0; i < this->NumberLocalCells; i++)
+@@ -1821,7 +1950,8 @@ int vtkCDIReader::CheckForMaskData()
+   {
+     const double maskVal = this->UseCustomMaskValue
+       ? this->CustomMaskValue
+-      : vlistInqVarMissval(this->DataFile.getVListID(), this->Internals->CellVars[mask_pos].VarID);
++      : vlistInqVarMissval(
++          this->Internals->DataFile.getVListID(), this->Internals->CellVars[mask_pos].VarID);
+ 
+     cdi_tools::CDIVar* cdiVar = &(this->Internals->CellVars[mask_pos]);
+     if (this->ShowMultilayerView)
+@@ -1889,7 +2019,7 @@ int vtkCDIReader::AddMaskHalo()
+         {
+           int l = j * this->MaximumNVertLevels;
+           int k = this->MaximumNVertLevels * this->CellMap[j - this->NumberLocalCells];
+-          this->CellMask[l + levelNum] = (CellMask[k + levelNum]);
++          this->CellMask[l + levelNum] = (this->CellMask[k + levelNum]);
+         }
+       }
+     }
+@@ -1921,7 +2051,7 @@ bool vtkCDIReader::BuildDomainCellVars()
+   CHECK_NEW(this->DomainCellVar);
+   double val = 0;
+   int mask_pos = 0;
+-  int numVars = vlistNvars(this->DataFile.getVListID());
++  int numVars = vlistNvars(this->Internals->DataFile.getVListID());
+ 
+   for (int i = 0; i < numVars; i++)
+   {
+@@ -2156,7 +2286,7 @@ int vtkCDIReader::Wrap(int axis)
+       }
+     }
+ 
+-    if (!ShowMultilayerView)
++    if (!this->ShowMultilayerView)
+     {
+       this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
+       this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+@@ -2284,8 +2414,10 @@ void vtkCDIReader::OutputPoints(bool init)
+         {
+           retval = projection::cartesianToSpherical(x, y, z, &rho, &phi, &theta);
+           if (!retval)
++          {
+             retval = projection::sphericalToCartesian(
+               rho + this->Layer0Offset * adjustedLayerThickness, phi, theta, &x, &y, &z);
++          }
+         }
+       }
+ 
+@@ -2480,9 +2612,13 @@ void vtkCDIReader::OutputCells(bool init)
+             polygon[k + this->PointsPerCell] = val;
+           }
+           if (cellType == VTK_POLYHEDRON)
++          {
+             this->InsertPolyhedron(polygon);
++          }
+           else
++          {
+             output->InsertNextCell(cellType, pointsPerPolygon, polygon.data());
++          }
+         }
+       }
+     }
+@@ -2568,7 +2704,9 @@ void vtkCDIReader::InsertPolyhedron(std::vector<vtkIdType> polygon)
+ int vtkCDIReader::LoadPointVarData(int variableIndex, double dTimeStep)
+ {
+   if (!(this->PointsPerCell == 3))
++  {
+     return 0;
++  }
+ 
+   this->PointDataSelected = variableIndex;
+ 
+@@ -2778,7 +2916,7 @@ int vtkCDIReader::LoadCellVarDataTemplate(
+ //------------------------------------------------------------------------------
+ int vtkCDIReader::ReplaceFillWithNan(const int varID, vtkDataArray* dataArray)
+ {
+-  double miss = vlistInqVarMissval(this->DataFile.getVListID(), varID);
++  double miss = vlistInqVarMissval(this->Internals->DataFile.getVListID(), varID);
+ 
+   // NaN only available with float and double.
+   if (dataArray->GetDataType() == VTK_FLOAT)
+@@ -2914,7 +3052,7 @@ int vtkCDIReader::LoadPointVarDataTemplate(
+         }
+ 
+         // layer below, which is repeated ...
+-        dataBlock[i++] = dataTmp[j + ((MaximumNVertLevels - 1) * this->NumberLocalPoints)];
++        dataBlock[i++] = dataTmp[j + ((this->MaximumNVertLevels - 1) * this->NumberLocalPoints)];
+       }
+     }
+   }
+@@ -3091,11 +3229,11 @@ int vtkCDIReader::LoadDomainVarData(int variableIndex)
+ //-----------------------------------------------------------------------------
+ int vtkCDIReader::FillGridDimensions()
+ {
+-  this->DimensionSets.resize(0);
++  this->Internals->DimensionSets.resize(0);
+ 
+-  int ngrids = vlistNgrids(this->DataFile.getVListID());
+-  int nzaxis = vlistNzaxis(this->DataFile.getVListID());
+-  int nvars = vlistNvars(this->DataFile.getVListID());
++  int ngrids = vlistNgrids(this->Internals->DataFile.getVListID());
++  int nzaxis = vlistNzaxis(this->Internals->DataFile.getVListID());
++  int nvars = vlistNvars(this->Internals->DataFile.getVListID());
+   char nameGridX[CDI_MAX_NAME];
+   char nameGridY[CDI_MAX_NAME];
+   char nameLev[CDI_MAX_NAME];
+@@ -3104,8 +3242,8 @@ int vtkCDIReader::FillGridDimensions()
+ 
+   for (int k = 0; k < nvars; k++)
+   {
+-    int i = vlistInqVarGrid(this->DataFile.getVListID(), k);
+-    int j = vlistInqVarZaxis(this->DataFile.getVListID(), k);
++    int i = vlistInqVarGrid(this->Internals->DataFile.getVListID(), k);
++    int j = vlistInqVarZaxis(this->Internals->DataFile.getVListID(), k);
+     hits.insert(std::to_string(i) + "x" + std::to_string(j));
+     // IDs are not 0 to n-1 but can be 30-ish for a file with 3 grids.
+     // they map to the gridID_l and zaxisID_l values below.
+@@ -3117,14 +3255,14 @@ int vtkCDIReader::FillGridDimensions()
+     for (int j = 0; j < nzaxis; ++j)
+     {
+       std::string dimEncoding("(");
+-      int gridID_l = vlistGrid(this->DataFile.getVListID(), i);
++      int gridID_l = vlistGrid(this->Internals->DataFile.getVListID(), i);
+       gridInqXname(gridID_l, nameGridX);
+       gridInqYname(gridID_l, nameGridY);
+       dimEncoding += nameGridX;
+       dimEncoding += ", ";
+       dimEncoding += nameGridY;
+       dimEncoding += ", ";
+-      int zaxisID_l = vlistZaxis(this->DataFile.getVListID(), j);
++      int zaxisID_l = vlistZaxis(this->Internals->DataFile.getVListID(), j);
+       zaxisInqName(zaxisID_l, nameLev);
+       dimEncoding += nameLev;
+       dimEncoding += ")";
+@@ -3140,13 +3278,13 @@ int vtkCDIReader::FillGridDimensions()
+         << i << '\t' << j << "\t" << gridID_l << '\t' << zaxisID_l << "\t" << dimEncoding
+         << " - has hits.\n");
+ 
+-      dimset ds{ .DimsetID = counter,
++      Dimset ds{ .DimsetID = counter,
+         .GridID = -1,
+         .ZAxisID = zaxisID_l,
+-        .GridSize = gridInqSize(gridID_l),
++        .GridSize = static_cast<size_t>(gridInqSize(gridID_l)),
+         .NLevel = zaxisInqSize(zaxisID_l),
+         .label = dimEncoding };
+-      DimensionSets.push_back(ds);
++      this->Internals->DimensionSets.push_back(ds);
+       counter++;
+     }
+   }
+@@ -3154,8 +3292,8 @@ int vtkCDIReader::FillGridDimensions()
+   this->VariableDimensions->SetNumberOfValues(counter);
+   for (int i = 0; i < counter; i++)
+   {
+-    this->AllDimensions->InsertNextValue(DimensionSets[i].label);
+-    this->VariableDimensions->SetValue(i, DimensionSets[i].label.c_str());
++    this->AllDimensions->InsertNextValue(this->Internals->DimensionSets[i].label);
++    this->VariableDimensions->SetValue(i, this->Internals->DimensionSets[i].label.c_str());
+   }
+ 
+   return 1;
+@@ -3281,7 +3419,9 @@ void vtkCDIReader::SetMaskingVariable(const char* name)
+ void vtkCDIReader::SetUseCustomMaskValue(bool val)
+ {
+   if (val == this->UseCustomMaskValue)
++  {
+     return;
++  }
+ 
+   this->UseCustomMaskValue = val;
+ 
+@@ -3301,7 +3441,9 @@ void vtkCDIReader::SetUseCustomMaskValue(bool val)
+ void vtkCDIReader::SetCustomMaskValue(double val)
+ {
+   if (val == this->CustomMaskValue)
++  {
+     return;
++  }
+ 
+   this->CustomMaskValue = val;
+ 
+@@ -3346,7 +3488,7 @@ void vtkCDIReader::SetFileName(const char* val)
+ {
+   if (this->FileName.empty() || val == nullptr || strcmp(this->FileName.c_str(), val) != 0)
+   {
+-    this->DataFile.setVoid();
++    this->Internals->DataFile.setVoid();
+     this->Modified();
+     if (val == nullptr)
+     {
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.h b/Plugins/CDIReader/Reader/vtkCDIReader.h
+index 44f9073a97..fa90313d4d 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.h
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.h
+@@ -46,7 +46,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include "projections.h" // for projection enum
+ 
+-#include "DataSource.h"
+ #include <memory> // for unique_ptr
+ #include <unordered_set>
+ #include <vector> // for std::vector
+@@ -56,23 +55,6 @@ class vtkDoubleArray;
+ class vtkFieldData;
+ class vtkMultiProcessController;
+ 
+-struct dimset
+-{
+-  size_t DimsetID;
+-  int GridID;
+-  int ZAxisID;
+-  size_t GridSize;
+-  int NLevel;
+-  std::string label;
+-};
+-
+-struct Grid
+-{
+-  int GridID;
+-  size_t Size;
+-  int PointsPerCell;
+-};
+-
+ /**
+  *
+  * @class vtkCDIReader
+@@ -345,8 +327,6 @@ protected:
+   double Layer0OffsetRange[2];
+ 
+   int DimensionSelection;
+-  std::vector<dimset> DimensionSets;
+-  std::vector<Grid> Grids;
+   bool InvertZAxis;
+   bool AddCoordinateVars;
+   projection::Projection ProjectionMode;
+@@ -391,7 +371,6 @@ protected:
+   int NumberOfDomainVars;
+   bool GridReconstructed;
+ 
+-  DataSource::CDIObject DataFile, GridFile, VGridFile;
+   int GridID;
+   int ZAxisID;
+   std::unordered_set<int> SurfIDs;
+-- 
+GitLab
+
+
+From 751b0f14bdfbde85a79e6c06dda1aeff6e36e495 Mon Sep 17 00:00:00 2001
+From: Nils-Arne Dreier <dreier@dkrz.de>
+Date: Mon, 21 Nov 2022 16:10:42 +0100
+Subject: [PATCH 3/5] store DimensionSelection as string instead of an index
+
+When the reader object is restored from a state file the
+`VariableDimensions` is not initialized when `SetDimensions` is
+called. We therefore need to store the actuall string representation
+of the dimension.
+---
+ Plugins/CDIReader/Reader/vtkCDIReader.cxx | 63 ++++++++---------------
+ Plugins/CDIReader/Reader/vtkCDIReader.h   |  2 +-
+ 2 files changed, 23 insertions(+), 42 deletions(-)
+
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.cxx b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+index c44e81f6bb..763b6e6602 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.cxx
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+@@ -193,7 +193,7 @@ public:
+   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesLengths;
+   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesOffsets;
+ 
+-  std::vector<Dimset> DimensionSets;
++  std::map<std::string, Dimset> DimensionSets;
+   std::vector<Grid> Grids;
+   CDIObject DataFile, GridFile, VGridFile;
+ };
+@@ -828,7 +828,7 @@ void vtkCDIReader::SetDefaults()
+   this->HaveDomainVariable = false;
+   this->HaveDomainData = false;
+ 
+-  this->DimensionSelection = 0;
++  this->DimensionSelection = "";
+   this->InvertZAxis = false;
+   this->DoublePrecision = false;
+   this->ShowClonClat = false;
+@@ -977,36 +977,20 @@ int vtkCDIReader::GetDims()
+ 
+   this->FillGridDimensions();
+ 
+-  try
++  if (this->DimensionSelection.empty())
+   {
+-    if (this->DimensionSelection >= 0)
++    // select first by default
++    this->DimensionSelection = this->Internals->DimensionSets.begin()->first;
++  }
++  for (int i = 0; i < this->Internals->Grids.size(); i++)
++    if (this->Internals->DimensionSets.at(this->DimensionSelection).GridSize ==
++      this->Internals->Grids.at(i).Size)
+     {
+-      if (this->DimensionSelection >= this->Internals->DimensionSets.size())
+-      {
+-        vtkErrorMacro("Trying to select inexistent dimensionset "
+-          << this->DimensionSelection << " " << this->Internals->DimensionSets.size()
+-          << " are available.");
+-        return 0;
+-      }
+-      for (int i = 0; i < this->Internals->Grids.size(); i++)
+-        if (this->Internals->DimensionSets.at(this->DimensionSelection).GridSize ==
+-          this->Internals->Grids.at(i).Size)
+-        {
+-          this->Internals->DimensionSets.at(this->DimensionSelection).GridID =
+-            this->Internals->Grids.at(i).GridID;
+-          this->GridID = i;
+-        }
+-      this->ZAxisID = this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID;
+-      vtkDebugMacro(
+-        "NEW ZAxisID" << this->ZAxisID << " from "
+-                      << this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID);
++      this->Internals->DimensionSets.at(this->DimensionSelection).GridID =
++        this->Internals->Grids.at(i).GridID;
++      this->GridID = i;
+     }
+-  }
+-  catch (const std::out_of_range& oor)
+-  {
+-    vtkErrorMacro("Out of Range error in GetDims trying to set Grid and ZAxisID: " << oor.what());
+-    return 0;
+-  }
++  this->ZAxisID = this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID;
+ 
+   try
+   {
+@@ -3229,7 +3213,7 @@ int vtkCDIReader::LoadDomainVarData(int variableIndex)
+ //-----------------------------------------------------------------------------
+ int vtkCDIReader::FillGridDimensions()
+ {
+-  this->Internals->DimensionSets.resize(0);
++  this->Internals->DimensionSets.clear();
+ 
+   int ngrids = vlistNgrids(this->Internals->DataFile.getVListID());
+   int nzaxis = vlistNzaxis(this->Internals->DataFile.getVListID());
+@@ -3284,16 +3268,19 @@ int vtkCDIReader::FillGridDimensions()
+         .GridSize = static_cast<size_t>(gridInqSize(gridID_l)),
+         .NLevel = zaxisInqSize(zaxisID_l),
+         .label = dimEncoding };
+-      this->Internals->DimensionSets.push_back(ds);
++      this->Internals->DimensionSets[dimEncoding] = ds;
+       counter++;
+     }
+   }
+   this->AllDimensions->SetNumberOfValues(0);
+   this->VariableDimensions->SetNumberOfValues(counter);
+-  for (int i = 0; i < counter; i++)
++
++  int i = 0;
++  for (const auto& label_diset_tuple : this->Internals->DimensionSets)
+   {
+-    this->AllDimensions->InsertNextValue(this->Internals->DimensionSets[i].label);
+-    this->VariableDimensions->SetValue(i, this->Internals->DimensionSets[i].label.c_str());
++    this->AllDimensions->InsertNextValue(label_diset_tuple.first);
++    this->VariableDimensions->SetValue(i, label_diset_tuple.first.c_str());
++    ++i;
+   }
+ 
+   return 1;
+@@ -3305,13 +3292,7 @@ int vtkCDIReader::FillGridDimensions()
+ void vtkCDIReader::SetDimensions(const char* dimensions)
+ {
+   vtkDebugMacro("In SetDimensions");
+-  for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
+-  {
+-    if (this->VariableDimensions->GetValue(i) == dimensions)
+-    {
+-      this->DimensionSelection = i;
+-    }
+-  }
++  this->DimensionSelection = dimensions;
+ 
+   this->PointDataArraySelection->RemoveAllArrays();
+   this->CellDataArraySelection->RemoveAllArrays();
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.h b/Plugins/CDIReader/Reader/vtkCDIReader.h
+index fa90313d4d..3bbee37929 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.h
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.h
+@@ -326,7 +326,7 @@ protected:
+   double Layer0Offset;
+   double Layer0OffsetRange[2];
+ 
+-  int DimensionSelection;
++  std::string DimensionSelection;
+   bool InvertZAxis;
+   bool AddCoordinateVars;
+   projection::Projection ProjectionMode;
+-- 
+GitLab
+
+
+From 622ba89edcd743d5603dbda519fb3c4bafe2c1cd Mon Sep 17 00:00:00 2001
+From: Nils-Arne Dreier <dreier@dkrz.de>
+Date: Tue, 22 Nov 2022 08:08:36 +0100
+Subject: [PATCH 4/5] clean up variable initialization
+
+use `vtkNew` instead of `vtkSmartPointer`
+
+remove initialization of std containers
+
+add CDIDimensionsTest
+
+use SetValue instead of InsertNextValue
+
+minor formating fixes
+---
+ Plugins/CDIReader/Reader/vtkCDIReader.cxx     | 115 ++---------
+ Plugins/CDIReader/Reader/vtkCDIReader.h       | 183 +++++++++---------
+ .../CDIReader/Testing/CDIDimensionsTest.xml   |  25 +++
+ Plugins/CDIReader/Testing/CMakeLists.txt      |   2 +
+ 4 files changed, 130 insertions(+), 195 deletions(-)
+ create mode 100644 Plugins/CDIReader/Testing/CDIDimensionsTest.xml
+
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.cxx b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+index 763b6e6602..7df87eff14 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.cxx
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.cxx
+@@ -41,7 +41,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include "vtkCellData.h"
+ #include "vtkCellType.h"
+ #include "vtkDataObject.h"
+-#include "vtkDoubleArray.h"
+ #include "vtkDummyController.h"
+ #include "vtkFieldData.h"
+ #include "vtkFileSeriesReader.h"
+@@ -262,18 +261,10 @@ vtkCDIReader::vtkCDIReader()
+   : Internals(new Internal())
+ {
+   vtkDebugMacro("Starting to create vtkCDIReader...");
+-  this->Initialized = false;
+ 
+   this->SetNumberOfInputPorts(0);
+   this->SetNumberOfOutputPorts(1);
+ 
+-  this->VariableDimensions = vtkSmartPointer<vtkStringArray>::New();
+-  this->AllDimensions = vtkSmartPointer<vtkStringArray>::New();
+-  this->AllVariableArrayNames = vtkSmartPointer<vtkStringArray>::New();
+-  this->InfoRequested = false;
+-  this->DataRequested = false;
+-  this->HaveDomainData = false;
+-
+   // Setup selection callback to modify this object when array selection changes
+   this->SelectionObserver->SetCallback(&vtkCDIReader::SelectionCallback);
+   this->SelectionObserver->SetClientData(this);
+@@ -281,7 +272,6 @@ vtkCDIReader::vtkCDIReader()
+   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+   this->DomainDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+ 
+-  this->Controller = nullptr;
+   this->SetController(vtkMultiProcessController::GetGlobalController());
+   if (!this->Controller)
+   {
+@@ -289,8 +279,6 @@ vtkCDIReader::vtkCDIReader()
+     this->SetController(dummyController);
+   }
+ 
+-  this->SetDefaults();
+-
+   vtkDebugMacro("MAX_VARS:" << MAX_VARS);
+   vtkDebugMacro("Created vtkCDIReader");
+ }
+@@ -802,78 +790,6 @@ int vtkCDIReader::RegenerateGeometry()
+   return 1;
+ }
+ 
+-//----------------------------------------------------------------------------
+-// Set defaults for various parameters and initialize some variables
+-//----------------------------------------------------------------------------
+-void vtkCDIReader::SetDefaults()
+-{
+-  this->Grib = false;
+-
+-  this->VerticalLevelRange[0] = 0;
+-  this->VerticalLevelRange[1] = 1;
+-  this->VerticalLevelSelected = 0;
+-  this->LayerThicknessRange[0] = 0;
+-  this->LayerThicknessRange[1] = 100;
+-  this->LayerThickness = 50;
+-  this->Bloat = 2.0;
+-
+-  this->Layer0OffsetRange[0] = -50;
+-  this->Layer0OffsetRange[1] = 51;
+-  this->Layer0Offset = 1e-30;
+-
+-  // this is hard coded for now but will change when data generation gets more mature
+-  this->PerformanceDataFile = "timer.atmo.";
+-  this->DomainVarName = "cell_owner";
+-  this->DomainDimension = "domains";
+-  this->HaveDomainVariable = false;
+-  this->HaveDomainData = false;
+-
+-  this->DimensionSelection = "";
+-  this->InvertZAxis = false;
+-  this->DoublePrecision = false;
+-  this->ShowClonClat = false;
+-  this->ProjectionMode = projection::SPHERICAL;
+-  this->ShowMultilayerView = false;
+-  this->ReconstructNew = false;
+-  this->CellDataSelected = 0;
+-  this->PointDataSelected = 0;
+-  this->MaskingVarname = "";
+-  this->GotMask = false;
+-  this->AddCoordinateVars = false;
+-  this->NumberOfTimeSteps = 0;
+-  this->NumberOfAllTimeSteps = 0;
+-  this->TimeSeriesTimeSteps.reserve(5);
+-  this->TimeSteps.reserve(100 * 250 + 25);
+-  this->TimeSeriesTimeStepsAllSet = false;
+-  this->GridReconstructed = false;
+-  this->CustomMaskValue = 0.0;
+-  this->InvertMask = false;
+-  this->UseMask = false;
+-  this->UseCustomMaskValue = false;
+-  this->Decomposition = false;
+-
+-  this->SkipGrid = false;
+-
+-  this->BeginCell = 0;
+-  this->FirstDay = -1;
+-  this->TimeSet = false;
+-
+-  this->DTime = 0;
+-  this->FileSeriesNumber = 0;
+-  this->NumberOfFiles = 1;
+-  this->NeedVerticalGridFile = false;
+-  this->GridID = -1;
+-  this->NumberOfProcesses = 1;
+-
+-  this->BuildDomainArrays = false;
+-  this->MaximumNVertLevels = 0;
+-  this->MaximumPoints = 0;
+-  this->MaximumCells = 0;
+-  this->DepthVar = nullptr;
+-
+-  this->NumberOfPoints = 0;
+-}
+-
+ //----------------------------------------------------------------------------
+ // Get dimensions of key NetCDF variables
+ //----------------------------------------------------------------------------
+@@ -983,6 +899,7 @@ int vtkCDIReader::GetDims()
+     this->DimensionSelection = this->Internals->DimensionSets.begin()->first;
+   }
+   for (int i = 0; i < this->Internals->Grids.size(); i++)
++  {
+     if (this->Internals->DimensionSets.at(this->DimensionSelection).GridSize ==
+       this->Internals->Grids.at(i).Size)
+     {
+@@ -990,6 +907,7 @@ int vtkCDIReader::GetDims()
+         this->Internals->Grids.at(i).GridID;
+       this->GridID = i;
+     }
++  }
+   this->ZAxisID = this->Internals->DimensionSets.at(this->DimensionSelection).ZAxisID;
+ 
+   try
+@@ -1047,16 +965,16 @@ int vtkCDIReader::GetDims()
+ int vtkCDIReader::ReadHorizontalGridData()
+ {
+   this->Internals->Grids.resize(0);
+-  int vlistID_l = this->Internals->GridFile.getVListID();
+-  if (vlistID_l == CDI_UNDEFID)
++  int vListID = this->Internals->GridFile.getVListID();
++  if (vListID == CDI_UNDEFID)
+   {
+     vtkErrorMacro("No VList found in Grid file.");
+     return 0;
+   }
+-  int ngrids = vlistNgrids(vlistID_l);
++  int ngrids = vlistNgrids(vListID);
+   for (int i = 0; i < ngrids; ++i)
+   {
+-    int gridID_l = vlistGrid(vlistID_l, i);
++    int gridID_l = vlistGrid(vListID, i);
+     int nv = gridInqNvertex(gridID_l);
+ 
+     if (nv >= 3) //  ((nv == 3 || nv == 4)) // && gridInqType(gridID_l) == GRID_UNSTRUCTURED)
+@@ -1499,8 +1417,7 @@ int vtkCDIReader::ConstructGridGeometry()
+   }
+   cLonVertices.resize(size);
+   cLatVertices.resize(size);
+-  this->DepthVar = new double[this->MaximumNVertLevels];
+-  CHECK_NEW(this->DepthVar);
++  this->DepthVar.resize(this->MaximumNVertLevels);
+ 
+   vtkDebugMacro("Start reading Vertices");
+   try
+@@ -1519,7 +1436,7 @@ int vtkCDIReader::ConstructGridGeometry()
+   vtkDebugMacro("Done reading Vertices");
+   vtkDebugMacro("Getting vertical axis" << this->ZAxisID << " expecting up to "
+                                         << this->MaximumNVertLevels << " levels.");
+-  zaxisInqLevels(this->ZAxisID, this->DepthVar);
++  zaxisInqLevels(this->ZAxisID, this->DepthVar.data());
+   vtkDebugMacro("Got vertical axis" << this->ZAxisID);
+   char units[CDI_MAX_NAME];
+   this->OrigConnections.resize(size);
+@@ -2030,9 +1947,8 @@ int vtkCDIReader::AddMaskHalo()
+ //----------------------------------------------------------------------------
+ bool vtkCDIReader::BuildDomainCellVars()
+ {
+-  this->DomainCellVar = new double[this->NumberOfCells * this->NumberOfDomainVars];
++  this->DomainCellVar.resize(this->NumberOfCells * this->NumberOfDomainVars);
+   std::vector<double> domainTMP(this->NumberOfCells);
+-  CHECK_NEW(this->DomainCellVar);
+   double val = 0;
+   int mask_pos = 0;
+   int numVars = vlistNvars(this->Internals->DataFile.getVListID());
+@@ -2058,7 +1974,7 @@ bool vtkCDIReader::BuildDomainCellVars()
+       val = this->DomainVarDataArray->GetArray(j)->GetComponent(domainTMP[k], 0l);
+       this->DomainCellVar[k + (j * this->NumberOfCells)] = val;
+     }
+-    domainVar->SetArray(this->DomainCellVar + (j * this->NumberOfCells), this->NumberLocalCells, 0,
++    domainVar->SetArray(&(this->DomainCellVar[j * this->NumberOfCells]), this->NumberLocalCells, 0,
+       vtkDoubleArray::VTK_DATA_ARRAY_FREE);
+     domainVar->SetName(this->Internals->DomainVars[j].c_str());
+     this->Output->GetCellData()->AddArray(domainVar);
+@@ -2364,7 +2280,7 @@ void vtkCDIReader::OutputPoints(bool init)
+     points->Allocate(this->MaximumPoints, this->MaximumPoints);
+   }
+ 
+-  if (this->DepthVar == nullptr)
++  if (this->DepthVar.empty())
+   {
+     vtkDebugMacro("OutputPoints: this->MaximumPoints: "
+       << this->MaximumPoints << " this->MaximumNVertLevels: " << this->MaximumNVertLevels
+@@ -2507,7 +2423,7 @@ void vtkCDIReader::OutputCells(bool init)
+                                       << " ShowMultilayerView: " << this->ShowMultilayerView
+                                       << " CurrentExtraCell: " << this->CurrentExtraCell);
+ 
+-  if (this->DepthVar == nullptr)
++  if (this->DepthVar.empty())
+   {
+     vtkErrorMacro(
+       "File " << this->FileName << " OutputCells: this->MaximumCells: " << this->MaximumCells
+@@ -2610,10 +2526,8 @@ void vtkCDIReader::OutputCells(bool init)
+ 
+   if (this->AddCoordinateVars && this->ShowClonClat)
+   {
+-    this->ClonArray = vtkSmartPointer<vtkDoubleArray>::New();
+     this->ClonArray->SetName("Center Longitude (CLON)");
+     this->ClonArray->SetNumberOfTuples(this->NumberLocalCells * this->MaximumNVertLevels);
+-    this->ClatArray = vtkSmartPointer<vtkDoubleArray>::New();
+     this->ClatArray->SetName("Center Latitude (CLAT)");
+     this->ClatArray->SetNumberOfTuples(this->NumberLocalCells * this->MaximumNVertLevels);
+     if (this->ShowMultilayerView)
+@@ -3132,7 +3046,6 @@ int vtkCDIReader::LoadDomainVarData(int variableIndex)
+   // the data available. Needs to be improved together with the modellers.
+   vtkDebugMacro("In vtkCDIReader::LoadDomainVarData");
+   std::string variable = this->Internals->DomainVars[variableIndex];
+-  this->DomainDataSelected = variableIndex;
+ 
+   // Allocate data array for this variable
+   if (!this->DomainVarDataArray->HasArray(variable.c_str()))
+@@ -3272,13 +3185,13 @@ int vtkCDIReader::FillGridDimensions()
+       counter++;
+     }
+   }
+-  this->AllDimensions->SetNumberOfValues(0);
++  this->AllDimensions->SetNumberOfValues(counter);
+   this->VariableDimensions->SetNumberOfValues(counter);
+ 
+   int i = 0;
+   for (const auto& label_diset_tuple : this->Internals->DimensionSets)
+   {
+-    this->AllDimensions->InsertNextValue(label_diset_tuple.first);
++    this->AllDimensions->SetValue(i, label_diset_tuple.first);
+     this->VariableDimensions->SetValue(i, label_diset_tuple.first.c_str());
+     ++i;
+   }
+diff --git a/Plugins/CDIReader/Reader/vtkCDIReader.h b/Plugins/CDIReader/Reader/vtkCDIReader.h
+index 3bbee37929..087fe35a54 100644
+--- a/Plugins/CDIReader/Reader/vtkCDIReader.h
++++ b/Plugins/CDIReader/Reader/vtkCDIReader.h
+@@ -41,8 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include "vtkUnstructuredGridAlgorithm.h"
+ 
+ #include "vtkDataArraySelection.h" // for ivars
+-#include "vtkSmartPointer.h"       // for ivars
+-#include "vtkStringArray.h"        // for ivars
++#include "vtkDoubleArray.h"
++#include "vtkSmartPointer.h" // for ivars
++#include "vtkStringArray.h"  // for ivars
+ 
+ #include "projections.h" // for projection enum
+ 
+@@ -94,11 +95,11 @@ public:
+   vtkGetMacro(NumberOfCellVars, int);
+   vtkGetMacro(NumberOfPointVars, int);
+ 
+-  vtkSmartPointer<vtkStringArray> VariableDimensions;
+-  vtkSmartPointer<vtkStringArray> AllDimensions;
++  vtkNew<vtkStringArray> VariableDimensions;
++  vtkNew<vtkStringArray> AllDimensions;
+   void SetDimensions(const char* dimensions);
+   vtkStringArray* GetAllVariableArrayNames();
+-  vtkSmartPointer<vtkStringArray> AllVariableArrayNames;
++  vtkNew<vtkStringArray> AllVariableArrayNames;
+   vtkGetObjectMacro(AllDimensions, vtkStringArray);
+   vtkGetObjectMacro(VariableDimensions, vtkStringArray);
+ 
+@@ -200,7 +201,6 @@ protected:
+ 
+   int OpenFile();
+   void DestroyData();
+-  void SetDefaults();
+   int CheckForMaskData();
+   int AddMaskHalo();
+   int GetVars();
+@@ -259,54 +259,52 @@ protected:
+   int AddMirrorPointX(int index, double dividerX, double offset);
+   int AddMirrorPointY(int index, double dividerY, double offset);
+ 
+-  vtkMultiProcessController* Controller;
+-
+-  bool Initialized;
+-
+-  int NumberOfProcesses;
+-  double CustomMaskValue;
+-  int BeginPoint, EndPoint, BeginCell, EndCell;
+-  int Piece, NumPieces;
+-  int NumberLocalCells;
+-  int NumberAllCells;
+-  int NumberLocalPoints;
+-  int NumberAllPoints;
+-  bool Decomposition;
+-  long FirstDay;
+-  int ModNumPoints;
+-  int ModNumCells;
+-  unsigned int CurrentExtraPoint;     // current extra point
+-  unsigned int CurrentExtraCell;      // current extra cell
++  vtkMultiProcessController* Controller = nullptr;
++
++  bool Initialized = false;
++
++  int NumberOfProcesses = 1;
++  double CustomMaskValue = 0.0;
++  int BeginPoint = 0, EndPoint = 0, BeginCell = 0, EndCell = 0;
++  int Piece = 0, NumPieces = 0;
++  int NumberLocalCells = 0;
++  int NumberAllCells = 0;
++  int NumberLocalPoints = 0;
++  int NumberAllPoints = 0;
++  bool Decomposition = false;
++  long FirstDay = -1;
++  int ModNumPoints = 0;
++  int ModNumCells = 0;
++  unsigned int CurrentExtraPoint = 0; // current extra point
++  unsigned int CurrentExtraCell = 0;  // current extra cell
+   std::vector<unsigned int> CellMap;  // maps from added cell to original cell #
+   std::vector<unsigned int> PointMap; // maps from added point to original point #
+ 
+-  std::string FileName;
+-  std::string FileNameGrid;
+-  std::string FileNameGridSelect;
+-  std::string FileSeriesFirstName;
+-  std::string MaskingVarname;
+-  int NumberOfTimeSteps;
+-  int NumberOfAllTimeSteps;
++  std::string FileName = "";
++  std::string FileSeriesFirstName = "";
++  std::string MaskingVarname = "";
++  int NumberOfTimeSteps = 0;
++  int NumberOfAllTimeSteps = 0;
+   std::vector<int> TimeSeriesTimeSteps;
+-  bool TimeSeriesTimeStepsAllSet;
+-  bool TimeSet;
+-  double DTime;
++  bool TimeSeriesTimeStepsAllSet = false;
++  bool TimeSet = false;
++  double DTime = 0;
+   std::vector<double> TimeSteps;
+-  int FileSeriesNumber;
+-  int NumberOfFiles;
+-  double Bloat;
++  int FileSeriesNumber = 0;
++  int NumberOfFiles = 1;
++  double Bloat = 2.0;
+ 
+-  bool UseMask;
+-  bool InvertMask;
+-  bool GotMask;
+-  bool UseCustomMaskValue;
++  bool UseMask = false;
++  bool InvertMask = false;
++  bool GotMask = false;
++  bool UseCustomMaskValue = false;
+ 
+-  bool SkipGrid;
++  bool SkipGrid = false;
+ 
+   vtkNew<vtkCallbackCommand> SelectionObserver;
+-  bool InfoRequested;
+-  bool DataRequested;
+-  bool Grib;
++  bool InfoRequested = false;
++  bool DataRequested = false;
++  bool Grib = false;
+ 
+   vtkNew<vtkDataArraySelection> CellDataArraySelection;
+   vtkNew<vtkDataArraySelection> PointDataArraySelection;
+@@ -316,69 +314,66 @@ protected:
+   vtkNew<vtkFieldData> PointVarDataArray;
+   vtkNew<vtkFieldData> DomainVarDataArray;
+ 
+-  int VerticalLevelSelected;
+-  int VerticalLevelRange[2];
+-  int CellDataSelected;
+-  int PointDataSelected;
+-  int DomainDataSelected;
+-  int LayerThickness;
+-  int LayerThicknessRange[2];
+-  double Layer0Offset;
+-  double Layer0OffsetRange[2];
+-
+-  std::string DimensionSelection;
+-  bool InvertZAxis;
+-  bool AddCoordinateVars;
+-  projection::Projection ProjectionMode;
+-  bool DoublePrecision;
+-  bool ShowClonClat;
+-  bool ShowMultilayerView;
+-  bool HaveDomainData;
+-  bool HaveDomainVariable;
+-  bool BuildDomainArrays;
+-  std::string DomainVarName;
+-  std::string DomainDimension;
+-  std::string PerformanceDataFile;
+-
+-  int MaximumNVertLevels;
+-  int NumberOfCells;
+-  int NumberOfVertices;
+-  int NumberOfPoints;
+-  int NumberOfTriangles;
+-  int NumberOfDomains;
+-  int PointsPerCell;
+-  bool ReconstructNew;
+-  bool NeedHorizontalGridFile;
+-  bool NeedVerticalGridFile;
+-  bool WrapOn;
++  int VerticalLevelSelected = 0;
++  int VerticalLevelRange[2] = { 0, 1 };
++  int CellDataSelected = 0;
++  int PointDataSelected = 0;
++  int LayerThickness = 50;
++  int LayerThicknessRange[2] = { 0, 100 };
++  double Layer0Offset = 1e-30;
++  double Layer0OffsetRange[2] = { -50, 51 };
++
++  std::string DimensionSelection = "";
++  bool InvertZAxis = false;
++  bool AddCoordinateVars = false;
++  projection::Projection ProjectionMode = projection::SPHERICAL;
++  bool DoublePrecision = false;
++  bool ShowClonClat = false;
++  bool ShowMultilayerView = false;
++  bool HaveDomainData = false;
++  bool HaveDomainVariable = false;
++  bool BuildDomainArrays = false;
++
++  // this is hard coded for now but will change when data generation gets more mature
++  std::string DomainVarName = "cell_owner";
++  std::string DomainDimension = "domains";
++  std::string PerformanceDataFile = "timer.atmo.";
++
++  int MaximumNVertLevels = 0;
++  int NumberOfCells = 0;
++  int NumberOfPoints = 0;
++  int NumberOfDomains = 0;
++  int PointsPerCell = 0;
++  bool ReconstructNew = false;
++  bool WrapOn = false;
+ 
+   std::vector<double> CLon;
+   std::vector<double> CLat;
+-  double* DepthVar;
++  std::vector<double> DepthVar;
+   std::vector<double> PointX;
+   std::vector<double> PointY;
+   std::vector<double> PointZ;
+   std::vector<int> OrigConnections;
+   std::vector<int> ModConnections;
+   std::vector<bool> CellMask;
+-  double* DomainCellVar;
+-  int MaximumCells;
+-  int MaximumPoints;
++  std::vector<double> DomainCellVar;
++  int MaximumCells = 0;
++  int MaximumPoints = 0;
+   std::vector<int> VertexIds;
+ 
+-  int NumberOfCellVars;
+-  int NumberOfPointVars;
+-  int NumberOfDomainVars;
+-  bool GridReconstructed;
++  int NumberOfCellVars = 0;
++  int NumberOfPointVars = 0;
++  int NumberOfDomainVars = 0;
++  bool GridReconstructed = false;
+ 
+-  int GridID;
+-  int ZAxisID;
++  int GridID = -1;
++  int ZAxisID = -1;
+   std::unordered_set<int> SurfIDs;
+ 
+-  std::string TimeUnits;
+-  std::string Calendar;
+-  vtkSmartPointer<vtkDoubleArray> ClonArray;
+-  vtkSmartPointer<vtkDoubleArray> ClatArray;
++  std::string TimeUnits = "";
++  std::string Calendar = "";
++  vtkNew<vtkDoubleArray> ClonArray;
++  vtkNew<vtkDoubleArray> ClatArray;
+   vtkNew<vtkUnstructuredGrid> Output;
+ 
+ private:
+diff --git a/Plugins/CDIReader/Testing/CDIDimensionsTest.xml b/Plugins/CDIReader/Testing/CDIDimensionsTest.xml
+new file mode 100644
+index 0000000000..4b71e0824b
+--- /dev/null
++++ b/Plugins/CDIReader/Testing/CDIDimensionsTest.xml
+@@ -0,0 +1,25 @@
++<?xml version="1.0" ?>
++<pqevents>
++  <pqevent object="pqClientMainWindow/MainControlsToolbar/actionOpenData" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/NetCDF/edges.nc" />
++  <pqevent object="pqClientMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Show3DSurface/CheckBox" command="set_boolean" arguments="true" />
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/variableToolbar/displayColor/Variables" command="activated" arguments="p_ice_Tsurf" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionIsometricView" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionTest_0.png" width="300" height="300" />
++
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Dimensions/ComboBox" command="activated" arguments="(clon, clat, depth_2)" />
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionIsometricView" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionTest_1.png" width="300" height="300" />
++
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Dimensions/ComboBox" command="activated" arguments="(elon, elat, depth)" />
++  <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/variableToolbar/displayColor/Variables" command="activated" arguments="VN" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionIsometricView" command="activate" arguments="" />
++  <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
++</pqevents>
+diff --git a/Plugins/CDIReader/Testing/CMakeLists.txt b/Plugins/CDIReader/Testing/CMakeLists.txt
+index 1862dff5b2..7e3628e39d 100644
+--- a/Plugins/CDIReader/Testing/CMakeLists.txt
++++ b/Plugins/CDIReader/Testing/CMakeLists.txt
+@@ -10,11 +10,13 @@ ExternalData_Expand_Arguments(ParaViewData _
+   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/NetCDF/fesom.nc}"
+   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead.png,:}"
+   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIDimensionsTest.png,:}"
+ )
+ 
+ set (xml_tests
+   CDISimpleRead.xml
+   CDIUseMask.xml
++  CDIDimensionsTest.xml
+   )
+ 
+ paraview_add_client_tests(
+-- 
+GitLab
+
+
+From b3d4bc3426d112567a0072cb8cffa7cf8b2aa42f Mon Sep 17 00:00:00 2001
+From: Mathieu Westphal <mathieu.westphal@kitware.com>
+Date: Wed, 23 Nov 2022 13:55:04 +0100
+Subject: [PATCH 5/5] Adding testing data
+
+Add/fix baselines for testing in CDIReader plugin
+
+Fix tests
+---
+ Plugins/CDIReader/Testing/CDIDimensionsTest.xml |  4 ++--
+ Plugins/CDIReader/Testing/CDISimpleRead.xml     | 10 +++++-----
+ Plugins/CDIReader/Testing/CDIUseMask.xml        | 12 ++++++------
+ Plugins/CDIReader/Testing/CMakeLists.txt        | 17 ++++++++++++++---
+ .../Data/Baseline/CDIDimensionsTest.png.sha512  |  1 +
+ .../Baseline/CDIDimensionsTest_A.png.sha512     |  1 +
+ .../Baseline/CDIDimensionsTest_B.png.sha512     |  1 +
+ ..._0.png.sha512 => CDISimpleRead_A.png.sha512} |  0
+ ..._1.png.sha512 => CDISimpleRead_B.png.sha512} |  0
+ ..._2.png.sha512 => CDISimpleRead_C.png.sha512} |  0
+ ..._3.png.sha512 => CDISimpleRead_D.png.sha512} |  0
+ ..._4.png.sha512 => CDISimpleRead_E.png.sha512} |  0
+ ...ask_0.png.sha512 => CDIUseMask_A.png.sha512} |  0
+ ...ask_1.png.sha512 => CDIUseMask_B.png.sha512} |  0
+ ...ask_2.png.sha512 => CDIUseMask_C.png.sha512} |  0
+ ...ask_3.png.sha512 => CDIUseMask_D.png.sha512} |  0
+ ...ask_4.png.sha512 => CDIUseMask_E.png.sha512} |  0
+ ...ask_5.png.sha512 => CDIUseMask_F.png.sha512} |  0
+ .../Testing/Data/NetCDF/edges.nc.sha512         |  1 +
+ 19 files changed, 31 insertions(+), 16 deletions(-)
+ create mode 100644 Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest.png.sha512
+ create mode 100644 Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_A.png.sha512
+ create mode 100644 Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_B.png.sha512
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDISimpleRead_0.png.sha512 => CDISimpleRead_A.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDISimpleRead_1.png.sha512 => CDISimpleRead_B.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDISimpleRead_2.png.sha512 => CDISimpleRead_C.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDISimpleRead_3.png.sha512 => CDISimpleRead_D.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDISimpleRead_4.png.sha512 => CDISimpleRead_E.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_0.png.sha512 => CDIUseMask_A.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_1.png.sha512 => CDIUseMask_B.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_2.png.sha512 => CDIUseMask_C.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_3.png.sha512 => CDIUseMask_D.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_4.png.sha512 => CDIUseMask_E.png.sha512} (100%)
+ rename Plugins/CDIReader/Testing/Data/Baseline/{CDIUseMask_5.png.sha512 => CDIUseMask_F.png.sha512} (100%)
+ create mode 100644 Plugins/CDIReader/Testing/Data/NetCDF/edges.nc.sha512
+
+diff --git a/Plugins/CDIReader/Testing/CDIDimensionsTest.xml b/Plugins/CDIReader/Testing/CDIDimensionsTest.xml
+index 4b71e0824b..bdcb113c46 100644
+--- a/Plugins/CDIReader/Testing/CDIDimensionsTest.xml
++++ b/Plugins/CDIReader/Testing/CDIDimensionsTest.xml
+@@ -8,14 +8,14 @@
+   <pqevent object="pqClientMainWindow/variableToolbar/displayColor/Variables" command="activated" arguments="p_ice_Tsurf" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionIsometricView" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionTest_0.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_A.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Dimensions/ComboBox" command="activated" arguments="(clon, clat, depth_2)" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionIsometricView" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionTest_1.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_B.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Dimensions/ComboBox" command="activated" arguments="(elon, elat, depth)" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+diff --git a/Plugins/CDIReader/Testing/CDISimpleRead.xml b/Plugins/CDIReader/Testing/CDISimpleRead.xml
+index 3f787a306b..564721e3f5 100644
+--- a/Plugins/CDIReader/Testing/CDISimpleRead.xml
++++ b/Plugins/CDIReader/Testing/CDISimpleRead.xml
+@@ -16,27 +16,27 @@
+   <pqevent object="pqClientMainWindow/variableToolbar/actionScalarBarVisibility" command="set_boolean" arguments="false" />
+ 
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_0.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_A.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Spherical Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_1.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_B.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Cassini Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_2.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_C.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Mollweide Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_3.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_D.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Catalyst (no scaling)" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_4.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_E.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Spilhouse Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+diff --git a/Plugins/CDIReader/Testing/CDIUseMask.xml b/Plugins/CDIReader/Testing/CDIUseMask.xml
+index f140573c29..b39e4929da 100644
+--- a/Plugins/CDIReader/Testing/CDIUseMask.xml
++++ b/Plugins/CDIReader/Testing/CDIUseMask.xml
+@@ -11,31 +11,31 @@
+   <pqevent object="pqClientMainWindow/variableToolbar/displayColor/Variables" command="activated" arguments="thetao" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionNegativeY" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-    <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_0.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_A.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Spherical Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_1.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_B.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Cassini Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_2.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_C.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Mollweide Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_3.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_D.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Catalyst (no scaling)" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_4.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_E.png" width="300" height="300" />
+ 
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SetProjection/ComboBox" command="activated" arguments="Spilhouse Projection" />
+   <pqevent object="pqClientMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+   <pqevent object="pqClientMainWindow/cameraToolbar/actionResetCamera" command="activate" arguments="" />
+-  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_5.png" width="300" height="300" />
++  <pqcompareview object="pqClientMainWindow/centralwidget/MultiViewWidget/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport" baseline="$PARAVIEW_DATA_ROOT/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_F.png" width="300" height="300" />
+ 
+ </pqevents>
+diff --git a/Plugins/CDIReader/Testing/CMakeLists.txt b/Plugins/CDIReader/Testing/CMakeLists.txt
+index 7e3628e39d..e31c515f2b 100644
+--- a/Plugins/CDIReader/Testing/CMakeLists.txt
++++ b/Plugins/CDIReader/Testing/CMakeLists.txt
+@@ -6,11 +6,22 @@ endif()
+ 
+ set(_paraview_add_tests_default_test_data_target ParaViewData)
+ ExternalData_Expand_Arguments(ParaViewData _
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/NetCDF/edges.nc}"
+   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/NetCDF/ts.nc}"
+   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/NetCDF/fesom.nc}"
+-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead.png,:}"
+-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask.png,:}"
+-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIDimensionsTest.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead_A.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead_B.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead_C.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead_D.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDISimpleRead_E.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_A.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_B.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_C.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_D.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_E.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIUseMask_F.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIDimensionsTest_A.png,:}"
++  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/CDIDimensionsTest_B.png,:}"
+ )
+ 
+ set (xml_tests
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest.png.sha512
+new file mode 100644
+index 0000000000..9b8b47efa6
+--- /dev/null
++++ b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest.png.sha512
+@@ -0,0 +1 @@
++11c6513595364e3e3dec4e21f4711745deb4cccf8a0f6d3cf6343a4241cf8bbbbdd21e3390b7313e499fd3669f828548e3e88b0f262cb188735809efbd076e06
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_A.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_A.png.sha512
+new file mode 100644
+index 0000000000..2b763c05e8
+--- /dev/null
++++ b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_A.png.sha512
+@@ -0,0 +1 @@
++2b8c39ffbb41b22699a3ec4e84c29ee9dc701171dc31367919b027559c1785a73c772351e0a6fca60781f1aad45c41f0cb3be8f9f165c06c9b9c9ac2ead7877c
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_B.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_B.png.sha512
+new file mode 100644
+index 0000000000..55a1a41256
+--- /dev/null
++++ b/Plugins/CDIReader/Testing/Data/Baseline/CDIDimensionsTest_B.png.sha512
+@@ -0,0 +1 @@
++a82a7f285150826a49c95253cd7b4ddbe83f138673b7979e00f3e7a137c8f6860a1847e7f5337722ef48cdf94c05654fa1d35b626b82edaf0d7f221d1f515324
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_0.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_A.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_0.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_A.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_1.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_B.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_1.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_B.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_2.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_C.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_2.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_C.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_3.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_D.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_3.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_D.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_4.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_E.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_4.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDISimpleRead_E.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_0.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_A.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_0.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_A.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_1.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_B.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_1.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_B.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_2.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_C.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_2.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_C.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_3.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_D.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_3.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_D.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_4.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_E.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_4.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_E.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_5.png.sha512 b/Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_F.png.sha512
+similarity index 100%
+rename from Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_5.png.sha512
+rename to Plugins/CDIReader/Testing/Data/Baseline/CDIUseMask_F.png.sha512
+diff --git a/Plugins/CDIReader/Testing/Data/NetCDF/edges.nc.sha512 b/Plugins/CDIReader/Testing/Data/NetCDF/edges.nc.sha512
+new file mode 100644
+index 0000000000..4b3e624b62
+--- /dev/null
++++ b/Plugins/CDIReader/Testing/Data/NetCDF/edges.nc.sha512
+@@ -0,0 +1 @@
++eb097c55f8df99e7f0be7b387de6c8970ba8255b6c633d3f2c4247ad5a8fe67238db8a98ff6322d4c03133a7c424832f1873f3e219734cdff517e731f60b60b6
+-- 
+GitLab
+

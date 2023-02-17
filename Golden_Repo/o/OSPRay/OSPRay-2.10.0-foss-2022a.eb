@@ -10,7 +10,7 @@ OSPRay is an open source, scalable, and portable ray tracing engine for
 high-performance, high-fidelity visualization on Intel® Architecture CPUs.
 """
 
-toolchain = {'name': 'gpsmpi', 'version': '2022a'}
+toolchain = {'name': 'foss', 'version': '2022a'}
 toolchainopts = {'pic': True}
 
 source_urls = ['https://github.com/ospray/OSPRay/archive/']

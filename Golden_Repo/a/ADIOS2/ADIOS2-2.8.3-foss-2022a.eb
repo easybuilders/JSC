@@ -10,7 +10,7 @@ flexible way for scientists to describe the data in their code that may
 need to be written, read, or processed outside of the running
 simulation."""
 
-toolchain = {'name': 'gompi', 'version': '2022a'}
+toolchain = {'name': 'foss', 'version': '2022a'}
 toolchainopts = {'pic': True, 'usempi': False}
 
 github_account = 'ornladios'

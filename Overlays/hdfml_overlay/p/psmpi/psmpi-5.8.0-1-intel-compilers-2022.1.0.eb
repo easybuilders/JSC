@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'psmpi'
-version = '5.7.0-1'
+version = '5.8.0-1'
 
 homepage = 'https://github.com/ParaStation/psmpi2'
 description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
@@ -8,14 +8,13 @@ based on MPICH v3. It provides extra low level communication libraries and integ
 various batch systems for tighter process control.
 """
 
-toolchain = {'name': 'NVHPC', 'version': '22.11'}
+toolchain = {'name': 'intel-compilers', 'version': '2022.1.0'}
 
 sources = [SOURCE_TAR_GZ]
-source_urls = ['https://github.com/ParaStation/psmpi/archive/']
+source_urls = ['https://gitlab.jsc.fz-juelich.de/ParTec/psmpi/uploads/762714c8eec01fe59239a52798a70e1c/']
 checksums = [
-    # psmpi-5.7.0-1.tar.gz
-    '0c1c8556afedfb08cd612f379ddb6327ef1bb0867d6f6fed3d610f3d8c790883',
-    '978eb3223c978477c40987f745c07fda26ccbad2f468616faf92f0d71b81a156',  # psmpi_shebang.patch
+    # psmpi-5.8.0-1.tar.gz
+    'bcebb42f68e062d4cf957c1ec12a8e2e50051265d38715854bafc34855ed3029',
 ]
 
 dependencies = [
@@ -24,12 +23,6 @@ dependencies = [
     ('libxml2', '2.9.13'),
     # Including CUDA here to trigger the hook to add the gpu property, and because it is actually needed
     ('CUDA', '11.7', '', SYSTEM)
-]
-
-patches = [
-    'psmpi_shebang.patch',
-    # We don't have IME in HDFML so we skip this
-    # 'psmpi-5.5.0-1_ime.patch'
 ]
 
 # We don't have IME in HDFML so we skip this

@@ -11,8 +11,7 @@ description = """The Visualization Toolkit (VTK) is an open-source, freely avail
  algorithms including: scalar, vector, tensor, texture, and volumetric methods; and advanced modeling techniques
  such as: implicit modeling, polygon reduction, mesh smoothing, cutting, contouring, and Delaunay triangulation."""
 
-
-toolchain = {'name': 'gpsmpi', 'version': '2022a'}
+toolchain = {'name': 'foss', 'version': '2022a'}
 toolchainopts = {'pic': True, 'usempi': True}
 
 source_urls = ['https://www.vtk.org/files/release/%(version_major_minor)s']
@@ -33,11 +32,11 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('HDF5', '1.12.2', '-serial'),
+    ('HDF5', '1.12.2',),
     ('SciPy-Stack', '2022a', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('mpi4py', '3.1.4'),
     ('libxc', '5.2.3'),
-    ('netCDF', '4.9.0', '-serial'),
+    ('netCDF', '4.9.0',),
     ('X11', '20220504'),
     ('OpenGL', '2022a'),
 ]

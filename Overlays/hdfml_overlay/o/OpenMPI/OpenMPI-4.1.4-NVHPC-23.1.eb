@@ -5,7 +5,7 @@ version = '4.1.4'
 homepage = 'https://www.open-mpi.org/'
 description = """The Open MPI Project is an open source MPI-3 implementation."""
 
-toolchain = {'name': 'NVHPC', 'version': '22.11'}
+toolchain = {'name': 'NVHPC', 'version': '23.1'}
 toolchainopts = {'pic': True}
 
 source_urls = [

@@ -27,12 +27,13 @@ builddependencies = [
 ]
 dependencies = [
     ('CUDA', '11.7', '', SYSTEM),
-    ('UCX', 'default'),
 ]
 
 # make sure both static and shared libs are built
 configopts = [
-    '-DBUILD_SHARED_LIBS=%s -DGPU_TARGET="%%(cuda_sm_space_sep)s" ' % local_shared for local_shared in ('ON', 'OFF')
+    '-DMKL_ILP64=ON \
+     -DBUILD_SHARED_LIBS=%s \
+     -DGPU_TARGET="%%(cuda_sm_space_sep)s" ' % local_shared for local_shared in ('ON', 'OFF')
 ]
 
 sanity_check_paths = {

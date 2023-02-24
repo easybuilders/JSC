@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'tensorboard'
-version = '2.10.0'
+version = '2.11.2'
 
 homepage = 'https://github.com/tensorflow/tensorboard'
 description = """TensorBoard is a suite of web applications for inspecting and understanding your TensorFlow runs
@@ -64,7 +64,7 @@ exts_list = [
     }),
     (name, version, {
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
-        'checksums': ['76c91a5e8959cd2208cc32cb17a0cb002badabb66a06ac2af02a7810f49a59e3'],
+        'checksums': ['cbaa2210c375f3af1509f8571360a19ccc3ded1d9641533414874b5deca47e89'],
     }),
 ]
 

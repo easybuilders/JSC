@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'MPB'
+version = '1.11.1'
+
+homepage = 'https://mpb.readthedocs.io/en/latest/'
+description = """MPB is a free and open-source software package for computing
+ the band structures, or dispersion relations, and electromagnetic
+ modes of periodic dielectric structures, on both serial
+ and parallel computers. MPB is an acronym for MIT Photonic Bands."""
+
+toolchain = {'name': 'intel-para', 'version': '2022a'}
+
+toolchainopts = {'optarch': True, 'usempi': True, 'pic': True}
+
+source_urls = ['https://github.com/NanoComp/mpb/releases/download/v%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['dc55b081c56079727dac92d309f8e4ea84ca6eea9122ec24b7955f8c258608e1']
+
+builddependencies = [
+    ('Autotools', '20220317'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('HDF5', '1.12.2'),
+    ('libctl', '4.5.1'),
+    ('FFTW', '3.3.10'),
+    ('GSL', '2.7'),
+    ('Guile', '3.0.8'),
+    ('libreadline', '8.1.2'),
+]
+
+local_common_configopts = "--with-pic --with-blas=mkl_em64t --with-lapack=mkl_em64t "
+local_common_configopts += "--with-libctl=$EBROOTLIBCTL/share/libctl --enable-shared "
+
+configopts = [
+    local_common_configopts + " ",
+    local_common_configopts + "--with-hermitian-eps --with-inv-symmetry ",
+    local_common_configopts +
+    "--with-hermitian-eps --with-mpi CC=mpicc CXX=mpic++ F77=mpif90 MPIRUN=srun ",
+    local_common_configopts +
+    "--with-hermitian-eps --with-mpi --with-inv-symmetry CC=mpicc CXX=mpic++ F77=mpif90 MPIRUN=srun ",
+]
+
+sanity_check_paths = {
+    'files': ['bin/mpb%s' % x for x in ['', '-data', 'i', 'i-data', 'i-mpi', 'i-split', '-mpi', '-split']] +
+             ['lib/libmpb.a', 'lib/libmpbi_mpi.a', 'lib/libmpbi.a', 'lib/libmpb_mpi.a', 'lib/libmpb.%s' % SHLIB_EXT,
+              'lib/libmpbi_mpi.%s' % SHLIB_EXT, 'lib/libmpbi.%s' % SHLIB_EXT, 'lib/libmpb_mpi.%s' % SHLIB_EXT],
+    'dirs': ['include'],
+}
+
+moduleclass = 'phys'

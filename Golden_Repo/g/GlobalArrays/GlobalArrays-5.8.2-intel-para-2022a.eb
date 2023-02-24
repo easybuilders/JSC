@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'GlobalArrays'
+version = '5.8.2'
+
+homepage = 'https://hpc.pnl.gov/globalarrays'
+description = """
+              Global Arrays is a portable Non-Uniform Memory Access (NUMA) shared-memory programming environment 
+              for distributed and shared memory computers. It augments the message-passing model by providing a 
+              shared-memory like access to distributed dense arrays. This is also known as the 
+              Partitioned Global Address Space (PGAS) model.  ComEx is a successor to ARMCI and provides an 
+              ARMCI-compatible interface. New parallel runtime development takes place within ComEx 
+              including the MPI-only runtimes. DRA (Disk Resident Arrays) is a parallel I/O library that 
+              maintains dense two-dimensional arrays on disk. SF (Shared Files) is a parallel I/O library that 
+              allows noncollective I/O to a parallel file. EAF (Exclusive Access Files) is parallel I/O library 
+              that supports I/O to private files. TCGMSG is a simple, efficient, but obsolete message-passing library.
+              TCGMSG-MPI is a TCGMSG interface implementation on top of MPI and ARMCI.
+              MA is a dynamic memory allocator/manager for Fortran and C programs.
+              GA++ is a C++ binding for global arrays.
+             """
+
+
+toolchain = {'name': 'intel-para', 'version': '2022a'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True, 'opt': False}
+
+source_urls = ['https://github.com/GlobalArrays/ga/releases/download/v%(version)s']
+sources = ['ga.%(version)s.tgz']
+
+checksums = ['679570cb037f3f0ad14282c31ee795a9684a294c14ec9cf13ebcdc130c4474a5']
+
+# download contains configure already preconfigopts = './autogen.sh && mkdir build && pushd build'
+preconfigopts = ' mkdir build && pushd build && '
+configure_cmd = '../configure '
+configure_cmd += ' --enable-i8 --enable-shared --with-openib --with-mpi '
+configure_cmd += ' --with-blas8="-lmkl_intel_ilp64 -lmkl_sequential -lmkl_core" '
+configure_cmd += ' --with-lapack8="-lmkl_intel_ilp64 -lmkl_sequential -lmkl_core" '
+configure_cmd += ' --with-scalapack8="-lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64"'
+configure_cmd += ' LIBS="-libumad -libverbs -lpthread"'
+configure_cmd += ' MPIF77=mpif90 MPIF90=mpif90  MPICC=mpicc MPICXX=mpicxx'
+
+local_test = '%%(installdir)s/%s' % 'test'
+
+prebuildopts = 'pushd build &&'
+
+preinstallopts = 'pushd build && mkdir %s &&' % local_test
+preinstallopts += 'pushd global/testing && cp *.x %s/ && ' % local_test
+preinstallopts += 'popd && '
+
+
+pretestopts = 'pushd build && '
+runtest = 'checkprogs'
+
+maxparallel = 1
+
+sanity_check_paths = {
+    'files': ['bin/ga-config', 'lib/libarmci.so', 'lib/libga.so'],
+    'dirs': ['lib', 'include', 'bin']
+}
+
+moduleclass = 'chem'

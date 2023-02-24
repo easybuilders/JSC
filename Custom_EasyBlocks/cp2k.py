@@ -107,6 +107,7 @@ class EB_CP2K(EasyBlock):
             'typeopt': [True, "Enable optimization", CUSTOM],
             'dbcsr_version': ['2.0.1',"DBCSR version used",CUSTOM],
             'libvori_version': ['-210412',"libvori version used",CUSTOM],
+            'spglib_version': ['1.16.2',"spglib version used",CUSTOM],
         }
         return EasyBlock.extra_options(extra_vars)
 
@@ -134,15 +135,18 @@ class EB_CP2K(EasyBlock):
             cpstringb="cp -r %s../dbcsr-%s/.cp2k %sexts/dbcsr/" %(self.cfg['start_dir'],self.cfg['dbcsr_version'],self.cfg['start_dir'])
 
         vorbis="cd  %s../libvori%s/ && mkdir build && cd build && cmake .. && gmake && cp libvori.a %s/ " %(self.cfg['start_dir'],self.cfg['libvori_version'], self.cfg['start_dir'])
+        spglib="cd  %s../spglib-%s/ && mkdir build && cd build && cmake .. && gmake && cp libsymspg.* %s/  "  %(self.cfg['start_dir'],self.cfg['spglib_version'],self.cfg['start_dir'])   
 #       run_cmd(cpstring)
         self.log.info(cpstring) 
 #       self.log.info(cpstringb) 
         self.log.info(vorbis) 
+        self.log.info(spglib) 
         os.system(cpstring)
         if self.cfg['dbcsr_version'] == '2.1.0':
             os.system(cpstringb)
 
         os.system(vorbis)
+        os.system(spglib)
 
         # correct start dir, if needed
         # recent CP2K versions have a 'cp2k' dir in the unpacked 'cp2k' dir
@@ -261,6 +265,8 @@ class EB_CP2K(EasyBlock):
 
         options['LIBS'] = "-Wl,--start-group %s -Wl,--end-group" % options['LIBS']
         options['LIBS'] = "%s %slibvori.a " % (options['LIBS'], self.cfg['start_dir'])
+        # spglib 
+        options['LIBS'] = "%s %slibsymspg.a " % (options['LIBS'], self.cfg['start_dir'])
 
         # specify correct location for 'data' directory in final installation
         options['DATA_DIR'] = os.path.join(self.installdir, 'data')

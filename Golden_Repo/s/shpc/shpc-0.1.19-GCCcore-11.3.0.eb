@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'shpc'
-version = '0.1.17'
+version = '0.1.19'
 
 homepage = 'https://github.com/singularityhub/singularity-hpc'
 
@@ -11,8 +11,6 @@ Environement Modules. Works for users and admins."""
 
 toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
 
-#
-# sources = ['%(version)s.tar.gz']
 
 builddependencies = [('binutils', '2.38')]
 
@@ -38,7 +36,7 @@ exts_list = [
     (name, version, {
         'source_urls': ['https://github.com/singularityhub/singularity-hpc/archive/refs/tags/'],
         'sources': ['%(version)s.tar.gz'],
-        'checksums': ['ca5315142d0b3690a07fc12ea147c404a05ed75f9552ce7f563f833cf8832b58'],
+        'checksums': ['5dbccd6e05d09a547a6d70e137ed626f514ac29623d4557799b076f7db04b0a5'],
     }),
 ]
 

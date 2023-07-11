@@ -1,0 +1,60 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+import os as local_os
+
+name = "PETSc"
+version = "3.18.5"
+
+homepage = 'http://www.mcs.anl.gov/petsc'
+description = """PETSc, pronounced PET-see (the S is silent), is a suite
+of data structures and routines for the scalable (parallel) solution
+of scientific applications modeled by partial differential equations.
+
+This version is configured with several downloads of other libraries,
+with --with-large-file-io and no debugging. It is a C and Fortran
+version with default 4-Byte integer values.
+
+For more information see $PETSC_DIR/lib/petsc/conf/configure-hash.
+"""
+
+toolchain = {'name': 'gpsmkl', 'version': '2022a'}
+
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['http://ftp.mcs.anl.gov/pub/petsc/release-snapshots']
+sources = ['petsc-%s.tar.gz' % version]
+checksums = ['df73ae13a4c5758325a9d69350cac423742657d8a8fc5782504b0e469ce46499']
+
+builddependencies = [
+    ('CMake', '3.23.1')
+]
+
+download_deps = [
+    'triangle',
+]
+
+dependencies = [
+    ('HDF5', '1.12.2'),
+    ('METIS', '5.1.0'),
+    ('ParMETIS', '4.0.3')
+]
+
+download_deps_static = [
+    'hypre',
+    'spooles',
+    'superlu',
+    'superlu_dist',
+    'mumps',
+    'spai',
+    'chaco',
+    'sundials2',
+    'parms',
+]
+
+configopts = '--with-large-file-io --with-cxx-dialect=C++11'
+configopts += ' --with-fftw=1 --with-fftw-lib=[$EBROOTIMKLMINFFTW/lib/libfftw3xc_gnu_pic.a,\
+libfftw3x_cdft_lp64_pic.a,libmkl_cdft_core.a,libmkl_blacs_intelmpi_lp64.a,\
+libmkl_gf_lp64.a,libmkl_sequential.a,libmkl_core.a,libgfortran.a]'
+configopts += ' --with-fftw-include=[$EBROOTIMKL/mkl/2022.1.0/include/fftw]'
+shared_libs = 1
+
+moduleclass = 'numlib'

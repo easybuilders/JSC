@@ -27,7 +27,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('SciPy-Stack', '2022a', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('zlib', '1.2.12'),
     ('bzip2', '1.0.8'),
     ('Szip', '2.1.1'),

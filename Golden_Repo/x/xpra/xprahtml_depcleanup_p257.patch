@@ -1,0 +1,128 @@
+From eaaee8a1a07e07159feaa93e5bf83f0dab706c52 Mon Sep 17 00:00:00 2001
+From: Jens Henrik Goebbert <j.goebbert@fz-juelich.de>
+Date: Thu, 6 Jul 2023 16:43:05 +0200
+Subject: [PATCH 1/3] load Utilities.js in index.html first
+
+In general Utilities.js should be loaded first as it provides functions for others.
+---
+ html5/index.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/html5/index.html b/html5/index.html
+index f58b13f7..ae0e9f1d 100644
+--- a/html5/index.html
++++ b/html5/index.html
+@@ -63,12 +63,12 @@
+     <script type="text/javascript" src="js/lib/jszip.js"></script>
+     <script type="text/javascript" src="js/lib/detect-zoom.js"></script>
+ 
++    <script type="text/javascript" src="js/Utilities.js"></script>
+     <script type="text/javascript" src="js/Keycodes.js"></script>
+     <script type="text/javascript" src="js/Protocol.js"></script>
+     <script type="text/javascript" src="js/Window.js"></script>
+     <script type="text/javascript" src="js/Notifications.js"></script>
+     <script type="text/javascript" src="js/Constants.js"></script>
+-    <script type="text/javascript" src="js/Utilities.js"></script>
+     <script type="text/javascript" src="js/MediaSourceUtil.js"></script>
+     <script type="text/javascript" src="js/RgbHelpers.js"></script>
+     <script type="text/javascript" src="js/VideoDecoder.js"></script>
+
+From 37009b28dbd259d1ddfa2544dbeeab96e70ae765 Mon Sep 17 00:00:00 2001
+From: Jens Henrik Goebbert <j.goebbert@fz-juelich.de>
+Date: Thu, 6 Jul 2023 16:46:36 +0200
+Subject: [PATCH 2/3] add function ord() to Utilities.js
+
+---
+ html5/js/Utilities.js | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/html5/js/Utilities.js b/html5/js/Utilities.js
+index acfa18ba..129ab7e7 100644
+--- a/html5/js/Utilities.js
++++ b/html5/js/Utilities.js
+@@ -55,6 +55,10 @@ const Utilities = {
+     return s.join("");
+   },
+ 
++  ord(c) {
++    return c.charCodeAt(0);
++  },
++
+   getSecureRandomString(length_) {
+     const crypto = window.crypto || window.mscrypto;
+     if (!crypto) {
+
+From 5996e3ef60a861627399e150514bf7b70054495c Mon Sep 17 00:00:00 2001
+From: Jens Henrik Goebbert <j.goebbert@fz-juelich.de>
+Date: Thu, 6 Jul 2023 16:49:56 +0200
+Subject: [PATCH 3/3] use functions from Utilities.js
+
+---
+ html5/js/Protocol.js | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
+
+diff --git a/html5/js/Protocol.js b/html5/js/Protocol.js
+index ed1ed0ad..67f5de4d 100644
+--- a/html5/js/Protocol.js
++++ b/html5/js/Protocol.js
+@@ -234,14 +234,6 @@ class XpraProtocol {
+     console.log.apply(console, arguments);
+   }
+ 
+-  StringToUint8(string_) {
+-    return Uint8Array.from([...string_].map((x) => x.charCodeAt(0)));
+-  }
+-
+-  ord(c) {
+-    return c.charCodeAt(0);
+-  }
+-
+   do_process_receive_queue() {
+     if (this.header.length < 8 && this.rQ.length > 0) {
+       //add from receive queue data to header until we get the 8 bytes we need:
+@@ -360,7 +352,7 @@ class XpraProtocol {
+ 
+     // decrypt if needed
+     if (proto_crypto) {
+-      this.cipher_in.update(forge.util.createBuffer(Uint8ToString(packet_data)));
++      this.cipher_in.update(forge.util.createBuffer(Utilities.Uint8ToString(packet_data)));
+       const decrypted = this.cipher_in.output.getBytes();
+       if (!decrypted || decrypted.length < packet_size - padding) {
+         this.error("error decrypting packet using", this.cipher_in);
+@@ -376,7 +368,7 @@ class XpraProtocol {
+         this.raw_packets = [];
+         return this.rQ.length > 0;
+       }
+-      packet_data = this.StringToUint8(
++      packet_data = Utilities.StringToUint8(
+         decrypted.slice(0, packet_size - padding)
+       );
+     }
+@@ -472,7 +464,7 @@ class XpraProtocol {
+           this.cipher_out_block_size -
+           (payload_size % this.cipher_out_block_size);
+         let input_data =
+-          typeof bdata === "string" ? bdata : Uint8ToString(bdata);
++          typeof bdata === "string" ? bdata : Utilities.Uint8ToString(bdata);
+         if (padding_size) {
+           const padding_char = String.fromCharCode(padding_size);
+           input_data += padding_char.repeat(padding_size);
+@@ -498,7 +490,7 @@ class XpraProtocol {
+       } else {
+         //copy string one character at a time..
+         for (let index = 0; index < actual_size; index++) {
+-          packet_data[8 + index] = this.ord(bdata[index]);
++          packet_data[8 + index] = Utilities.ord(bdata[index]);
+         }
+       }
+       // put into buffer before send
+@@ -624,7 +616,8 @@ if (
+     "lib/lz4.js",
+     "lib/brotli_decode.js",
+     "lib/forge.js",
+-    "lib/rencode.js"
++    "lib/rencode.js",
++    "Utilities.js"
+   );
+   // make protocol instance
+   const protocol = new XpraProtocol();

@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'pulser'
+version = '0.12.0'
+
+homepage = 'https://github.com/pasqal-io/Pulser'
+description = """Pulser is a framework for composing, simulating and executing pulse
+              sequences for neutral-atom quantum devices."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('Pillow-SIMD', '9.2.0'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),  # numpy
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('contourpy', '1.0.7', {
+        'checksums': ['d8165a088d31798b59e91117d1f5fc3df8168d8b48c4acc10fc0df0d0bdbcc5e'],
+    }),
+    ('types-cryptography', '3.3.23.2', {
+        'checksums': ['09cc53f273dd4d8c29fa7ad11fefd9b734126d467960162397bc5e3e604dea75'],
+        'modulename': 'cryptography',
+    }),
+    ('requests-mock', '1.9.3', {
+        'checksums': ['8d72abe54546c1fc9696fa1516672f1031d72a55a1d66c85184f972a24ba0eba'],
+    }),
+    ('qutip', '4.7.1', {
+        'checksums': ['9a87178e68b145c2145b526caa943ccc8400a111325ced45bd17f9b893663af2'],
+    }),
+    ('PyJWT', '2.6.0', {
+        'modulename': 'jwt',
+        'checksums': ['69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd'],
+    }),
+    ('auth0_python', '3.24.1', {
+        'modulename': 'auth0',
+        'sources': ['%(name)s-%(version)s-py2.py3-none-any.whl'],
+        'checksums': ['87dbf603c89fcebfd35f5ba29bc8a820af72a7d5a772f53752ae04d30f191712'],
+    }),
+    ('pasqal_cloud', '0.2.5', {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['bac961acb67443c8e6c24321e68129188419e8980a10c0f1497a47525c0b0fde'],
+    }),
+    ('pulser_pasqal', version, {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['4949f3ceef9a63bd05592733595faa437b8ef89a206e224414471e99f739561b'],
+    }),
+    ('pulser_core', version, {
+        'modulename': 'pulser',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['5c9715187edfdd8a29172c9efa69d6e89e0994001a9d783159f315422311a192'],
+    }),
+    ('pulser_simulation', version, {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['1f56f4e345b8a37f8014637ed789b959cbb4aba41ab735effc31012e02462583'],
+    }),
+    (name, version, {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['dfd9870880ccd915b9a6ae4abaac17ecef757dc4b090a316b1068f94ef3d45fc'],
+    }),
+]
+
+
+moduleclass = 'quantum'

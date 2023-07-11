@@ -53,12 +53,13 @@ dependencies = [
     ('netCDF-C++4', '4.3.1'),
     ('netCDF-Fortran', '4.6.0'),
     ('nlohmann_json', '3.10.5'),  # for ParFlow plugin
-    ('libcdi', '2.1.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),  # for CDI plugin
+    ('libcdi', '2.1.1'),  # for CDI plugin
     ('mpi4py', '3.1.4'),
     ('double-conversion', '3.2.0'),
     ('Eigen', '3.4.0'),
     ('Qt5', '5.15.5'),
-    ('SciPy-Stack', '2022a', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('OpenGL', '2022a'),
     ('Catalyst', '2.0.0-rc3'),
     ('ParaViewData', '5.11.0'),

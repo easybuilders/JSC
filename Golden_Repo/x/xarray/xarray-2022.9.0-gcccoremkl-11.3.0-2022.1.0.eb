@@ -17,6 +17,11 @@ checksums = ['a2a5b48ec0a3890b71ef48853fe9d5107d2f75452722f319cb8ed6ff8e72e883']
 dependencies = [
     ('Python', '3.10.4'),
     ('SciPy-bundle', '2022.05'),  # required for numpy, pandas
+    ('netcdf4-python', '1.6.1', '-serial'),
+    ('h5py', '3.7.0', '-serial'),
+    ('dask', '2022.12.0'),
+    ('matplotlib', '3.5.2'),
+    ('Seaborn', '0.12.1'),
 ]
 
 download_dep_fail = True

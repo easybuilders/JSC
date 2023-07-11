@@ -51,7 +51,7 @@ COMP_RELEVANT_VERSIONS = {
 # Allow to reuse the stacks from other MPIs
 SWAPPABLE_MPIS = {
     'BullMPI': ('OpenMPI', None),
-    'impi': ('psmpi', '5.6'),
+    'impi': ('psmpi', '5'),
 }
 
 # MPI relevant version numbers

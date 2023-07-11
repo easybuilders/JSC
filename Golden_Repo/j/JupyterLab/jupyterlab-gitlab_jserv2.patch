@@ -1,0 +1,12 @@
+diff -Naur jupyterlab_gitlab-3.0.0.orig/setup.py jupyterlab_gitlab-3.0.0/setup.py
+--- jupyterlab_gitlab-3.0.0.orig/setup.py       2021-08-23 10:22:54.000000000 +0200
++++ jupyterlab_gitlab-3.0.0/setup.py    2023-06-01 22:44:47.114685590 +0200
+@@ -55,7 +55,7 @@
+     long_description=long_description,
+     long_description_content_type="text/markdown",
+     packages=setuptools.find_packages(),
+-    install_requires=["jupyter_server>=1.6,<2"],
++    install_requires=["jupyter_server>=1.6,<3"],
+     zip_safe=False,
+     include_package_data=True,
+     python_requires=">=3.6",

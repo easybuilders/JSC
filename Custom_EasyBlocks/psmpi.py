@@ -61,6 +61,7 @@ class EB_psmpi(EB_MPICH):
             'threaded': [False, "Enable multithreaded build (which is slower)", CUSTOM],
             'pscom_allin_path': [None, "Enable pscom integration by giving its source path", CUSTOM],
             'cuda': [False, "Enable CUDA awareness", CUSTOM],
+            'msa': [False, "Enable MSA awareness", CUSTOM],
         })
         return extra_vars
 
@@ -88,6 +89,10 @@ class EB_psmpi(EB_MPICH):
         if self.cfg['cuda']:
             self.log.info("Enabling CUDA-Awareness...")
             self.cfg.update('configopts', ' --with-cuda')
+
+        if self.cfg['msa']:
+            self.log.info("Enabling MSA-Awareness...")
+            self.cfg.update('configopts', ' --with-msa-awareness')
 
         # Set confset
         comp_fam = self.toolchain.comp_family()

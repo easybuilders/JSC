@@ -1,0 +1,12 @@
+diff -Naur jupyter_slurm_provisioner_extension.orig/jupyter_slurm_provisioner_extension-0.3.0/setup.py jupyter_slurm_provisioner_extension/jupyter_slurm_provisioner_extension-0.3.0/setup.py
+--- jupyter_slurm_provisioner_extension.orig/jupyter_slurm_provisioner_extension-0.3.0/setup.py 2022-12-02 16:54:56.000000000 +0100
++++ jupyter_slurm_provisioner_extension/jupyter_slurm_provisioner_extension-0.3.0/setup.py      2023-06-05 21:43:30.684253118 +0200
+@@ -57,7 +57,7 @@
+     long_description_content_type="text/markdown",
+     packages=setuptools.find_packages(),
+     install_requires=[
+-        "jupyter_server>=1.6,<2",
++        "jupyter_server>=1.6,<3",
+         "jupyter-slurm-provisioner>=0.1.8"
+     ],
+     extras_require={

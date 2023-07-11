@@ -1,0 +1,149 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'myqlm'
+version = '1.7.3'
+
+homepage = 'https://atos.net/en/lp/myqlm'
+description = """myQLM is a quantum software stack for writing, simulating, optimizing, and executing quantum programs. 
+    myQLM also interfaces with the QLM, for Quantum Learning Machine, the quantum programming appliance of Atos."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),  # numpy
+    ('dill', '0.3.6'),
+    ('networkx', '2.8.4', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('tqdm', '4.64.0'),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('IPython', '8.14.0'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('pyDOE', '0.3.8', {
+        'modulename': 'pyDOE',
+        'sources': ['%(name)s-%(version)s.zip'],
+        'checksums': ['cbd6f14ae26d3c9f736013205f53ea1191add4567033c3ee77b7dd356566c4b6'],
+    }),
+    ('Wand', '0.6.11', {
+        'sources': ['%(name)s-%(version)s-py2.py3-none-any.whl'],
+        'checksums': ['1b77e25439ace57f665d1ccc6cff2766fad0834005b89ae3e7aaf3ba12b124b0'],
+    }),
+    ('svgwrite', '1.4.3', {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d'],
+    }),
+    ('thrift', '0.16.0', {
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': ['2b5b6488fcded21f9d312aa23c9ff6a0195d0f6ae26ddbd5ad9e3e25dfc14408'],
+    }),
+    ('anytree', '2.8.0', {
+        'sources': ['%(name)s-%(version)s-py2.py3-none-any.whl'],
+        'checksums': ['14c55ac77492b11532395049a03b773d14c7e30b22aa012e337b1e983de31521'],
+    }),
+    ('qat_devices', '0.2.0', {
+        'modulename': 'qat.devices',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['0d35fa689c1866a91f141a25bfb5b43f0c0a030686de8b37ff672f3b04389400'],
+    }),
+    ('qat_comm', '1.4.2', {
+        'modulename': 'qat.comm',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['e063b07d4f9620f97805243a1fce898a4ef4ae86da9c9ede860d98a6339bed00'],
+    }),
+    ('myqlm_simulators', '1.7.1', {
+        'modulename': 'qat.pylinalg',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['2df96e14c8ee10fef4dd23c00975f087e5b947359b48952272301b24b0d11a7b'],
+    }),
+    ('qat_core', '1.6.4', {
+        'modulename': 'qat.core',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['8b275a1178e2415e75c825ac29024b1c0c07b9f95523be415eb2155b21032030'],
+    }),
+    ('myqlm_contrib', '1.7.1', {
+        'modulename': 'qat.sabre',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['7768d239bb187f8d54a64a622b237a3d032de80e147575bdeaf5dd1089b4dbf9'],
+    }),
+    ('myqlm_fermion', '1.0.0', {
+        'modulename': 'qat.fermion',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['b7ca8cd1698dc3c83892496f293137d0b437ebaa10143bebc4008611d3b5323a'],
+    }),
+    ('myqlm_clinalg', '0.0.5', {
+        'modulename': 'qat.clinalg',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['28ff7d0c6b3ada76e2f5e0e0a54f67c2451e410593a07ea8ee5c5d0395d70e8e'],
+    }),
+    ('qat_variational', '1.4.0', {
+        'modulename': 'qat.plugins',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['3737f70ec10999bc3255ecb21a4bde318b1fa316b770271267e68f333fc2ce8e'],
+    }),
+    ('qat_lang', '2.2.1', {
+        'modulename': 'qat.lang',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux1_x86_64.whl'],
+        'checksums': ['5a495e9b1d453907600b0776ab6d4e72531c2a3a57d16ecfc2e360fbef17b5e4'],
+    }),
+    (name, version, {
+        'modulename': 'qat',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['7402230a97222ab9b989b44b3c494e281db784e60db46994452b7088c9556354'],
+    }),
+    ('myqlm_interop', '1.7.1', {
+        'modulename': 'qat.interop',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['fd05af8e62e0bcf40d82c68a5c8da2c56c5112cbb9a358e9ca26f6c43eb8147f'],
+    }),
+]
+
+# TODO: qat.magics.install creates file in $HOME
+# "/p/home/jusers/gonzalezcalaza1/jureca/.ipython/profile_default/startup/myqlm.py"
+# install in PyQuantum instead?
+# postinstallcmds = [
+#     #  ensure we install in the correct directory !!!
+#     'cd %(builddir)s',
+#     'python3 -m venv %(installdir)s --system-site-packages',
+
+#     'echo "#!/bin/bash" > %(builddir)s/env.sh',
+#     'echo "source %(installdir)s/bin/activate" >> %(builddir)s/env.sh',
+#     (
+#         'echo "export PYTHONPATH='
+#         '%(installdir)s/lib/python%(pyshortver)s/site-packages:'
+#         '${EBROOTPYTHON}/lib/python%(pyshortver)s/site-packages:'
+#         '${PYTHONPATH}" >> %(builddir)s/env.sh'
+#     ),
+
+#     'echo "export PATH=%(installdir)s/bin:${PATH}" >> %(builddir)s/env.sh',
+#     'cat %(builddir)s/env.sh',
+#     # install
+#     'source %(builddir)s/env.sh && python -m qat.magics.install',
+
+#     # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+#     'rm -f %(installdir)s/pyvenv.cfg',
+#     'rm -f %(installdir)s/bin/python',
+#     'rm -f %(installdir)s/bin/python3',
+#     'rm -f %(installdir)s/bin/activate',
+#     'rm -f %(installdir)s/bin/activate*',
+#     'rm -f %(installdir)s/bin/easy_install*',
+#     'rm -f %(installdir)s/bin/pip*',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/_distutils_hack',
+#     'rm -f %(installdir)s/lib/python%(pyshortver)s/site-packages/distutils-precedence.pth',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip-*',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pkg_resources',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
+# ]
+
+moduleclass = 'quantum'

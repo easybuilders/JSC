@@ -185,6 +185,10 @@ elseif systemname == "jurecadc" then
 elseif systemname == "jureca_arm" then
     optarch = ""
     cuda_compute = "8.0"
+-- JURECA-SPR
+elseif systemname == "jureca_spr" then
+    optarch = ""
+    cuda_compute = "9.0"
 -- JUSUF
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"

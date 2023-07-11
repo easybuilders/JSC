@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'netCDF'
+version = '4.9.0'
+
+homepage = 'http://www.unidata.ucar.edu/software/netcdf/'
+description = """NetCDF (network Common Data Form) is a set of software libraries 
+ and machine-independent data formats that support the creation, access, and sharing of array-oriented 
+ scientific data.
+"""
+
+toolchain = {'name': 'nvompic', 'version': '2022a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = ['https://github.com/Unidata/netcdf-c/archive/']
+sources = ['v%s.tar.gz' % (version)]
+patches = [
+    'netCDF-%(version)s_fix-lib-name.patch',
+    'netCDF-%(version)s_fix-linking-errors.patch',
+    'netCDF-%(version)s_skip-nasa-test.patch',
+]
+checksums = [
+    '9f4cb864f3ab54adb75409984c6202323d2fc66c003e5308f3cdf224ed41c0a6',  # v4.9.0.tar.gz
+    # netCDF-4.9.0_fix-lib-name.patch
+    'ed45ae6c49cf8dcddaadef4c5cf403049bf3f761187413d7b03754d319345d6a',
+    # netCDF-4.9.0_fix-linking-errors.patch
+    '2b9579c149579d137eb16ae5d790787774033dcec49c0d4993d9859f224e7b15',
+    # netCDF-4.9.0_skip-nasa-test.patch
+    '19d99e03c048b037dc01f03f5b8ddc910ebaceb076d0f050540d348f26dfcd2a',
+]
+
+builddependencies = [
+    ('Autotools', '20220317'),
+    ('CMake', '3.23.1'),
+    ('Doxygen', '1.9.4'),
+]
+
+dependencies = [
+    ('HDF5', '1.12.2'),
+    ('cURL', '7.83.0'),
+    ('Szip', '2.1.1'),
+    ('zstd', '1.5.2'),
+    ('bzip2', '1.0.8'),
+    ('libxml2', '2.9.13'),
+    ('PnetCDF', '1.12.3'),
+]
+
+# disable tests that fail only with NVHPC - only needed when building with tests and without PnetCDF
+# comment out tests for put_varX_schar
+# preconfigopts = ("sed -i -e 's|NC_TEST(nc_put_var_schar);|/*NC_TEST(nc_put_var_schar);*/|g'"
+#                  " -e 's|NC_TEST(nc_put_var1_schar);|/*NC_TEST(nc_put_var1_schar);*/|g'"
+#                  " -e 's|NC_TEST(nc_put_vara_schar);|/*NC_TEST(nc_put_vara_schar);*/|g'"
+#                  " -e 's|NC_TEST(nc_put_vars_schar);|/*NC_TEST(nc_put_vars_schar);*/|g'"
+#                  " -e 's|NC_TEST(nc_put_varm_schar);|/*NC_TEST(nc_put_varm_schar);*/|g'"
+#                  " -e 's|NC_TEST(nc_put_att_schar);|/*NC_TEST(nc_put_att_schar);*/|g'"
+#                  " %(builddir)s/%(namelower)s-c-%(version)s/nc_test/nc_test.c &&")
+
+# comment out chunking tests
+# preconfigopts += ("sed -i -e 's|diff -b \${srcdir}/ref_rem.dmp tmp_rem_\${zext}.txt|echo \"skipped by EasyBuild\"|g'"
+#                  " -e 's|diff -b \${srcdir}/ref_ndims.dmp tmp_ndims_\${zext}.dmp|echo \"skipped by EasyBuild\"|g'"
+#                  " -e 's|diff -b ${srcdir}/ref_misc1.dmp tmp_misc1_${zext}.dmp|echo \"skipped by EasyBuild\"|g'"
+#                  " %(builddir)s/%(namelower)s-c-%(version)s/nczarr_test/run_chunkcases.sh &&")
+
+# make sure both static and shared libs are built
+# enable PnetCDF
+# and disable "remote" tests that access a unreliable external test server over internet
+configopts = [
+    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DMPIEXEC='/usr/bin/srun'",
+    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON  -DMPIEXEC='/usr/bin/srun'",
+]
+
+# some tests try to start 16 MPI ranks, so we need to allow oversubscription to avoid failing tests
+# pretestopts = "OMPI_MCA_rmaps_base_oversubscribe=1 "
+
+# switch off tests to build with PnetCDF, as cmake configuration for pnetcdf-based tests contains bugs
+# will be fixed in 4.9.1
+# https://github.com/Unidata/netcdf-c/pull/2437
+# runtest = 'test'
+
+moduleclass = 'data'

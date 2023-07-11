@@ -1,0 +1,143 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'DWave'
+version = '6.3.0'
+
+homepage = 'https://docs.ocean.dwavesys.com'
+description = """Ocean software is a suite of tools D-Wave Systems for solving hard problems with quantum computers."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.3.0-2022.1.0'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('networkx', '2.8.4'),
+    ('Flask', '2.2.2'),
+]
+
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+exts_list = [
+    ('wrapt', '1.14.1', {
+        'checksums': ['380a85cf89e0e69b7cfbe2ea9f765f004ff419f34194018a6827ac0e3edfed4d'],
+    }),
+    ('PySocks', '1.7.1', {
+        'modulename': 'socks',
+        'checksums': ['3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0'],
+    }),
+    ('blinker', '1.6.2', {
+        'checksums': ['4afd3de66ef3a9f8067559fb7a1cbe555c17dcbe15971b05d1b625c3e7abe213'],
+    }),
+    ('Deprecated', '1.2.13', {
+        'checksums': ['43ac5335da90c31c24ba028af536a91d41d53f9e6901ddb021bcc572ce44e38d'],
+    }),
+    ('rectangle_packer', '2.0.1', {
+        'modulename': 'rpack',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86'
+                    '_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['06c6f1d55f12c38e11659125d86e23430e4296ccff3584b3084e4d89197f4b62'],
+    }),
+    ('fasteners', '0.18', {
+        'checksums': ['cb7c13ef91e0c7e4fe4af38ecaf6b904ec3f5ce0dda06d34924b6b74b869d953'],
+    }),
+    ('plucky', '0.4.3', {
+        'checksums': ['5bc75d43ae6b40f1b7ba42000b37e4934fa6bd2d6a6cd4e47461f803a404c194'],
+    }),
+    ('homebase', '1.0.1', {
+        'checksums': ['9ee008df4298b420852d815e6df488822229c4bd8d571bcd0a454e04232c635e'],
+    }),
+    ('diskcache', '5.6.1', {
+        'checksums': ['e4c978532feff5814c4cc00fe1e11e40501985946643d73220d41ee7737c72c3'],
+    }),
+    ('penaltymodel', '1.0.2', {
+        'checksums': ['551e1a04ebf4ae18613cac52e37b6fa8c1959972756705354cdccee66a3ef461'],
+    }),
+    ('dwave_samplers', '1.0.0', {
+        'modulename': 'dwave.samplers',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['37955b2fda93c0fccbac63491a3c5ae0b7dbbd27a834e41698d5391db187afd1'],
+    }),
+    ('dwave_networkx', '0.8.13', {
+        'modulename': 'dwave_networkx',
+        'checksums': ['01247c2ce63f9e6097497333968757ce097d2809b81fd9f5686652a56674e96c'],
+    }),
+    ('dwavebinarycsp', '0.2.0', {
+        'checksums': ['7a5cf530e4a7c1288055c9b9fd0d3032175b06d19da7642fe5724dc85050ea1e'],
+    }),
+    ('pyqubo', '1.4.0', {
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['8a3e69633f060c2a8c7cce949e5476e4a295820c842f0be79bd716fb013521e8'],
+    }),
+    ('minorminer', '0.2.11', {
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['e5a39b7e01281e2443f0a3d40a783ac200ebd0a04f5fdd647e35650969ce4d2a'],
+    }),
+    ('dwave_preprocessing', '0.5.4', {
+        'modulename': 'dwave.preprocessing',
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['0a7ce755267decdf725daddd233e6f80a69e31d2b6c12a22006b5ba47e338272'],
+    }),
+    ('dwave-tabu', '0.5.0', {
+        'modulename': 'tabu',
+        'checksums': ['dcc73883ec491dea2656c8239dc66e9c9871e7f75852be57ea4cec6bccd48d54'],
+    }),
+    ('dwave-system', '1.18.0', {
+        'modulename': 'dwave.system',
+        'checksums': ['c35e0d4bab57a8e725cdc929a8de869b773113021b7431904875d391118e3fb7'],
+    }),
+    ('dwave-hybrid', '0.6.10', {
+        'modulename': 'hybrid',
+        'checksums': ['35ab1a892444754fd61c8ef7ebb965fda30cc5f04b8f415ff5e07581bb155afc'],
+    }),
+    ('dwave-inspector', '0.4.1', {
+        'modulename': 'dwave.inspector',
+        'checksums': ['fead5b8600dc724691b1a30bb47a6520ffe8c92a458239bec2de30c0cf464de3'],
+    }),
+    ('pydantic', '1.10.4', {  # also on PyQuil, pulled here to avoid bokeh/distributed/dask vs ipython tornado issue
+        'checksums': ['b9a3859f24eb4e097502a3be1fb4b2abb79b6103dd9e2e0edb70613a4459a648'],
+    }),
+    ('dwave-cloud-client', '0.10.4', {
+        'modulename': 'dwave.cloud',
+        'checksums': ['3288f395eaa34bb0873ad08cbe1653acba960791487ae58d5f7ef3830e7f131b'],
+    }),
+    ('dwave-neal', '0.6.0', {
+        'modulename': 'neal',
+        'checksums': ['8ce51fee3339195df1ab69920fdb5afc496b5fd945e487fad3547c983d90c564'],
+    }),
+    ('dimod', '0.12.3', {
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['a269638fc526480274728fd299aed9d7e0c5fcbe18483d23195503dcce436f4a'],
+    }),
+    ('dwave-greedy', '0.3.0', {
+        'modulename': 'greedy',
+        'checksums': ['806c02d6c3f260ef5bf063d4932f43dfb52a0ea00f9db0b0d34d9b15691a011a'],
+    }),
+    ('dwave-ocean-sdk', version, {
+        'modulename': 'dwave.system',
+        'checksums': ['0a5a069a576f4a8c8e34223c3d4353e4a4dfbe4d3061264e6e9c35c6b0d423af'],
+    }),
+    ('dwave-drivers', '0.4.4', {
+        'modulename': 'dwave.drivers',
+        'pip_no_index': True,
+        'source_tmpl': 'dwave_drivers-%(version)s-py3-none-any.whl',
+        'source_urls': ['https://pypi.dwavesys.com/simple/%(name)s'],
+        'checksums': ['8e5b37e97be7610c00005e5f8a3c10f27f7cec4bd2b88c80f9c6fef8172a3c3f'],
+    }),
+    ('dwave-inspectorapp', '0.3.1', {
+        'modulename': 'dwave.inspector',
+        'pip_no_index': True,
+        'source_tmpl': 'dwave_inspectorapp-%(version)s-py3-none-any.whl',
+        'source_urls': ['https://pypi.dwavesys.com/simple/%(name)s'],
+        'checksums': ['8dd10718c27373912fefe54d8c9eb518b89caed7ac554c7c4d757e8afe864939'],
+    }),
+]
+
+moduleclass = 'quantum'

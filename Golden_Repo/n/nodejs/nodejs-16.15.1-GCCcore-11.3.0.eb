@@ -23,8 +23,8 @@ builddependencies = [
 ]
 
 configopts = [
-    '--with-intl=none',           # Fully disable ICU to avoid issues with the embedded icu-small library
-    '--shared --with-intl=none',  # Build libnode.so in a second run
+    '--with-intl=full-icu',  # Full ICU is default and required for RegExp Unicode Property Escapes
+    '--shared ',             # Build libnode.so in a second run
 ]
 
 # Link libv8 libs to libnode
@@ -33,6 +33,7 @@ postinstallcmds = [
     "cd %%(installdir)s/lib; ln -s libnode.%s.%s libv8.%s" % (SHLIB_EXT, local_libversion, SHLIB_EXT),
     "cd %%(installdir)s/lib; ln -s libnode.%s.%s libv8_libbase.%s" % (SHLIB_EXT, local_libversion, SHLIB_EXT),
     "cd %%(installdir)s/lib; ln -s libnode.%s.%s libv8_libplatform.%s" % (SHLIB_EXT, local_libversion, SHLIB_EXT),
+    "export PATH=%(installdir)s/bin/:$PATH && %(installdir)s/bin/corepack enable",
 ]
 
 sanity_check_paths = {

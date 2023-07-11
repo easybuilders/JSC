@@ -1,0 +1,199 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'IPython'
+version = '8.14.0'
+
+homepage = 'https://ipython.org/index.html'
+description = """IPython provides a rich architecture for interactive computing with:
+ Powerful interactive shells (terminal and Qt-based).
+ A browser-based notebook with support for code, text, mathematical expressions, inline plots and other rich media.
+ Support for interactive data visualization and use of GUI toolkits.
+ Flexible, embeddable interpreters to load into your own projects.
+ Easy to use, high performance tools for parallel computing."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+builddependencies = [('binutils', '2.38')]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('ZeroMQ', '4.3.4'),
+    ('lxml', '4.9.1'),
+    ('BeautifulSoup', '4.10.0'),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+]
+
+use_pip = True
+
+exts_list = [
+    ('hatchling', '1.13.0', {
+        'checksums': ['f8d275a2cc720735286b7c2e2bc35da05761e6d3695c2fa416550395f10c53c7'],
+    }),
+    ('hatch_nodejs_version', '0.3.1', {
+        'checksums': ['0e55fd713d92c5c1ccfee778efecaa780fd8bcd276d4ca7aff9f6791f6f76d9c'],
+    }),
+    ('ipython_genutils', '0.2.0', {
+        'checksums': ['eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8'],
+    }),
+    ('ipython', version, {
+        'modulename': 'IPython',
+        'checksums': ['1d197b907b6ba441b692c48cf2a3a2de280dc0ac91a3405b39349a50272ca0a1'],
+    }),
+    ('pickleshare', '0.7.5', {
+        'checksums': ['87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca'],
+    }),
+    ('prompt_toolkit', '3.0.38', {
+        'checksums': ['23ac5d50538a9a38c8bde05fecb47d0b403ecd0662857a86f886f798563d5b9b'],
+    }),
+    ('traitlets', '5.9.0', {
+        'checksums': ['f6cde21a9c68cf756af02035f72d5a723bf607e862e7be33ece505abf4a3bad9'],
+    }),
+    ('parso', '0.8.3', {
+        'checksums': ['8c07be290bb59f03588915921e29e8a50002acaf2cdc5fa0e0114f91709fafa0'],
+    }),
+    ('jedi', '0.18.2', {
+        'checksums': ['bae794c30d07f6d910d32a7048af09b5a39ed740918da923c6b780790ebac612'],
+    }),
+    ('testpath', '0.6.0', {
+        'checksums': ['2f1b97e6442c02681ebe01bd84f531028a7caea1af3825000f52345c30285e0f'],
+    }),
+    ('Send2Trash', '1.8.2', {
+        'checksums': ['c132d59fa44b9ca2b1699af5c86f57ce9f4c5eb56629d5d55fbb7a35f84e2312'],
+    }),
+    ('bleach', '5.0.1', {
+        'checksums': ['0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c'],
+    }),
+    ('pandocfilters', '1.5.0', {
+        'checksums': ['0b679503337d233b4339a817bfc8c50064e2eff681314376a47cb582305a7a38'],
+    }),
+    ('pyzmq', '25.0.1', {
+        'modulename': 'zmq',
+        'checksums': ['44a24f7ce44e70d20e2a4c9ba5af70b4611df7a4b920eed2c8e0bdd5a5af225f'],
+    }),
+    ('entrypoints', '0.4', {
+        'checksums': ['b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4'],
+    }),
+    ('jupyter_core', '5.3.0', {
+        'checksums': ['6db75be0c83edbf1b7c9f91ec266a9a24ef945da630f3120e1a0046dc13713fc'],
+    }),
+    ('fastjsonschema', '2.17.1', {
+        'checksums': ['f4eeb8a77cef54861dbf7424ac8ce71306f12cbb086c45131bcba2c6a4f726e3'],
+    }),
+    ('nbformat', '5.9.0', {
+        'checksums': ['e98ebb6120c3efbafdee2a40af2a140cadee90bb06dd69a2a63d9551fcc7f976'],
+    }),
+    ('mistune', '2.0.5', {
+        'checksums': ['0246113cb2492db875c6be56974a7c893333bf26cd92891c85f63151cee09d34'],
+    }),
+    ('defusedxml', '0.7.1', {
+        'checksums': ['1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69'],
+    }),
+    ('async_generator', '1.10', {
+        'checksums': ['6ebb3d106c12920aaae42ccb6f787ef5eefdcdd166ea3d628fa8476abe712144'],
+    }),
+    ('nest_asyncio', '1.5.6', {
+        'checksums': ['d267cc1ff794403f7df692964d1d2a3fa9418ffea2a3f6859a439ff482fef290'],
+    }),
+    ('nbclient', '0.7.4', {
+        'checksums': ['d447f0e5a4cfe79d462459aec1b3dc5c2e9152597262be8ee27f7d4c02566a0d'],
+    }),
+    ('tinycss2', '1.2.1', {
+        'checksums': ['8cff3a8f066c2ec677c06dbc7b45619804a6938478d9d73c284b29d14ecb0627'],
+    }),
+    ('nbconvert', '7.4.0', {
+        'checksums': ['51b6c77b507b177b73f6729dba15676e42c4e92bcb00edc8cc982ee72e7d89d7'],
+    }),
+    ('tornado', '6.2', {
+        'patches': ['tornado-timeouts.patch'],
+        'checksums': [
+            {'tornado-6.2.tar.gz': '9b630419bde84ec666bfd7ea0a4cb2a8a651c2d5cccdbdd1972a0c859dfc3c13'},
+            {'tornado-timeouts.patch': 'fe0db60604ccdcb5fc111023d1d7bffa0e315465fbe15f2ff512068c649e56f8'},
+        ],
+    }),
+    ('terminado', '0.17.1', {
+        'checksums': ['6ccbbcd3a4f8a25a5ec04991f39a0b8db52dfcd487ea0e578d977e6752380333'],
+    }),
+    ('jupyter_client', '8.2.0', {
+        'checksums': ['9fe233834edd0e6c0aa5f05ca2ab4bdea1842bfd2d8a932878212fc5301ddaf0'],
+    }),
+    ('backcall', '0.2.0', {
+        'checksums': ['5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e'],
+    }),
+    ('executing', '1.2.0', {
+        'checksums': ['19da64c18d2d851112f09c287f8d3dbbdf725ab0e569077efb6cdcbd3497c107'],
+    }),
+    ('asttokens', '2.2.1', {
+        'checksums': ['4622110b2a6f30b77e1473affaa97e711bc2f07d3f10848420ff1898edbe94f3'],
+    }),
+    ('pure_eval', '0.2.2', {
+        'checksums': ['2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3'],
+    }),
+    ('stack_data', '0.6.2', {
+        'checksums': ['32d2dd0376772d01b6cb9fc996f3c8b57a357089dec328ed4b6553d037eaf815'],
+    }),
+    ('comm', '0.1.2', {
+        'checksums': ['3e2f5826578e683999b93716285b3b1f344f157bf75fa9ce0a797564e742f062'],
+    }),
+    ('ipykernel', '6.23.1', {
+        'checksums': ['1aba0ae8453e15e9bc6b24e497ef6840114afcdb832ae597f32137fa19d42a6f'],
+    }),
+    ('prometheus_client', '0.17.0', {
+        'checksums': ['9c3b26f1535945e85b8934fb374678d263137b78ef85f305b1156c7c881cd11b'],
+    }),
+    ('deprecation', '2.1.0', {
+        'checksums': ['72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff'],
+    }),
+    ('jupyter_packaging', '0.12.3', {
+        'checksums': ['9d9b2b63b97ffd67a8bc5391c32a421bc415b264a32c99e4d8d8dd31daae9cf4'],
+    }),
+    ('jupyterlab_pygments', '0.2.2', {
+        'checksums': ['7405d7fde60819d905a9fa8ce89e4cd830e318cdad22a0030f7a901da705585d'],
+    }),
+    ('jupyterlab_widgets', '1.1.4', {
+        'checksums': ['ea6e7612725e94d0966d64c6344910686f4bf8610533cd40daeba6980659b14d'],
+    }),
+    ('ipywidgets', '7.7.3', {  # >7.7.3 fails for ipyvue (issue 72)
+        'checksums': ['b41ca84d2742e39f2a730a13ea0dd619fca62e56cfac88c8f08989fb00a54fa8'],
+    }),
+    ('argon2-cffi-bindings', '21.2.0', {
+        'modulename': '_argon2_cffi_bindings',
+        'checksums': ['bb89ceffa6c791807d1305ceb77dbfacc5aa499891d2c55661c6459651fc39e3'],
+    }),
+    ('argon2-cffi', '21.3.0', {
+        'modulename': 'argon2',
+        'checksums': ['d384164d944190a7dd7ef22c6aa3ff197da12962bd04b17f64d4e93d934dba5b'],
+    }),
+    ('notebook', '6.4.12', {  # !!! > req. nbclassic
+        'checksums': ['6268c9ec9048cff7a45405c990c29ac9ca40b0bc3ec29263d218c5e01f2b4e86'],
+    }),
+    ('widgetsnbextension', '3.6.4', {
+        'checksums': ['ad1356c575d5add908afe886255deafb3f9b1589146a99279d1dcba5a05d16a5'],
+    }),
+    ('matplotlib-inline', '0.1.6', {
+        'checksums': ['f887e5f10ba98e8d2b150ddcf4702c1e5f8b3a20005eb0f74bfdbd360ee6f304'],
+    }),
+    ('debugpy', '1.6.7', {
+        'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl',
+        'checksums': ['53f7a456bc50706a0eaabecf2d3ce44c4d5010e46dfc65b6b81a518b42866267'],
+    }),
+]
+
+modextrapaths = {'JUPYTER_PATH': 'share/jupyter'}
+
+sanity_check_paths = {
+    'files': ['bin/ipython'],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages/IPython',
+        'share/jupyter'
+    ],
+}
+
+sanity_check_commands = [
+    "ipython -h",
+    "jupyter notebook --help",
+]
+
+sanity_pip_check = True
+
+moduleclass = 'tools'

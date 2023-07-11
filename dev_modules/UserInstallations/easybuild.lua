@@ -135,8 +135,10 @@ end
 -- ensure this is a symlink since there is very little room in HOME directories (and give advice if it isn't)
 if mode()=="load" and home_install_eb then
     if lfs.symlinkattributes(pathJoin(os.getenv("HOME"),"easybuild"), "mode") ~= "link" then
-        LmodError(yellow.."\nPlease configure ~/easybuild to be a symlink to a location with significant data quotas,\n"..
-                  "for example with: \n  mkdir -p $PROJECT/$USER/easybuild && ln -s $PROJECT/$USER/easybuild $HOME/easybuild"..normal)
+        LmodError(yellow.."\nPlease either configure ~/easybuild to be a symlink for personal installations or\n"..
+                  "set the environment variable USERINSTALLATIONS to a location with significant data quotas,\n"..
+                  "for example with: \n  mkdir -p $PROJECT/$USER/easybuild && ln -s $PROJECT/$USER/easybuild $HOME/easybuild\n"..
+                  "or alternatively: \n  export USERINSTALLATIONS=$PROJECT/$USER/easybuild"..normal)
 
     else
         LmodMessage(yellow.."\nPerforming a personal installation. To do a project wide installation, \n"..
@@ -244,6 +246,10 @@ elseif systemname == "jurecadc" then
 elseif systemname == "jureca_arm" then
     optarch = ""
     cuda_compute = "8.0"
+-- JURECA-SPR
+elseif systemname == "jureca_spr" then
+    optarch = ""
+    cuda_compute = "9.0"
 -- JUSUF
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"

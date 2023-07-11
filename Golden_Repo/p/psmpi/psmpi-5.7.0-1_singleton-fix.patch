@@ -1,0 +1,40 @@
+From 56ce43874fe1f97b2cc7cbd1a1a0b487432404f4 Mon Sep 17 00:00:00 2001
+From: Carsten Clauss <clauss@par-tec.com>
+Date: Thu, 22 Sep 2022 13:08:18 +0200
+Subject: [PATCH] init: Fix version check for the singleton case.
+
+In the singleton case, there is no need to check the version -- and
+moreover, there is no KVS available (and hence put/get functions for
+it must not be called) since no process manager connected.
+---
+ mpich2/src/mpid/psp/src/mpid_init.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/mpich2/src/mpid/psp/src/mpid_init.c b/mpich2/src/mpid/psp/src/mpid_init.c
+index 5654d5cb9..f31d301b4 100644
+--- a/mpich2/src/mpid/psp/src/mpid_init.c
++++ b/mpich2/src/mpid/psp/src/mpid_init.c
+@@ -245,6 +245,11 @@ static
+ int i_version_set(int pg_rank, const char *ver)
+ {
+ 	int mpi_errno = MPI_SUCCESS;
++
++	/* There is no need to check for version in the singleton case and we moreover must
++	   not use MPIR_pmi_kvs_put() in this case either since there is no process manager. */
++	if (MPIDI_Process.singleton_but_no_pm) goto fn_exit;
++
+ 	if (pg_rank == 0) {
+ 		mpi_errno = MPIR_pmi_kvs_put("i_version", ver);
+ 		MPIR_ERR_CHECK(mpi_errno);
+@@ -262,6 +267,11 @@ static
+ int i_version_check(int pg_rank, const char *ver)
+ {
+         int mpi_errno = MPI_SUCCESS;
++
++	/* There is no need to check for version in the singleton case and we moreover must
++	   not use MPIR_pmi_kvs_get() in this case either since there is no process manager. */
++	if (MPIDI_Process.singleton_but_no_pm) goto fn_exit;
++
+ 	if (pg_rank != 0) {
+ 		char val[100] = "unknown";
+ 		mpi_errno = MPIR_pmi_kvs_get(0, "i_version", val, sizeof(val));

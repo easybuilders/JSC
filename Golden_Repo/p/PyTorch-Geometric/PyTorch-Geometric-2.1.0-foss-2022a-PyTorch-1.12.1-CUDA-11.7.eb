@@ -1,6 +1,7 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 easyblock = 'PythonBundle'
 
+
 name = 'PyTorch-Geometric'
 version = '2.1.0'
 local_pytorchver = '1.12.0'
@@ -15,8 +16,8 @@ dependencies = [
     ('Python', '3.10.4'),
     ('CUDA', '11.7', '', SYSTEM),
     ('PyTorch', local_pytorchver, '-CUDA-%(cudaver)s'),
-    ('scikit-learn', '1.1.2'),
-    ('scikit-image', '0.19.3'),
+    ('scikit-learn', '1.1.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('scikit-image', '0.19.3', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('numba', '0.56.4', '-CUDA-%(cudaver)s'),
     ('h5py', '3.7.0'),
     ('tqdm', '4.64.0'),
@@ -26,6 +27,11 @@ dependencies = [
 ]
 
 use_pip = True
+
+# This easyblock NEED to be installed from a compute node with gpu,
+# see https://github.com/easybuilders/easybuild-easyconfigs/issues/18274
+# This here is needed, but not enough:
+preinstallopts = "FORCE_CUDA=1"
 
 exts_list = [
     ('googledrivedownloader', '0.4', {

@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'JupyterLabCollection'
+version = '2023.3.6'
+
+homepage = 'http://www.jupyter.org'
+description = """
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+dependencies = [
+    # ('JupyterKernel-XPython',        '0.12.3', '-' + version),
+    ('JupyterProxy-XpraHTML5',        '0.3.5',    '-' + version),
+    # ('JupyterProxy-RStudio',          '1.4',    '-' + version),
+    # ('JupyterProxy-Matlab',           '0.2.0',  '-' + version),
+    ('JupyterKernel-Bash',            '0.9.0',    '-' + version),
+    ('JupyterKernel-Cling',           '20230205', '-' + version),
+    # ('JupyterKernel-JavaScript',      '5.2.1',    '-' + version),
+    ('JupyterKernel-Julia',           '1.8.5',    '-' + version),
+    ('JupyterKernel-Octave',          '8.2.0',    '-' + version),
+    ('JupyterKernel-PyVisualization', '2023.5',   '-' + version),
+    ('JupyterKernel-PyQuantum',       '2023.5',   '-' + version),
+    ('JupyterKernel-PyDeepLearning',  '2023.5',   '-' + version),
+    ('JupyterKernel-PyEarthSystem',   '2023.5',   '-' + version),
+    ('JupyterKernel-R',               '4.2.1',    '-' + version),
+    ('JupyterKernel-Ruby',            '3.0.5',    '-' + version),
+    ('JupyterLab', version),
+]
+
+skipsteps = ['configure', 'build', 'install', 'sanity_check']
+
+moduleclass = 'tools'

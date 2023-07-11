@@ -165,6 +165,7 @@ exts_list = [
             '%(name)s-%(version)s_fix-eigen-gemm-on-PPC.patch',
             '%(name)s-%(version)s_fix-link-error.patch',
             '%(name)s-%(version)s_remove-libclang-and-io-gcs-deps.patch',
+            ('tensorboard-2.11.1-jupyter.fix', 'tools'),
         ],
         'source_tmpl': 'v%(version)s.tar.gz',
         'source_urls': ['https://github.com/tensorflow/tensorflow/archive/'],
@@ -219,8 +220,13 @@ exts_list = [
              '0a2f5c9c5be425f305bdc08f5a5ffce210e66f6ad4120d94ea0209246fc0449f'},
             {'TensorFlow-2.11.0_remove-libclang-and-io-gcs-deps.patch':
              '21d5723ab4e9a3be349cf3d57bb55cbe43e28785a8c8b19c52cee9dcc4dcf0de'},
+            {'tensorboard-2.11.1-jupyter.fix':
+             '8a1c3bf40880f8522bcfe6849604bb2084e8c7a4526c035f617795138a405ff7'},
         ],
     }),
 ]
+
+postinstallcmds = [
+    'patch -p0 -d %(installdir)s < %(builddir)s/TensorFlow/tensorflow-%(version)s/tools/tensorboard-2.11.1-jupyter.fix']
 
 moduleclass = 'lib'

@@ -41,6 +41,13 @@ dependencies = [
 # Needed to make sure that the sanity check of mdt works
 unwanted_env_vars = ['CUDA_VISIBLE_DEVICES']
 
+exts_default_options = {
+    'download_dep_fail': True,
+    'sanity_pip_check': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
 exts_list = [
     ('bz2file', '0.98', {
         'source_urls': ['https://pypi.python.org/packages/source/b/bz2file'],
@@ -136,9 +143,9 @@ exts_list = [
         'source_urls': ['https://pypi.python.org/packages/source/m/mne'],
         'checksums': ['d40743d6ca7ae3919a557166fd5fc4c00a9719e40c07346baad57964e15f02bb'],
     }),
-    ('tatsu.py', '1.0.4', {
-        'source_urls': ['https://pypi.python.org/packages/source/t/tatsu.py'],
-        'checksums': ['78d63563fa67e3e1d694385e56045809c348757ea575db97cb3e2912d2a4af38'],
+    ('tatsu', '5.8.3', {
+        'source_tmpl': 'TatSu-%(version)s.zip',
+        'checksums': ['571ecbcdf33b7828c05e5cd95a8e8ad06af111c2c83a6a245be4d8f7c43de7bb'],
     }),
     ('mot', '0.11.4', {
         'source_urls': ['https://pypi.python.org/packages/source/m/mot'],

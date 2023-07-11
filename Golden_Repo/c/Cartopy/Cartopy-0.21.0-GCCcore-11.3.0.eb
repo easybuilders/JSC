@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
+# Updated: Denis Kristak
+easyblock = 'PythonBundle'
+
+name = 'Cartopy'
+version = '0.21.0'
+
+homepage = 'https://scitools.org.uk/cartopy/docs/latest/'
+description = """Cartopy is a Python package designed to make drawing maps for data analysis and visualisation easy."""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('Fiona', '1.8.22'),
+    ('GDAL', '3.5.0'),
+    ('GEOS', '3.11.1'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('Shapely', '1.8.5.post1'),
+    ('lxml', '4.9.1'),
+    ('Pillow-SIMD', '9.2.0'),
+    ('PROJ', '9.0.0'),
+    ('PyYAML', '6.0'),
+    ('pyproj', '3.4.0'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+# owslib 0.26.0 requires pyproj < 3.3.0
+exts_list = [
+    ('OWSLib', '0.27.2', {
+        'checksums': ['e102aa2444dfe0c8439ab1e1776cc0fa47cea28c09b8a28212c893c6017c179b'],
+    }),
+    ('pyepsg', '0.4.0', {
+        'checksums': ['2d08fad1e7a8b47a90a4e43da485ba95705923425aefc4e2a3efa540dbd470d7'],
+    }),
+    ('pykdtree', '1.3.6', {
+        'checksums': ['780b693d0555b857d7aab31e35d4293bf4ebdb9dec7a45ba4bb23b4400f626dc'],
+    }),
+    ('pyshp', '2.3.1', {
+        'modulename': 'shapefile',
+        'checksums': ['4caec82fd8dd096feba8217858068bacb2a3b5950f43c048c6dc32a3489d5af1'],
+    }),
+    (name, version, {
+        'checksums': ['ce1d3a28a132e94c89ac33769a50f81f65634ab2bd40556317e15bd6cad1ce42'],
+    }),
+]
+
+moduleclass = 'geo'

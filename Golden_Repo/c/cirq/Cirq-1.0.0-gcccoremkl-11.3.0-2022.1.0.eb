@@ -1,0 +1,134 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Cirq'
+version = '1.0.0'
+
+homepage = 'https://github.com/quantumlib/cirq'
+description = """A python framework for creating, editing,
+and invoking Noisy Intermediate Scale Quantum (NISQ) circuits."""
+
+toolchain = {'name': 'gcccoremkl', 'version': '11.3.0-2022.1.0'}
+toolchainopts = {'pic': True}
+
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05'),
+    ('sympy', '1.11.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('protobuf-python', '3.19.4'),
+    ('networkx', '2.8.4'),
+    ('tqdm', '4.64.0'),
+    ('PyQuil', '3.3.3'),
+]
+
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check': True,
+}
+
+
+exts_list = [
+    ('pyasn1-modules', '0.2.8', {
+        'checksums': ['905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e'],
+    }),
+    ('cachetools', '4.2.4', {
+        'checksums': ['89ea6f1b638d5a73a4f9226be57ac5e4f399d22770b92355f92dcb0f7f001693'],
+    }),
+    ('rsa', '4.9', {
+        'checksums': ['e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21'],
+    }),
+    ('grpcio', '1.54.0', {
+        'modulename': 'grpc',
+        'source_tmpl': '%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
+        'checksums': ['48cb7af77238ba16c77879009003f6b22c23425e5ee59cb2c4c103ec040638a5'],
+    }),
+    ('grpcio-status', '1.48.2', {
+        'modulename': 'grpc',
+        'checksums': ['53695f45da07437b7c344ee4ef60d370fd2850179f5a28bb26d8e2aa1102ec11'],
+    }),
+    ('googleapis-common-protos', '1.56.4', {
+        'modulename': 'google',
+        'checksums': ['c25873c47279387cfdcbdafa36149887901d36202cb645a0e4f29686bf6e4417'],
+    }),
+    ('google_auth', '1.35.0', {
+        'modulename': 'google.auth',
+        'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl',
+        'checksums': ['997516b42ecb5b63e8d80f5632c1a61dddf41d2a4c2748057837e06e00014258'],
+    }),
+    ('google-api-core', '1.32.0', {
+        'modulename': 'google',
+        'checksums': ['101c3c4cf8e7d53badd1dbca7071464353a04b17319a3dbb3a94eaa893da091c'],
+    }),
+    ('proto-plus', '1.22.2', {
+        'modulename': 'proto',
+        'checksums': ['0e8cda3d5a634d9895b75c573c9352c16486cb75deb0e078b5fda34db4243165'],
+    }),
+    ('duet', '0.2.8', {
+        'source_tmpl': 'duet-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['db3193de2218ffd53a137f2ba5cdd3af988558613891fe5280c52708133d5ed6'],
+    }),
+    ('cirq-web', version, {
+        'source_tmpl': 'cirq_web-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['e3ebc6043b5a6a2a4ba57a71ea9ea5bc487732527b4512961e4c4ce90b2f5744'],
+    }),
+    ('cirq-pasqal', version, {
+        'source_tmpl': 'cirq_pasqal-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['1243aae6514aadb6a5e2f729da3d99904d20631e7d2a7fbaef69c7377a9158b5'],
+    }),
+    ('cirq-core', version, {
+        'modulename': False,
+        'source_tmpl': 'cirq_core-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['a1df552e99ab339121c40c7bf4d18ba542bba151dd8b5ac8c4c33b7b9d46ba10'],
+    }),
+    ('cirq-ionq', version, {
+        'source_tmpl': 'cirq_ionq-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['31ff254a5b514736f79a92a186d473b3e40550c94ad36aeebddea1cb840fb065'],
+    }),
+    ('cirq-rigetti', version, {
+        'source_tmpl': 'cirq_rigetti-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['a0ff2ac5dea2b175ced45ade23bd2bfc2f1d8d280b6a003b1dcdddfdd579c0bd'],
+    }),
+    ('cirq-aqt', version, {
+        'source_tmpl': 'cirq_aqt-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['db7af0b40ceded8a5951f74f36e2235a873df519078e069a6e4d00fda4acd82d'],
+    }),
+    ('cirq-google', version, {
+        'source_tmpl': 'cirq_google-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['8fd1df0fd97d1ee076c01a2b2ab86aac966692890fb2793a45ef2393a6ccc4ab'],
+    }),
+    ('cirq', version, {
+        'source_tmpl': 'cirq-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['8d61feba1c8d2a37d82a53e2500fb2430ad8e0ca7c3e2562fbd554bea0d9d7f7'],
+    }),
+]
+
+
+# This easyconfig cirq=1.0.0 works with Stage 2023's protobuf==3.19.4, but requires
+# different  versions of the following packages than the ones provided by:
+# 1) TensorFlow:
+# different: google-auth==2.16.0, grpcio==1.51.1, cachetools=='5.2.1'
+# same: pyasn1-modules=='0.2.8', rsa==4.9
+# 2) tensorboard:
+# different: google-auth==2.11.1, grpcio==1.49.1, cachetools=='5.2.0'
+# same: pyasn1-modules=='0.2.8', rsa==4.9
+
+# Therefore we make Cirq conflict with TensorFLow or tensorboard if they are loaded simultaneously
+modluafooter = """
+conflict("TensorFlow", "tensorboard")
+"""
+
+moduleclass = 'quantum'

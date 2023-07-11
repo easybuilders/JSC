@@ -1,0 +1,889 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterLab'
+version = '2023.3.6'
+
+local_jlab_version = '3.6.5'
+
+homepage = 'http://www.jupyter.org'
+description = """
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('IPython', '8.14.0'),
+    ('ZeroMQ', '4.3.4'),
+    ('PyYAML', '6.0'),
+    ('nodejs', '16.15.1'),  # '-corepack'),
+    ('git', '2.36.0', '-nodocs'),  # for jupyterlab_git (req. >=2.0)
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('matplotlib', '3.5.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('bokeh', '2.4.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('HDF5', '1.12.2', '-serial'),
+    ('h5py', '3.7.0', '-serial'),
+    ('dask', '2022.12.0', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    # for bokeh exports
+    # https://chromedriver.storage.googleapis.com/114.0.5735.16/chromedriver_linux64.zip
+    # ('ChromeDriver', '114.0.5735.16')
+
+    # Extras
+    ('Pandoc', '2.19.2', '', SYSTEM),  # For doc-generation
+    ('texlive', '20220321'),
+    ('netcdf4-python', '1.6.1', '-serial'),
+    ('FFmpeg', '4.4.2'),  # for pydub
+    ('LLVM', '14.0.3'),  # llvmlite
+    ('Seaborn', '0.12.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('sympy', '1.11.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('Seaborn', '0.12.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('xarray', '2022.9.0', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('scikit-build', '0.15.0'),
+    ('scikit-learn', '1.1.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('scikit-image', '0.19.3', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('numba', '0.56.4', '-CUDA-11.7', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('Shapely', '1.8.5.post1'),
+]
+
+osdependencies = [('openssl')]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'filter': ('python -c "import %(ext_name)s"', ''),
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+}
+
+# Dependencies can partly tested, created and updated using findPythonDeps.sh:
+# https://gist.github.com/Flamefire/49426e502cd8983757bd01a08a10ae0d
+exts_list = [
+    # general
+    ('hatchling', '1.13.0', {
+        'checksums': ['f8d275a2cc720735286b7c2e2bc35da05761e6d3695c2fa416550395f10c53c7'],
+    }),
+    ('hatch_nodejs_version', '0.3.1', {
+        'checksums': ['0e55fd713d92c5c1ccfee778efecaa780fd8bcd276d4ca7aff9f6791f6f76d9c'],
+    }),
+    ('hatch_jupyter_builder', '0.8.3', {
+        'checksums': ['0dbd14a8aef6636764f88a8fd1fcc9a91921e5c50356e6aab251782f264ae960'],
+    }),
+    ('pyzmq', '24.0.1', {  # overwrite
+        'modulename': 'zmq',
+        'checksums': ['216f5d7dbb67166759e59b0479bca82b8acf9bed6015b526b8eb10143fb08e77'],
+    }),
+    ('websocket-client', '1.5.1', {
+        'modulename': 'websocket',
+        'checksums': ['3f09e6d8230892547132177f575a4e3e73cfdf06526e20cc02aa1c3b47184d40'],
+    }),
+    ('traitlets', '5.9.0', {  # overwrite
+        'checksums': ['f6cde21a9c68cf756af02035f72d5a723bf607e862e7be33ece505abf4a3bad9'],
+    }),
+    ('sniffio', '1.3.0', {
+        'checksums': ['e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101'],
+    }),
+    ('anyio', '3.6.2', {
+        'checksums': ['25ea0d673ae30af41a0c442f81cf3b38c7e79fdc7b60335a4c14e05eb0947421'],
+    }),
+    # nbclassic #####################################
+    ('overrides', '7.3.1', {
+        'checksums': ['8b97c6c1e1681b78cbc9424b138d880f0803c2254c5ebaabdde57bb6c62093f2'],
+    }),
+    ('jupyter_server', '2.7.0', {
+        'checksums': ['36da0a266d31a41ac335a366c88933c17dfa5bb817a48f5c02c16d303bc9477f'],
+    }),
+    ('jupyter_server_terminals', '0.4.4', {
+        'checksums': ['57ab779797c25a7ba68e97bcfb5d7740f2b5e8a83b5e8102b10438041a7eac5d'],
+    }),
+    ('notebook_shim', '0.2.3', {
+        'checksums': ['f69388ac283ae008cd506dda10d0288b09a017d822d5e8c7129a152cbd3ce7e9'],
+    }),
+    ('jupyter_core', '5.3.1', {  # overwrite
+        'checksums': ['5ba5c7938a7f97a6b0481463f7ff0dbac7c15ba48cf46fa4035ca6e838aa1aba'],
+    }),
+    ('jupyter_client', '8.2.0', {  # overwrite
+        'checksums': ['9fe233834edd0e6c0aa5f05ca2ab4bdea1842bfd2d8a932878212fc5301ddaf0'],
+    }),
+    ('deprecation', '2.1.0', {
+        'checksums': ['72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff'],
+    }),
+    ('rfc3339_validator', '0.1.4', {
+        'checksums': ['138a2abdf93304ad60530167e51d2dfb9549521a836871b88d7f4695d0022f6b'],
+    }),
+    ('rfc3986_validator', '0.1.1', {
+        'checksums': ['3d44bde7921b3b9ec3ae4e3adca370438eccebc676456449b145d533b240d055'],
+    }),
+    ('jupyter_events', '0.6.3', {
+        'checksums': ['9a6e9995f75d1b7146b436ea24d696ce3a35bfa8bfe45e0c33c334c79464d0b3'],
+    }),
+    ('python-json-logger', '2.0.7', {
+        'modulename': 'pythonjsonlogger',
+        'checksums': ['23e7ec02d34237c5aa1e29a070193a4ea87583bb4e7f8fd06d3de8264c4b2e1c'],
+    }),
+    ('nbclassic', '1.0.0', {
+        'checksums': ['0ae11eb2319455d805596bf320336cda9554b41d99ab9a3c31bf8180bffa30e3'],
+    }),
+    # jupyterlab-server #############################
+    ('requests', '2.30.0', {
+        'checksums': ['239d7d4458afcb28a692cdd298d87542235f4ca8d36d03a15bfc128a6559a2f4'],
+    }),
+    ('jsonschema', '4.17.3', {
+        'checksums': ['0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d'],
+    }),
+    ('json5', '0.9.11', {
+        'checksums': ['4f1e196acc55b83985a51318489f345963c7ba84aa37607e49073066c562e99b'],
+    }),
+    ('jupyterlab_server', '2.23.0', {
+        'checksums': ['83c01aa4ad9451cd61b383e634d939ff713850f4640c0056b2cdb2b6211a74c7'],
+    }),
+    # jupyter_server_ydoc ###########################
+    ('y_py', '0.5.9', {
+        'sources': ['%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['bc9052a814e8b7ec756371a191f38de68b956437e0bb429c2dd503e658f298f9'],
+    }),
+    ('jupyter_ydoc', '0.2.4', {
+        'checksums': ['a3f670a69135e90493ffb91d6788efe2632bf42c6cc42a25f25c2e6eddd55a0e'],
+    }),
+    ('jupyter_server_fileid', '0.9.0', {
+        'checksums': ['171538b7c7d08d11dbc57d4e6da196e0c258e4c2cd29249ef1e032bb423677f8'],
+    }),
+    ('jupyter_server_ydoc', '0.8.0', {
+        'checksums': ['a6fe125091792d16c962cc3720c950c2b87fcc8c3ecf0c54c84e9a20b814526c'],
+    }),
+    ('aiosqlite', '0.19.0', {
+        'checksums': ['95ee77b91c8d2808bd08a59fbebf66270e9090c3d92ffbf260dc0db0b979577d'],
+    }),
+    ('aiofiles', '22.1.0', {
+        'checksums': ['9107f1ca0b2a5553987a94a3c9959fe5b491fdf731389aa5b7b1bd0733e32de6'],
+    }),
+    ('ypy_websocket', '0.8.2', {
+        'checksums': ['491b2cc4271df4dde9be83017c15f4532b597dc43148472eb20c5aeb838a5b46'],
+    }),
+    # jupyterlab ####################################
+    ('jupyterlab', local_jlab_version, {
+        'patches': [
+            ('401html.patch', 1),
+            # 'jupyterlab-rendermime_p14618.patch'
+        ],
+        'checksums': [
+            'ac0cb19756be1d1e14b2be1f23c603de46e0f0113960fce9888889ca55ae8923',
+            '094c89560472168c5ca24b3907d4a6a5b090352ef0c7657995d735246cc338f5',  # 401html.patch
+        ],
+    }),
+    # jupyter-server-proxy ##########################
+    ('aiosignal', '1.3.1', {
+        'checksums': ['54cd96e15e1649b75d6c87526a6ff0b6c1b0dd3459f43d9ca11d48c339b68cfc'],
+    }),
+    ('async-timeout', '4.0.2', {
+        'checksums': ['2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15'],
+    }),
+    ('frozenlist', '1.3.3', {
+        'checksums': ['58bcc55721e8a90b88332d6cd441261ebb22342e238296bb330968952fbb3a6a'],
+    }),
+    ('multidict', '6.0.4', {
+        'checksums': ['3666906492efb76453c0e7b97f2cf459b0682e7402c0489a95484965dbc1da49'],
+    }),
+    ('yarl', '1.9.2', {
+        'checksums': ['04ab9d4b9f587c06d801c2abfe9317b77cdf996c65a90d5e84ecc45010823571'],
+    }),
+    ('aiohttp', '3.8.4', {
+        'checksums': ['bf2e1a9162c1e441bf805a1fd166e249d574ca04e03b34f97e2928769e91ab5c'],
+    }),
+    ('simpervisor', '0.4', {
+        'checksums': ['cec79e13cdbd6edb04a5c98c1ff8d4bd9713e706c069226909a1ef0e89d393c5'],
+    }),
+    ('jupyter_server_proxy', '4.0.0', {
+        'patches': [
+            'jupyter-server-proxy_timeout.patch',  # timeout after 15s instead of 5s
+        ],
+        'checksums': [
+            'f5dc12dd204baca71b013df3522c14403692a2d37cb7adcd77851dbab71533b5',
+            '632f95c305dd5363978399a383a077a738069cc4fc13832276a6c9c6e36714e8',
+        ],
+        #  Regular HTTP requests + Unix sockets works already with Tornado 6.2
+        #  BUT (!)) websocket connection + Unix sockets needs Tornado 6.3,
+        #  https://github.com/jupyterhub/jupyter-server-proxy/pull/337
+    }),
+    # jupyterlab_lsp ################################
+    ('python-lsp-jsonrpc', '1.0.0', {
+        'modulename': 'pylsp_jsonrpc',
+        'checksums': ['7bec170733db628d3506ea3a5288ff76aa33c70215ed223abdb0d95e957660bd'],
+    }),
+    ('docstring-to-markdown', '0.12', {
+        'checksums': ['40004224b412bd6f64c0f3b85bb357a41341afd66c4b4896709efa56827fb2bb'],
+    }),
+    ('python-lsp-server', '1.7.3', {
+        'modulename': 'pylsp',
+        'checksums': ['a31b0525be6ec831c7d2b476b744e5aa5074633e1d1b77ee97f332cde15983ea'],
+    }),
+    ('jupyter-lsp', '2.2.0', {
+        'checksums': ['8ebbcb533adb41e5d635eb8fe82956b0aafbf0fd443b6c4bfa906edeeb8635a1'],
+    }),
+    ('jupyterlab-lsp', '4.2.0', {
+        'checksums': ['3aab01c8cac040a8d3a9ebfa4085223b054b7fbd6219d3c7b560f6a9766ca2f3'],
+    }),
+    # jupyter-matplotlib ############################
+    ('ipympl', '0.9.3', {
+        'checksums': ['49bab75c05673a6881d1aaec5d8ac81d4624f73d292d154c5fb7096f10236a2b'],
+    }),
+    # jupyterlab_iframe #############################
+    ('tornado_proxy_handlers', '0.0.5', {
+        'checksums': ['8250177dbc7567fa2d3cfd22d0a7de71e34cceb8e56c7b7d7c2e5f92ffb5c60a'],
+    }),
+    ('jupyterlab_iframe', '0.4.4', {
+        'patches': [('jupyterlab-iframe.config', '.')],
+        'checksums': [
+            'f381ffef2a866eea0a9e3e56f428064b117a9155f9f7605c4bf0eb74d03dc378',
+            '5bdd4bd545aa66c8cb534975d77a0c4a23c9993f507e479b23a06ae9618f695f',
+        ],
+    }),
+    # ipyleaflet ####################################
+    ('branca', '0.6.0', {
+        'checksums': ['55949855214504c7583b71b9a03a84dce2e96a84027613bb53b42d04844ce24e'],
+    }),
+    ('traittypes', '0.2.1', {
+        'checksums': ['be6fa26294733e7489822ded4ae25da5b4824a8a7a0e0c2dccfde596e3489bd6'],
+    }),
+    ('xyzservices', '2023.2.0', {
+        'checksums': ['3342bba410d7941290eed0e58a2e5aadb0f7b97863ec4283b283c406ee723a28'],
+    }),
+    ('ipyleaflet', '0.17.3', {
+        'checksums': ['adca9ebdf009ad55d3e94976191474bfb85d13aa79854698e9b0922338a6fc66'],
+    }),
+    # ipyvue ########################################
+    ('ipyvue', '1.9.2', {
+        'checksums': ['da3f2a6115d1f27995e7efa0e0e267eb976ade5ca982aa3da3106c70d6f878db'],
+    }),
+    ('ipyvuetify', '1.8.10', {
+        'checksums': ['9ba44279479f33f5cb83af406aa813050ee96201955c2cba087fd23a843d5b4e'],
+    }),
+    # ipywebrtc #####################################
+    ('ipywebrtc', '0.6.0', {
+        'checksums': ['f8ac3cc02b3633b59f388aef67961cff57f90028fd303bb3886c63c3d631da13'],
+    }),
+    # bqplot ########################################
+    ('bqplot', '0.12.39', {
+        'checksums': ['14d8de6f9a4d1945bbea6c1320ea4d1c93256f72683774f6e0020dcc579f3dd2'],
+    }),
+    # ipyvolume #####################################
+    ('ipydatawidgets', '4.3.5', {
+        'checksums': ['394f2489576587cfd755377a09a067f46cad22081965092021fd1abcbe7852a8'],
+    }),
+    ('pythreejs', '2.4.2', {
+        'checksums': ['a568bfdc4c3797c4c2339158928edc7dcf6fa4a267b08e3cec5121e2078b5bd6'],
+    }),
+    ('ipyvolume', '0.6.3', {
+        'checksums': ['823226f90a59ce08b1da2699a9ec505f34f65f01ce43accd80e7d3554082d035'],
+    }),
+    # jupyterlab-system-monitor #####################
+    ('jupyter_resource_usage', '0.7.2', {
+        'patches': [('jupyter-resource-usage.config', '.')],
+        'checksums': [
+            'ab596a1f2f6ced9e5d063f56b772d88527d2539d61831fbfb80a37f940d3e9df',
+            '7634bf6c4d941e20dca4d910441315047147aedec073f620e15048ec6b31b053',
+        ],
+    }),
+    ('jupyterlab-topbar', '0.6.1', {
+        'checksums': ['f1f9144fd09c29b8921f378662f26c65a460967d9c48eeea8018cea49626fb5f'],
+        'modulename': False,
+    }),
+    ('jupyterlab-controlbtn', '0.5.1', {
+        'source_tmpl': '%(version)s.tar.gz',
+        'source_urls': ['https://github.com/jhgoebbert/jupyterlab-controlbtn/archive/'],
+        'checksums': ['ac4c2165d79dd84f2fea0086cc6c3a851cfb239918bb628163b812abb54a4b46'],
+        'modulename': False,
+    }),
+    ('jupyterlab-system-monitor', '0.8.0', {
+        'checksums': ['f8d03d3ee26c84300c85e570f1a9d5f69bdcfa85e9a298f5716b67e36d0d94df'],
+        'modulename': False,
+    }),
+    # jupyterlab-gitlab #############################
+    # requirement jupyter-server<2,>=1.6
+    ('jupyterlab_gitlab', '3.0.0', {
+        'patches': [
+            'jupyterlab-gitlab_jserv2.patch',
+            ('jupyterlab-gitlab.config', '.'),
+        ],
+        'checksums': [
+            '5b0367b82e3170d8274465285a36be9c331dac5674d9ba7e8e2b5dd4972d64f7',
+            'fe6196f8128169e994519a37bec14171711116fe98c4729a0969750611d2b499',
+            'e3e0b6b294b726e9aecaa4d2b210aa834b7327cba99f97663c2f9297b14eb2a3',
+        ],
+    }),
+    # jupyterlab_git ################################
+    ('smmap', '5.0.0', {
+        'checksums': ['c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936'],
+    }),
+    ('gitdb', '4.0.10', {
+        'checksums': ['6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a'],
+    }),
+    ('GitPython', '3.1.31', {
+        'modulename': 'git',
+        'checksums': ['8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573'],
+    }),
+    ('jupyterlab_git', '0.41.0', {
+        'checksums': ['51767daa002f08a7cf0b372114eb706eff2f34f12d70b5347700464e6887483e'],
+    }),
+    ('jupyter_server_mathjax', '0.2.6', {
+        'checksums': ['bb1e6b6dc0686c1fe386a22b5886163db548893a99c2810c36399e9c4ca23943'],
+    }),
+    # nbdime ########################################
+    ('nbdime', '3.2.1', {
+        'checksums': ['31409a30f848ffc6b32540697e82d5a0a1b84dcc32716ca74e78bcc4b457c453'],
+    }),
+    # jupyterlab-latex ##############################
+    ('jupyterlab_latex', '3.2.0', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/jupyterlab/jupyterlab-latex/archive/'],
+        'checksums': ['b396cb1a86ccec019a72f2aad10c47a3680294ff946da3cf8980ed955b7fd5ac'],
+    }),
+    # jupyterlab_plugin_playground ##################
+    ('jupyterlab_plugin_playground', '0.4.0', {  # 0.4.0 on PyPi installs 0.3.0
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/jupyterlab/jupyterlab-plugin-playground/archive/'],
+        'checksums': ['d64f51315692402def435008d2ca8c3168c7e39e23933aeffc46405583b3b81b'],
+    }),
+    # sidecar #######################################
+    ('sidecar', '0.5.2', {
+        'checksums': ['fd4558417ce786fb59b81e44f7d6868e4a5beccbdb2ae29506f2b3d1c4f85c80'],
+    }),
+    # jupyterlab-s3-browser #########################
+    ('jmespath', '1.0.1', {
+        'checksums': ['90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe'],
+    }),
+    ('botocore', '1.29.76', {
+        'checksums': ['c2f67b6b3f8acf2968eafca06526f07b9fb0d27bac4c68a635d51abb675134a7'],
+    }),
+    ('aioitertools', '0.11.0', {
+        'checksums': ['42c68b8dd3a69c2bf7f2233bf7df4bb58b557bca5252ac02ed5187bbc67d6831'],
+    }),
+    ('s3transfer', '0.6.1', {
+        'checksums': ['640bb492711f4c0c0905e1f62b6aaeb771881935ad27884852411f8e9cacbca9'],
+    }),
+    ('fsspec', '2023.5.0', {
+        'checksums': ['b3b56e00fb93ea321bc9e5d9cf6f8522a0198b20eb24e02774d329e9c6fb84ce'],
+    }),
+    ('wrapt', '1.15.0', {
+        'checksums': ['d06730c6aed78cee4126234cf2d071e01b44b915e725a6cb439a879ec9754a3a'],
+    }),
+    ('aiobotocore', '2.5.0', {
+        'checksums': ['6a5b397cddd4f81026aa91a14c7dd2650727425740a5af8ba75127ff663faf67'],
+    }),
+    ('singleton-decorator', '1.0.0', {
+        'checksums': ['1a90ad8a8a738be591c9c167fdd677c5d4a43d1bc6b1c128227be1c5e03bee07'],
+    }),
+    ('s3fs', '2023.5.0', {
+        'checksums': ['106b5d9a1000e6af413f918156ba4b96789ac832b7e08c99d186eb08164e6981'],
+    }),
+    ('boto3', '1.26.76', {
+        'checksums': ['30c7d967ed1c6b5a05643e42cae9d4d36c3f1cb6782637ddc7007a104cfd9027'],
+    }),
+    ('jupyterlab_s3_browser', 'c8e319b717251cc3265cfaab2fdb5221c3072238', {
+        'source_tmpl': '%(version)s.tar.gz',
+        'source_urls': ['https://github.com/IBM/jupyterlab-s3-browser/archive/'],
+        'patches': ['jupyterlab-s3-browser_pr86_s3v2.patch'],
+        'checksums': [
+            'e614d3ba4d28af503f6a01f3ac37c626bcf6335c22174643ac1527b681e5b770',
+            '7f35ed49cb705f7f85962e09996516c54be2386d98d28cf0320810b589fba1bf',
+        ],
+    }),
+    # jupyterlab-favorites ##########################
+    ('jsonmerge', '1.9.0', {
+        'checksums': ['a2d1f80021c5c1d70a49e31f862b5f068f9db066080d8561e80654de74a3584d'],
+    }),
+    ('jupyterlab-favorites', '3.1.1', {
+        'patches': [('update_favorites_json', '.')],
+        'checksums': [
+            'ab1bb4e3686d7acf5bef7a34b07869913d48dd609783e671d0edfda13c2b3fb0',
+            '496a9ef8bb7f399907a8923e1386d541528e77e237ea7e3abe5b28d432a9bd11',
+        ],
+    }),
+    # jupyterlab-recents ############################
+    ('jupyterlab_recents', '3.2.0', {
+        'checksums': ['d295fe2506e24fe7a38d8651c265033528df94a9d535b84f88e28e295017dc01'],
+    }),
+    # jupyterlab-spellchecker #######################
+    ('jupyterlab-spellchecker', '0.7.3', {
+        'checksums': ['5b862228479b33b95b9d4eb47482b4a11c6732efb2c8c8123c7f88efc3695e76'],
+    }),
+    ('tenacity', '8.2.2', {
+        'checksums': ['43af037822bd0029025877f3b2d97cc4d7bb0c2991000a3d59d71517c5c969e0'],
+    }),
+    # plotly ########################################
+    ('plotly', '5.15.0', {
+        'checksums': ['822eabe53997d5ebf23c77e1d1fcbf3bb6aa745eb05d532afd4b6f9a2e2ab02f'],
+    }),
+    # jupyter-bokeh #################################
+    ('jupyter_bokeh', '3.0.4', {
+        'checksums': ['ba3b032f52a039d9e5ed8f6c50f3f9a00dcb97005871c24673a3b3a05465aef5'],
+    }),
+    # pyviz #########################################
+    ('param', '1.13.0', {
+        'checksums': ['59d55048d42a85e148a69837df42bd11c3391d47fad15ba57d118e145f001ef2'],
+    }),
+    ('pyct', '0.5.0', {
+        'checksums': ['dd9f4ac5cbd8e37c352c04036062d3c5f67efec76d404761ef16b0cbf26aa6a0'],
+    }),
+    ('pyviz_comms', '2.2.1', {
+        'checksums': ['a26145b8ce43d2d934b3c6826d77b913ce105c528eb2e494c890b3e3525ddf33'],
+    }),
+    # panel #########################################
+    ('tqdm', '4.65.0', {
+        'checksums': ['1871fb68a86b8fb3b59ca4cdd3dcccbc7e6d613eeed31f4c332531977b89beb5'],
+    }),
+    ('Markdown', '3.4.3', {
+        'checksums': ['8bf101198e004dc93e84a12a7395e31aac6a9c9942848ae1d99b9d72cf9b3520'],
+        'modulename': 'markdown',
+    }),
+    ('panel', '0.14.4', {
+        'checksums': ['b853d2f53d7738ec6372525360c5bf9427a71ed990685ccac703bc9b442e9951'],
+    }),
+    # holoviews #####################################
+    ('colorcet', '3.0.1', {
+        'checksums': ['51455a20353d12fac91f953772d8409f2474e6a0db1af3fa4f7005f405a2480b'],
+    }),
+    ('holoviews', '1.16.0', {
+        'checksums': ['13416a251858ead03049570d9e7b39cdf1918d39e64530a18e552b6771115a1a'],
+    }),
+    # jupyterlab_code_formatter #####################
+    ('isort', '5.12.0', {
+        'checksums': ['8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504'],
+    }),
+    ('mypy_extensions', '1.0.0', {
+        'checksums': ['75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782'],
+    }),
+    ('black', '22.12.0', {
+        'checksums': ['229351e5a18ca30f447bf724d007f890f97e13af070bb6ad4c0a441cd7596a2f'],
+    }),
+    ('jupyterlab_code_formatter', '1.6.1', {
+        'checksums': ['ddf084383292ceceddcaae043f4c62b93d27a85850578a280f8fded9a1b93a32'],
+    }),
+    # voila #########################################
+    ('websockets', '11.0.3', {
+        'checksums': ['88fc51d9a26b10fc331be344f1781224a375b78488fc343620184e95a4b27016'],
+    }),
+    #  voila 0.4.0 has requirement jupyter-client<=7.4.1,>=6.1.3 and jupyter-server<2
+    #  voila >= 0.5.0a5 is not compatible with Jlab 3.6.5 (check 'jupyter labextension list')
+    ('voila', '0.5.0a4', {
+        'checksums': ['cd381d13d0513ff663c6a87850be9e575a3f796e561549cba4a5864a9aa0d72f'],
+    }),
+    ('voila-material', '0.4.0', {
+        'checksums': ['0827a27f0f23ca87bd8f565c4c227c754516d2a120ffce0f7ab1ee12fdec959f'],
+        'modulename': False,
+    }),
+    #  voila-gridstack 0.3.1 has requirement voila<0.5.0,>=0.2
+    # ('voila_gridstack', '0.3.1', {
+    #     'checksums': [''],
+    #     'modulename': False,
+    # }),
+    #  voila-vuetify 0.6.0 has requirement voila<0.5,>=0.2.0
+    # ('voila-vuetify', '0.6.0', {
+    #    'checksums': [''],
+    #    'modulename': False,
+    # }),
+    # jupyterlab-tour ###############################
+    ('jupyterlab-tour', '3.1.4', {
+        'checksums': ['f1d80ec906f689134d259203caf281ea53b8c2353c4a265c29947b557e009229'],
+    }),
+    # jupyterlab_hdf ################################
+    ('orjson', '3.8.12', {
+        'source_tmpl': 'orjson-3.8.12-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
+        'unpack_sources': False,
+        'checksums': ['83e8c740a718fa6d511a82e463adc7ab17631c6eea81a716b723e127a9c51d57'],
+    }),
+    ('tifffile', '2023.4.12', {
+        'checksums': ['2fa99f9890caab919d932a0acaa9d0f5843dc2ef3594e212963932e20713badd'],
+    }),
+    ('h5grove', '0.0.14', {
+        'checksums': ['ead42d2d98f28ef363c83bd4ba421f25f02c111c615201093707a670b9978704'],
+    }),
+    ('jupyterlab_hdf', '1.3.0', {
+        'checksums': ['d15c80c25be26bf4f95e9cad58dd28839ef3924b6eddaf336166aac121dd4819'],
+    }),
+    # jupyterhub ####################################
+    ('greenlet', '2.0.2', {
+        'checksums': ['e7c8dc13af7db097bed64a051d2dd49e9f0af495c26995c00a9ee842690d34c0'],
+    }),
+    ('SQLAlchemy', '2.0.13', {
+        'modulename': 'sqlalchemy',
+        'checksums': ['8d97b37b4e60073c38bcf94e289e3be09ef9be870de88d163f16e08f2b9ded1a'],
+    }),
+    ('pamela', '1.0.0', {
+        'checksums': ['65c9389bef7d1bb0b168813b6be21964df32016923aac7515bdf05366acbab6c'],
+    }),
+    ('oauthlib', '3.2.2', {
+        'checksums': ['9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918'],
+    }),
+    ('Mako', '1.2.4', {
+        'modulename': 'mako',
+        'checksums': ['d60a3903dc3bb01a18ad6a89cdbe2e4eadc69c0bc8ef1e3773ba53d44c3f7a34'],
+    }),
+    ('alembic', '1.11.0', {
+        'checksums': ['d8bf706124e96e526889ac9c87a0d50debd9ef325ef32ae5391cf0315bdab4e1'],
+    }),
+    ('pyOpenSSL', '22.0.0', {
+        'modulename': 'OpenSSL',
+        'checksums': ['660b1b1425aac4a1bea1d94168a85d99f0b3144c869dd4390d27629d0087f1bf'],
+    }),
+    ('certipy', '0.1.3', {
+        'checksums': ['695704b7716b033375c9a1324d0d30f27110a28895c40151a90ec07ff1032859'],
+    }),
+    ('ruamel.yaml', '0.17.26', {
+        'checksums': ['baa2d0a5aad2034826c439ce61c142c07082b76f4791d54145e131206e998059'],
+    }),
+    ('ruamel.yaml.clib', '0.2.7', {
+        'checksums': ['1f08fd5a2bea9c4180db71678e850b995d2a5f4537be0e94557668cf0f5f9497'],
+        'modulename': False,
+    }),
+    ('jupyter_telemetry', '0.1.0', {
+        'checksums': ['445c613ae3df70d255fe3de202f936bba8b77b4055c43207edf22468ac875314'],
+    }),
+    ('jupyterhub', '3.1.1', {  # 4.0.1 fails with our backendspawner
+        'checksums': ['bfdbc55d7cd29ed2b2c84d2fc7943ad13efdfc4a77740519c5dad1079ff75953'],
+    }),  # copy 401.html -> <jupyter-install-dir>/share/jupyter/lab/static/
+    # jupyter_kernel_gateway ########################
+    # jupyter-kernel-gateway 2.5.2 has requirement jupyter-client<8.0,>=5.2.0, but you have jupyter-client 8.2.0.
+    # https://github.com/jupyter-server/kernel_gateway/issues/377
+    # ('jupyter_kernel_gateway', '2.5.2', {
+    #    'checksums': [''],
+    # }),
+    # ipyparallel ###################################
+    ('ipyparallel', '8.6.1', {
+        'checksums': ['a39aa5ef9560170bf0e9afedca9ff045e1b9c1832c49303377edcc91cea9fb77'],
+    }),
+    # papermill #####################################
+    ('textwrap3', '0.9.2', {
+        'source_tmpl': 'textwrap3-0.9.2.zip',
+        'checksums': ['5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414'],
+    }),
+    ('ansiwrap', '0.8.4', {
+        'source_tmpl': 'ansiwrap-%(version)s.zip',
+        'checksums': ['ca0c740734cde59bf919f8ff2c386f74f9a369818cdc60efe94893d01ea8d9b7'],
+    }),
+    ('papermill', '2.4.0', {
+        'checksums': ['6f8f8a9b06b39677f207c09100c8d386bcf592f0cbbdda9f0f50e81445697627'],
+    }),
+    # dask ##########################################
+    ('dask_labextension', '6.1.0', {
+        'checksums': ['397cf6f2106650954c3f3bf84fe269a4fb72fb6bf56e6089c75cc3bbf9ff12ae'],
+        'preinstallopts': (
+            # https://github.com/jupyterlab/jupyterlab/issues/14335#issuecomment-1611586421
+            'jlpm install && '
+            'jlpm upgrade --caret --scope jupyterlab && '
+            # Minimize dependency versions
+            'jlpm add -D yarn-deduplicate@^5.0.0 && '
+            'jlpm yarn-deduplicate -s fewer && '
+            'jlpm install && '
+        )
+    }),
+    # nbdev #########################################
+    ('watchdog', '3.0.0', {
+        'checksums': ['4d98a320595da7a7c5a18fc48cb633c2e73cda78f93cac2ef42d42bf609a33f9'],
+    }),
+    ('execnb', '0.1.5', {
+        'checksums': ['9ee029e0e3007c0deedc32723918c5c3bcbb64bb0b08a11fc521485ea361fa4d'],
+    }),
+    ('fastcore', '1.5.29', {
+        'checksums': ['f1a2eb04eb7933f3f9eb4064852817df44dc96e20fab5658c14c035815269a3f'],
+    }),
+    ('astunparse', '1.6.3', {
+        'checksums': ['5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872'],
+    }),
+    ('ghapi', '1.0.3', {
+        'checksums': ['1804443a2c12261b247bea08a930445fcb5b8fac1c65f8e9e6504b5842ce8f00'],
+    }),
+    ('nbdev', '2.3.12', {
+        'checksums': ['01058da82abd20458c2a4906e5bc34a64bd6b6f20c2a405b028b5f4d14533024'],
+    }),
+    # pyunicore #####################################
+    ('PyJWT', '2.7.0', {
+        'modulename': 'jwt',
+        'checksums': ['bd6ca4a3c4285c1a2d4349e5a035fdf8fb94e04ccd0fcbe6ba289dae9cc3e074'],
+    }),
+    ('pyunicore', '0.15.0', {
+        'checksums': ['dc57ef05b1681b20471e8a4a72067671f74b4d41601099fe80324293439175d5'],
+    }),
+    # dash ##########################################
+    # dash-extension `jupyterlab-dash` is part of plotly and does not need to be installed explicitly
+    ('blinker', '1.6.2', {
+        'checksums': ['4afd3de66ef3a9f8067559fb7a1cbe555c17dcbe15971b05d1b625c3e7abe213'],
+    }),
+    ('Werkzeug', '2.2.3', {
+        'checksums': ['2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe'],
+    }),
+    ('itsdangerous', '2.1.2', {
+        'checksums': ['5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a'],
+    }),
+    ('Flask', '2.2.5', {
+        'modulename': 'flask',
+        'checksums': ['edee9b0a7ff26621bd5a8c10ff484ae28737a2410d99b0bb9a6850c7fb977aa0'],
+    }),
+    ('cachelib', '0.9.0', {
+        'checksums': ['38222cc7c1b79a23606de5c2607f4925779e37cdcea1c2ad21b8bae94b5425a5'],
+    }),
+    ('Flask-Caching', '2.0.2', {
+        'modulename': 'flask_caching',
+        'checksums': ['24b60c552d59a9605cc1b6a42c56cdb39a82a28dab4532bbedb9222ae54ecb4e'],
+    }),
+    ('dash', '2.11.1', {
+        'checksums': ['1acc4c634311cb306a1086fff315c1f2aaa3898bac362d93bc8db6b1a6474e5c'],
+    }),
+    ('dash_core_components', '2.0.0', {
+        'checksums': ['c6733874af975e552f95a1398a16c2ee7df14ce43fa60bb3718a3c6e0b63ffee'],
+    }),
+    ('dash_html_components', '2.0.0', {
+        'checksums': ['8703a601080f02619a6390998e0b3da4a5daabe97a1fd7a9cebc09d015f26e50'],
+    }),
+    ('dash_table', '5.0.0', {
+        'checksums': ['18624d693d4c8ef2ddec99a6f167593437a7ea0bf153aa20f318c170c5bc7308'],
+    }),
+    ('dash_renderer', '1.9.1', {
+        'checksums': ['73a69e3d145880e68e42723ad10182251d92b44f3efe92b8763145cfd2158e7e'],
+    }),
+    ('dash-bootstrap-components', '1.4.1', {
+        'checksums': ['05c2e2767a8ab104fc950d15482d09dde59d21f1e9bd5809d30672e61b7f420c'],
+    }),
+    ('dash_daq', '0.5.0', {
+        'checksums': ['a1d85b6799f7b885652fbc44aebdb58c41254616a8d350b943beeb42ade4256a'],
+    }),
+    ('dash_player', '1.1.0', {
+        'checksums': ['d1b38690c922de44e7b56647abc9cafa2c3e75743f52a9b1ff9613095c640524'],
+    }),
+    ('retrying', '1.3.4', {
+        'checksums': ['345da8c5765bd982b1d1915deb9102fd3d1f7ad16bd84a9700b85f64d24e8f3e'],
+    }),
+    ('ansi2html', '1.8.0', {
+        'checksums': ['38b82a298482a1fa2613f0f9c9beb3db72a8f832eeac58eb2e47bf32cd37f6d5'],
+    }),
+]
+
+local_jupyter_config_path = 'etc/jupyter'
+local_jupyter_path = 'share/jupyter'
+local_jupyterlab_dir = 'share/jupyter/lab'
+
+modextrapaths = {
+    #  search path to find installable data files, such as kernelspecs and notebook extensions
+    'JUPYTER_PATH': [local_jupyter_path],
+    #  do NOT set JUPYTER_CONFIG_DIR: if not set, if will be ${HOME}/.jupyter, which is just right
+    'JUPYTER_CONFIG_PATH': [local_jupyter_config_path],   # config dir at install time.
+    #  ATTENTION: not config dir at runtime, because this is fixed to {sys.prefix}/etc/jupyter/
+}
+
+modextravars = {
+    'JUPYTER': '%(installdir)s/bin/jupyter',
+    'JUPYTERLAB_DIR': '%%(installdir)s/%s' % local_jupyterlab_dir,
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH and JUPYTER_DATA_DIR
+# and the JUPYTER_CONFIG_PATH starts with $HOME/.jupyter
+# https://jupyter.readthedocs.io/en/latest/projects/jupyter-directories.html#envvar-JUPYTER_PATH
+modluafooter = """
+setenv("JUPYTER_DATA_DIR", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_CONFIG_PATH", pathJoin(os.getenv("HOME"), ".jupyter"))
+"""
+
+postinstallcmds = [
+    #  ensure we install in the correct directory !!!
+    'python3 -m venv %(installdir)s --system-site-packages',
+
+    #  create setup-environment-script
+    'echo "#!/bin/bash" > %(builddir)s/env.sh',
+    'echo "source %(installdir)s/bin/activate" >> %(builddir)s/env.sh',
+    (
+        'echo "export PYTHONPATH='
+        '%(installdir)s/lib/python%(pyshortver)s/site-packages:'
+        '${EBROOTPYTHON}/lib/python%(pyshortver)s/site-packages:'
+        '${PYTHONPATH}" >> %(builddir)s/env.sh'
+    ),
+    'echo "export JUPYTER=%(installdir)s/bin/jupyter" >> %(builddir)s/env.sh',
+    'echo "export JUPYTER_PATH=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % local_jupyter_path,
+    'echo "export JUPYTERLAB_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % local_jupyterlab_dir,
+    #  Config dir at install time. ATTENTION: not config dir at runtime. This is picked up by JUPYTER_CONFIG_PATH
+    'echo "export JUPYTER_CONFIG_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % local_jupyter_config_path,
+    #  jupyter will use $JUPYTER_CONFIG_DIR with "--user"
+    'echo "export JUPYTER_DATA_DIR=%%(installdir)s/%s" >> %%(builddir)s/env.sh' % local_jupyter_path,
+    'echo "export PATH=%(installdir)s/bin:${PATH}" >> %(builddir)s/env.sh',
+
+    #  build JupyterLab app directory for all previous installed extensions in one go
+    'source %(builddir)s/env.sh && jupyter lab build --dev-build=False',  # --minimize=False
+
+    #  store default in ../share/jupyter/lab/schemas/jupyterlab-favorites/favorites.json
+    #  create dynamic defaults for $HOME, $SCRATCH, $PROJECT with the following script
+    (
+        'install -m 0755 '
+        '        %(builddir)s/jupyterlabfavorites/jupyterlab-favorites-3.1.1/update_favorites_json '
+        '        %(installdir)s/bin/ '
+    ),
+
+    #  language server for jupyter-lsp
+    #  https://jupyterlab-lsp.readthedocs.io/en/latest/Language%20Servers.html
+    #  must be installed _after_ 'jupyter lab build' as this clears the prefix
+    (
+        'source %(builddir)s/env.sh && npm install --prefix %(installdir)s/share/jupyter/lab/staging/ '
+        '        bash-language-server@2.1.0 '
+        '        dockerfile-language-server-nodejs@0.9.0 '
+        '        pyright@1.1.309 '
+        '        sql-language-server@1.5.1 '
+        '        typescript-language-server@0.11.2 typescript@5.0.4 '
+        '        vscode-css-languageserver-bin@1.4.0 '
+        '        vscode-html-languageserver-bin@1.4.0 '
+        '        vscode-json-languageserver-bin@1.0.1 '
+        '        yaml-language-server@1.12.0 '
+    ),
+    # more: javascript-typescript-langserver, jedi-language-server, julia-language-server,
+    #       python-language-server, r-languageserver, texlab, unified-language-server
+
+    #  jupyterlab server extensions
+    # 'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_sql',
+    'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_iframe',
+    'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_s3_browser',
+
+    # STILL NEEDED ???
+    #  dask_labextension
+    # (
+    #    'cp %(builddir)s/dask_labextension/dask_labextension-6.1.0/'
+    #    'dask_labextension/labextension/schemas/dask-labextension/plugin.json '
+    #    '   %(installdir)s/share/jupyter/labextensions/dask-labextension/schemas/dask-labextension/plugin.json'
+    # ),
+
+    #  Send2Trash
+    (
+        '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
+        'c.FileContentsManager.delete_to_trash = False\n'
+        'EOF'
+    ),
+    #  iframe-extension
+    (
+        'cat %(builddir)s/jupyterlab_iframe/jupyterlab_iframe-0.4.4/jupyterlab-iframe.config '
+        '    >>  %(installdir)s/etc/jupyter/jupyter_notebook_config.py'
+    ),
+    #  jupyter-resource-usage (displayed by jupyterlab-system-monitor)
+    (
+        'cat %(builddir)s/jupyter_resource_usage/jupyter_resource_usage-0.7.2/jupyter-resource-usage.config '
+        '    >>  %(installdir)s/etc/jupyter/jupyter_notebook_config.py'
+    ),
+    #  jupyterlab-gitlab
+    (
+        'cat %(builddir)s/jupyterlab_gitlab/jupyterlab_gitlab-3.0.0/jupyterlab-gitlab.config '
+        '    >>  %(installdir)s/etc/jupyter/jupyter_notebook_config.py'
+    ),
+
+    # Add the default_setting_override.json file for modifications of the system-wide default settings
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "jupyterlab-gitlab:drive": {\n'
+        '        "baseUrl": "https://gitlab.jsc.fz-juelich.de",\n'
+        '        "defaultRepo": "jupyter4jsc/j4j_notebooks"\n'
+        '    },\n'
+        '    "@jupyter-lsp/jupyterlab-lsp:plugin": {\n'
+        '        "language_servers": {\n'
+        '            "pyright": {\n'
+        '                "serverSettings": {\n'
+        '                    "python.analysis.useLibraryCodeForTypes": true\n'
+        '                },\n'
+        '                "priority": 75\n'
+        '            }\n'
+        '        },\n'
+        '        "loggingConsole": "browser",\n'
+        '        "loggingLevel": "warn",\n'
+        '        "logAllCommunication": false,\n'
+        '        "setTrace": null\n'
+        '    },\n'
+        '    "@jupyterlab/extensionmanager-extension:plugin": {\n'
+        '        "enabled": false\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+    # Disable extensions we do not want to show up, but which we want to have installed
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/page_config.json; } << \'EOF\'\n'
+        '{\n'
+        '    "disabledExtensions": {\n'
+        '        "ipyparallel-labextension": true\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+
+    # add webpage, which leads back to https://jupyter-jsc.fz-juelich.de
+    'cp %%(builddir)s/jupyterlab/jupyterlab-%s/401.html %%(installdir)s/share/jupyter/lab/static/' % local_jlab_version,
+
+    #  ###################################################
+    #  IMPORTANT:
+    #  start JupyterLab once (for 60 seconds) to allow some cleanup at first start
+    #  ###################################################
+    (
+        'source %(builddir)s/env.sh && '
+        '{(jupyter lab --no-browser) & } && JLAB_PID=$! && '
+        'sleep 60 && '
+        'jupyter lab list --json 2>&1 | grep $JLAB_PID | '
+        'awk \'{for(i=1;i<=NF;i++)if($i=="\\"port\\":")print $(i+1)}\' | sed \'s/,*$//g\' | '
+        'xargs -i jupyter lab stop {}'
+    ),
+
+    #  Ensure Jupyter does not want to build anything on startup
+    #  The build_config.json file is used to track the local directories that have been installed
+    #  using jupyter labextension install <directory>, as well as core extensions that have been explicitly uninstalled.
+    # 'if [ -e %(installdir)s/share/jupyter/lab/settings/build_config.json ]; then exit 1; fi ',
+    (
+        '{ cat > %(installdir)s/share/jupyter/lab/settings/build_config.json; } << \'EOF\'\n'
+        '{\n'
+        '    "local_extensions": {}\n'
+        '}\n'
+        'EOF'
+    ),
+
+    # Ensure we remove the virtual environment to avoid wrong search path for python packages
+    'rm -f %(installdir)s/pyvenv.cfg',
+    'rm -f %(installdir)s/bin/python',
+    'rm -f %(installdir)s/bin/python3',
+    'rm -f %(installdir)s/bin/activate',
+    'rm -f %(installdir)s/bin/activate*',
+    'rm -f %(installdir)s/bin/easy_install*',
+    'rm -f %(installdir)s/bin/pip*',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/_distutils_hack',
+    'rm -f %(installdir)s/lib/python%(pyshortver)s/site-packages/distutils-precedence.pth',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip-*',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pkg_resources',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools',
+    'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
+
+    #  Compile Python files to byte-code to speedup execution
+    #  ERROR: returns with exit code 1, because some files cannot be compiled for different reasons
+    #  ###################################################
+    #   Disable possible, because sanity check will    #
+    #   force the compile of all python packages anyway#
+    #  ###################################################
+    #  'source %(builddir)s/env.sh && python -m compileall %(installdir)s',
+
+    #  ###################################################
+    #   IMPORTANT: must be done manual after eb-install: #
+    #  ###################################################
+    #  'chmod -R g-w %(installdir)s ',          # software-group must not modify the installation on accident
+    #  'chmod -R ugo-w %(installdir)s/share ', # Noone should add files/configs to the global share after install
+    #  'chmod -R ug-w ...../2023/software/Python/3.10.6-GCCcore-11.3.0/share ',  # Python module, too
+]
+
+#  specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
+#  full_sanity_check = True # would result in sanity-errors about yaml,ipython_genutils,IPython,traitlets
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

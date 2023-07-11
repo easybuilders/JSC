@@ -1,0 +1,175 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyEarthSystem'
+version = '2023.5'
+local_jupyterver = '2023.3.6'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special Earth System Modeling kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+# toolchain = {'name': 'gcccoremkl', 'version': '11.3.0-2022.1.0'}
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.38'),
+    # just ensure they exist (if they can be loaded here)
+    # ('NVHPC', '23.1'),
+    ('netcdf4-python', '1.6.1', '-serial'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('xarray', '2022.9.0', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('dask', '2022.12.0', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('TensorFlow', '2.11.0', '-CUDA-11.7', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('Cartopy', '0.21.0'),
+    ('Ninja', '1.10.2'),
+    ('git', '2.36.0', '-nodocs'),
+    ('GSL', '2.7'),
+    ('gnuplot', '5.4.4'),
+    ('ncview', '2.1.8'),
+    ('GPicView', '0.2.5'),
+    ('ImageMagick', '7.1.0-37'),
+    ('GDAL', '3.5.0'),
+    ('numba', '0.56.4', '-CUDA-11.7', ('gcccoremkl', '11.3.0-2022.1.0')),
+    # ('ParaStationMPI', '5.7.0-1'),
+    # ('NCO', '5.1.4'),
+    # req. GCC-toolchain not NVHPC-toolchain),
+    # ('CDO', '2.1.1'),
+    # ('mpi4py', '3.1.4'),
+    # ('PyTorch', '1.12.0', '-CUDA-11.7'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('JupyterLab', local_jupyterver),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-32x32.png"},
+            {'filename': 'logo-64x64.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-64x64.png"},
+            {'filename': 'logo-128x128.png.base64', 'extract_cmd': "base64 -d %s > %%(builddir)s/logo-128x128.png"},
+        ],
+        'checksums': [
+            'f5dc53fd44adf3317014b9b34d40947fbe0f41206a77881c73c30e31a5b14852',
+            '465720735e479f2161bf64c91eaa7673b63d7e67934c6de27843e1eddad2ac8b',
+            '7de45ccf75e9fa58fe98585bfc0d094f2dd91087632db764fea807e410b3b201',
+        ],
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': False,  # skip as it requires protobuf, TensorFlow
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+]
+
+local_kernel_dir = 'pyearthsystem'
+local_kernel_name = 'PyEarthSystem-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+    'HOROVOD_MPI_THREADS_DISABLE': ['1'],  # no mpi by default
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module load Stages/${STAGE} \n'
+        'module load NVHPC/23.1 \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'module load netcdf4-python/1.6.1-serial \n'
+        'module load SciPy-bundle/2022.05 \n'
+        'module load xarray/2022.9.0 \n'
+        'module load dask/2022.12.0 \n'
+        'module load TensorFlow/2.11.0-CUDA-11.7 \n'
+        'module load Cartopy/0.21.0 \n'
+        'module load Ninja/1.10.2 \n'
+        'module load git/2.36.0-nodocs \n'
+        'module load GSL/2.7 \n'
+        'module load gnuplot/5.4.4 \n'
+        'module load ncview/2.1.8 \n'
+        'module load GPicView/0.2.5 \n'
+        'module load ImageMagick/7.1.0-37 \n'
+        'module load GDAL/3.5.0 \n'
+        'module load numba/0.56.4-CUDA-11.7 \n'
+        '\n'
+        'module load ParaStationMPI/5.7.0-1 \n'
+        'module load NCO/5.1.4 \n'
+        '\n'
+        '# req. GCC-toolchain not NVHPC-toolchain \n'
+        '# module load CDO/2.1.1 \n'
+        '# module load mpi4py/3.1.4 \n'
+        '# module load PyTorch/1.12.0-CUDA-11.7 \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

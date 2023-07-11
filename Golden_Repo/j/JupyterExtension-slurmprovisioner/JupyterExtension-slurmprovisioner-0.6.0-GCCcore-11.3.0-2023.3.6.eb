@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterExtension-slurmprovisioner'
+version = '0.6.0'
+local_jupyterver = '2023.3.6'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/FZJ-JSC/jupyter-slurm-provisioner-extension'
+description = """
+A JupyterLab extension for using a slurm kernel provisioner
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.38'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('JupyterLab', local_jupyterver),
+]
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check':  True,
+    'filter': ('python -c "import %(ext_name)s"', ''),
+}
+
+exts_list = [
+    ('jupyter-slurm-provisioner', '0.6.0', {
+        'checksums': ['24141dc4abfb009d424837a5d78159c2b63e0243d63618cacebcf4f23edc101f'],
+    }),
+    ('jupyter_slurm_provisioner_extension', '0.3.0', {
+        'patches': ['jupyter-slurm-provisioner-extension_jserv3.patch'],
+        'checksums': [
+            'fa2cf94d180f08ad47563b9bdcc4c66b2f0831dff85e2203a8cb6bc8d90b8a58',
+            '65d2cb1224c4444cf6bfe6b18ff603b75d0263292afc226f5a912e2905a914e1',
+        ],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_EXTRA_LABEXTENSIONS_PATH': ['share/jupyter/labextensions'],
+    'JUPYTER_PATH': ['share/jupyter'],
+    'JUPYTER_CONFIG_PATH': ['etc/jupyter'],
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': [
+        'share/jupyter/labextensions',
+        'lib/python%(pyshortver)s/site-packages'
+    ],
+}
+
+moduleclass = 'tools'

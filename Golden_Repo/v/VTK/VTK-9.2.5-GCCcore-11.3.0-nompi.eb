@@ -34,7 +34,7 @@ builddependencies = [
 dependencies = [
     ('Python', '3.10.4'),
     ('HDF5', '1.12.2', '-serial'),
-    ('SciPy-Stack', '2022a', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     # ('libxc', '5.2.3'),  # not in GCCcore toolchain
     ('netCDF', '4.9.0', '-serial'),
     ('X11', '20220504'),

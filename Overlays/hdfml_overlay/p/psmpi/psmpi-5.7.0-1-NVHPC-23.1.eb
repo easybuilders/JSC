@@ -3,7 +3,7 @@ name = 'psmpi'
 version = '5.7.0-1'
 
 homepage = 'https://github.com/ParaStation/psmpi2'
-description = """ParaStation MPI is an open source high-performance MPI 3.0 implementation,
+description = """ParaStation MPI is an open source high-performance MPI 3.1 implementation,
 based on MPICH v3. It provides extra low level communication libraries and integration with
 various batch systems for tighter process control.
 """
@@ -16,6 +16,8 @@ checksums = [
     # psmpi-5.7.0-1.tar.gz
     '0c1c8556afedfb08cd612f379ddb6327ef1bb0867d6f6fed3d610f3d8c790883',
     '978eb3223c978477c40987f745c07fda26ccbad2f468616faf92f0d71b81a156',  # psmpi_shebang.patch
+    # psmpi-5.7.0-1_singleton-fix.patch
+    '5ab46de53f6025367f444e77cd3374fe36a0728cde38c72db55603ebc08b50a2',
 ]
 
 dependencies = [
@@ -29,7 +31,8 @@ dependencies = [
 patches = [
     'psmpi_shebang.patch',
     # We don't have IME in HDFML so we skip this
-    # 'psmpi-5.5.0-1_ime.patch'
+    # 'psmpi-5.5.0-1_ime.patch',
+    'psmpi-5.7.0-1_singleton-fix.patch'
 ]
 
 # We don't have IME in HDFML so we skip this

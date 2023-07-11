@@ -1,0 +1,235 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'xpra'
+version = '4.4.6'
+local_xprahtml5_version = '8.1'
+
+homepage = "http://www.xpra.org"
+description = """Xpra is an open-source multi-platform persistent remote display server and client
+for forwarding applications and desktop screens.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('pkgconf', '1.8.0'),
+    ('Brotli', '1.0.9'),
+    ('uglifyjs', '3.17.4'),
+    ('CMake', '3.23.1'),
+    ('Meson', '0.62.1'),
+    ('scikit-build', '0.15.0'),  # for patchelf
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('X11', '20220504'),
+    ('OpenGL', '2022a'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('PyCairo', '1.23.0'),
+    ('PyGObject', '3.42.2'),
+    ('Pandoc', '2.19.2', '', SYSTEM),
+    ('GTK+', '3.24.34'),
+    ('rencode', '1.0.5'),
+    ('lz4', '1.9.3'),
+    ('yuicompressor', '2.4.8'),
+    ('x264', '20220620'),
+    ('x265', '3.5'),
+    ('libvpx', '1.12.0'),
+    ('FFmpeg', '4.4.2'),
+    ('GStreamer', '1.20.2'),
+    ('libwebp', '1.2.4'),
+    ('libpng', '1.6.37'),
+    ('libspng', '0.7.3'),
+    ('libjpeg-turbo', '2.1.3'),
+    ('zlib', '1.2.12'),
+    ('LibTIFF', '4.3.0'),
+    ('nvidia-Video_Codec_SDK', '11.1.5', '', SYSTEM),
+    ('freetype', '2.12.1'),
+    ('libyuv', '20210428'),
+    ('DBus', '1.14.0'),
+    ('XServer', '21.1.6'),
+    ('CUDA', '11.7', '', SYSTEM),
+    ('PyCUDA', '2022.1'),
+]
+
+prebuildopts = 'export CFLAGS="-Wno-error=unused-function" && '
+
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'use_pip': True,
+    'source_urls': [PYPI_SOURCE],
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+    'download_dep_fail': True,
+}
+
+exts_list = [
+    ('pyinotify', '0.9.6', {
+        'checksums': ['9c998a5d7606ca835065cdabc013ae6c66eb9ea76a00a1e3bc6e0cfe2b4f71f4'],
+    }),
+    ('pyproject-metadata', '0.7.1', {
+        'checksums': ['0a94f18b108b9b21f3a26a3d541f056c34edcb17dc872a144a15618fed7aef67'],
+    }),
+    ('meson', '1.0.0', {
+        'modulename': False,
+        'checksums': ['aa50a4ba4557c25e7d48446abfde857957dcdf58385fffbe670ba0e8efacce05'],
+    }),
+    ('meson_python', '0.12.0', {
+        'modulename': 'mesonpy',
+        'checksums': ['8cb159a8093a2e73cfa897f8092ec93b74e3842f94dff7fde381c6fe0e0b064d'],
+    }),
+    ('patchelf', '0.17.2.0', {
+        'modulename': False,
+        'checksums': ['dedf987a83d7f6d6f5512269e57f5feeec36719bd59567173b6d9beabe019efe'],
+    }),
+    ('dbus-python', '1.3.2', {
+        'modulename': 'dbus',
+        'checksums': ['ad67819308618b5069537be237f8e68ca1c7fcc95ee4a121fe6845b1418248f8'],
+    }),
+    ('pyxdg', '0.28', {
+        'modulename': 'xdg',
+        'checksums': ['3267bb3074e934df202af2ee0868575484108581e6f3cb006af1da35395e88b4'],
+    }),
+    # kernel module for uinput not loaded on hpc systems
+    ('python-uinput', '0.11.2', {
+        'modulename': 'uinput',
+        'checksums': ['99392b676c77b5795b86b7d75274db33fe754fd1e06fb3d58b167c797dc47f0c'],
+    }),
+    ('ifaddr', '0.2.0', {
+        'checksums': ['cc0cbfcaabf765d44595825fb96a99bb12c79716b73b44330ea38ee2b0c4aed4'],
+    }),
+    ('async-timeout', '4.0.2', {
+        'checksums': ['2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15'],
+    }),
+    ('zeroconf', '0.47.1', {
+        'checksums': ['65ab91068f8fafe00856b63756c72296b69682709681e96e8bb5d101345d5011'],
+    }),
+    ('Pillow', '9.5.0', {
+        'modulename': 'PIL',
+        'checksums': ['bf548479d336726d7a0eceb6e767e179fbde37833ae42794602631a070d630f1'],
+    }),
+    ('Brotli', '1.0.9', {
+        'modulename': 'brotli',
+        'source_tmpl': '%(name)s-%(version)s.zip',
+        'checksums': ['4d1b810aa0ed773f81dceda2cc7b403d01057458730e309856356d4ef4188438'],
+    }),
+    (name, version, {
+        'modulename': False,
+        'buildopts': (
+            '--without-strict --without-uinput --with-Xdummy '
+            '--with-nvenc --with-nvjpeg_encoder --with-enc_x264 --with-enc_x265 '
+        ),
+        'installopts': "--with-tests --without-service",
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/Xpra-org/%(name)s/archive/'],
+        'patches': ['xpra-4.4.3-use_Xorg_on_PATH_first.patch'],
+        'use_pip': False,
+        'checksums': [
+            '7fec998cf9816df3f0fa5ded01903b07211b0c36a7316c9e9bf6db8b80fb477a',
+            'ff1e8984f367ebcc90b56d2c1b87012a7ce53fe4f68686cf042e5bbce16be198',
+        ],
+    }),
+    ('xpra-html5', local_xprahtml5_version, {
+        'modulename': False,
+        'skipsteps': [
+            'configure',
+            'build',
+            'install',
+        ],
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/Xpra-org/%(name)s/archive/'],
+        'use_pip': False,
+        'patches': [
+            'xprahtml_OffscreenCanvas.patch',
+            'xprahtml_uint8_p255.patch',
+            'xprahtml_timeout.patch',
+            'xprahtml_depcleanup_p257.patch',
+        ],
+        'checksums': [
+            '3b1765aa3aacde03d7e6f53aecb9d96421808bf63b322f74f9ec77a2a8b5b379',
+            '4ebc8ce718daa9bf9f7c7900746b2e484feda9b269505c723d2fc40682802d60',
+            '74f1edc64fbbc151740b10020d18caebf83c890fa27f641d84ca090a9f693739',
+            '86e46d5fb377701e767386b372d7d238c41aa788d560d334596afb662ef897f4',
+            '60f7e77530a3faf640188b5dbf5f1a2d288b8d8ab9af817d74d5faba37081940',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    # link to dirs in installed xpra-egg
+    (
+        'EGGPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages'
+        '/xpra-%(version)s-py%(pyshortver)s-linux-x86_64.egg/ && '
+        'mkdir -p %(installdir)s/share && '
+        'mv %(installdir)s/share/man %(installdir)s/share/man.bk || true && '
+        'ln -s ${EGGPATH}/share/* %(installdir)s/share/ && '
+        'mkdir -p %(installdir)s/etc/ && '
+        'ln -s ${EGGPATH}/etc/* %(installdir)s/etc/ '
+    ),
+    # installing xpra-html5
+    (
+        'pushd %%(builddir)s/xprahtml5/xpra-html5-%s && '
+        './setup.py install %%(installdir)s /share/xpra/www /etc/xpra/html5-client && '
+        'popd && '
+        'pushd %%(installdir)s/share/xpra/www && '
+        'ln -sf ../../../etc/xpra/html5-client/default-settings.txt && '
+        'popd'
+    ) % (local_xprahtml5_version),
+    # set specific configurations
+    (
+        # fix the xvfb call
+        "sed -i '/^[[:space:]]* \"${XORG_CONFIG_PREFIX}/c\ "
+        "   \"%(installdir)s/etc/xpra/xorg.conf\"'"
+        "   %(installdir)s/etc/xpra/conf.d/55_server_x11.conf && "
+        # initialize script that can modify the environment of the server
+        'touch %(installdir)s/etc/xpra/server.env && '
+        "sed -i 's!^source =.*!source = %(installdir)s/etc/xpra/server.env!' "
+        "       %(installdir)s/etc/xpra/conf.d/60_server.conf && "
+        # limit socket-dirs to /tmp
+        "sed -i 's/^socket-dirs =/#&/' "
+        "       %(installdir)s/etc/xpra/conf.d/10_network.conf && "
+        "sed -i 's/^#socket-dirs = \/tmp/socket-dirs = \/tmp/' "
+        "       %(installdir)s/etc/xpra/conf.d/10_network.conf "
+    ),
+    # make Xpra randomly choose a GPU for acceleration if present
+    'mv %(installdir)s/bin/xpra %(installdir)s/bin/xpra.orig',
+    'head -1 %(installdir)s/bin/xpra.orig > %(installdir)s/bin/xpra',
+    (
+        '{ cat >> %(installdir)s/bin/xpra; } << \'EOF\'\n'
+        'from os import environ \n'
+        'if not \'CUDA_VISIBLE_DEVICES\' in environ: \n'
+        '  try: \n'
+        '    from pycuda import driver \n'
+        '    driver.init() \n'
+        '    num_gpus = driver.Device.count() \n'
+        '  except: \n'
+        '    num_gpus = 0 \n'
+        '\n'
+        '  if num_gpus > 0: \n'
+        '    from random import randint \n'
+        '    active_gpuid=randint(0,num_gpus-1) \n'
+        '    environ[\'CUDA_VISIBLE_DEVICES\'] = str(active_gpuid) \n'
+        'EOF'
+    ),
+    'tail -n +2 %(installdir)s/bin/xpra.orig >> %(installdir)s/bin/xpra',
+    'chmod +x %(installdir)s/bin/xpra',
+]
+
+modextravars = {
+    'XPRA_SYSTEM_CONF_DIRS': '%(installdir)s/etc/xpra',
+    # 'XPRA_XORG_BIN': '%(installdir)s/bin/xpra',  # fails if defined at install time. Added patch instead.
+}
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_paths = {
+    'files': ['bin/xpra'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'vis'

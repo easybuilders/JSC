@@ -22,7 +22,10 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('SciPy-Stack', '2022a', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('lxml', '4.9.1'),
+    ('sympy', '1.11.1', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+    ('dill', '0.3.6'),
     ('scikit-build', '0.15.0'),  # for aer
     ('scikit-learn', '1.1.2', '', ('gcccoremkl', '11.3.0-2022.1.0')),
     ('CVXOPT', '1.3.0'),
@@ -73,8 +76,8 @@ exts_list = [
         'checksums': ['eef610b23933c54d5d921c92578ae5f89813438fded840c2e9809d378dc765d3'],
     }),
     ('websocket-client', '1.3.3', {
-        'checksums': ['d58c5f284d6a9bf8379dab423259fe8f85b70d5fa5d2916d5791a84594b122b1'],
         'modulename': False,
+        'checksums': ['d58c5f284d6a9bf8379dab423259fe8f85b70d5fa5d2916d5791a84594b122b1'],
     }),
     ('requests_ntlm', '1.1.0', {
         'checksums': ['9189c92e8c61ae91402a64b972c4802b2457ce6a799d658256ebf084d5c7eb71'],
@@ -85,9 +88,12 @@ exts_list = [
     ('inflection', '0.5.1', {
         'checksums': ['1a29730d366e996aaacffb2f1f1cb9593dc38e2ddd30c91250c6dde09ea9b417'],
     }),
+    ('soupsieve', '2.3.1', {
+        'checksums': ['b8d49b1cd4f037c7082a9683dfa1801aa2597fb11c3a1155b7a5b94829b4f1f9'],
+    }),
     ('beautifulsoup4', '4.11.1', {
-        'checksums': ['ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693'],
         'modulename': 'bs4',
+        'checksums': ['ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693'],
     }),
     ('pytz', '2022.7.1', {
         'checksums': ['01a0681c4b9684a28304615eba55d1ab31ae00bf68ec157ec3708a8182dbbcd0'],
@@ -99,9 +105,9 @@ exts_list = [
         'checksums': ['15b4b18346259392b0d27598f240e9390fafbff882137a9c48a1e0104fb17f78'],
     }),
     ('Nasdaq_Data_Link', '1.0.4', {
+        'modulename': False,
         'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl',
         'checksums': ['214a620551da1c7521476839fb96f932234d4d78e7ba44310722709ca37b0691'],
-        'modulename': False,
     }),
     ('docplex', '2.25.236', {
         'checksums': ['256914b4c0113a4e1c78f32ea20c7d76dc8efe286fe890270e75cfad50fe510f'],

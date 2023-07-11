@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'SLEPc'
+
+version = '3.18.2'
+
+homepage = 'http://slepc.upv.es/'
+
+description = """SLEPc (Scalable Library for Eigenvalue Problem Computations) is a software library for the solution 
+of large scale sparse eigenvalue problems on parallel computers. It is an extension of PETSc and can be used for 
+either standard or generalized eigenproblems, with real or complex arithmetic. It can also be used for computing a 
+partial SVD of a large, sparse, rectangular matrix, and to solve quadratic eigenvalue problems."""
+examples = 'Examples can be found in $EBROOTSLEPC/share/slepc/examples/'
+
+toolchain = {'name': 'gpsmkl', 'version': '2022a'}
+toolchainopts = {'usempi': True, 'openmp': True}
+source_urls = ['http://slepc.upv.es/download/distrib']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['5bd90a755934e702ab1fdb3320b9fe75ab5fc28c93d364248ea86a372fbe6a62']
+
+dependencies = [('PETSc', '3.18.5')]
+petsc_arch = 'installed-arch-linux2-c-opt'
+
+modextravars = {
+    'SLEPc_ROOT': '%(installdir)s',
+    'SLEPcROOT': '%(installdir)s',
+    'SLEPc_INCLUDE': '%(installdir)s/include/',
+    'SLEPc_LIB': '%(installdir)s/lib',
+}
+
+moduleclass = 'numlib'

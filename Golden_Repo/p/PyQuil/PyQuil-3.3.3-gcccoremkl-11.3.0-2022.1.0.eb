@@ -12,7 +12,8 @@ toolchainopts = {'pic': True}
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('SciPy-Stack', '2022a'),
+    ('SciPy-bundle', '2022.05'),
+    ('IPython', '8.14.0'),
     ('networkx', '2.8.4'),
 
 ]

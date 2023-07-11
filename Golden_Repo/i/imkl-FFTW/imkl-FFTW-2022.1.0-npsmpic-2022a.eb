@@ -1,0 +1,12 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'imkl-FFTW'
+version = '2022.1.0'
+
+homepage = 'https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html'
+description = "FFTW interfaces using Intel oneAPI Math Kernel Library"
+
+toolchain = {'name': 'npsmpic', 'version': '2022a'}
+
+dependencies = [('imkl', version, '', SYSTEM)]
+
+moduleclass = 'numlib'

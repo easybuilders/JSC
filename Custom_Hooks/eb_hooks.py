@@ -67,6 +67,7 @@ VETOED_INSTALLATIONS = {
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings'
     ],
+    'jureca_spr': ['BullMPI', 'BullMPI-settings'],
     'jusuf': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
     'hdfml': ['BullMPI', 'BullMPI-settings'],
     'deep': ['BullMPI', 'BullMPI-settings'],

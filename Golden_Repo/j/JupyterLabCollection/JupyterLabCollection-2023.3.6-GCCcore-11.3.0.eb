@@ -21,6 +21,7 @@ dependencies = [
     ('JupyterKernel-Cling',           '20230205', '-' + version),
     # ('JupyterKernel-JavaScript',      '5.2.1',    '-' + version),
     ('JupyterKernel-Julia',           '1.8.5',    '-' + version),
+    ('JupyterKernel-LFortran',        '0.19.0',    '-' + version),
     ('JupyterKernel-Octave',          '8.2.0',    '-' + version),
     ('JupyterKernel-PyVisualization', '2023.5',   '-' + version),
     ('JupyterKernel-PyQuantum',       '2023.5',   '-' + version),

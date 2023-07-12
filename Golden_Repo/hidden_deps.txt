@@ -56,10 +56,12 @@ JupyterKernel-Bash
 JupyterKernel-Cling
 JupyterKernel-JavaScript
 JupyterKernel-Julia
+JupyterKernel-LFortran
 JupyterKernel-Octave
 JupyterKernel-PyDeepLearning
 JupyterKernel-PyParaView
 JupyterKernel-PyVisualization
+JupyterKernel-PyEarthSystem
 JupyterKernel-PyQuantum
 JupyterKernel-R
 JupyterKernel-Ruby

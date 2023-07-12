@@ -1,0 +1,57 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'lfortran'
+version = '0.19.0'
+
+homepage = 'https://lfortran.org'
+description = """LFortran is a modern open-source (BSD licensed)
+interactive Fortran compiler built on top of LLVM.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'lfortran'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+patches = ['setversion.patch']
+checksums = [
+    {'v0.19.0.tar.gz': 'd4aa69bfaecaee4523887a1747d565fb577c6c9f3663d15c86a29de3e7e87685'},
+    {'setversion.patch': '6fcd6f961c2b6dc65ca167d1d5347d1ac3773d7f1fb4ee96911a5ad4f8bf9c3d'}
+]
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('CMake', '3.23.1'),
+    ('Python', '3.10.4'),
+    ('pkgconf', '1.8.0'),
+    ('re2c', '2.2'),
+]
+
+dependencies = [
+    ('LLVM', '14.0.3'),
+    ('xeus-zmq', '1.1.0'),
+]
+
+separate_build_dir = True
+
+preconfigopts = (
+    'pushd %(builddir)s/lfortran-%(version)s/ && '
+    './build0.sh %(version)s && '
+    'popd && '
+)
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DWITH_LLVM=yes "
+configopts += "-DWITH_XEUS=yes "
+
+sanity_check_paths = {
+    'files': [
+        'bin/lfortran',
+        'share/lfortran/lib/liblfortran_runtime.so',
+    ],
+    'dirs': ['bin', 'share']
+}
+
+moduleclass = 'tools'

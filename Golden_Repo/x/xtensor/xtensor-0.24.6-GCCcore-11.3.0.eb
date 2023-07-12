@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'xtensor'
+version = '0.24.6'
+
+homepage = 'https://github.com/xtensor-stack/xtensor'
+description = "xtensor is a C++ library meant for numerical analysis with multi-dimensional array expressions."
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+
+builddependencies = [
+    ('CMake', '3.23.1'),
+    ('pkgconf', '1.8.0'),
+    ('pybind11', '2.9.2'),
+]
+dependencies = [
+    ('Python', '3.10.4'),
+    ('SciPy-bundle', '2022.05', '', ('gcccoremkl', '11.3.0-2022.1.0')),
+]
+
+default_easyblock = 'CMakeMake'
+
+default_component_specs = {
+    'source_urls': ['https://github.com/xtensor-stack/%(name)s/archive/'],
+    'sources': ['%(version)s.tar.gz'],
+    'start_dir': '%(name)s-%(version)s',
+}
+
+components = [
+    ('xtl', '0.7.5', {
+        'checksums': ['3286fef5fee5d58f82f7b91375cd449c819848584bae9367893501114d923cbe'],
+    }),
+    ('xsimd', '11.1.0', {
+        'checksums': ['aa54dba8daade472656eba0d27154f072fec06ee3831aefcac69a5f6c7dbbae7'],
+    }),
+    ('xtensor', version, {
+        'checksums': ['f87259b51aabafdd1183947747edfff4cff75d55375334f2e81cee6dc68ef655'],
+    }),
+    ('xtensor-python', '0.26.1', {
+        'checksums': ['eb64155c6824be471decf93927beedae3645714c8ce92f38e037434db2c2454a'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['include/xtensor.hpp', 'lib/pkgconfig/xsimd.pc'],
+    'dirs': ['include/xsimd', 'include/xtensor', 'include/xtensor-python', 'include/xtl', 'lib/cmake'],
+}
+
+moduleclass = 'lib'

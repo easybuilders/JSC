@@ -122,6 +122,7 @@ binutils
 byacc
 bzip2
 cairo
+cffi
 cling
 configurable-http-proxy
 damageproto
@@ -132,6 +133,7 @@ expat
 expecttest
 fixesproto
 flatbuffers
+flit
 fontconfig
 fontsproto
 freeglut
@@ -150,6 +152,7 @@ gperf
 gsettings-desktop-schemas
 guile
 gzip
+hatchling
 hiredis
 icc
 ifort
@@ -254,6 +257,7 @@ pixman
 pkg-config
 pkgconfig
 pkgconf
+poetry
 poppler
 popt
 printproto
@@ -268,6 +272,7 @@ rencode
 renderproto
 rkcommon
 scrollkeeper
+setuptools-rust
 snappy
 spdlog
 SZ

@@ -1,0 +1,85 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# updated toolchain, version, and dependency versions
+# Thomas Eylenbosch 5-Jun-23
+
+easyblock = 'Bundle'
+
+name = 'XML-LibXML'
+version = '2.0209'
+
+homepage = 'https://metacpan.org/pod/distribution/XML-LibXML/LibXML.pod'
+description = "Perl binding for libxml2"
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('pkgconf', '1.9.5'),
+]
+
+dependencies = [
+    ('Perl', '5.36.1'),
+    ('libxml2', '2.11.4'),
+]
+
+exts_defaultclass = 'PerlModule'
+exts_filter = ("perldoc -lm %(ext_name)s ", "")
+
+exts_list = [
+    ('File::chdir', '0.1011', {
+        'source_tmpl': 'File-chdir-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN'],
+        'checksums': ['31ebf912df48d5d681def74b9880d78b1f3aca4351a0ed1fe3570b8e03af6c79'],
+    }),
+    ('File::Which', '1.27', {
+        'source_tmpl': 'File-Which-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/P/PL/PLICEASE'],
+        'checksums': ['3201f1a60e3f16484082e6045c896842261fc345de9fb2e620fd2a2c7af3a93a'],
+    }),
+    ('Path::Tiny', '0.144', {
+        'source_tmpl': 'Path-Tiny-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN'],
+        'checksums': ['f6ea094ece845c952a02c2789332579354de8d410a707f9b7045bd241206487d'],
+    }),
+    ('Capture::Tiny', '0.48', {
+        'source_tmpl': 'Capture-Tiny-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN'],
+        'checksums': ['6c23113e87bad393308c90a207013e505f659274736638d8c79bac9c67cc3e19'],
+    }),
+    ('Alien::Base', '2.80', {
+        'source_tmpl': 'Alien-Build-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/'],
+        'checksums': ['d9edc936b06705bb5cb5ee5a2ea8bcf6111a3e8815914f177e15e3c0fed301f3'],
+    }),
+    ('Alien::Build::Plugin::Download::GitLab', '0.01', {
+        'source_tmpl': 'Alien-Build-Plugin-Download-GitLab-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/P/PL/PLICEASE'],
+        'checksums': ['c1f089c8ea152a789909d48a83dbfcf2626f773daf30431c8622582b26aba902'],
+    }),
+    ('URI', '5.19', {
+        'source_tmpl': 'URI-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/S/SI/SIMBABQUE'],
+        'checksums': ['8fed5f819905c8a8e18f4447034322d042c3536b43c13ac1f09ba92e1a50a394'],
+    }),
+    ('Alien::Libxml2', '0.19', {
+        'source_tmpl': 'Alien-Libxml2-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/P/PL/PLICEASE'],
+        'checksums': ['f4a674099bbd5747c0c3b75ead841f3b244935d9ef42ba35368024bd611174c9'],
+    }),
+    ('XML::LibXML', version, {
+        'source_tmpl': 'XML-LibXML-%(version)s.tar.gz',
+        'source_urls': ['https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/'],
+        'checksums': ['b4a5abbcd689aa2fbbc8b7b45339e961c4984e48108494eb6c282b4748222425'],
+    }),
+]
+
+modextrapaths = {
+    'PERL5LIB': 'lib/perl5/site_perl/%(perlver)s/',
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/perl5/site_perl/%(perlver)s/x86_64-linux-thread-multi/XML/LibXML'],
+}
+
+moduleclass = 'data'

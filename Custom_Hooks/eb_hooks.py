@@ -77,7 +77,7 @@ VETOED_INSTALLATIONS = {
 TWEAKABLE_DEPENDENCIES = {
     # 'Boost': '1.78.0',
     # 'Boost.Python': '1.78.0',
-    'CUDA': '11.7',
+    'CUDA': '12',
     'glu': ('OpenGL', '2022a'),
     'glew': ('OpenGL', '2022a'),
     'libglvnd': ('OpenGL', '2022a'),
@@ -85,7 +85,7 @@ TWEAKABLE_DEPENDENCIES = {
     'libGLU': ('OpenGL', '2022a'),
     'Mesa': ('OpenGL', '2022a'),
     'NCCL': 'default',
-    'pkg-config': ('pkgconf', '1.8.0'),
+    'pkg-config': ('pkgconf', '1.9.5'),
     'UCC': 'default',
     'UCX': 'default',
 }
@@ -632,3 +632,25 @@ def pre_module_hook(self, *args, **kwargs):
             self.cfg['modextravars'].update({
                 'MKL_THREADING_LAYER': MKL_THREADING_LAYER[self.name]
             })
+
+def post_permissions_hook(self, *args, **kwargs):
+    if os.getenv('CI_INSTALLATION'):
+        print_msg("Running ACLs script...")
+
+        # Try to figure out path to setacls
+        setacls = '/'.join(os.getenv('EASYBUILD_ROBOT_PATHS').split(':')[-1].split('/')[:-1]+["bin","setacls"])
+        acls_cmd = [setacls, "--filter-package", f"{self.name}", "--install-path", f"{self.installdir}"]
+
+        # Make sure we are using the system python, so yaml is picked from the system, and not from the python module
+        # if it is used as build dependency
+        patched_env = os.environ
+        patched_env['PATH'] = ':'.join(['/usr/bin', patched_env['PATH']])
+
+        print_msg(" ".join(acls_cmd), prefix=False)
+
+        acls = subprocess.Popen(acls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=patched_env)
+        stdout, stderr = acls.communicate()
+        if stdout:
+            print_msg(f"{stdout.decode('utf-8').splitlines()}")
+        if stderr:
+            print_msg(f"{stderr.decode('utf-8').splitlines()}")

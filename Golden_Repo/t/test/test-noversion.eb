@@ -1,0 +1,18 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'test'
+version = 'noversion'
+
+homepage = 'https://www.nope.org'
+description = """This is just a test easyconfig file, intended to test CI functionality.
+                 Must be cleaned up after installation in any system"""
+
+toolchain = SYSTEM
+
+hidden = True
+
+sources = [SOURCE_TAR_GZ]
+checksums = ['eec4ae6f5610d834fab28e40cb3fa208080e895e0d2a3d0ffd693f4ba1912e90']
+
+moduleclass = 'tools'

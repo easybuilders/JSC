@@ -1,0 +1,16 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'UCX-settings'
+version = 'plain'
+
+homepage = ''
+description = 'This module sets UCX to rely on its internal heuristics for transport selection.'
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+
+moduleclass = 'system'

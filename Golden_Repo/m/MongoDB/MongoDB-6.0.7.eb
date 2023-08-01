@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'MongoDB'
+version = '6.0.7'
+
+homepage = 'https://www.mongodb.com/try/download/community'
+
+description = """
+The community version of our distributed document
+database provides powerful ways to query and analyze your data.
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://fastdl.mongodb.org/linux/']
+sources = ['%(namelower)s-linux-x86_64-rhel80-%(version)s.tgz']
+checksums = ['3972e04893c099d14064dfe2f211157c39e5229d09c7e6b92469cc6047fe9c17']
+
+sanity_check_paths = {
+    'files': ['bin/install_compass', 'bin/mongod', 'bin/mongos'],
+    'dirs': ['bin']
+}
+
+moduleclass = 'data'

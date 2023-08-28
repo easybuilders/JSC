@@ -1,0 +1,19 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+name = 'ipsmpi'
+version = '2023a'
+
+homepage = 'http://software.intel.com/en-us/intel-cluster-toolkit-compiler/'
+description = """Intel C/C++ and Fortran compilers, alongside ParaStationMPI."""
+
+toolchain = SYSTEM
+
+local_comp_ver = '2023.2.1'
+local_compiler = ('intel-compilers', local_comp_ver)
+dependencies = [
+    local_compiler,
+    ('psmpi', '5.9.0-1', '', local_compiler),
+]
+
+moduleclass = 'toolchain'

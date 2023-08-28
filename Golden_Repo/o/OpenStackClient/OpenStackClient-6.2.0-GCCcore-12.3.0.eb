@@ -1,0 +1,160 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'OpenStackClient'
+version = '6.2.0'
+
+homepage = 'https://docs.openstack.org/python-openstackclient/latest/'
+description = """OpenStackClient (aka OSC) is a command-line client for OpenStack that brings the
+command set for Compute, Identity, Image, Network, Object Store and Block       
+Storage APIs together in a single shell with a uniform command structure."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+dependencies = [
+    ('Python', '3.11.3'),
+    ('PyYAML', '6.0'),
+    ('hatchling', '1.18.0'),
+    ('poetry', '1.5.1'),
+]
+builddependencies = [('binutils', '2.40')]
+
+exts_default_options = {
+    'use_pip': True,
+}
+exts_list = [
+    ('pyperclip', '1.8.2', {
+        'checksums': ['105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57'],
+    }),
+    ('wcwidth', '0.2.6', {
+        'checksums': ['a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0'],
+    }),
+    ('cmd2', '2.4.3', {
+        'checksums': ['71873c11f72bd19e2b1db578214716f0d4f7c8fa250093c601265a9a717dee52'],
+    }),
+    ('jsonpointer', '2.4', {
+        'checksums': ['585cee82b70211fa9e6043b7bb89db6e1aa49524340dde8ad6b63206ea689d88'],
+    }),
+    ('prettytable', '3.8.0', {
+        'checksums': ['031eae6a9102017e8c7c7906460d150b7ed78b20fd1d8c8be4edaf88556c07ce'],
+    }),
+    ('autopage', '0.5.1', {
+        'checksums': ['01be3ee61bb714e9090fcc5c10f4cf546c396331c620c6ae50a2321b28ed3199'],
+    }),
+    ('stevedore', '5.1.0', {
+        'checksums': ['a54534acf9b89bc7ed264807013b505bf07f74dbe4bcfa37d32bd063870b087c'],
+    }),
+    ('cliff', '4.3.0', {
+        'checksums': ['fc5b6ebc8fb815332770b2485ee36c09753937c37cce4f3227cdd4e10b33eacc'],
+    }),
+    ('dogpile.cache', '1.2.2', {
+        'checksums': ['fd9022c0d9cbadadf20942391a95adaf296be80b42daa8e202f8de1c21f198b2'],
+    }),
+    ('iso8601', '2.0.0', {
+        'checksums': ['739960d37c74c77bd9bd546a76562ccb581fe3d4820ff5c3141eb49c839fda8f'],
+    }),
+    ('jmespath', '1.0.1', {
+        'checksums': ['90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe'],
+    }),
+    ('jsonpatch', '1.33', {
+        'checksums': ['9fcd4009c41e6d12348b4a0ff2563ba56a2923a7dfee731d004e212e1ee5030c'],
+    }),
+    ('os-service-types', '1.7.0', {
+        'checksums': ['31800299a82239363995b91f1ebf9106ac7758542a1e4ef6dc737a5932878c6c'],
+    }),
+    ('keystoneauth1', '5.2.1', {
+        'checksums': ['f79b1c27ed5a69be4d03a5bc4967df3dfab0c5d76e85226fa2060cffadff74a1'],
+    }),
+    ('munch', '4.0.0', {
+        'checksums': ['542cb151461263216a4e37c3fd9afc425feeaf38aaa3025cd2a981fadb422235'],
+    }),
+    ('requestsexceptions', '1.4.0', {
+        'checksums': ['b095cbc77618f066d459a02b137b020c37da9f46d9b057704019c9f77dba3065'],
+    }),
+    ('appdirs', '1.4.4', {
+        'checksums': ['7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41'],
+    }),
+    ('decorator', '5.1.1', {
+        'checksums': ['637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330'],
+    }),
+    ('netifaces', '0.11.0', {
+        'checksums': ['043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32'],
+    }),
+    ('pbr', '5.11.1', {
+        'modulename': 'openstack',
+        'checksums': ['aefc51675b0b533d56bb5fd1c8c6c0522fe31896679882e1c4c63d5e4a0fccb3'],
+    }),
+    ('openstacksdk', '1.3.1', {
+        'modulename': 'openstack',
+        'checksums': ['fa0fd8386bf7d7549a3aceb9c4e29a8b7049a7819b8640f56b01052f8a102cca'],
+    }),
+    ('oslo.i18n', '6.0.0', {
+        'modulename': 'oslo_i18n',
+        'checksums': ['ed10686b75f7c607825177a669155f4e259ce39f6143a375f6359bbcaa4a35cd'],
+    }),
+    ('wrapt', '1.15.0', {
+        'checksums': ['d06730c6aed78cee4126234cf2d071e01b44b915e725a6cb439a879ec9754a3a'],
+    }),
+    ('debtcollector', '2.5.0', {
+        'checksums': ['dc9d1ad3f745c43f4bbedbca30f9ffe8905a8c028c9926e61077847d5ea257ab'],
+    }),
+    ('pyparsing', '3.1.1', {
+        'checksums': ['ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db'],
+    }),
+    ('tzdata', '2023.3', {
+        'checksums': ['11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a'],
+    }),
+    ('oslo.utils', version, {
+        'modulename': 'oslo_utils',
+        'checksums': ['fe1d166f4cb004fbd6b6bc9adfbc32aedeaf3eb54eeaf70d91a224a87543c6a5'],
+    }),
+    ('simplejson', '3.19.1', {
+        'checksums': ['6277f60848a7d8319d27d2be767a7546bc965535b28070e310b3a9af90604a4c'],
+    }),
+    ('osc-lib', '2.8.0', {
+        'checksums': ['67e0d413911e8d49cb9601e80eb28dc4b391b3d7dbd70adc9a69a204516d9452'],
+    }),
+    ('pytz', '2023.3', {
+        'checksums': ['1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588'],
+    }),
+    ('oslo.serialization', '5.1.1', {
+        'modulename': 'oslo_serialization',
+        'checksums': ['8abbda8b1763a06071fc28c5d8a9be547ba285f4830e68a70ff88fe11f16bf43'],
+    }),
+    ('rfc3986', '2.0.0', {
+        'checksums': ['97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c'],
+    }),
+    ('netaddr', '0.8.0', {
+        'checksums': ['d6cc57c7a07b1d9d2e917aa8b36ae8ce61c35ba3fcd1b83ca31c5a0ee2b5a243'],
+    }),
+    ('oslo.config', '9.1.1', {
+        'modulename': 'oslo_config',
+        'checksums': ['b07654b53d87792ae8e739962ad729c529c9938a118d891ece9ee31d59716bc9'],
+    }),
+    ('python-novaclient', '18.3.0', {
+        'modulename': 'novaclient',
+        'checksums': ['50f7587c7a2b2528f73505817f9437ac5c1d04d576e9be264d2deeffdb745a76'],
+    }),
+    ('python-keystoneclient', '5.1.0', {
+        'modulename': 'keystoneclient',
+        'checksums': ['ba09bdfeafa2a2196450a327cd3f46f2a8a9dd9d21b838f8cb9b17a99740c6a1'],
+    }),
+    ('python-cinderclient', '9.3.0', {
+        'modulename': 'cinderclient',
+        'checksums': ['9a6aa30feff48c0c0fd188e6d5150dbdd91e3fd5b10d2db9d78b9812ab14af88'],
+    }),
+    ('python-openstackclient', version, {
+        'modulename': 'openstackclient',
+        'checksums': ['7c53abe1b73b453f59da7b73679c3b759b48e51b8b054864b5fdea2ea82727d6'],
+    }),
+]
+
+sanity_pip_check = True
+enhance_sanity_check = True
+sanity_check_commands = ['openstack -h']
+
+sanity_check_paths = {
+    'files': ['bin/openstack'],
+    'dirs': ["bin", 'lib/python%(pyshortver)s/site-packages']
+}
+
+moduleclass = 'tools'

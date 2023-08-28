@@ -9,6 +9,13 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ the aforementioned parameter
 - __*can not be removed*__ at least until that option is merged upstream
 
+## CUDA
+
+- __*added by*__ s.achilles
+- __*needed because*__ the new easyblocks removes the stubs
+- __*difference compared to upstream*__ the aforementioned parameter
+- __*can not be removed*__ until we update to EB 4.8.1 which contains [PR #2793](https://github.com/easybuilders/easybuild-easyblocks/pull/2793)
+
 ## MPICH
 
 - __*added by*__ d.alvarez

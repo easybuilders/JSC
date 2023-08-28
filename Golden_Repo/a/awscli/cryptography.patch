@@ -1,0 +1,13 @@
+--- aws-cli-2.13.6/pyproject.toml.orig	2023-08-04 19:51:02.743313442 +0200
++++ aws-cli-2.13.6/pyproject.toml	2023-08-04 19:51:30.395554240 +0200
+@@ -29,8 +29,8 @@
+ ]
+ dependencies = [
+     "colorama>=0.2.5,<0.4.7",
+-    "docutils>=0.10,<0.20",
+-    "cryptography>=3.3.2,<40.0.2",
++    "docutils>=0.10,<0.21",
++    "cryptography>=3.3.2,<41.0.3",
+     "ruamel.yaml>=0.15.0,<=0.17.21",
+     # ruamel.yaml only requires ruamel.yaml.clib for Python versions
+     # less than or equal to Python 3.10. In order to ensure we have

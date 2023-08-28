@@ -131,6 +131,7 @@ elfutils
 eudev
 expat
 expecttest
+ffnvcodec
 fixesproto
 flatbuffers
 flit

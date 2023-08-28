@@ -1,8 +1,10 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+import copy
 import os
 import pwd
 import re
 import subprocess
+import yaml
 
 from easybuild.tools.run import run_cmd
 from easybuild.tools.config import build_option
@@ -131,13 +133,16 @@ def installation_vetoer(ec):
         exit(1)
 
 
-def get_user_info():
+def get_user_info(user=None):
     # Query jutil to extract the contact information
     if os.getenv('CI') is None:
         jutil_path = os.getenv('JUMO_USRCMD_EXEC')
         if os.path.isfile(jutil_path) and os.access(jutil_path, os.X_OK):
-            jutil = subprocess.Popen([jutil_path, 'person', 'show', '-o',
-                                      'parsable'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if user:
+                cmd = [jutil_path, 'person', 'show', '-o', 'parsable', '-u', user]
+            else:
+                cmd = [jutil_path, 'person', 'show', '-o', 'parsable']
+            jutil = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = jutil.communicate()
             if not stderr:
                 return stdout.decode('utf-8').splitlines()[-1].split('|')[0:2]
@@ -162,16 +167,28 @@ def get_user_info():
     else:
         return ['CI user', 'ci_user@fz-juelich.de']
 
+def software_responsible_formatter(names_emails):
+    if isinstance(names_emails, list):
+        responsibles = ''
+        for i, user in enumerate(names_emails):
+            if i > 0 and i < len(names_emails)-1:
+                responsibles += ', '
+            elif i > 0 and i == len(names_emails)-1:
+                responsibles += ' and '
+            responsibles += f"{user['name']} <{user['email']}>"
+        return responsibles
+    else:
+        return f"{names_emails['name']} <{names_emails['email']}>"
 
-def format_site_contact(name, email, default_contact=True, alternative_contact=''):
+def format_site_contact(names_emails, default_contact=True, alternative_contact=''):
     if default_contact:
         if alternative_contact:
             contact = alternative_contact
         else:
             contact = common_site_contact
-        return contact+', software installed by '+name+' <'+email+'>'
+        return contact+', software responsible '+software_responsible_formatter(names_emails)
     else:
-        return 'Software installed by '+name+' <'+email+'>'
+        return 'Software responsible '+software_responsible_formatter(names_emails)
 
 
 def inject_site_contact(ec, site_contacts):
@@ -205,32 +222,6 @@ def inject_site_contact(ec, site_contacts):
             ec.log.info("[parse hook] Injecting contact %s", value)
             ec[key] = value
 
-    # Deprecated logic
-    # if key in ec_dict:
-    #     if ec_dict[key] is not None:
-    #         # Check current values if it is a list
-    #         if isinstance(ec_dict[key], list):
-    #             for contact in ec_dict[key]:
-    #                 email = re.search(r'[\w\.-]+@[\w\.-]+', site_contacts).group(0)
-    #                 # Already in contact
-    #                 if email in contact:
-    #                     break
-    #             # We looped to the end and did not find the contact in this list
-    #             else:
-    #                 # Do not add the generic one if there are other specific contacts
-    #                 if 'sc@fz-juelich.de' not in site_contacts or len(ec_dict[key]) == 0:
-    #                     ec.log.info("[parse hook] Injecting contact %s", value)
-    #                     ec[key].append(site_contacts)
-    #         # Check current values if it is a string
-    #         else:
-    #             email = re.search(r'[\w\.-]+@[\w\.-]+', site_contacts).group(0)
-    #             # Do not add the generic one if there are other specific contacts
-    #             if email not in ec_dict[key] and 'sc@fz-juelich.de' not in site_contacts:
-    #                 ec.log.info("[parse hook] Injecting contact %s", value)
-    #                 ec[key] = [ec_dict[key], site_contacts]
-    #     else:
-    #         ec.log.info("[parse hook] Injecting contact %s", value)
-    #         ec[key] = value
     return ec
 
 
@@ -354,12 +345,35 @@ def inject_site_contact_and_user_labels(ec):
     site_contacts = None
     # Non-user installation
     if install_path().lower().startswith('/p/software'):
-        if 'swmanage' in os.getenv('USER'):
-            site_contacts = common_site_contact
+        if os.getenv('CI_INSTALLATION'):
+            # Get user from ACL
+            yaml_acls = '/'.join(os.getenv('EASYBUILD_ROBOT_PATHS').split(':')[-1].split('/')[:-1]+["acls.yml"])
+            with open(yaml_acls) as config:
+                l_config = yaml.safe_load(config)
+            f_config = copy.deepcopy(l_config)
+            f_config.update({'software': [pkg for pkg in l_config['software'] if pkg['name'] == ec_dict['name']]})
+            if len(f_config['software']) > 1:
+                raise EasyBuildError("More than 1 entry in acls.yml, not sure what users to inject....")
+            elif len(f_config['software']) == 1:
+                users = f_config['software'][0]['owner']
+                if isinstance(users, list):
+                    users_list = []
+                    for user in users:
+                        installer_name, installer_email = get_user_info(user=user)
+                        users_list.append({'name': installer_name, 'email': installer_email})
+                    site_contacts = format_site_contact(users_list)
+                else:
+                    installer_name, installer_email = get_user_info(user=users)
+                    site_contacts = format_site_contact({'name': installer_name, 'email': installer_email})
+            else:
+                # Default, no package owner, installed via CI
+                site_contacts = common_site_contact
         else:
-            installer_name, installer_email = get_user_info()
-            site_contacts = format_site_contact(
-                installer_name, installer_email)
+            if 'swmanage' in os.getenv('USER'):
+                site_contacts = common_site_contact
+            else:
+                installer_name, installer_email = get_user_info()
+                site_contacts = format_site_contact({'name': installer_name, 'email': installer_email})
         # Inject the user
         ec = inject_site_contact(ec, site_contacts)
     # User installation
@@ -375,8 +389,7 @@ def inject_site_contact_and_user_labels(ec):
         ec.log.info("[parse hook] Injecting user as Lmod build property")
         # Inject the user
         installer_name, installer_email = get_user_info()
-        site_contacts = format_site_contact(
-            installer_name, installer_email, default_contact=False)
+        site_contacts = format_site_contact({'name': installer_name, 'email': installer_email}, default_contact=False)
         ec = inject_site_contact(ec, site_contacts)
 
     return ec
@@ -648,9 +661,4 @@ def post_permissions_hook(self, *args, **kwargs):
 
         print_msg(" ".join(acls_cmd), prefix=False)
 
-        acls = subprocess.Popen(acls_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=patched_env)
-        stdout, stderr = acls.communicate()
-        if stdout:
-            print_msg(f"{stdout.decode('utf-8').splitlines()}")
-        if stderr:
-            print_msg(f"{stderr.decode('utf-8').splitlines()}")
+        acls = subprocess.Popen(acls_cmd, env=patched_env)

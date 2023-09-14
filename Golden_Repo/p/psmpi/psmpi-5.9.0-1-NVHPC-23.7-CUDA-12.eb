@@ -1,7 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'psmpi'
 version = '5.9.0-1'
-versionsuffix = '-mt'
 
 homepage = 'https://github.com/ParaStation/psmpi2'
 description = """ParaStation MPI is an open source high-performance MPI 4.0 implementation,
@@ -9,7 +8,7 @@ based on MPICH v3. It provides extra low level communication libraries and integ
 various batch systems for tighter process control.
 """
 
-toolchain = {'name': 'intel-compilers', 'version': '2023.2.1'}
+toolchain = {'name': 'NVHPC', 'version': '23.7-CUDA-12'}
 
 # sources = [SOURCE_TAR_GZ]
 # Using this version here, just to be able to proceed with the stage now,
@@ -41,7 +40,7 @@ mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
 preconfigopts = 'export CFLAGS="-I/opt/ddn/ime/include $CFLAGS" && '
 preconfigopts += 'export LDFLAGS="$LDFLAGS -L/opt/ddn/ime/lib -lim_client" && '
 
-threaded = True
+threaded = False
 
 cuda = True
 

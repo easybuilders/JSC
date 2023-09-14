@@ -28,7 +28,7 @@ dependencies = [
     ('libxml2', '2.11.4'),
     # Including CUDA here to trigger the hook to add the gpu property, and because it is actually needed
     ('CUDA', '12', '', SYSTEM),
-    ('PMIx', '4.2.4')
+    ('PMIx', '4.2.6')
 ]
 
 patches = [

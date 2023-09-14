@@ -9,7 +9,7 @@ based on MPICH v3. It provides extra low level communication libraries and integ
 various batch systems for tighter process control.
 """
 
-toolchain = {'name': 'intel-compilers', 'version': '2023.2.1'}
+toolchain = {'name': 'NVHPC', 'version': '23.7-CUDA-12'}
 
 # sources = [SOURCE_TAR_GZ]
 # Using this version here, just to be able to proceed with the stage now,

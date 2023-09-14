@@ -30,7 +30,7 @@ dependencies = [
     ('UCX', 'default'),
     ('CUDA', '12', '', SYSTEM),
     ('libevent', '2.1.12'),
-    ('PMIx', '4.2.4'),
+    ('PMIx', '4.2.6'),
     ('UCC', 'default'),
 ]
 

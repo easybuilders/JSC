@@ -21,6 +21,9 @@ modextravars = {
     # It actually has the side effect of using Ethernet and IB ports on JUSUF, which end up saturating the ethernet
     # fabric and result in a slow down
     'UCX_MAX_RNDV_RAILS': '1',
+    # To make sure that transfers involving buffers allocated with cudaMallocManaged are done by the GPU. Important
+    # mostly for nodes with multiple GPUs per ndoe
+    'UCX_RNDV_FRAG_MEM_TYPE': 'cuda',
 }
 
 moduleclass = 'system'

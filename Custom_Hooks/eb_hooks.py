@@ -19,9 +19,12 @@ SUPPORTED_MPIS = ["impi", "psmpi", "OpenMPI", "BullMPI"]
 SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
     "intel",
     "intel-para",
+    "ipsfbf",
     "iomkl",
+    "iofbf",
     "foss",
     "gpsmkl",
+    "gpsfbf",
     "gomkl",
     "npsmkl",
     "nvomkl",
@@ -44,6 +47,7 @@ SUPPORTED_MPI_TOOLCHAIN_FAMILIES = [
 SUPPORTED_TOOLCHAIN_FAMILIES = (
     SUPPORTED_COMPILERS
     + ["gcccoremkl"]
+    + ["gcccoreflexiblas"]
     + ["GCCcore"]
     + SUPPORTED_MPI_TOOLCHAIN_FAMILIES
     + SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES

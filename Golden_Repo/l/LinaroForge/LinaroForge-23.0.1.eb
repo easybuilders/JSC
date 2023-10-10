@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# For using $SYSTEMNAME to determine license path. The local prefix is to appease the checker
+import os as local_os
+
+easyblock = 'EB_Allinea'
+
+name = 'LinaroForge'
+version = '23.0.1'
+
+homepage = 'https://www.linaroforge.com/'
+description = """
+Linaro Forge is the leading server and HPC development tool suite in research, industry, and academia 
+for C, C++, Fortran, and Python high performance code on Linux.  
+
+Linaro Forge includes Linaro DDT, the best debugger for time-saving high performance application debugging, 
+Linaro MAP, the trusted performance profiler for invaluable optimization advice, and Linaro Performance Reports 
+to help you analyze your HPC application runs.
+"""
+
+usage = """For more information, type "ddt -h", "map -h" or "perf-report -h"
+
+For the Linaro Forge User Guide, please see: "$EBROOTLINAROFORGE/doc/userguide.pdf"
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://downloads.linaroforge.com/%(version)s/']
+sources = ['linaro-forge-%(version)s-linux-x86_64.tar']
+checksums = ['1d681891c0c725363f0f45584c9b79e669d5c9782158453b7d24b4b865d72755']
+
+start_dir = '%(builddir)s/linaro-forge-%(version)s-linux-x86_64/'
+install_cmd = "./textinstall.sh --accept-licence %(installdir)s"
+local_licdir = '/p/software/%s/licenses/linaroforge' % local_os.environ['SYSTEMNAME']
+
+sanity_check_paths = {
+    'files': ['bin/ddt', 'bin/map', 'bin/perf-report'],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

@@ -19,7 +19,7 @@ local_comp_mpi_tc = ('gpsmpi', version)
 # because of toolchain preparation functions
 dependencies = [
     ('GCC', local_gccver),
-    ('psmpi', '5.9.0-1', '', ('GCC', local_gccver)),  # part of gpsmpi toolchain
+    ('psmpi', '5.9.2-1', '', ('GCC', local_gccver)),  # part of gpsmpi toolchain
     ('FlexiBLAS', '3.3.1', '', ('GCC', local_gccver)),
     ('FFTW', '3.3.10', '', ('GCC', local_gccver)),
     ('FFTW.MPI', '3.3.10', '', local_comp_mpi_tc),

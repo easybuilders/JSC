@@ -1,0 +1,217 @@
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.c psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.c
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.c	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.c	2023-10-04 13:10:07.682939336 +0200
+@@ -10,8 +10,8 @@
+ 
+ struct ADIOI_Fns_struct ADIO_IME_operations = {
+     ADIOI_IME_Open,     /* Open */
+-    ADIOI_SCALEABLE_OpenColl, /* OpenColl */ /*XXX*/
+-        ADIOI_IME_ReadContig,   /* ReadContig */
++    ADIOI_GEN_OpenColl, /* OpenColl */
++    ADIOI_IME_ReadContig,   /* ReadContig */
+     ADIOI_IME_WriteContig,      /* WriteContig */
+     ADIOI_GEN_ReadStridedColl,  /* ReadStridedColl */
+     ADIOI_GEN_WriteStridedColl, /* WriteStridedColl */
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.c psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.c
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.c	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.c	2023-10-04 13:10:07.684333542 +0200
+@@ -58,24 +58,38 @@
+     MPI_Attr_put(MPI_COMM_SELF, ADIOI_IME_Initialized, (void *) 0);
+ }
+ 
+-/* Return an IME-compatible filename (add 'ime:' prefix).
+- * New filename must be free'd by the user */
+-char *ADIOI_IME_Add_prefix(const char *filename)
++/**
++ * Return an IME-compatible filename
++ * An absolute BFS path will get added the 'ime:' prefix.
++ * A path on ime-fuse will be converted to a relative ime path,
++ * with the ime:/ prefix
++ * The returned filename must be free'd by the user
++ */
++char *ADIOI_IME_Convert_filename(const char *filename)
+ {
+-    static char myname[] = "ADIOI_IME_ADD_PREFIX";
+-    size_t f_len = strlen(filename) + 1;
+-    char *ime_filename = ADIOI_Malloc(f_len + ADIOI_IME_PREFIX_LEN);
++    static char myname[] = "ADIOI_IME_CONVERT_FILENAME";
+ 
+-    if (!ime_filename) {
++#if (IME_NATIVE_API_VERSION >= 131)
++    bool is_fuse = ime_native_is_fuse_path_and_convert(filename, NULL);
++    if (is_fuse) {
++        return ADIOI_Strdup(filename);
++    }
++#endif
+ 
++    size_t f_len = strlen(filename) + 1;
++    char *ime_filename = ADIOI_Malloc(f_len + IME_FILE_PREFIX_LEN_NO_FWD_SLASH);
++    if (!ime_filename) {
+         MPIO_Err_create_code(MPI_SUCCESS,
+                              MPIR_ERR_FATAL,
+-                             myname, __LINE__, MPI_ERR_UNKNOWN, "Error allocating memory", 0);
++                             myname, __LINE__, MPI_ERR_UNKNOWN,
++                             "Error allocating memory", 0);
+ 
+         return NULL;
+     }
+ 
+-    ADIOI_Strncpy(ime_filename, ADIOI_IME_PREFIX, ADIOI_IME_PREFIX_LEN);
+-    ADIOI_Strncpy((ime_filename + ADIOI_IME_PREFIX_LEN), filename, f_len);
++    ADIOI_Strncpy(ime_filename, DEFAULT_IME_PREFIX_NO_FWD_SLASH,
++                  IME_FILE_PREFIX_LEN_NO_FWD_SLASH);
++    ADIOI_Strncpy((ime_filename + IME_FILE_PREFIX_LEN_NO_FWD_SLASH),
++                  filename, f_len);
+     return ime_filename;
+ }
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.h psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.h
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.h	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_common.h	2023-10-04 13:10:07.686317028 +0200
+@@ -17,5 +17,5 @@
+ void ADIOI_IME_End(int *error_code);
+ int ADIOI_IME_End_call(MPI_Comm comm, int keyval, void *attribute_val, void *extra_state);
+ 
+-char *ADIOI_IME_Add_prefix(const char *filename);
++char *ADIOI_IME_Convert_filename(const char *filename);
+ #endif /* AD_IME_COMMON_H_INCLUDED */
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_delete.c psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_delete.c
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_delete.c	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_delete.c	2023-10-04 13:10:07.688835484 +0200
+@@ -13,7 +13,7 @@
+     int ret;
+     static char myname[] = "ADIOI_IME_DELETE";
+ 
+-    char *ime_filename = ADIOI_IME_Add_prefix(filename);
++    char *ime_filename = ADIOI_IME_Convert_filename(filename);
+     ret = ime_native_unlink(ime_filename);
+     ADIOI_Free(ime_filename);
+     if (ret)
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.h psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.h
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.h	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime.h	2023-10-04 13:10:07.691046832 +0200
+@@ -7,9 +7,7 @@
+ #define AD_IME_H_INCLUDED
+ 
+ #include "adio.h"
+-#ifdef HAVE_IME_NATIVE_H
+ #include "ime_native.h"
+-#endif
+ 
+ #define ADIOI_IME_PREFIX        "ime:"
+ #define ADIOI_IME_PREFIX_LEN    (sizeof(ADIOI_IME_PREFIX) - 1)
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_open.c psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_open.c
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_open.c	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/ad_ime/ad_ime_open.c	2023-10-04 13:10:07.708967917 +0200
+@@ -68,7 +68,7 @@
+         return;
+     }
+ 
+-    ime_fs->ime_filename = ADIOI_IME_Add_prefix(fd->filename);
++    ime_fs->ime_filename = ADIOI_IME_Convert_filename(fd->filename);
+ 
+     /* all processes open the file */
+     ret = ime_native_open(ime_fs->ime_filename, amode, perm);
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/common/ad_fstype.c psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/common/ad_fstype.c
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/adio/common/ad_fstype.c	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/adio/common/ad_fstype.c	2023-10-04 14:34:08.107041784 +0200
+@@ -102,6 +102,20 @@
+ #define DAOS_SUPER_MAGIC (0xDA05AD10)
+ #endif
+ 
++# if defined(ROMIO_IME)
++/* fuse super magic is somehow missing in system includes */
++# if !defined(FUSE_SUPER_MAGIC)
++# define FUSE_SUPER_MAGIC 0x65735546
++# endif
++# include "ime_native.h"
++# if (IME_NATIVE_API_VERSION) >= 131
++# include "ime_ioctl.h"
++
++/* Disable auto-switching from posix to IME */
++#define IME_NO_AUTO_NATIVE "IME_NO_AUTO_NATIVE"
++# endif
++# endif /* ROMIO_IME */
++
+ #define UNKNOWN_SUPER_MAGIC (0xDEADBEEF)
+ 
+ #ifdef HAVE_STRUCT_STATVFS_WITH_F_BASETYPE
+@@ -476,6 +490,36 @@
+             *fstype = ADIO_PVFS2;
+             return;
+ #endif
++#ifdef ROMIO_IME
++        case FUSE_SUPER_MAGIC:
++            /* fuse does not allow to override FUSE_SUPER_MAGIC
++             * Any file system that is fused based needs to hook in
++             * here and use its own ioctl.
++             */
++            #if defined ROMIO_IME && defined IM_FIOC_GET_F_TYPE
++            char *dir;
++            ADIO_FileSysType_parentdir(filename, &dir);
++            int fd = open(dir, O_RDONLY);
++            if (fd == -1) {
++                /* dir should typically work, but try to fail back to
++                 * filename if it somehow failed
++                 */
++                fd = open(filename, O_RDONLY);
++            }
++
++            if (fd >= 0) {
++                uint32_t f_type;
++                int rc = ioctl(fd, IM_FIOC_GET_F_TYPE, &f_type);
++                close(fd);
++                if (rc == 0 && f_type == IME_SUPER_MAGIC &&
++                    getenv(IME_NO_AUTO_NATIVE) == NULL) {
++                    *fstype = ADIO_IME;
++                    return;
++                }
++            }
++            #endif /* ROMIO_IME && IM_FIOC_GET_F_TYPE */
++#endif /* ROMIO_IME */
++
+         default:
+             /* UFS support if we don't know what else to use */
+             *fstype = ADIO_UFS;
+diff -ruN psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/configure.ac psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/configure.ac
+--- psmpi-5.9.2-1.orig/mpich2/src/mpi/romio/configure.ac	2023-09-28 13:13:09.000000000 +0200
++++ psmpi-5.9.2-1.patched/mpich2/src/mpi/romio/configure.ac	2023-10-04 13:10:07.720193210 +0200
+@@ -235,6 +235,8 @@
+ --with-pvfs2=path - Path to installation of PVFS (version 2)],,)
+ AC_ARG_WITH(mpi-impl,[
+ --with-mpi-impl=name - Specify MPI implementation to build ROMIO for],,)
++AC_ARG_WITH(ime,[
++--with-ime=PATH - Path to installation of IME],,)
+ dnl
+ AC_ARG_WITH(mpi, [
+ --with-mpi=path   - Path to installation of MPI (headers, libs, etc)],,)
+@@ -810,6 +812,30 @@
+     fi
+ fi
+ 
++#
++# IME specific build path.
++# Automatically adds IME to the file systems if not present
++#
++if test -n "${with_ime}" ; then
++   AC_SUBST(IME_INSTALL_PATH, ["${with_ime}"])
++fi
++
++ime_default_path="/opt/ddn/ime"
++if test -n "${with_ime}" -o -e "${ime_default_path}/include/ime_native.h"; then
++   # Use IME and the default path, if not specified or overriden
++   with_ime="${ime_default_path}"
++   file_system_ime=1
++fi
++
++if test -n "${file_system_ime}" ; then
++    CFLAGS="$CFLAGS -I${with_ime}/include"
++    CPPFLAGS="$CPPFLAGS -I${with_ime}/include"
++    LDFLAGS="$LDFLAGS -L${with_ime}/lib"
++    LIBS="-lim_client -lim_common"
++    export LD_LIBRARY_PATH="${with_ime}/lib:$LD_LIBRARY_PATH"
++fi
++
++
+ #############################################
+ # This PVFS2 logic is special because it's hard to get it right if it comes
+ # before the known_filesystems check loop above.  So we handle it down here,

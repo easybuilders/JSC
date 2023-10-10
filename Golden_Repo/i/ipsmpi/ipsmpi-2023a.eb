@@ -13,7 +13,7 @@ local_comp_ver = '2023.2.1'
 local_compiler = ('intel-compilers', local_comp_ver)
 dependencies = [
     local_compiler,
-    ('psmpi', '5.9.0-1', '', local_compiler),
+    ('psmpi', '5.9.2-1', '', local_compiler),
 ]
 
 moduleclass = 'toolchain'

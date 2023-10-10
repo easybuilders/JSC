@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libvpx'
+version = '1.13.0'
+
+homepage = 'http://www.webmproject.org'
+description = """VPx are open and royalty free video compression formats owned by Google.
+"""
+
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/webmproject/libvpx/archive/refs/tags']
+sources = ['v%(version)s.tar.gz']
+checksums = ['cb2a393c9c1fae7aba76b950bb0ad393ba105409fe1a147ccd61b0aaa1501066']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('pkgconf', '1.9.5'),
+    ('NASM', '2.16.01'),
+]
+
+
+configopts = '--enable-pic --enable-shared '
+# https://github.com/Xpra-org/xpra/issues/3082
+configopts += '--enable-vp9-highbitdepth'
+
+sanity_check_paths = {
+    # 'lib/libvpx.%s' % SHLIB_EXT],
+    'files': ['bin/vpxdec', 'bin/vpxenc', 'include/vpx/vpx_codec.h', 'lib/libvpx.a'],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

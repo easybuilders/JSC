@@ -1,0 +1,140 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-Matlab'
+version = '0.8.0'
+local_jupyterver = '2023.3.6'
+versionsuffix = '-' + local_jupyterver
+
+# only users of the UNIX-group 'matlab' must have access
+# group = 'matlab'
+
+homepage = 'https://github.com/mathworks/jupyter-matlab-proxy'
+description = """The MATLAB integration for Jupyter enables you to open a MATLAB desktop
+in a web browser tab, directly from your Jupyter environment.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.38'),
+    # check for existance
+    # ('MATLAB', '2023a'),
+    # ('XServer', '21.1.6'),
+]
+
+dependencies = [
+    ('Python', '3.10.4'),
+    ('JupyterLab', local_jupyterver),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'filter': ('python -c "import %(ext_name)s"', ''),
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check':  True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    # enable classic jupyter ####
+    ('jupyter_contrib_core', '0.4.2', {
+        'checksums': [('sha256', '1887212f3ca9d4487d624c0705c20dfdf03d5a0b9ea2557d3aaeeb4c38bdcabb')],
+    }),
+    ('jupyter_highlight_selected_word', '0.2.0', {
+        'checksums': [('sha256', '9fa740424859a807950ca08d2bfd28a35154cd32dd6d50ac4e0950022adc0e7b')],
+    }),
+    ('jupyter_nbextensions_configurator', '0.6.1', {
+        'checksums': [('sha256', '4b9e1270ccc1f8e0a421efb8979a737f586813023a4855b9453f61c3ca599b82')],
+    }),
+    ('jupyter_contrib_nbextensions', '0.7.0', {
+        'checksums': [('sha256', '06e33f005885eb92f89cbe82711e921278201298d08ab0d886d1ba09e8c3e9ca')],
+    }),
+    # core-packages ####
+    ('aiohttp-session', '2.12.0', {
+        'checksums': [('sha256', '0ccd11a7c77cb9e5a61f4daacdc9170d561112f9cfaf9e9a2d9867c0587d1950')],
+    }),
+    ('matlab-proxy', '0.8.0', {
+        'patches': [
+            'noVersionCheck.patch',
+        ],
+        'checksums': [
+            ('sha256', '965b0b7cfa6314638435089f211106c114b838e8f4945cb5f5dacb15c0cdf71f'),
+            ('sha256', 'c21ba8969da77c88a266c97dc73dc64dc7a8f4fc20391f311bb4a6992d6e812c'),
+        ],
+    }),
+    ('jupyter-matlab-proxy', '0.8.0', {
+        'source_urls': ['https://github.com/mathworks/jupyter-matlab-proxy/archive/'],
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'patches': [
+            'timeout.patch',
+        ],
+        'checksums': [
+            ('sha256', 'b1785c8bed32d187c2fa15d921d047dd7483ec20442cdc5f34c0aad1ca06bac5'),
+            ('sha256', 'f44b7eee2d73b492a885c6b051b755330ff973e083d341933d28172156f0ff16'),
+        ],
+    }),
+]
+
+postinstallcmds = [
+    (
+        '{ cat > %(installdir)s/bin/matlab; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.11.3.0 \n'
+        'module load MATLAB \n'
+        'module load XServer/21.1.6 \n'
+        '\n'
+        'matlab "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/matlab',
+    (
+        '{ cat > %(installdir)s/bin/Xvfb; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        '# and ensure stderr stays empty as matlab-proxy seems to fail if not \n'
+        'module purge 2>&1 \n'
+        'module load Stages/${STAGE} 2>&1 \n'
+        'module load GCCcore/.11.3.0 2>&1 \n'
+        'module load MATLAB 2>&1 \n'
+        'module load XServer/21.1.6 2>&1 \n'
+        '\n'
+        'Xvfb "\$@" 2>&1\n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/Xvfb'
+]
+
+
+modextravars = {
+    'MWI_USE_EXISTING_LICENSE': 'True',
+}
+
+# Jupyter-matlab-kernel DISABLED:
+# https://github.com/mathworks/jupyter-matlab-proxy/issues/62
+modextrapaths = {
+    # 'MWI_CUSTOM_MATLAB_ROOT': 'lib/python%(pyshortver)s/site-packages/jupyter_matlab_proxy/',
+    # 'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+# modluafooter = """
+# prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+# """
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

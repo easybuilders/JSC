@@ -14,7 +14,7 @@ local_compiler = ('GCC', '11.3.0')
 
 dependencies = [
     local_compiler,
-    ('psmpi', '5.7.0-1', '', local_compiler),
+    ('psmpi', '5.7.1-1', '', local_compiler),
 ]
 
 moduleclass = 'toolchain'

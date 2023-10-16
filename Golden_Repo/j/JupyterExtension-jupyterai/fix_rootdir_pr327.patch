@@ -1,0 +1,145 @@
+From e362ada133be27f3fc845ce06f3a1bf3e3f96fc8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jens=20Henrik=20G=C3=B6bbert?= <goebbert1@jwlogin10.juwels>
+Date: Wed, 9 Aug 2023 12:34:19 +0200
+Subject: [PATCH 1/4] add alternatives to c.ServerApp.root_dir
+
+---
+ packages/jupyter-ai/jupyter_ai/extension.py | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/packages/jupyter-ai/jupyter_ai/extension.py b/packages/jupyter-ai/jupyter_ai/extension.py
+index f9d0fee5..1a22b5a2 100644
+--- a/packages/jupyter-ai/jupyter_ai/extension.py
++++ b/packages/jupyter-ai/jupyter_ai/extension.py
+@@ -1,4 +1,5 @@
+ import time
++from os import environ, access, W_OK, getcwd
+ 
+ from dask.distributed import Client as DaskClient
+ from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
+@@ -71,6 +72,13 @@ def initialize_settings(self):
+         # consumers a Future that resolves to the Dask client when awaited.
+         dask_client_future = loop.create_task(self._get_dask_client())
+ 
++        # get root directory for read and writing
++        root_wdir = os.environ.get('JUPYTERAI_ROOTDIR')
++        if not root_wdir:
++            root_wdir = self.serverapp.root_dir
++            if not os.access(root_wdir, os.W_OK):
++                root_wdir = os.getcwd()
++
+         # initialize chat handlers
+         chat_handler_kwargs = {
+             "log": self.log,
+@@ -85,11 +93,11 @@ def initialize_settings(self):
+         )
+         generate_chat_handler = GenerateChatHandler(
+             **chat_handler_kwargs,
+-            root_dir=self.serverapp.root_dir,
++            root_dir=root_wdir,
+         )
+         learn_chat_handler = LearnChatHandler(
+             **chat_handler_kwargs,
+-            root_dir=self.serverapp.root_dir,
++            root_dir=root_wdir,
+             dask_client_future=dask_client_future,
+         )
+         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
+
+From daa4142dde81ce99f61e7b68542ddf2eaf173c6d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jens=20Henrik=20G=C3=B6bbert?= <goebbert1@jwlogin10.juwels>
+Date: Wed, 9 Aug 2023 13:43:02 +0200
+Subject: [PATCH 2/4] rename env to JUPYTERAI_SAVEDIR
+
+---
+ packages/jupyter-ai/jupyter_ai/extension.py | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/packages/jupyter-ai/jupyter_ai/extension.py b/packages/jupyter-ai/jupyter_ai/extension.py
+index 1a22b5a2..ff62026c 100644
+--- a/packages/jupyter-ai/jupyter_ai/extension.py
++++ b/packages/jupyter-ai/jupyter_ai/extension.py
+@@ -73,11 +73,11 @@ def initialize_settings(self):
+         dask_client_future = loop.create_task(self._get_dask_client())
+ 
+         # get root directory for read and writing
+-        root_wdir = os.environ.get('JUPYTERAI_ROOTDIR')
+-        if not root_wdir:
+-            root_wdir = self.serverapp.root_dir
+-            if not os.access(root_wdir, os.W_OK):
+-                root_wdir = os.getcwd()
++        save_dir = os.environ.get('JUPYTERAI_SAVEDIR')
++        if not save_dir:
++            save_dir = self.serverapp.root_dir
++            if not os.access(save_dir, os.W_OK):
++                save_dir = os.getcwd()
+ 
+         # initialize chat handlers
+         chat_handler_kwargs = {
+@@ -93,11 +93,11 @@ def initialize_settings(self):
+         )
+         generate_chat_handler = GenerateChatHandler(
+             **chat_handler_kwargs,
+-            root_dir=root_wdir,
++            root_dir=save_dir,
+         )
+         learn_chat_handler = LearnChatHandler(
+             **chat_handler_kwargs,
+-            root_dir=root_wdir,
++            root_dir=save_dir,
+             dask_client_future=dask_client_future,
+         )
+         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
+
+From c5a2d5b6f534d49796c6c7d8d4fbf936db9885f2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jens=20Henrik=20G=C3=B6bbert?= <goebbert1@jwlogin10.juwels>
+Date: Wed, 9 Aug 2023 14:42:20 +0200
+Subject: [PATCH 3/4] fix 'import os'
+
+---
+ packages/jupyter-ai/jupyter_ai/extension.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/jupyter-ai/jupyter_ai/extension.py b/packages/jupyter-ai/jupyter_ai/extension.py
+index ff62026c..d2b4ef96 100644
+--- a/packages/jupyter-ai/jupyter_ai/extension.py
++++ b/packages/jupyter-ai/jupyter_ai/extension.py
+@@ -1,5 +1,5 @@
+ import time
+-from os import environ, access, W_OK, getcwd
++import os
+ 
+ from dask.distributed import Client as DaskClient
+ from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
+
+From 9891c2ff9df54a07a3e439340f6784af61dbf24b Mon Sep 17 00:00:00 2001
+From: "pre-commit-ci[bot]"
+ <66853113+pre-commit-ci[bot]@users.noreply.github.com>
+Date: Wed, 9 Aug 2023 13:00:13 +0000
+Subject: [PATCH 4/4] [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+for more information, see https://pre-commit.ci
+---
+ packages/jupyter-ai/jupyter_ai/extension.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/jupyter-ai/jupyter_ai/extension.py b/packages/jupyter-ai/jupyter_ai/extension.py
+index d2b4ef96..dbea8400 100644
+--- a/packages/jupyter-ai/jupyter_ai/extension.py
++++ b/packages/jupyter-ai/jupyter_ai/extension.py
+@@ -1,5 +1,5 @@
+-import time
+ import os
++import time
+ 
+ from dask.distributed import Client as DaskClient
+ from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
+@@ -73,7 +73,7 @@ def initialize_settings(self):
+         dask_client_future = loop.create_task(self._get_dask_client())
+ 
+         # get root directory for read and writing
+-        save_dir = os.environ.get('JUPYTERAI_SAVEDIR')
++        save_dir = os.environ.get("JUPYTERAI_SAVEDIR")
+         if not save_dir:
+             save_dir = self.serverapp.root_dir
+             if not os.access(save_dir, os.W_OK):

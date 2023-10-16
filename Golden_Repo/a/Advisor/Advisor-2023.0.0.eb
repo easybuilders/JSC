@@ -18,6 +18,11 @@ checksums = ['5d8ef163f70ee3dc42b13642f321d974f49915d55914ba1ca9177ed29b100b9d']
 
 dontcreateinstalldir = True
 
+modextrapaths = {
+    'PATH': '%(namelower)s/%(version)s/bin64',
+    'MANPATH': '%(namelower)s/%(version)s/man'
+}
+
 sanity_check_paths = {
     'files': ['%(namelower)s/%(version)s/bin64/advisor'],
     'dirs': ['%(namelower)s/%(version)s/bin64',

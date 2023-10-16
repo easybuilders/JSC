@@ -17,6 +17,7 @@ modextravars = {
     'PSP_OPENIB': '0',
     'PSP_UCP': '1',
     'PSP_HARD_ABORT': '1',
+    'SLURM_MPI_TYPE': 'pspmi',
 }
 
 moduleclass = 'system'

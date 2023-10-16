@@ -5,7 +5,7 @@ version = '4.1.4'
 homepage = 'https://www.open-mpi.org/'
 description = """The Open MPI Project is an open source MPI-3 implementation."""
 
-toolchain = {'name': 'NVHPC', 'version': '23.1'}
+toolchain = {'name': 'GCC', 'version': '11.3.0'}
 toolchainopts = {'pic': True}
 
 source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
@@ -57,7 +57,8 @@ preconfigopts = ' && '.join([
 configopts = '--without-orte '
 configopts += '--without-psm2 '
 configopts += '--disable-oshmem '
-configopts += '--with-ime=/opt/ddn/ime '
+# No IME on ARM
+# configopts += '--with-ime=/opt/ddn/ime '
 configopts += '--with-gpfs '
 
 # to enable SLURM integration (site-specific)

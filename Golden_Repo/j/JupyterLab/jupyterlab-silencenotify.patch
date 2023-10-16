@@ -1,0 +1,12 @@
+diff -Naur jupyterlab.orig/jupyterlab-3.6.5/jupyterlab/schemas/@jupyterlab/apputils-extension/notification.json jupyterlab/jupyterlab-3.6.5/jupyterlab/schemas/@jupyterlab/apputils-extension/notification.json
+--- jupyterlab.orig/jupyterlab-3.6.5/jupyterlab/schemas/@jupyterlab/apputils-extension/notification.json	2023-06-26 18:37:41.000000000 +0200
++++ jupyterlab/jupyterlab-3.6.5/jupyterlab/schemas/@jupyterlab/apputils-extension/notification.json	2023-08-16 13:22:27.187215117 +0200
+@@ -29,7 +29,7 @@
+       "title": "Check for JupyterLab updates",
+       "description": "Whether to check for newer version of JupyterLab or not. It requires `fechNews` to be `true` to be active. If `true`, it will make a request to a website.",
+       "type": "boolean",
+-      "default": true
++      "default": false
+     },
+     "doNotDisturbMode": {
+       "title": "Silence all notifications",

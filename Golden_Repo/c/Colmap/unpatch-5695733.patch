@@ -1,0 +1,3011 @@
+diff -Naur colmap-3.8.orig/src/feature/extraction.cc colmap-3.8/src/feature/extraction.cc
+--- colmap-3.8.orig/src/feature/extraction.cc	2023-01-31 16:18:47.000000000 +0100
++++ colmap-3.8/src/feature/extraction.cc	2023-08-19 09:24:47.427261849 +0200
+@@ -212,9 +212,9 @@
+     }
+ 
+     if (sift_options_.max_image_size > 0) {
+-      CHECK(resizer_queue_->Push(std::move(image_data)));
++      CHECK(resizer_queue_->Push(image_data));
+     } else {
+-      CHECK(extractor_queue_->Push(std::move(image_data)));
++      CHECK(extractor_queue_->Push(image_data));
+     }
+   }
+ 
+@@ -316,9 +316,9 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& image_data = input_job.Data();
++      auto image_data = input_job.Data();
+ 
+       if (image_data.status == ImageReader::Status::SUCCESS) {
+         if (static_cast<int>(image_data.bitmap.Width()) > max_image_size_ ||
+@@ -336,7 +336,7 @@
+         }
+       }
+ 
+-      output_queue_->Push(std::move(image_data));
++      output_queue_->Push(image_data);
+     } else {
+       break;
+     }
+@@ -383,9 +383,9 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& image_data = input_job.Data();
++      auto image_data = input_job.Data();
+ 
+       if (image_data.status == ImageReader::Status::SUCCESS) {
+         bool success = false;
+@@ -421,7 +421,7 @@
+ 
+       image_data.bitmap.Deallocate();
+ 
+-      output_queue_->Push(std::move(image_data));
++      output_queue_->Push(image_data);
+     } else {
+       break;
+     }
+diff -Naur colmap-3.8.orig/src/feature/extraction.cc.orig colmap-3.8/src/feature/extraction.cc.orig
+--- colmap-3.8.orig/src/feature/extraction.cc.orig	1970-01-01 01:00:00.000000000 +0100
++++ colmap-3.8/src/feature/extraction.cc.orig	2023-01-31 16:18:47.000000000 +0100
+@@ -0,0 +1,531 @@
++// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are met:
++//
++//     * Redistributions of source code must retain the above copyright
++//       notice, this list of conditions and the following disclaimer.
++//
++//     * Redistributions in binary form must reproduce the above copyright
++//       notice, this list of conditions and the following disclaimer in the
++//       documentation and/or other materials provided with the distribution.
++//
++//     * Neither the name of ETH Zurich and UNC Chapel Hill nor the names of
++//       its contributors may be used to endorse or promote products derived
++//       from this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++// POSSIBILITY OF SUCH DAMAGE.
++//
++// Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
++
++#include "feature/extraction.h"
++
++#include <numeric>
++
++#include "SiftGPU/SiftGPU.h"
++#include "feature/sift.h"
++#include "util/cuda.h"
++#include "util/misc.h"
++
++namespace colmap {
++namespace {
++
++void ScaleKeypoints(const Bitmap& bitmap, const Camera& camera,
++                    FeatureKeypoints* keypoints) {
++  if (static_cast<size_t>(bitmap.Width()) != camera.Width() ||
++      static_cast<size_t>(bitmap.Height()) != camera.Height()) {
++    const float scale_x = static_cast<float>(camera.Width()) / bitmap.Width();
++    const float scale_y = static_cast<float>(camera.Height()) / bitmap.Height();
++    for (auto& keypoint : *keypoints) {
++      keypoint.Rescale(scale_x, scale_y);
++    }
++  }
++}
++
++void MaskKeypoints(const Bitmap& mask, FeatureKeypoints* keypoints,
++                   FeatureDescriptors* descriptors) {
++  size_t out_index = 0;
++  BitmapColor<uint8_t> color;
++  for (size_t i = 0; i < keypoints->size(); ++i) {
++    if (!mask.GetPixel(static_cast<int>(keypoints->at(i).x),
++                       static_cast<int>(keypoints->at(i).y), &color) ||
++        color.r == 0) {
++      // Delete this keypoint by not copying it to the output.
++    } else {
++      // Retain this keypoint by copying it to the output index (in case this
++      // index differs from its current position).
++      if (out_index != i) {
++        keypoints->at(out_index) = keypoints->at(i);
++        for (int col = 0; col < descriptors->cols(); ++col) {
++          (*descriptors)(out_index, col) = (*descriptors)(i, col);
++        }
++      }
++      out_index += 1;
++    }
++  }
++
++  keypoints->resize(out_index);
++  descriptors->conservativeResize(out_index, descriptors->cols());
++}
++
++}  // namespace
++
++SiftFeatureExtractor::SiftFeatureExtractor(
++    const ImageReaderOptions& reader_options,
++    const SiftExtractionOptions& sift_options)
++    : reader_options_(reader_options),
++      sift_options_(sift_options),
++      database_(reader_options_.database_path),
++      image_reader_(reader_options_, &database_) {
++  CHECK(reader_options_.Check());
++  CHECK(sift_options_.Check());
++
++  std::shared_ptr<Bitmap> camera_mask;
++  if (!reader_options_.camera_mask_path.empty()) {
++    camera_mask = std::make_shared<Bitmap>();
++    if (!camera_mask->Read(reader_options_.camera_mask_path,
++                           /*as_rgb*/ false)) {
++      std::cerr << "  ERROR: Cannot read camera mask file: "
++                << reader_options_.camera_mask_path
++                << ". No mask is going to be used." << std::endl;
++      camera_mask.reset();
++    }
++  }
++
++  const int num_threads = GetEffectiveNumThreads(sift_options_.num_threads);
++  CHECK_GT(num_threads, 0);
++
++  // Make sure that we only have limited number of objects in the queue to avoid
++  // excess in memory usage since images and features take lots of memory.
++  const int kQueueSize = 1;
++  resizer_queue_ = std::make_unique<JobQueue<internal::ImageData>>(kQueueSize);
++  extractor_queue_ =
++      std::make_unique<JobQueue<internal::ImageData>>(kQueueSize);
++  writer_queue_ = std::make_unique<JobQueue<internal::ImageData>>(kQueueSize);
++
++  if (sift_options_.max_image_size > 0) {
++    for (int i = 0; i < num_threads; ++i) {
++      resizers_.emplace_back(std::make_unique<internal::ImageResizerThread>(
++          sift_options_.max_image_size, resizer_queue_.get(),
++          extractor_queue_.get()));
++    }
++  }
++
++  if (!sift_options_.domain_size_pooling &&
++      !sift_options_.estimate_affine_shape && sift_options_.use_gpu) {
++    std::vector<int> gpu_indices = CSVToVector<int>(sift_options_.gpu_index);
++    CHECK_GT(gpu_indices.size(), 0);
++
++#ifdef CUDA_ENABLED
++    if (gpu_indices.size() == 1 && gpu_indices[0] == -1) {
++      const int num_cuda_devices = GetNumCudaDevices();
++      CHECK_GT(num_cuda_devices, 0);
++      gpu_indices.resize(num_cuda_devices);
++      std::iota(gpu_indices.begin(), gpu_indices.end(), 0);
++    }
++#endif  // CUDA_ENABLED
++
++    auto sift_gpu_options = sift_options_;
++    for (const auto& gpu_index : gpu_indices) {
++      sift_gpu_options.gpu_index = std::to_string(gpu_index);
++      extractors_.emplace_back(
++          std::make_unique<internal::SiftFeatureExtractorThread>(
++              sift_gpu_options, camera_mask, extractor_queue_.get(),
++              writer_queue_.get()));
++    }
++  } else {
++    if (sift_options_.num_threads == -1 &&
++        sift_options_.max_image_size ==
++            SiftExtractionOptions().max_image_size &&
++        sift_options_.first_octave == SiftExtractionOptions().first_octave) {
++      std::cout
++          << "WARNING: Your current options use the maximum number of "
++             "threads on the machine to extract features. Extracting SIFT "
++             "features on the CPU can consume a lot of RAM per thread for "
++             "large images. Consider reducing the maximum image size and/or "
++             "the first octave or manually limit the number of extraction "
++             "threads. Ignore this warning, if your machine has sufficient "
++             "memory for the current settings."
++          << std::endl;
++    }
++
++    auto custom_sift_options = sift_options_;
++    custom_sift_options.use_gpu = false;
++    for (int i = 0; i < num_threads; ++i) {
++      extractors_.emplace_back(
++          std::make_unique<internal::SiftFeatureExtractorThread>(
++              custom_sift_options, camera_mask, extractor_queue_.get(),
++              writer_queue_.get()));
++    }
++  }
++
++  writer_ = std::make_unique<internal::FeatureWriterThread>(
++      image_reader_.NumImages(), &database_, writer_queue_.get());
++}
++
++void SiftFeatureExtractor::Run() {
++  PrintHeading1("Feature extraction");
++
++  for (auto& resizer : resizers_) {
++    resizer->Start();
++  }
++
++  for (auto& extractor : extractors_) {
++    extractor->Start();
++  }
++
++  writer_->Start();
++
++  for (auto& extractor : extractors_) {
++    if (!extractor->CheckValidSetup()) {
++      return;
++    }
++  }
++
++  while (image_reader_.NextIndex() < image_reader_.NumImages()) {
++    if (IsStopped()) {
++      resizer_queue_->Stop();
++      extractor_queue_->Stop();
++      resizer_queue_->Clear();
++      extractor_queue_->Clear();
++      break;
++    }
++
++    internal::ImageData image_data;
++    image_data.status =
++        image_reader_.Next(&image_data.camera, &image_data.image,
++                           &image_data.bitmap, &image_data.mask);
++
++    if (image_data.status != ImageReader::Status::SUCCESS) {
++      image_data.bitmap.Deallocate();
++    }
++
++    if (sift_options_.max_image_size > 0) {
++      CHECK(resizer_queue_->Push(std::move(image_data)));
++    } else {
++      CHECK(extractor_queue_->Push(std::move(image_data)));
++    }
++  }
++
++  resizer_queue_->Wait();
++  resizer_queue_->Stop();
++  for (auto& resizer : resizers_) {
++    resizer->Wait();
++  }
++
++  extractor_queue_->Wait();
++  extractor_queue_->Stop();
++  for (auto& extractor : extractors_) {
++    extractor->Wait();
++  }
++
++  writer_queue_->Wait();
++  writer_queue_->Stop();
++  writer_->Wait();
++
++  GetTimer().PrintMinutes();
++}
++
++FeatureImporter::FeatureImporter(const ImageReaderOptions& reader_options,
++                                 const std::string& import_path)
++    : reader_options_(reader_options), import_path_(import_path) {}
++
++void FeatureImporter::Run() {
++  PrintHeading1("Feature import");
++
++  if (!ExistsDir(import_path_)) {
++    std::cerr << "  ERROR: Import directory does not exist." << std::endl;
++    return;
++  }
++
++  Database database(reader_options_.database_path);
++  ImageReader image_reader(reader_options_, &database);
++
++  while (image_reader.NextIndex() < image_reader.NumImages()) {
++    if (IsStopped()) {
++      break;
++    }
++
++    std::cout << StringPrintf("Processing file [%d/%d]",
++                              image_reader.NextIndex() + 1,
++                              image_reader.NumImages())
++              << std::endl;
++
++    // Load image data and possibly save camera to database.
++    Camera camera;
++    Image image;
++    Bitmap bitmap;
++    if (image_reader.Next(&camera, &image, &bitmap, nullptr) !=
++        ImageReader::Status::SUCCESS) {
++      continue;
++    }
++
++    const std::string path = JoinPaths(import_path_, image.Name() + ".txt");
++
++    if (ExistsFile(path)) {
++      FeatureKeypoints keypoints;
++      FeatureDescriptors descriptors;
++      LoadSiftFeaturesFromTextFile(path, &keypoints, &descriptors);
++
++      std::cout << "  Features:       " << keypoints.size() << std::endl;
++
++      DatabaseTransaction database_transaction(&database);
++
++      if (image.ImageId() == kInvalidImageId) {
++        image.SetImageId(database.WriteImage(image));
++      }
++
++      if (!database.ExistsKeypoints(image.ImageId())) {
++        database.WriteKeypoints(image.ImageId(), keypoints);
++      }
++
++      if (!database.ExistsDescriptors(image.ImageId())) {
++        database.WriteDescriptors(image.ImageId(), descriptors);
++      }
++    } else {
++      std::cout << "  SKIP: No features found at " << path << std::endl;
++    }
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++namespace internal {
++
++ImageResizerThread::ImageResizerThread(const int max_image_size,
++                                       JobQueue<ImageData>* input_queue,
++                                       JobQueue<ImageData>* output_queue)
++    : max_image_size_(max_image_size),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {}
++
++void ImageResizerThread::Run() {
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& image_data = input_job.Data();
++
++      if (image_data.status == ImageReader::Status::SUCCESS) {
++        if (static_cast<int>(image_data.bitmap.Width()) > max_image_size_ ||
++            static_cast<int>(image_data.bitmap.Height()) > max_image_size_) {
++          // Fit the down-sampled version exactly into the max dimensions.
++          const double scale =
++              static_cast<double>(max_image_size_) /
++              std::max(image_data.bitmap.Width(), image_data.bitmap.Height());
++          const int new_width =
++              static_cast<int>(image_data.bitmap.Width() * scale);
++          const int new_height =
++              static_cast<int>(image_data.bitmap.Height() * scale);
++
++          image_data.bitmap.Rescale(new_width, new_height);
++        }
++      }
++
++      output_queue_->Push(std::move(image_data));
++    } else {
++      break;
++    }
++  }
++}
++
++SiftFeatureExtractorThread::SiftFeatureExtractorThread(
++    const SiftExtractionOptions& sift_options,
++    const std::shared_ptr<Bitmap>& camera_mask,
++    JobQueue<ImageData>* input_queue, JobQueue<ImageData>* output_queue)
++    : sift_options_(sift_options),
++      camera_mask_(camera_mask),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(sift_options_.Check());
++
++#ifndef CUDA_ENABLED
++  if (sift_options_.use_gpu) {
++    opengl_context_ = std::make_unique<OpenGLContextManager>();
++  }
++#endif
++}
++
++void SiftFeatureExtractorThread::Run() {
++  std::unique_ptr<SiftGPU> sift_gpu;
++  if (sift_options_.use_gpu) {
++#ifndef CUDA_ENABLED
++    CHECK(opengl_context_);
++    CHECK(opengl_context_->MakeCurrent());
++#endif
++
++    sift_gpu = std::make_unique<SiftGPU>();
++    if (!CreateSiftGPUExtractor(sift_options_, sift_gpu.get())) {
++      std::cerr << "ERROR: SiftGPU not fully supported." << std::endl;
++      SignalInvalidSetup();
++      return;
++    }
++  }
++
++  SignalValidSetup();
++
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& image_data = input_job.Data();
++
++      if (image_data.status == ImageReader::Status::SUCCESS) {
++        bool success = false;
++        if (sift_options_.estimate_affine_shape ||
++            sift_options_.domain_size_pooling) {
++          success = ExtractCovariantSiftFeaturesCPU(
++              sift_options_, image_data.bitmap, &image_data.keypoints,
++              &image_data.descriptors);
++        } else if (sift_options_.use_gpu) {
++          success = ExtractSiftFeaturesGPU(
++              sift_options_, image_data.bitmap, sift_gpu.get(),
++              &image_data.keypoints, &image_data.descriptors);
++        } else {
++          success = ExtractSiftFeaturesCPU(sift_options_, image_data.bitmap,
++                                           &image_data.keypoints,
++                                           &image_data.descriptors);
++        }
++        if (success) {
++          ScaleKeypoints(image_data.bitmap, image_data.camera,
++                         &image_data.keypoints);
++          if (camera_mask_) {
++            MaskKeypoints(*camera_mask_, &image_data.keypoints,
++                          &image_data.descriptors);
++          }
++          if (image_data.mask.Data()) {
++            MaskKeypoints(image_data.mask, &image_data.keypoints,
++                          &image_data.descriptors);
++          }
++        } else {
++          image_data.status = ImageReader::Status::FAILURE;
++        }
++      }
++
++      image_data.bitmap.Deallocate();
++
++      output_queue_->Push(std::move(image_data));
++    } else {
++      break;
++    }
++  }
++}
++
++FeatureWriterThread::FeatureWriterThread(const size_t num_images,
++                                         Database* database,
++                                         JobQueue<ImageData>* input_queue)
++    : num_images_(num_images), database_(database), input_queue_(input_queue) {}
++
++void FeatureWriterThread::Run() {
++  size_t image_index = 0;
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& image_data = input_job.Data();
++
++      image_index += 1;
++
++      std::cout << StringPrintf("Processed file [%d/%d]", image_index,
++                                num_images_)
++                << std::endl;
++
++      std::cout << StringPrintf("  Name:            %s",
++                                image_data.image.Name().c_str())
++                << std::endl;
++
++      if (image_data.status == ImageReader::Status::IMAGE_EXISTS) {
++        std::cout << "  SKIP: Features for image already extracted."
++                  << std::endl;
++      } else if (image_data.status == ImageReader::Status::BITMAP_ERROR) {
++        std::cout << "  ERROR: Failed to read image file format." << std::endl;
++      } else if (image_data.status ==
++                 ImageReader::Status::CAMERA_SINGLE_DIM_ERROR) {
++        std::cout << "  ERROR: Single camera specified, "
++                     "but images have different dimensions."
++                  << std::endl;
++      } else if (image_data.status ==
++                 ImageReader::Status::CAMERA_EXIST_DIM_ERROR) {
++        std::cout << "  ERROR: Image previously processed, but current image "
++                     "has different dimensions."
++                  << std::endl;
++      } else if (image_data.status == ImageReader::Status::CAMERA_PARAM_ERROR) {
++        std::cout << "  ERROR: Camera has invalid parameters." << std::endl;
++      } else if (image_data.status == ImageReader::Status::FAILURE) {
++        std::cout << "  ERROR: Failed to extract features." << std::endl;
++      }
++
++      if (image_data.status != ImageReader::Status::SUCCESS) {
++        continue;
++      }
++
++      std::cout << StringPrintf("  Dimensions:      %d x %d",
++                                image_data.camera.Width(),
++                                image_data.camera.Height())
++                << std::endl;
++      std::cout << StringPrintf("  Camera:          #%d - %s",
++                                image_data.camera.CameraId(),
++                                image_data.camera.ModelName().c_str())
++                << std::endl;
++      std::cout << StringPrintf("  Focal Length:    %.2fpx",
++                                image_data.camera.MeanFocalLength());
++      if (image_data.camera.HasPriorFocalLength()) {
++        std::cout << " (Prior)" << std::endl;
++      } else {
++        std::cout << std::endl;
++      }
++      if (image_data.image.HasTvecPrior()) {
++        std::cout << StringPrintf(
++                         "  GPS:             LAT=%.3f, LON=%.3f, ALT=%.3f",
++                         image_data.image.TvecPrior(0),
++                         image_data.image.TvecPrior(1),
++                         image_data.image.TvecPrior(2))
++                  << std::endl;
++      }
++      std::cout << StringPrintf("  Features:        %d",
++                                image_data.keypoints.size())
++                << std::endl;
++
++      DatabaseTransaction database_transaction(database_);
++
++      if (image_data.image.ImageId() == kInvalidImageId) {
++        image_data.image.SetImageId(database_->WriteImage(image_data.image));
++      }
++
++      if (!database_->ExistsKeypoints(image_data.image.ImageId())) {
++        database_->WriteKeypoints(image_data.image.ImageId(),
++                                  image_data.keypoints);
++      }
++
++      if (!database_->ExistsDescriptors(image_data.image.ImageId())) {
++        database_->WriteDescriptors(image_data.image.ImageId(),
++                                    image_data.descriptors);
++      }
++    } else {
++      break;
++    }
++  }
++}
++
++}  // namespace internal
++}  // namespace colmap
+diff -Naur colmap-3.8.orig/src/feature/matching.cc colmap-3.8/src/feature/matching.cc
+--- colmap-3.8.orig/src/feature/matching.cc	2023-01-31 16:18:47.000000000 +0100
++++ colmap-3.8/src/feature/matching.cc	2023-08-19 09:24:47.428261855 +0200
+@@ -118,7 +118,7 @@
+     visual_index->Query(query_options, keypoints, descriptors,
+                         &retrieval.image_scores);
+ 
+-    CHECK(retrieval_queue.Push(std::move(retrieval)));
++    CHECK(retrieval_queue.Push(retrieval));
+   };
+ 
+   // Initially, make all retrieval threads busy and continue with the matching.
+@@ -151,7 +151,7 @@
+     }
+ 
+     // Pop the next results from the retrieval queue.
+-    auto retrieval = retrieval_queue.Pop();
++    const auto retrieval = retrieval_queue.Pop();
+     CHECK(retrieval.IsValid());
+ 
+     const auto& image_id = retrieval.Data().image_id;
+@@ -363,13 +363,13 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& data = input_job.Data();
++      auto data = input_job.Data();
+ 
+       if (!cache_->ExistsDescriptors(data.image_id1) ||
+           !cache_->ExistsDescriptors(data.image_id2)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -378,7 +378,7 @@
+       MatchSiftFeaturesCPU(options_, *descriptors1, *descriptors2,
+                            &data.matches);
+ 
+-      CHECK(output_queue_->Push(std::move(data)));
++      CHECK(output_queue_->Push(data));
+     }
+   }
+ }
+@@ -420,13 +420,13 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& data = input_job.Data();
++      auto data = input_job.Data();
+ 
+       if (!cache_->ExistsDescriptors(data.image_id1) ||
+           !cache_->ExistsDescriptors(data.image_id2)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -437,7 +437,7 @@
+       MatchSiftFeaturesGPU(options_, descriptors1_ptr, descriptors2_ptr,
+                            &sift_match_gpu, &data.matches);
+ 
+-      CHECK(output_queue_->Push(std::move(data)));
++      CHECK(output_queue_->Push(data));
+     }
+   }
+ }
+@@ -473,13 +473,13 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& data = input_job.Data();
++      auto data = input_job.Data();
+ 
+       if (data.two_view_geometry.inlier_matches.size() <
+           static_cast<size_t>(options_.min_num_inliers)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -487,7 +487,7 @@
+           !cache_->ExistsKeypoints(data.image_id2) ||
+           !cache_->ExistsDescriptors(data.image_id1) ||
+           !cache_->ExistsDescriptors(data.image_id2)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -499,7 +499,7 @@
+                                  *descriptors1, *descriptors2,
+                                  &data.two_view_geometry);
+ 
+-      CHECK(output_queue_->Push(std::move(data)));
++      CHECK(output_queue_->Push(data));
+     }
+   }
+ }
+@@ -540,13 +540,13 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& data = input_job.Data();
++      auto data = input_job.Data();
+ 
+       if (data.two_view_geometry.inlier_matches.size() <
+           static_cast<size_t>(options_.min_num_inliers)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -554,7 +554,7 @@
+           !cache_->ExistsKeypoints(data.image_id2) ||
+           !cache_->ExistsDescriptors(data.image_id1) ||
+           !cache_->ExistsDescriptors(data.image_id2)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -569,7 +569,7 @@
+                                  descriptors1_ptr, descriptors2_ptr,
+                                  &sift_match_gpu, &data.two_view_geometry);
+ 
+-      CHECK(output_queue_->Push(std::move(data)));
++      CHECK(output_queue_->Push(data));
+     }
+   }
+ }
+@@ -621,12 +621,12 @@
+       break;
+     }
+ 
+-    auto input_job = input_queue_->Pop();
++    const auto input_job = input_queue_->Pop();
+     if (input_job.IsValid()) {
+-      auto& data = input_job.Data();
++      auto data = input_job.Data();
+ 
+       if (data.matches.size() < static_cast<size_t>(options_.min_num_inliers)) {
+-        CHECK(output_queue_->Push(std::move(data)));
++        CHECK(output_queue_->Push(data));
+         continue;
+       }
+ 
+@@ -649,7 +649,7 @@
+                                         two_view_geometry_options_);
+       }
+ 
+-      CHECK(output_queue_->Push(std::move(data)));
++      CHECK(output_queue_->Push(data));
+     }
+   }
+ }
+@@ -855,9 +855,9 @@
+     if (exists_matches) {
+       data.matches = cache_->GetMatches(image_pair.first, image_pair.second);
+       cache_->DeleteMatches(image_pair.first, image_pair.second);
+-      CHECK(verifier_queue_.Push(std::move(data)));
++      CHECK(verifier_queue_.Push(data));
+     } else {
+-      CHECK(matcher_queue_.Push(std::move(data)));
++      CHECK(matcher_queue_.Push(data));
+     }
+   }
+ 
+@@ -866,9 +866,9 @@
+   //////////////////////////////////////////////////////////////////////////////
+ 
+   for (size_t i = 0; i < num_outputs; ++i) {
+-    auto output_job = output_queue_.Pop();
++    const auto output_job = output_queue_.Pop();
+     CHECK(output_job.IsValid());
+-    auto& output = output_job.Data();
++    auto output = output_job.Data();
+ 
+     if (output.matches.size() < static_cast<size_t>(options_.min_num_inliers)) {
+       output.matches = {};
+diff -Naur colmap-3.8.orig/src/feature/matching.cc.orig colmap-3.8/src/feature/matching.cc.orig
+--- colmap-3.8.orig/src/feature/matching.cc.orig	1970-01-01 01:00:00.000000000 +0100
++++ colmap-3.8/src/feature/matching.cc.orig	2023-01-31 16:18:47.000000000 +0100
+@@ -0,0 +1,1722 @@
++// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are met:
++//
++//     * Redistributions of source code must retain the above copyright
++//       notice, this list of conditions and the following disclaimer.
++//
++//     * Redistributions in binary form must reproduce the above copyright
++//       notice, this list of conditions and the following disclaimer in the
++//       documentation and/or other materials provided with the distribution.
++//
++//     * Neither the name of ETH Zurich and UNC Chapel Hill nor the names of
++//       its contributors may be used to endorse or promote products derived
++//       from this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++// POSSIBILITY OF SUCH DAMAGE.
++//
++// Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
++
++#include "feature/matching.h"
++
++#include <fstream>
++#include <numeric>
++
++#include "SiftGPU/SiftGPU.h"
++#include "base/gps.h"
++#include "feature/utils.h"
++#include "retrieval/visual_index.h"
++#include "util/cuda.h"
++#include "util/misc.h"
++
++namespace colmap {
++namespace {
++
++void PrintElapsedTime(const Timer& timer) {
++  std::cout << StringPrintf(" in %.3fs", timer.ElapsedSeconds()) << std::endl;
++}
++
++void IndexImagesInVisualIndex(const int num_threads, const int num_checks,
++                              const int max_num_features,
++                              const std::vector<image_t>& image_ids,
++                              Thread* thread, FeatureMatcherCache* cache,
++                              retrieval::VisualIndex<>* visual_index) {
++  retrieval::VisualIndex<>::IndexOptions index_options;
++  index_options.num_threads = num_threads;
++  index_options.num_checks = num_checks;
++
++  for (size_t i = 0; i < image_ids.size(); ++i) {
++    if (thread->IsStopped()) {
++      return;
++    }
++
++    Timer timer;
++    timer.Start();
++
++    std::cout << StringPrintf("Indexing image [%d/%d]", i + 1, image_ids.size())
++              << std::flush;
++
++    auto keypoints = *cache->GetKeypoints(image_ids[i]);
++    auto descriptors = *cache->GetDescriptors(image_ids[i]);
++    if (max_num_features > 0 && descriptors.rows() > max_num_features) {
++      ExtractTopScaleFeatures(&keypoints, &descriptors, max_num_features);
++    }
++
++    visual_index->Add(index_options, image_ids[i], keypoints, descriptors);
++
++    PrintElapsedTime(timer);
++  }
++
++  // Compute the TF-IDF weights, etc.
++  visual_index->Prepare();
++}
++
++void MatchNearestNeighborsInVisualIndex(
++    const int num_threads, const int num_images, const int num_neighbors,
++    const int num_checks, const int num_images_after_verification,
++    const int max_num_features, const std::vector<image_t>& image_ids,
++    Thread* thread, FeatureMatcherCache* cache,
++    retrieval::VisualIndex<>* visual_index, SiftFeatureMatcher* matcher) {
++  struct Retrieval {
++    image_t image_id = kInvalidImageId;
++    std::vector<retrieval::ImageScore> image_scores;
++  };
++
++  // Create a thread pool to retrieve the nearest neighbors.
++  ThreadPool retrieval_thread_pool(num_threads);
++  JobQueue<Retrieval> retrieval_queue(num_threads);
++
++  // The retrieval thread kernel function. Note that the descriptors should be
++  // extracted outside of this function sequentially to avoid any concurrent
++  // access to the database causing race conditions.
++  retrieval::VisualIndex<>::QueryOptions query_options;
++  query_options.max_num_images = num_images;
++  query_options.num_neighbors = num_neighbors;
++  query_options.num_checks = num_checks;
++  query_options.num_images_after_verification = num_images_after_verification;
++  auto QueryFunc = [&](const image_t image_id) {
++    auto keypoints = *cache->GetKeypoints(image_id);
++    auto descriptors = *cache->GetDescriptors(image_id);
++    if (max_num_features > 0 && descriptors.rows() > max_num_features) {
++      ExtractTopScaleFeatures(&keypoints, &descriptors, max_num_features);
++    }
++
++    Retrieval retrieval;
++    retrieval.image_id = image_id;
++    visual_index->Query(query_options, keypoints, descriptors,
++                        &retrieval.image_scores);
++
++    CHECK(retrieval_queue.Push(std::move(retrieval)));
++  };
++
++  // Initially, make all retrieval threads busy and continue with the matching.
++  size_t image_idx = 0;
++  const size_t init_num_tasks =
++      std::min(image_ids.size(), 2 * retrieval_thread_pool.NumThreads());
++  for (; image_idx < init_num_tasks; ++image_idx) {
++    retrieval_thread_pool.AddTask(QueryFunc, image_ids[image_idx]);
++  }
++
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++
++  // Pop the finished retrieval results and enqueue them for feature matching.
++  for (size_t i = 0; i < image_ids.size(); ++i) {
++    if (thread->IsStopped()) {
++      retrieval_queue.Stop();
++      return;
++    }
++
++    Timer timer;
++    timer.Start();
++
++    std::cout << StringPrintf("Matching image [%d/%d]", i + 1, image_ids.size())
++              << std::flush;
++
++    // Push the next image to the retrieval queue.
++    if (image_idx < image_ids.size()) {
++      retrieval_thread_pool.AddTask(QueryFunc, image_ids[image_idx]);
++      image_idx += 1;
++    }
++
++    // Pop the next results from the retrieval queue.
++    auto retrieval = retrieval_queue.Pop();
++    CHECK(retrieval.IsValid());
++
++    const auto& image_id = retrieval.Data().image_id;
++    const auto& image_scores = retrieval.Data().image_scores;
++
++    // Compose the image pairs from the scores.
++    image_pairs.clear();
++    image_pairs.reserve(image_scores.size());
++    for (const auto image_score : image_scores) {
++      image_pairs.emplace_back(image_id, image_score.image_id);
++    }
++
++    matcher->Match(image_pairs);
++
++    PrintElapsedTime(timer);
++  }
++}
++
++}  // namespace
++
++bool ExhaustiveMatchingOptions::Check() const {
++  CHECK_OPTION_GT(block_size, 1);
++  return true;
++}
++
++bool SequentialMatchingOptions::Check() const {
++  CHECK_OPTION_GT(overlap, 0);
++  CHECK_OPTION_GT(loop_detection_period, 0);
++  CHECK_OPTION_GT(loop_detection_num_images, 0);
++  CHECK_OPTION_GT(loop_detection_num_nearest_neighbors, 0);
++  CHECK_OPTION_GT(loop_detection_num_checks, 0);
++  return true;
++}
++
++bool VocabTreeMatchingOptions::Check() const {
++  CHECK_OPTION_GT(num_images, 0);
++  CHECK_OPTION_GT(num_nearest_neighbors, 0);
++  CHECK_OPTION_GT(num_checks, 0);
++  return true;
++}
++
++bool SpatialMatchingOptions::Check() const {
++  CHECK_OPTION_GT(max_num_neighbors, 0);
++  CHECK_OPTION_GT(max_distance, 0.0);
++  return true;
++}
++
++bool TransitiveMatchingOptions::Check() const {
++  CHECK_OPTION_GT(batch_size, 0);
++  CHECK_OPTION_GT(num_iterations, 0);
++  return true;
++}
++
++bool ImagePairsMatchingOptions::Check() const {
++  CHECK_OPTION_GT(block_size, 0);
++  return true;
++}
++
++bool FeaturePairsMatchingOptions::Check() const { return true; }
++
++FeatureMatcherCache::FeatureMatcherCache(const size_t cache_size,
++                                         const Database* database)
++    : cache_size_(cache_size), database_(database) {
++  CHECK_NOTNULL(database_);
++}
++
++void FeatureMatcherCache::Setup() {
++  const std::vector<Camera> cameras = database_->ReadAllCameras();
++  cameras_cache_.reserve(cameras.size());
++  for (const auto& camera : cameras) {
++    cameras_cache_.emplace(camera.CameraId(), camera);
++  }
++
++  const std::vector<Image> images = database_->ReadAllImages();
++  images_cache_.reserve(images.size());
++  for (const auto& image : images) {
++    images_cache_.emplace(image.ImageId(), image);
++  }
++
++  keypoints_cache_ = std::make_unique<LRUCache<image_t, FeatureKeypointsPtr>>(
++      cache_size_, [this](const image_t image_id) {
++        return std::make_shared<FeatureKeypoints>(
++            database_->ReadKeypoints(image_id));
++      });
++
++  descriptors_cache_ =
++      std::make_unique<LRUCache<image_t, FeatureDescriptorsPtr>>(
++          cache_size_, [this](const image_t image_id) {
++            return std::make_shared<FeatureDescriptors>(
++                database_->ReadDescriptors(image_id));
++          });
++
++  keypoints_exists_cache_ = std::make_unique<LRUCache<image_t, bool>>(
++      images.size(), [this](const image_t image_id) {
++        return database_->ExistsKeypoints(image_id);
++      });
++
++  descriptors_exists_cache_ = std::make_unique<LRUCache<image_t, bool>>(
++      images.size(), [this](const image_t image_id) {
++        return database_->ExistsDescriptors(image_id);
++      });
++}
++
++const Camera& FeatureMatcherCache::GetCamera(const camera_t camera_id) const {
++  return cameras_cache_.at(camera_id);
++}
++
++const Image& FeatureMatcherCache::GetImage(const image_t image_id) const {
++  return images_cache_.at(image_id);
++}
++
++FeatureKeypointsPtr FeatureMatcherCache::GetKeypoints(const image_t image_id) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return keypoints_cache_->Get(image_id);
++}
++
++FeatureDescriptorsPtr FeatureMatcherCache::GetDescriptors(
++    const image_t image_id) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return descriptors_cache_->Get(image_id);
++}
++
++FeatureMatches FeatureMatcherCache::GetMatches(const image_t image_id1,
++                                               const image_t image_id2) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return database_->ReadMatches(image_id1, image_id2);
++}
++
++std::vector<image_t> FeatureMatcherCache::GetImageIds() const {
++  std::vector<image_t> image_ids;
++  image_ids.reserve(images_cache_.size());
++  for (const auto& image : images_cache_) {
++    image_ids.push_back(image.first);
++  }
++  return image_ids;
++}
++
++bool FeatureMatcherCache::ExistsKeypoints(const image_t image_id) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return keypoints_exists_cache_->Get(image_id);
++}
++
++bool FeatureMatcherCache::ExistsDescriptors(const image_t image_id) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return descriptors_exists_cache_->Get(image_id);
++}
++
++bool FeatureMatcherCache::ExistsMatches(const image_t image_id1,
++                                        const image_t image_id2) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return database_->ExistsMatches(image_id1, image_id2);
++}
++
++bool FeatureMatcherCache::ExistsInlierMatches(const image_t image_id1,
++                                              const image_t image_id2) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  return database_->ExistsInlierMatches(image_id1, image_id2);
++}
++
++void FeatureMatcherCache::WriteMatches(const image_t image_id1,
++                                       const image_t image_id2,
++                                       const FeatureMatches& matches) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  database_->WriteMatches(image_id1, image_id2, matches);
++}
++
++void FeatureMatcherCache::WriteTwoViewGeometry(
++    const image_t image_id1, const image_t image_id2,
++    const TwoViewGeometry& two_view_geometry) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  database_->WriteTwoViewGeometry(image_id1, image_id2, two_view_geometry);
++}
++
++void FeatureMatcherCache::DeleteMatches(const image_t image_id1,
++                                        const image_t image_id2) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  database_->DeleteMatches(image_id1, image_id2);
++}
++
++void FeatureMatcherCache::DeleteInlierMatches(const image_t image_id1,
++                                              const image_t image_id2) {
++  std::unique_lock<std::mutex> lock(database_mutex_);
++  database_->DeleteInlierMatches(image_id1, image_id2);
++}
++
++FeatureMatcherThread::FeatureMatcherThread(const SiftMatchingOptions& options,
++                                           FeatureMatcherCache* cache)
++    : options_(options), cache_(cache) {}
++
++void FeatureMatcherThread::SetMaxNumMatches(const int max_num_matches) {
++  options_.max_num_matches = max_num_matches;
++}
++
++SiftCPUFeatureMatcher::SiftCPUFeatureMatcher(const SiftMatchingOptions& options,
++                                             FeatureMatcherCache* cache,
++                                             JobQueue<Input>* input_queue,
++                                             JobQueue<Output>* output_queue)
++    : FeatureMatcherThread(options, cache),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(options_.Check());
++}
++
++void SiftCPUFeatureMatcher::Run() {
++  SignalValidSetup();
++
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& data = input_job.Data();
++
++      if (!cache_->ExistsDescriptors(data.image_id1) ||
++          !cache_->ExistsDescriptors(data.image_id2)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      const auto descriptors1 = cache_->GetDescriptors(data.image_id1);
++      const auto descriptors2 = cache_->GetDescriptors(data.image_id2);
++      MatchSiftFeaturesCPU(options_, *descriptors1, *descriptors2,
++                           &data.matches);
++
++      CHECK(output_queue_->Push(std::move(data)));
++    }
++  }
++}
++
++SiftGPUFeatureMatcher::SiftGPUFeatureMatcher(const SiftMatchingOptions& options,
++                                             FeatureMatcherCache* cache,
++                                             JobQueue<Input>* input_queue,
++                                             JobQueue<Output>* output_queue)
++    : FeatureMatcherThread(options, cache),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(options_.Check());
++
++  prev_uploaded_image_ids_[0] = kInvalidImageId;
++  prev_uploaded_image_ids_[1] = kInvalidImageId;
++
++#ifndef CUDA_ENABLED
++  opengl_context_ = std::make_unique<OpenGLContextManager>();
++#endif
++}
++
++void SiftGPUFeatureMatcher::Run() {
++#ifndef CUDA_ENABLED
++  CHECK(opengl_context_);
++  CHECK(opengl_context_->MakeCurrent());
++#endif
++
++  SiftMatchGPU sift_match_gpu;
++  if (!CreateSiftGPUMatcher(options_, &sift_match_gpu)) {
++    std::cout << "ERROR: SiftGPU not fully supported" << std::endl;
++    SignalInvalidSetup();
++    return;
++  }
++
++  SignalValidSetup();
++
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& data = input_job.Data();
++
++      if (!cache_->ExistsDescriptors(data.image_id1) ||
++          !cache_->ExistsDescriptors(data.image_id2)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      const FeatureDescriptors* descriptors1_ptr;
++      GetDescriptorData(0, data.image_id1, &descriptors1_ptr);
++      const FeatureDescriptors* descriptors2_ptr;
++      GetDescriptorData(1, data.image_id2, &descriptors2_ptr);
++      MatchSiftFeaturesGPU(options_, descriptors1_ptr, descriptors2_ptr,
++                           &sift_match_gpu, &data.matches);
++
++      CHECK(output_queue_->Push(std::move(data)));
++    }
++  }
++}
++
++void SiftGPUFeatureMatcher::GetDescriptorData(
++    const int index, const image_t image_id,
++    const FeatureDescriptors** descriptors_ptr) {
++  CHECK_GE(index, 0);
++  CHECK_LE(index, 1);
++  if (prev_uploaded_image_ids_[index] == image_id) {
++    *descriptors_ptr = nullptr;
++  } else {
++    prev_uploaded_descriptors_[index] = cache_->GetDescriptors(image_id);
++    *descriptors_ptr = prev_uploaded_descriptors_[index].get();
++    prev_uploaded_image_ids_[index] = image_id;
++  }
++}
++
++GuidedSiftCPUFeatureMatcher::GuidedSiftCPUFeatureMatcher(
++    const SiftMatchingOptions& options, FeatureMatcherCache* cache,
++    JobQueue<Input>* input_queue, JobQueue<Output>* output_queue)
++    : FeatureMatcherThread(options, cache),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(options_.Check());
++}
++
++void GuidedSiftCPUFeatureMatcher::Run() {
++  SignalValidSetup();
++
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& data = input_job.Data();
++
++      if (data.two_view_geometry.inlier_matches.size() <
++          static_cast<size_t>(options_.min_num_inliers)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      if (!cache_->ExistsKeypoints(data.image_id1) ||
++          !cache_->ExistsKeypoints(data.image_id2) ||
++          !cache_->ExistsDescriptors(data.image_id1) ||
++          !cache_->ExistsDescriptors(data.image_id2)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      const auto keypoints1 = cache_->GetKeypoints(data.image_id1);
++      const auto keypoints2 = cache_->GetKeypoints(data.image_id2);
++      const auto descriptors1 = cache_->GetDescriptors(data.image_id1);
++      const auto descriptors2 = cache_->GetDescriptors(data.image_id2);
++      MatchGuidedSiftFeaturesCPU(options_, *keypoints1, *keypoints2,
++                                 *descriptors1, *descriptors2,
++                                 &data.two_view_geometry);
++
++      CHECK(output_queue_->Push(std::move(data)));
++    }
++  }
++}
++
++GuidedSiftGPUFeatureMatcher::GuidedSiftGPUFeatureMatcher(
++    const SiftMatchingOptions& options, FeatureMatcherCache* cache,
++    JobQueue<Input>* input_queue, JobQueue<Output>* output_queue)
++    : FeatureMatcherThread(options, cache),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(options_.Check());
++
++  prev_uploaded_image_ids_[0] = kInvalidImageId;
++  prev_uploaded_image_ids_[1] = kInvalidImageId;
++
++#ifndef CUDA_ENABLED
++  opengl_context_ = std::make_unique<OpenGLContextManager>();
++#endif
++}
++
++void GuidedSiftGPUFeatureMatcher::Run() {
++#ifndef CUDA_ENABLED
++  CHECK(opengl_context_);
++  CHECK(opengl_context_->MakeCurrent());
++#endif
++
++  SiftMatchGPU sift_match_gpu;
++  if (!CreateSiftGPUMatcher(options_, &sift_match_gpu)) {
++    std::cout << "ERROR: SiftGPU not fully supported" << std::endl;
++    SignalInvalidSetup();
++    return;
++  }
++
++  SignalValidSetup();
++
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& data = input_job.Data();
++
++      if (data.two_view_geometry.inlier_matches.size() <
++          static_cast<size_t>(options_.min_num_inliers)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      if (!cache_->ExistsKeypoints(data.image_id1) ||
++          !cache_->ExistsKeypoints(data.image_id2) ||
++          !cache_->ExistsDescriptors(data.image_id1) ||
++          !cache_->ExistsDescriptors(data.image_id2)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      const FeatureDescriptors* descriptors1_ptr;
++      const FeatureKeypoints* keypoints1_ptr;
++      GetFeatureData(0, data.image_id1, &keypoints1_ptr, &descriptors1_ptr);
++      const FeatureDescriptors* descriptors2_ptr;
++      const FeatureKeypoints* keypoints2_ptr;
++      GetFeatureData(1, data.image_id2, &keypoints2_ptr, &descriptors2_ptr);
++
++      MatchGuidedSiftFeaturesGPU(options_, keypoints1_ptr, keypoints2_ptr,
++                                 descriptors1_ptr, descriptors2_ptr,
++                                 &sift_match_gpu, &data.two_view_geometry);
++
++      CHECK(output_queue_->Push(std::move(data)));
++    }
++  }
++}
++
++void GuidedSiftGPUFeatureMatcher::GetFeatureData(
++    const int index, const image_t image_id,
++    const FeatureKeypoints** keypoints_ptr,
++    const FeatureDescriptors** descriptors_ptr) {
++  CHECK_GE(index, 0);
++  CHECK_LE(index, 1);
++  if (prev_uploaded_image_ids_[index] == image_id) {
++    *keypoints_ptr = nullptr;
++    *descriptors_ptr = nullptr;
++  } else {
++    prev_uploaded_keypoints_[index] = cache_->GetKeypoints(image_id);
++    prev_uploaded_descriptors_[index] = cache_->GetDescriptors(image_id);
++    *keypoints_ptr = prev_uploaded_keypoints_[index].get();
++    *descriptors_ptr = prev_uploaded_descriptors_[index].get();
++    prev_uploaded_image_ids_[index] = image_id;
++  }
++}
++
++TwoViewGeometryVerifier::TwoViewGeometryVerifier(
++    const SiftMatchingOptions& options, FeatureMatcherCache* cache,
++    JobQueue<Input>* input_queue, JobQueue<Output>* output_queue)
++    : options_(options),
++      cache_(cache),
++      input_queue_(input_queue),
++      output_queue_(output_queue) {
++  CHECK(options_.Check());
++
++  two_view_geometry_options_.min_num_inliers =
++      static_cast<size_t>(options_.min_num_inliers);
++  two_view_geometry_options_.ransac_options.max_error = options_.max_error;
++  two_view_geometry_options_.ransac_options.confidence = options_.confidence;
++  two_view_geometry_options_.ransac_options.min_num_trials =
++      static_cast<size_t>(options_.min_num_trials);
++  two_view_geometry_options_.ransac_options.max_num_trials =
++      static_cast<size_t>(options_.max_num_trials);
++  two_view_geometry_options_.ransac_options.min_inlier_ratio =
++      options_.min_inlier_ratio;
++  two_view_geometry_options_.force_H_use = options_.planar_scene;
++  two_view_geometry_options_.compute_relative_pose = options_.compute_relative_pose;
++}
++
++void TwoViewGeometryVerifier::Run() {
++  while (true) {
++    if (IsStopped()) {
++      break;
++    }
++
++    auto input_job = input_queue_->Pop();
++    if (input_job.IsValid()) {
++      auto& data = input_job.Data();
++
++      if (data.matches.size() < static_cast<size_t>(options_.min_num_inliers)) {
++        CHECK(output_queue_->Push(std::move(data)));
++        continue;
++      }
++
++      const auto& camera1 =
++          cache_->GetCamera(cache_->GetImage(data.image_id1).CameraId());
++      const auto& camera2 =
++          cache_->GetCamera(cache_->GetImage(data.image_id2).CameraId());
++      const auto keypoints1 = cache_->GetKeypoints(data.image_id1);
++      const auto keypoints2 = cache_->GetKeypoints(data.image_id2);
++      const auto& points1 = FeatureKeypointsToPointsVector(*keypoints1);
++      const auto& points2 = FeatureKeypointsToPointsVector(*keypoints2);
++
++      if (options_.multiple_models) {
++        data.two_view_geometry.EstimateMultiple(camera1, points1, camera2,
++                                                points2, data.matches,
++                                                two_view_geometry_options_);
++      } else {
++        data.two_view_geometry.Estimate(camera1, points1, camera2, points2,
++                                        data.matches,
++                                        two_view_geometry_options_);
++      }
++
++      CHECK(output_queue_->Push(std::move(data)));
++    }
++  }
++}
++
++SiftFeatureMatcher::SiftFeatureMatcher(const SiftMatchingOptions& options,
++                                       Database* database,
++                                       FeatureMatcherCache* cache)
++    : options_(options), database_(database), cache_(cache), is_setup_(false) {
++  CHECK(options_.Check());
++
++  const int num_threads = GetEffectiveNumThreads(options_.num_threads);
++  CHECK_GT(num_threads, 0);
++
++  std::vector<int> gpu_indices = CSVToVector<int>(options_.gpu_index);
++  CHECK_GT(gpu_indices.size(), 0);
++
++#ifdef CUDA_ENABLED
++  if (options_.use_gpu && gpu_indices.size() == 1 && gpu_indices[0] == -1) {
++    const int num_cuda_devices = GetNumCudaDevices();
++    CHECK_GT(num_cuda_devices, 0);
++    gpu_indices.resize(num_cuda_devices);
++    std::iota(gpu_indices.begin(), gpu_indices.end(), 0);
++  }
++#endif  // CUDA_ENABLED
++
++  if (options_.use_gpu) {
++    auto gpu_options = options_;
++    matchers_.reserve(gpu_indices.size());
++    for (const auto& gpu_index : gpu_indices) {
++      gpu_options.gpu_index = std::to_string(gpu_index);
++      matchers_.emplace_back(std::make_unique<SiftGPUFeatureMatcher>(
++          gpu_options, cache, &matcher_queue_, &verifier_queue_));
++    }
++  } else {
++    matchers_.reserve(num_threads);
++    for (int i = 0; i < num_threads; ++i) {
++      matchers_.emplace_back(std::make_unique<SiftCPUFeatureMatcher>(
++          options_, cache, &matcher_queue_, &verifier_queue_));
++    }
++  }
++
++  verifiers_.reserve(num_threads);
++  if (options_.guided_matching) {
++    for (int i = 0; i < num_threads; ++i) {
++      verifiers_.emplace_back(std::make_unique<TwoViewGeometryVerifier>(
++          options_, cache, &verifier_queue_, &guided_matcher_queue_));
++    }
++
++    if (options_.use_gpu) {
++      auto gpu_options = options_;
++      guided_matchers_.reserve(gpu_indices.size());
++      for (const auto& gpu_index : gpu_indices) {
++        gpu_options.gpu_index = std::to_string(gpu_index);
++        guided_matchers_.emplace_back(
++            std::make_unique<GuidedSiftGPUFeatureMatcher>(
++                gpu_options, cache, &guided_matcher_queue_, &output_queue_));
++      }
++    } else {
++      guided_matchers_.reserve(num_threads);
++      for (int i = 0; i < num_threads; ++i) {
++        guided_matchers_.emplace_back(
++            std::make_unique<GuidedSiftCPUFeatureMatcher>(
++                options_, cache, &guided_matcher_queue_, &output_queue_));
++      }
++    }
++  } else {
++    for (int i = 0; i < num_threads; ++i) {
++      verifiers_.emplace_back(std::make_unique<TwoViewGeometryVerifier>(
++          options_, cache, &verifier_queue_, &output_queue_));
++    }
++  }
++}
++
++SiftFeatureMatcher::~SiftFeatureMatcher() {
++  matcher_queue_.Wait();
++  verifier_queue_.Wait();
++  guided_matcher_queue_.Wait();
++  output_queue_.Wait();
++
++  for (auto& matcher : matchers_) {
++    matcher->Stop();
++  }
++
++  for (auto& verifier : verifiers_) {
++    verifier->Stop();
++  }
++
++  for (auto& guided_matcher : guided_matchers_) {
++    guided_matcher->Stop();
++  }
++
++  matcher_queue_.Stop();
++  verifier_queue_.Stop();
++  guided_matcher_queue_.Stop();
++  output_queue_.Stop();
++
++  for (auto& matcher : matchers_) {
++    matcher->Wait();
++  }
++
++  for (auto& verifier : verifiers_) {
++    verifier->Wait();
++  }
++
++  for (auto& guided_matcher : guided_matchers_) {
++    guided_matcher->Wait();
++  }
++}
++
++bool SiftFeatureMatcher::Setup() {
++  const int max_num_features = CHECK_NOTNULL(database_)->MaxNumDescriptors();
++  options_.max_num_matches =
++      std::min(options_.max_num_matches, max_num_features);
++
++  for (auto& matcher : matchers_) {
++    matcher->SetMaxNumMatches(options_.max_num_matches);
++    matcher->Start();
++  }
++
++  for (auto& verifier : verifiers_) {
++    verifier->Start();
++  }
++
++  for (auto& guided_matcher : guided_matchers_) {
++    guided_matcher->SetMaxNumMatches(options_.max_num_matches);
++    guided_matcher->Start();
++  }
++
++  for (auto& matcher : matchers_) {
++    if (!matcher->CheckValidSetup()) {
++      return false;
++    }
++  }
++
++  for (auto& guided_matcher : guided_matchers_) {
++    if (!guided_matcher->CheckValidSetup()) {
++      return false;
++    }
++  }
++
++  is_setup_ = true;
++
++  return true;
++}
++
++void SiftFeatureMatcher::Match(
++    const std::vector<std::pair<image_t, image_t>>& image_pairs) {
++  CHECK_NOTNULL(database_);
++  CHECK_NOTNULL(cache_);
++  CHECK(is_setup_);
++
++  if (image_pairs.empty()) {
++    return;
++  }
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Match the image pairs
++  //////////////////////////////////////////////////////////////////////////////
++
++  std::unordered_set<image_pair_t> image_pair_ids;
++  image_pair_ids.reserve(image_pairs.size());
++
++  size_t num_outputs = 0;
++  for (const auto& image_pair : image_pairs) {
++    // Avoid self-matches.
++    if (image_pair.first == image_pair.second) {
++      continue;
++    }
++
++    // Avoid duplicate image pairs.
++    const image_pair_t pair_id =
++        Database::ImagePairToPairId(image_pair.first, image_pair.second);
++    if (image_pair_ids.count(pair_id) > 0) {
++      continue;
++    }
++
++    image_pair_ids.insert(pair_id);
++
++    const bool exists_matches =
++        cache_->ExistsMatches(image_pair.first, image_pair.second);
++    const bool exists_inlier_matches =
++        cache_->ExistsInlierMatches(image_pair.first, image_pair.second);
++
++    if (exists_matches && exists_inlier_matches) {
++      continue;
++    }
++
++    num_outputs += 1;
++
++    // If only one of the matches or inlier matches exist, we recompute them
++    // from scratch and delete the existing results. This must be done before
++    // pushing the jobs to the queue, otherwise database constraints might fail
++    // when writing an existing result into the database.
++
++    if (exists_inlier_matches) {
++      cache_->DeleteInlierMatches(image_pair.first, image_pair.second);
++    }
++
++    internal::FeatureMatcherData data;
++    data.image_id1 = image_pair.first;
++    data.image_id2 = image_pair.second;
++
++    if (exists_matches) {
++      data.matches = cache_->GetMatches(image_pair.first, image_pair.second);
++      cache_->DeleteMatches(image_pair.first, image_pair.second);
++      CHECK(verifier_queue_.Push(std::move(data)));
++    } else {
++      CHECK(matcher_queue_.Push(std::move(data)));
++    }
++  }
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Write results to database
++  //////////////////////////////////////////////////////////////////////////////
++
++  for (size_t i = 0; i < num_outputs; ++i) {
++    auto output_job = output_queue_.Pop();
++    CHECK(output_job.IsValid());
++    auto& output = output_job.Data();
++
++    if (output.matches.size() < static_cast<size_t>(options_.min_num_inliers)) {
++      output.matches = {};
++    }
++
++    if (output.two_view_geometry.inlier_matches.size() <
++        static_cast<size_t>(options_.min_num_inliers)) {
++      output.two_view_geometry = TwoViewGeometry();
++    }
++
++    cache_->WriteMatches(output.image_id1, output.image_id2, output.matches);
++    cache_->WriteTwoViewGeometry(output.image_id1, output.image_id2,
++                                 output.two_view_geometry);
++  }
++
++  CHECK_EQ(output_queue_.Size(), 0);
++}
++
++ExhaustiveFeatureMatcher::ExhaustiveFeatureMatcher(
++    const ExhaustiveMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(5 * options_.block_size, &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void ExhaustiveFeatureMatcher::Run() {
++  PrintHeading1("Exhaustive feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  const std::vector<image_t> image_ids = cache_.GetImageIds();
++
++  const size_t block_size = static_cast<size_t>(options_.block_size);
++  const size_t num_blocks = static_cast<size_t>(
++      std::ceil(static_cast<double>(image_ids.size()) / block_size));
++  const size_t num_pairs_per_block = block_size * (block_size - 1) / 2;
++
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++  image_pairs.reserve(num_pairs_per_block);
++
++  for (size_t start_idx1 = 0; start_idx1 < image_ids.size();
++       start_idx1 += block_size) {
++    const size_t end_idx1 =
++        std::min(image_ids.size(), start_idx1 + block_size) - 1;
++    for (size_t start_idx2 = 0; start_idx2 < image_ids.size();
++         start_idx2 += block_size) {
++      const size_t end_idx2 =
++          std::min(image_ids.size(), start_idx2 + block_size) - 1;
++
++      if (IsStopped()) {
++        GetTimer().PrintMinutes();
++        return;
++      }
++
++      Timer timer;
++      timer.Start();
++
++      std::cout << StringPrintf("Matching block [%d/%d, %d/%d]",
++                                start_idx1 / block_size + 1, num_blocks,
++                                start_idx2 / block_size + 1, num_blocks)
++                << std::flush;
++
++      image_pairs.clear();
++      for (size_t idx1 = start_idx1; idx1 <= end_idx1; ++idx1) {
++        for (size_t idx2 = start_idx2; idx2 <= end_idx2; ++idx2) {
++          const size_t block_id1 = idx1 % block_size;
++          const size_t block_id2 = idx2 % block_size;
++          if ((idx1 > idx2 && block_id1 <= block_id2) ||
++              (idx1 < idx2 &&
++               block_id1 < block_id2)) {  // Avoid duplicate pairs
++            image_pairs.emplace_back(image_ids[idx1], image_ids[idx2]);
++          }
++        }
++      }
++
++      DatabaseTransaction database_transaction(&database_);
++      matcher_.Match(image_pairs);
++
++      PrintElapsedTime(timer);
++    }
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++SequentialFeatureMatcher::SequentialFeatureMatcher(
++    const SequentialMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(std::max(5 * options_.loop_detection_num_images,
++                      5 * options_.overlap),
++             &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void SequentialFeatureMatcher::Run() {
++  PrintHeading1("Sequential feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  const std::vector<image_t> ordered_image_ids = GetOrderedImageIds();
++
++  RunSequentialMatching(ordered_image_ids);
++  if (options_.loop_detection) {
++    RunLoopDetection(ordered_image_ids);
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++std::vector<image_t> SequentialFeatureMatcher::GetOrderedImageIds() const {
++  const std::vector<image_t> image_ids = cache_.GetImageIds();
++
++  std::vector<Image> ordered_images;
++  ordered_images.reserve(image_ids.size());
++  for (const auto image_id : image_ids) {
++    ordered_images.push_back(cache_.GetImage(image_id));
++  }
++
++  std::sort(ordered_images.begin(), ordered_images.end(),
++            [](const Image& image1, const Image& image2) {
++              return image1.Name() < image2.Name();
++            });
++
++  std::vector<image_t> ordered_image_ids;
++  ordered_image_ids.reserve(image_ids.size());
++  for (const auto& image : ordered_images) {
++    ordered_image_ids.push_back(image.ImageId());
++  }
++
++  return ordered_image_ids;
++}
++
++void SequentialFeatureMatcher::RunSequentialMatching(
++    const std::vector<image_t>& image_ids) {
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++  image_pairs.reserve(options_.overlap);
++
++  for (size_t image_idx1 = 0; image_idx1 < image_ids.size(); ++image_idx1) {
++    if (IsStopped()) {
++      return;
++    }
++
++    const auto image_id1 = image_ids.at(image_idx1);
++
++    Timer timer;
++    timer.Start();
++
++    std::cout << StringPrintf("Matching image [%d/%d]", image_idx1 + 1,
++                              image_ids.size())
++              << std::flush;
++
++    image_pairs.clear();
++    for (int i = 0; i < options_.overlap; ++i) {
++      const size_t image_idx2 = image_idx1 + i;
++      if (image_idx2 < image_ids.size()) {
++        image_pairs.emplace_back(image_id1, image_ids.at(image_idx2));
++        if (options_.quadratic_overlap) {
++          const size_t image_idx2_quadratic = image_idx1 + (1 << i);
++          if (image_idx2_quadratic < image_ids.size()) {
++            image_pairs.emplace_back(image_id1,
++                                     image_ids.at(image_idx2_quadratic));
++          }
++        }
++      } else {
++        break;
++      }
++    }
++
++    DatabaseTransaction database_transaction(&database_);
++    matcher_.Match(image_pairs);
++
++    PrintElapsedTime(timer);
++  }
++}
++
++void SequentialFeatureMatcher::RunLoopDetection(
++    const std::vector<image_t>& image_ids) {
++  // Read the pre-trained vocabulary tree from disk.
++  retrieval::VisualIndex<> visual_index;
++  visual_index.Read(options_.vocab_tree_path);
++
++  // Index all images in the visual index.
++  IndexImagesInVisualIndex(match_options_.num_threads,
++                           options_.loop_detection_num_checks,
++                           options_.loop_detection_max_num_features, image_ids,
++                           this, &cache_, &visual_index);
++
++  if (IsStopped()) {
++    return;
++  }
++
++  // Only perform loop detection for every n-th image.
++  std::vector<image_t> match_image_ids;
++  for (size_t i = 0; i < image_ids.size();
++       i += options_.loop_detection_period) {
++    match_image_ids.push_back(image_ids[i]);
++  }
++
++  MatchNearestNeighborsInVisualIndex(
++      match_options_.num_threads, options_.loop_detection_num_images,
++      options_.loop_detection_num_nearest_neighbors,
++      options_.loop_detection_num_checks,
++      options_.loop_detection_num_images_after_verification,
++      options_.loop_detection_max_num_features, match_image_ids, this, &cache_,
++      &visual_index, &matcher_);
++}
++
++VocabTreeFeatureMatcher::VocabTreeFeatureMatcher(
++    const VocabTreeMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(5 * options_.num_images, &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void VocabTreeFeatureMatcher::Run() {
++  PrintHeading1("Vocabulary tree feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  // Read the pre-trained vocabulary tree from disk.
++  retrieval::VisualIndex<> visual_index;
++  visual_index.Read(options_.vocab_tree_path);
++
++  const std::vector<image_t> all_image_ids = cache_.GetImageIds();
++  std::vector<image_t> image_ids;
++  if (options_.match_list_path == "") {
++    image_ids = cache_.GetImageIds();
++  } else {
++    // Map image names to image identifiers.
++    std::unordered_map<std::string, image_t> image_name_to_image_id;
++    image_name_to_image_id.reserve(all_image_ids.size());
++    for (const auto image_id : all_image_ids) {
++      const auto& image = cache_.GetImage(image_id);
++      image_name_to_image_id.emplace(image.Name(), image_id);
++    }
++
++    // Read the match list path.
++    std::ifstream file(options_.match_list_path);
++    CHECK(file.is_open()) << options_.match_list_path;
++    std::string line;
++    while (std::getline(file, line)) {
++      StringTrim(&line);
++
++      if (line.empty() || line[0] == '#') {
++        continue;
++      }
++
++      if (image_name_to_image_id.count(line) == 0) {
++        std::cerr << "ERROR: Image " << line << " does not exist." << std::endl;
++      } else {
++        image_ids.push_back(image_name_to_image_id.at(line));
++      }
++    }
++  }
++
++  // Index all images in the visual index.
++  IndexImagesInVisualIndex(match_options_.num_threads, options_.num_checks,
++                           options_.max_num_features, all_image_ids, this,
++                           &cache_, &visual_index);
++
++  if (IsStopped()) {
++    GetTimer().PrintMinutes();
++    return;
++  }
++
++  // Match all images in the visual index.
++  MatchNearestNeighborsInVisualIndex(
++      match_options_.num_threads, options_.num_images,
++      options_.num_nearest_neighbors, options_.num_checks,
++      options_.num_images_after_verification, options_.max_num_features,
++      image_ids, this, &cache_, &visual_index, &matcher_);
++
++  GetTimer().PrintMinutes();
++}
++
++SpatialFeatureMatcher::SpatialFeatureMatcher(
++    const SpatialMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(5 * options_.max_num_neighbors, &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void SpatialFeatureMatcher::Run() {
++  PrintHeading1("Spatial feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  const std::vector<image_t> image_ids = cache_.GetImageIds();
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Spatial indexing
++  //////////////////////////////////////////////////////////////////////////////
++
++  Timer timer;
++  timer.Start();
++
++  std::cout << "Indexing images..." << std::flush;
++
++  GPSTransform gps_transform;
++
++  size_t num_locations = 0;
++  Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor> location_matrix(
++      image_ids.size(), 3);
++
++  std::vector<size_t> location_idxs;
++  location_idxs.reserve(image_ids.size());
++
++  std::vector<Eigen::Vector3d> ells(1);
++
++  for (size_t i = 0; i < image_ids.size(); ++i) {
++    const auto image_id = image_ids[i];
++    const auto& image = cache_.GetImage(image_id);
++
++    if ((image.TvecPrior(0) == 0 && image.TvecPrior(1) == 0 &&
++         options_.ignore_z) ||
++        (image.TvecPrior(0) == 0 && image.TvecPrior(1) == 0 &&
++         image.TvecPrior(2) == 0 && !options_.ignore_z)) {
++      continue;
++    }
++
++    location_idxs.push_back(i);
++
++    if (options_.is_gps) {
++      ells[0](0) = image.TvecPrior(0);
++      ells[0](1) = image.TvecPrior(1);
++      ells[0](2) = options_.ignore_z ? 0 : image.TvecPrior(2);
++
++      const auto xyzs = gps_transform.EllToXYZ(ells);
++
++      location_matrix(num_locations, 0) = static_cast<float>(xyzs[0](0));
++      location_matrix(num_locations, 1) = static_cast<float>(xyzs[0](1));
++      location_matrix(num_locations, 2) = static_cast<float>(xyzs[0](2));
++    } else {
++      location_matrix(num_locations, 0) =
++          static_cast<float>(image.TvecPrior(0));
++      location_matrix(num_locations, 1) =
++          static_cast<float>(image.TvecPrior(1));
++      location_matrix(num_locations, 2) =
++          static_cast<float>(options_.ignore_z ? 0 : image.TvecPrior(2));
++    }
++
++    num_locations += 1;
++  }
++
++  PrintElapsedTime(timer);
++
++  if (num_locations == 0) {
++    std::cout << " => No images with location data." << std::endl;
++    GetTimer().PrintMinutes();
++    return;
++  }
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Building spatial index
++  //////////////////////////////////////////////////////////////////////////////
++
++  timer.Restart();
++
++  std::cout << "Building search index..." << std::flush;
++
++  flann::Matrix<float> locations(location_matrix.data(), num_locations,
++                                 location_matrix.cols());
++
++  flann::LinearIndexParams index_params;
++  flann::LinearIndex<flann::L2<float>> search_index(index_params);
++  search_index.buildIndex(locations);
++
++  PrintElapsedTime(timer);
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Searching spatial index
++  //////////////////////////////////////////////////////////////////////////////
++
++  timer.Restart();
++
++  std::cout << "Searching for nearest neighbors..." << std::flush;
++
++  const int knn = std::min<int>(options_.max_num_neighbors, num_locations);
++
++  Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
++      index_matrix(num_locations, knn);
++  flann::Matrix<size_t> indices(index_matrix.data(), num_locations, knn);
++
++  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
++      distance_matrix(num_locations, knn);
++  flann::Matrix<float> distances(distance_matrix.data(), num_locations, knn);
++
++  flann::SearchParams search_params(flann::FLANN_CHECKS_AUTOTUNED);
++  if (match_options_.num_threads == ThreadPool::kMaxNumThreads) {
++    search_params.cores = std::thread::hardware_concurrency();
++  } else {
++    search_params.cores = match_options_.num_threads;
++  }
++  if (search_params.cores <= 0) {
++    search_params.cores = 1;
++  }
++
++  search_index.knnSearch(locations, indices, distances, knn, search_params);
++
++  PrintElapsedTime(timer);
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Matching
++  //////////////////////////////////////////////////////////////////////////////
++
++  const float max_distance =
++      static_cast<float>(options_.max_distance * options_.max_distance);
++
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++  image_pairs.reserve(knn);
++
++  for (size_t i = 0; i < num_locations; ++i) {
++    if (IsStopped()) {
++      GetTimer().PrintMinutes();
++      return;
++    }
++
++    timer.Restart();
++
++    std::cout << StringPrintf("Matching image [%d/%d]", i + 1, num_locations)
++              << std::flush;
++
++    image_pairs.clear();
++
++    for (int j = 0; j < knn; ++j) {
++      // Check if query equals result.
++      if (index_matrix(i, j) == i) {
++        continue;
++      }
++
++      // Since the nearest neighbors are sorted by distance, we can break.
++      if (distance_matrix(i, j) > max_distance) {
++        break;
++      }
++
++      const size_t idx = location_idxs[i];
++      const image_t image_id = image_ids.at(idx);
++      const size_t nn_idx = location_idxs.at(index_matrix(i, j));
++      const image_t nn_image_id = image_ids.at(nn_idx);
++      image_pairs.emplace_back(image_id, nn_image_id);
++    }
++
++    DatabaseTransaction database_transaction(&database_);
++    matcher_.Match(image_pairs);
++
++    PrintElapsedTime(timer);
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++TransitiveFeatureMatcher::TransitiveFeatureMatcher(
++    const TransitiveMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(options_.batch_size, &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void TransitiveFeatureMatcher::Run() {
++  PrintHeading1("Transitive feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  const std::vector<image_t> image_ids = cache_.GetImageIds();
++
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++  std::unordered_set<image_pair_t> image_pair_ids;
++
++  for (int iteration = 0; iteration < options_.num_iterations; ++iteration) {
++    if (IsStopped()) {
++      GetTimer().PrintMinutes();
++      return;
++    }
++
++    Timer timer;
++    timer.Start();
++
++    std::cout << StringPrintf("Iteration [%d/%d]", iteration + 1,
++                              options_.num_iterations)
++              << std::endl;
++
++    std::vector<std::pair<image_t, image_t>> existing_image_pairs;
++    std::vector<int> existing_num_inliers;
++    database_.ReadTwoViewGeometryNumInliers(&existing_image_pairs,
++                                            &existing_num_inliers);
++
++    CHECK_EQ(existing_image_pairs.size(), existing_num_inliers.size());
++
++    std::unordered_map<image_t, std::vector<image_t>> adjacency;
++    for (const auto& image_pair : existing_image_pairs) {
++      adjacency[image_pair.first].push_back(image_pair.second);
++      adjacency[image_pair.second].push_back(image_pair.first);
++    }
++
++    const size_t batch_size = static_cast<size_t>(options_.batch_size);
++
++    size_t num_batches = 0;
++    image_pairs.clear();
++    image_pair_ids.clear();
++    for (const auto& image : adjacency) {
++      const auto image_id1 = image.first;
++      for (const auto& image_id2 : image.second) {
++        if (adjacency.count(image_id2) > 0) {
++          for (const auto& image_id3 : adjacency.at(image_id2)) {
++            const auto image_pair_id =
++                Database::ImagePairToPairId(image_id1, image_id3);
++            if (image_pair_ids.count(image_pair_id) == 0) {
++              image_pairs.emplace_back(image_id1, image_id3);
++              image_pair_ids.insert(image_pair_id);
++              if (image_pairs.size() >= batch_size) {
++                num_batches += 1;
++                std::cout << StringPrintf("  Batch %d", num_batches)
++                          << std::flush;
++                DatabaseTransaction database_transaction(&database_);
++                matcher_.Match(image_pairs);
++                image_pairs.clear();
++                PrintElapsedTime(timer);
++                timer.Restart();
++
++                if (IsStopped()) {
++                  GetTimer().PrintMinutes();
++                  return;
++                }
++              }
++            }
++          }
++        }
++      }
++    }
++
++    num_batches += 1;
++    std::cout << StringPrintf("  Batch %d", num_batches) << std::flush;
++    DatabaseTransaction database_transaction(&database_);
++    matcher_.Match(image_pairs);
++    PrintElapsedTime(timer);
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++ImagePairsFeatureMatcher::ImagePairsFeatureMatcher(
++    const ImagePairsMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(options.block_size, &database_),
++      matcher_(match_options, &database_, &cache_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void ImagePairsFeatureMatcher::Run() {
++  PrintHeading1("Custom feature matching");
++
++  if (!matcher_.Setup()) {
++    return;
++  }
++
++  cache_.Setup();
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Reading image pairs list
++  //////////////////////////////////////////////////////////////////////////////
++
++  std::unordered_map<std::string, image_t> image_name_to_image_id;
++  image_name_to_image_id.reserve(cache_.GetImageIds().size());
++  for (const auto image_id : cache_.GetImageIds()) {
++    const auto& image = cache_.GetImage(image_id);
++    image_name_to_image_id.emplace(image.Name(), image_id);
++  }
++
++  std::ifstream file(options_.match_list_path);
++  CHECK(file.is_open()) << options_.match_list_path;
++
++  std::string line;
++  std::vector<std::pair<image_t, image_t>> image_pairs;
++  std::unordered_set<colmap::image_pair_t> image_pairs_set;
++  while (std::getline(file, line)) {
++    StringTrim(&line);
++
++    if (line.empty() || line[0] == '#') {
++      continue;
++    }
++
++    std::stringstream line_stream(line);
++
++    std::string image_name1;
++    std::string image_name2;
++
++    std::getline(line_stream, image_name1, ' ');
++    StringTrim(&image_name1);
++    std::getline(line_stream, image_name2, ' ');
++    StringTrim(&image_name2);
++
++    if (image_name_to_image_id.count(image_name1) == 0) {
++      std::cerr << "ERROR: Image " << image_name1 << " does not exist."
++                << std::endl;
++      continue;
++    }
++    if (image_name_to_image_id.count(image_name2) == 0) {
++      std::cerr << "ERROR: Image " << image_name2 << " does not exist."
++                << std::endl;
++      continue;
++    }
++
++    const image_t image_id1 = image_name_to_image_id.at(image_name1);
++    const image_t image_id2 = image_name_to_image_id.at(image_name2);
++    const image_pair_t image_pair =
++        Database::ImagePairToPairId(image_id1, image_id2);
++    const bool image_pair_exists = image_pairs_set.insert(image_pair).second;
++    if (image_pair_exists) {
++      image_pairs.emplace_back(image_id1, image_id2);
++    }
++  }
++
++  //////////////////////////////////////////////////////////////////////////////
++  // Feature matching
++  //////////////////////////////////////////////////////////////////////////////
++
++  const size_t num_match_blocks = image_pairs.size() / options_.block_size + 1;
++  std::vector<std::pair<image_t, image_t>> block_image_pairs;
++  block_image_pairs.reserve(options_.block_size);
++
++  for (size_t i = 0; i < image_pairs.size(); i += options_.block_size) {
++    if (IsStopped()) {
++      GetTimer().PrintMinutes();
++      return;
++    }
++
++    Timer timer;
++    timer.Start();
++
++    std::cout << StringPrintf("Matching block [%d/%d]",
++                              i / options_.block_size + 1, num_match_blocks)
++              << std::flush;
++
++    const size_t block_end = i + options_.block_size <= image_pairs.size()
++                                 ? i + options_.block_size
++                                 : image_pairs.size();
++    std::vector<std::pair<image_t, image_t>> block_image_pairs;
++    block_image_pairs.reserve(options_.block_size);
++    for (size_t j = i; j < block_end; ++j) {
++      block_image_pairs.push_back(image_pairs[j]);
++    }
++
++    DatabaseTransaction database_transaction(&database_);
++    matcher_.Match(block_image_pairs);
++
++    PrintElapsedTime(timer);
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++FeaturePairsFeatureMatcher::FeaturePairsFeatureMatcher(
++    const FeaturePairsMatchingOptions& options,
++    const SiftMatchingOptions& match_options, const std::string& database_path)
++    : options_(options),
++      match_options_(match_options),
++      database_(database_path),
++      cache_(kCacheSize, &database_) {
++  CHECK(options_.Check());
++  CHECK(match_options_.Check());
++}
++
++void FeaturePairsFeatureMatcher::Run() {
++  PrintHeading1("Importing matches");
++
++  cache_.Setup();
++
++  std::unordered_map<std::string, const Image*> image_name_to_image;
++  image_name_to_image.reserve(cache_.GetImageIds().size());
++  for (const auto image_id : cache_.GetImageIds()) {
++    const auto& image = cache_.GetImage(image_id);
++    image_name_to_image.emplace(image.Name(), &image);
++  }
++
++  std::ifstream file(options_.match_list_path);
++  CHECK(file.is_open()) << options_.match_list_path;
++
++  std::string line;
++  while (std::getline(file, line)) {
++    if (IsStopped()) {
++      GetTimer().PrintMinutes();
++      return;
++    }
++
++    StringTrim(&line);
++    if (line.empty()) {
++      continue;
++    }
++
++    std::istringstream line_stream(line);
++
++    std::string image_name1, image_name2;
++    try {
++      line_stream >> image_name1 >> image_name2;
++    } catch (...) {
++      std::cerr << "ERROR: Could not read image pair." << std::endl;
++      break;
++    }
++
++    std::cout << StringPrintf("%s - %s", image_name1.c_str(),
++                              image_name2.c_str())
++              << std::endl;
++
++    if (image_name_to_image.count(image_name1) == 0) {
++      std::cout << StringPrintf("SKIP: Image %s not found in database.",
++                                image_name1.c_str())
++                << std::endl;
++      break;
++    }
++    if (image_name_to_image.count(image_name2) == 0) {
++      std::cout << StringPrintf("SKIP: Image %s not found in database.",
++                                image_name2.c_str())
++                << std::endl;
++      break;
++    }
++
++    const Image& image1 = *image_name_to_image[image_name1];
++    const Image& image2 = *image_name_to_image[image_name2];
++
++    bool skip_pair = false;
++    if (database_.ExistsInlierMatches(image1.ImageId(), image2.ImageId())) {
++      std::cout << "SKIP: Matches for image pair already exist in database."
++                << std::endl;
++      skip_pair = true;
++    }
++
++    FeatureMatches matches;
++    while (std::getline(file, line)) {
++      StringTrim(&line);
++
++      if (line.empty()) {
++        break;
++      }
++
++      std::istringstream line_stream(line);
++
++      FeatureMatch match;
++      try {
++        line_stream >> match.point2D_idx1 >> match.point2D_idx2;
++      } catch (...) {
++        std::cerr << "ERROR: Cannot read feature matches." << std::endl;
++        break;
++      }
++
++      matches.push_back(match);
++    }
++
++    if (skip_pair) {
++      continue;
++    }
++
++    const Camera& camera1 = cache_.GetCamera(image1.CameraId());
++    const Camera& camera2 = cache_.GetCamera(image2.CameraId());
++
++    if (options_.verify_matches) {
++      database_.WriteMatches(image1.ImageId(), image2.ImageId(), matches);
++
++      const auto keypoints1 = cache_.GetKeypoints(image1.ImageId());
++      const auto keypoints2 = cache_.GetKeypoints(image2.ImageId());
++
++      TwoViewGeometry two_view_geometry;
++      TwoViewGeometry::Options two_view_geometry_options;
++      two_view_geometry_options.min_num_inliers =
++          static_cast<size_t>(match_options_.min_num_inliers);
++      two_view_geometry_options.ransac_options.max_error =
++          match_options_.max_error;
++      two_view_geometry_options.ransac_options.confidence =
++          match_options_.confidence;
++      two_view_geometry_options.ransac_options.min_num_trials =
++          static_cast<size_t>(match_options_.min_num_trials);
++      two_view_geometry_options.ransac_options.max_num_trials =
++          static_cast<size_t>(match_options_.max_num_trials);
++      two_view_geometry_options.ransac_options.min_inlier_ratio =
++          match_options_.min_inlier_ratio;
++
++      two_view_geometry.Estimate(
++          camera1, FeatureKeypointsToPointsVector(*keypoints1), camera2,
++          FeatureKeypointsToPointsVector(*keypoints2), matches,
++          two_view_geometry_options);
++
++      database_.WriteTwoViewGeometry(image1.ImageId(), image2.ImageId(),
++                                     two_view_geometry);
++    } else {
++      TwoViewGeometry two_view_geometry;
++
++      if (camera1.HasPriorFocalLength() && camera2.HasPriorFocalLength()) {
++        two_view_geometry.config = TwoViewGeometry::CALIBRATED;
++      } else {
++        two_view_geometry.config = TwoViewGeometry::UNCALIBRATED;
++      }
++
++      two_view_geometry.inlier_matches = matches;
++
++      database_.WriteTwoViewGeometry(image1.ImageId(), image2.ImageId(),
++                                     two_view_geometry);
++    }
++  }
++
++  GetTimer().PrintMinutes();
++}
++
++}  // namespace colmap
+diff -Naur colmap-3.8.orig/src/mvs/meshing.cc colmap-3.8/src/mvs/meshing.cc
+--- colmap-3.8.orig/src/mvs/meshing.cc	2023-01-31 16:18:47.000000000 +0100
++++ colmap-3.8/src/mvs/meshing.cc	2023-08-19 09:24:47.428261855 +0200
+@@ -821,7 +821,7 @@
+       }
+     }
+ 
+-    CHECK(result_queue.Push(std::move(image_cell_graph_data)));
++    CHECK(result_queue.Push(image_cell_graph_data));
+   };
+ 
+   // Add first batch of images to the thread job queue.
+@@ -849,7 +849,7 @@
+     }
+ 
+     // Pop the next results from the queue.
+-    auto result = result_queue.Pop();
++    const auto result = result_queue.Pop();
+     CHECK(result.IsValid());
+ 
+     // Accumulate the weights of the image into the global graph.
+diff -Naur colmap-3.8.orig/src/util/threading.h colmap-3.8/src/util/threading.h
+--- colmap-3.8.orig/src/util/threading.h	2023-01-31 16:18:47.000000000 +0100
++++ colmap-3.8/src/util/threading.h	2023-08-19 09:24:47.429261861 +0200
+@@ -263,7 +263,7 @@
+   class Job {
+    public:
+     Job() : valid_(false) {}
+-    explicit Job(T data) : data_(std::move(data)), valid_(true) {}
++    explicit Job(const T& data) : data_(data), valid_(true) {}
+ 
+     // Check whether the data is valid.
+     bool IsValid() const { return valid_; }
+@@ -285,7 +285,7 @@
+   size_t Size();
+ 
+   // Push a new job to the queue. Waits if the number of jobs is exceeded.
+-  bool Push(T data);
++  bool Push(const T& data);
+ 
+   // Pop a job from the queue. Waits if there is no job in the queue.
+   Job Pop();
+@@ -361,7 +361,7 @@
+ }
+ 
+ template <typename T>
+-bool JobQueue<T>::Push(T data) {
++bool JobQueue<T>::Push(const T& data) {
+   std::unique_lock<std::mutex> lock(mutex_);
+   while (jobs_.size() >= max_num_jobs_ && !stop_) {
+     pop_condition_.wait(lock);
+@@ -369,7 +369,7 @@
+   if (stop_) {
+     return false;
+   } else {
+-    jobs_.push(std::move(data));
++    jobs_.push(data);
+     push_condition_.notify_one();
+     return true;
+   }
+@@ -384,13 +384,13 @@
+   if (stop_) {
+     return Job();
+   } else {
+-    Job job(std::move(jobs_.front()));
++    const T data = jobs_.front();
+     jobs_.pop();
+     pop_condition_.notify_one();
+     if (jobs_.empty()) {
+       empty_condition_.notify_all();
+     }
+-    return job;
++    return Job(data);
+   }
+ }
+ 
+diff -Naur colmap-3.8.orig/src/util/threading.h.orig colmap-3.8/src/util/threading.h.orig
+--- colmap-3.8.orig/src/util/threading.h.orig	1970-01-01 01:00:00.000000000 +0100
++++ colmap-3.8/src/util/threading.h.orig	2023-01-31 16:18:47.000000000 +0100
+@@ -0,0 +1,421 @@
++// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are met:
++//
++//     * Redistributions of source code must retain the above copyright
++//       notice, this list of conditions and the following disclaimer.
++//
++//     * Redistributions in binary form must reproduce the above copyright
++//       notice, this list of conditions and the following disclaimer in the
++//       documentation and/or other materials provided with the distribution.
++//
++//     * Neither the name of ETH Zurich and UNC Chapel Hill nor the names of
++//       its contributors may be used to endorse or promote products derived
++//       from this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++// POSSIBILITY OF SUCH DAMAGE.
++//
++// Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
++
++#ifndef COLMAP_SRC_UTIL_THREADING_
++#define COLMAP_SRC_UTIL_THREADING_
++
++#include <atomic>
++#include <climits>
++#include <functional>
++#include <future>
++#include <list>
++#include <queue>
++#include <unordered_map>
++#include <thread>
++
++#include "util/timer.h"
++
++namespace colmap {
++
++#ifdef __clang__
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wkeyword-macro"
++#endif
++
++#ifdef __clang__
++#pragma clang diagnostic pop  // -Wkeyword-macro
++#endif
++
++// Helper class to create single threads with simple controls and timing, e.g.:
++//
++//      class MyThread : public Thread {
++//        enum {
++//          PROCESSED_CALLBACK,
++//        };
++//
++//        MyThread() { RegisterCallback(PROCESSED_CALLBACK); }
++//        void Run() {
++//          // Some setup routine... note that this optional.
++//          if (setup_valid) {
++//            SignalValidSetup();
++//          } else {
++//            SignalInvalidSetup();
++//          }
++//
++//          // Some pre-processing...
++//          for (const auto& item : items) {
++//            BlockIfPaused();
++//            if (IsStopped()) {
++//              // Tear down...
++//              break;
++//            }
++//            // Process item...
++//            Callback(PROCESSED_CALLBACK);
++//          }
++//        }
++//      };
++//
++//      MyThread thread;
++//      thread.AddCallback(MyThread::PROCESSED_CALLBACK, []() {
++//        std::cout << "Processed item"; })
++//      thread.AddCallback(MyThread::STARTED_CALLBACK, []() {
++//        std::cout << "Start"; })
++//      thread.AddCallback(MyThread::FINISHED_CALLBACK, []() {
++//        std::cout << "Finished"; })
++//      thread.Start();
++//      // thread.CheckValidSetup();
++//      // Pause, resume, stop, ...
++//      thread.Wait();
++//      thread.Timer().PrintElapsedSeconds();
++//
++class Thread {
++ public:
++  enum {
++    STARTED_CALLBACK = INT_MIN,
++    FINISHED_CALLBACK,
++  };
++
++  Thread();
++  virtual ~Thread() = default;
++
++  // Control the state of the thread.
++  virtual void Start();
++  virtual void Stop();
++  virtual void Pause();
++  virtual void Resume();
++  virtual void Wait();
++
++  // Check the state of the thread.
++  bool IsStarted();
++  bool IsStopped();
++  bool IsPaused();
++  bool IsRunning();
++  bool IsFinished();
++
++  // To be called from inside the main run function. This blocks the main
++  // caller, if the thread is paused, until the thread is resumed.
++  void BlockIfPaused();
++
++  // To be called from outside. This blocks the caller until the thread is
++  // setup, i.e. it signaled that its setup was valid or not. If it never gives
++  // this signal, this call will block the caller infinitely. Check whether
++  // setup is valid. Note that the result is only meaningful if the thread gives
++  // a setup signal.
++  bool CheckValidSetup();
++
++  // Set callbacks that can be triggered within the main run function.
++  void AddCallback(const int id, const std::function<void()>& func);
++
++  // Get timing information of the thread, properly accounting for pause times.
++  const Timer& GetTimer() const;
++
++ protected:
++  // This is the main run function to be implemented by the child class. If you
++  // are looping over data and want to support the pause operation, call
++  // `BlockIfPaused` at appropriate places in the loop. To support the stop
++  // operation, check the `IsStopped` state and early return from this method.
++  virtual void Run() = 0;
++
++  // Register a new callback. Note that only registered callbacks can be
++  // set/reset and called from within the thread. Hence, this method should be
++  // called from the derived thread constructor.
++  void RegisterCallback(const int id);
++
++  // Call back to the function with the specified name, if it exists.
++  void Callback(const int id) const;
++
++  // Get the unique identifier of the current thread.
++  std::thread::id GetThreadId() const;
++
++  // Signal that the thread is setup. Only call this function once.
++  void SignalValidSetup();
++  void SignalInvalidSetup();
++
++ private:
++  // Wrapper around the main run function to set the finished flag.
++  void RunFunc();
++
++  std::thread thread_;
++  std::mutex mutex_;
++  std::condition_variable pause_condition_;
++  std::condition_variable setup_condition_;
++
++  Timer timer_;
++
++  bool started_;
++  bool stopped_;
++  bool paused_;
++  bool pausing_;
++  bool finished_;
++  bool setup_;
++  bool setup_valid_;
++
++  std::unordered_map<int, std::list<std::function<void()>>> callbacks_;
++};
++
++// A thread pool class to submit generic tasks (functors) to a pool of workers:
++//
++//    ThreadPool thread_pool;
++//    thread_pool.AddTask([]() { /* Do some work */ });
++//    auto future = thread_pool.AddTask([]() { /* Do some work */ return 1; });
++//    const auto result = future.get();
++//    for (int i = 0; i < 10; ++i) {
++//      thread_pool.AddTask([](const int i) { /* Do some work */ });
++//    }
++//    thread_pool.Wait();
++//
++class ThreadPool {
++ public:
++  static const int kMaxNumThreads = -1;
++
++  explicit ThreadPool(const int num_threads = kMaxNumThreads);
++  ~ThreadPool();
++
++  inline size_t NumThreads() const;
++
++  // Add new task to the thread pool.
++  template <class func_t, class... args_t>
++  auto AddTask(func_t&& f, args_t&&... args)
++      -> std::future<typename std::result_of<func_t(args_t...)>::type>;
++
++  // Stop the execution of all workers.
++  void Stop();
++
++  // Wait until tasks are finished.
++  void Wait();
++
++  // Get the unique identifier of the current thread.
++  std::thread::id GetThreadId() const;
++
++  // Get the index of the current thread. In a thread pool of size N,
++  // the thread index defines the 0-based index of the thread in the pool.
++  // In other words, there are the thread indices 0, ..., N-1.
++  int GetThreadIndex();
++
++ private:
++  void WorkerFunc(const int index);
++
++  std::vector<std::thread> workers_;
++  std::queue<std::function<void()>> tasks_;
++
++  std::mutex mutex_;
++  std::condition_variable task_condition_;
++  std::condition_variable finished_condition_;
++
++  bool stopped_;
++  int num_active_workers_;
++
++  std::unordered_map<std::thread::id, int> thread_id_to_index_;
++};
++
++// A job queue class for the producer-consumer paradigm.
++//
++//    JobQueue<int> job_queue;
++//
++//    std::thread producer_thread([&job_queue]() {
++//      for (int i = 0; i < 10; ++i) {
++//        job_queue.Push(i);
++//      }
++//    });
++//
++//    std::thread consumer_thread([&job_queue]() {
++//      for (int i = 0; i < 10; ++i) {
++//        const auto job = job_queue.Pop();
++//        if (job.IsValid()) { /* Do some work */ }
++//        else { break; }
++//      }
++//    });
++//
++//    producer_thread.join();
++//    consumer_thread.join();
++//
++template <typename T>
++class JobQueue {
++ public:
++  class Job {
++   public:
++    Job() : valid_(false) {}
++    explicit Job(T data) : data_(std::move(data)), valid_(true) {}
++
++    // Check whether the data is valid.
++    bool IsValid() const { return valid_; }
++
++    // Get reference to the data.
++    T& Data() { return data_; }
++    const T& Data() const { return data_; }
++
++   private:
++    T data_;
++    bool valid_;
++  };
++
++  JobQueue();
++  explicit JobQueue(const size_t max_num_jobs);
++  ~JobQueue();
++
++  // The number of pushed and not popped jobs in the queue.
++  size_t Size();
++
++  // Push a new job to the queue. Waits if the number of jobs is exceeded.
++  bool Push(T data);
++
++  // Pop a job from the queue. Waits if there is no job in the queue.
++  Job Pop();
++
++  // Wait for all jobs to be popped and then stop the queue.
++  void Wait();
++
++  // Stop the queue and return from all push/pop calls with false.
++  void Stop();
++
++  // Clear all pushed and not popped jobs from the queue.
++  void Clear();
++
++ private:
++  size_t max_num_jobs_;
++  std::atomic<bool> stop_;
++  std::queue<T> jobs_;
++  std::mutex mutex_;
++  std::condition_variable push_condition_;
++  std::condition_variable pop_condition_;
++  std::condition_variable empty_condition_;
++};
++
++// Return the number of logical CPU cores if num_threads <= 0,
++// otherwise return the input value of num_threads.
++int GetEffectiveNumThreads(const int num_threads);
++
++////////////////////////////////////////////////////////////////////////////////
++// Implementation
++////////////////////////////////////////////////////////////////////////////////
++
++size_t ThreadPool::NumThreads() const { return workers_.size(); }
++
++template <class func_t, class... args_t>
++auto ThreadPool::AddTask(func_t&& f, args_t&&... args)
++    -> std::future<typename std::result_of<func_t(args_t...)>::type> {
++  typedef typename std::result_of<func_t(args_t...)>::type return_t;
++
++  auto task = std::make_shared<std::packaged_task<return_t()>>(
++      std::bind(std::forward<func_t>(f), std::forward<args_t>(args)...));
++
++  std::future<return_t> result = task->get_future();
++
++  {
++    std::unique_lock<std::mutex> lock(mutex_);
++    if (stopped_) {
++      throw std::runtime_error("Cannot add task to stopped thread pool.");
++    }
++    tasks_.emplace([task]() { (*task)(); });
++  }
++
++  task_condition_.notify_one();
++
++  return result;
++}
++
++template <typename T>
++JobQueue<T>::JobQueue() : JobQueue(std::numeric_limits<size_t>::max()) {}
++
++template <typename T>
++JobQueue<T>::JobQueue(const size_t max_num_jobs)
++    : max_num_jobs_(max_num_jobs), stop_(false) {}
++
++template <typename T>
++JobQueue<T>::~JobQueue() {
++  Stop();
++}
++
++template <typename T>
++size_t JobQueue<T>::Size() {
++  std::unique_lock<std::mutex> lock(mutex_);
++  return jobs_.size();
++}
++
++template <typename T>
++bool JobQueue<T>::Push(T data) {
++  std::unique_lock<std::mutex> lock(mutex_);
++  while (jobs_.size() >= max_num_jobs_ && !stop_) {
++    pop_condition_.wait(lock);
++  }
++  if (stop_) {
++    return false;
++  } else {
++    jobs_.push(std::move(data));
++    push_condition_.notify_one();
++    return true;
++  }
++}
++
++template <typename T>
++typename JobQueue<T>::Job JobQueue<T>::Pop() {
++  std::unique_lock<std::mutex> lock(mutex_);
++  while (jobs_.empty() && !stop_) {
++    push_condition_.wait(lock);
++  }
++  if (stop_) {
++    return Job();
++  } else {
++    Job job(std::move(jobs_.front()));
++    jobs_.pop();
++    pop_condition_.notify_one();
++    if (jobs_.empty()) {
++      empty_condition_.notify_all();
++    }
++    return job;
++  }
++}
++
++template <typename T>
++void JobQueue<T>::Wait() {
++  std::unique_lock<std::mutex> lock(mutex_);
++  while (!jobs_.empty()) {
++    empty_condition_.wait(lock);
++  }
++}
++
++template <typename T>
++void JobQueue<T>::Stop() {
++  stop_ = true;
++  push_condition_.notify_all();
++  pop_condition_.notify_all();
++}
++
++template <typename T>
++void JobQueue<T>::Clear() {
++  std::unique_lock<std::mutex> lock(mutex_);
++  std::queue<T> empty_jobs;
++  std::swap(jobs_, empty_jobs);
++}
++
++}  // namespace colmap
++
++#endif  // COLMAP_SRC_UTIL_THREADING_

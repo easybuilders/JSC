@@ -1,0 +1,41 @@
+diff -Naur 0.7.1.orig/GCCcore-11.3.0-2023.3.6/matlabproxy/matlab-proxy-0.7.4/matlab_proxy/settings.py 0.7.1/GCCcore-11.3.0-2023.3.6/matlabproxy/matlab-proxy-0.7.4/matlab_proxy/settings.py
+--- 0.7.1.orig/GCCcore-11.3.0-2023.3.6/matlabproxy/matlab-proxy-0.7.4/matlab_proxy/settings.py	2023-08-24 13:52:26.000000000 +0200
++++ 0.7.1/GCCcore-11.3.0-2023.3.6/matlabproxy/matlab-proxy-0.7.4/matlab_proxy/settings.py	2023-08-27 22:54:27.491557356 +0200
+@@ -37,10 +37,10 @@
+     if custom_matlab_root_path:
+         matlab_root_path = Path(custom_matlab_root_path)
+ 
+-        # Terminate process if invalid Custom Path was provided!
+-        mwi.validators.terminate_on_invalid_matlab_root_path(
+-            matlab_root_path, is_custom_matlab_root=True
+-        )
++        ## Terminate process if invalid Custom Path was provided!
++        #mwi.validators.terminate_on_invalid_matlab_root_path(
++        #    matlab_root_path, is_custom_matlab_root=True
++        #)
+ 
+         # Generate executable path from root path
+         matlab_executable_path = matlab_root_path / "bin" / "matlab"
+@@ -57,9 +57,9 @@
+
+     if matlab_executable_path:
+         matlab_root_path = Path(matlab_executable_path).resolve().parent.parent
+-        mwi.validators.terminate_on_invalid_matlab_root_path(
+-            matlab_root_path, is_custom_matlab_root=False
+-        )
++        #mwi.validators.terminate_on_invalid_matlab_root_path(
++        #    matlab_root_path, is_custom_matlab_root=False
++        #)
+         logger.info(
+             f"Found MATLAB Executable: {matlab_executable_path} with Root: {matlab_root_path}"
+         )
+@@ -87,6 +87,9 @@
+         return None
+ 
+     version_info_file_path = Path(matlab_root_path) / VERSION_INFO_FILE_NAME
++    if not os.path.exists(version_info_file_path):
++        return None
++
+     tree = ET.parse(version_info_file_path)
+     root = tree.getroot()
+ 

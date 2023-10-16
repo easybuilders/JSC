@@ -19,7 +19,7 @@ local_mkl_ver = '2022.1.0'
 # compiler toolchain dependencies
 dependencies = [
     local_compiler,
-    ('psmpi', '5.7.0-1', '', local_compiler),  # part of gpsmpi toolchain
+    ('psmpi', '5.7.1-1', '', local_compiler),  # part of gpsmpi toolchain
     ('imkl', local_mkl_ver, '', SYSTEM),
     ('imkl-FFTW', local_mkl_ver, '', local_comp_mpi_tc),
 ]

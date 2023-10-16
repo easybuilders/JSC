@@ -19,7 +19,7 @@ local_comp_mpi_tc = ('ipsmpi', version)
 
 dependencies = [
     local_compiler,
-    ('psmpi', '5.7.0-1', '', local_compiler),
+    ('psmpi', '5.7.1-1', '', local_compiler),
     ('imkl', local_comp_ver, '', SYSTEM),
     ('imkl-FFTW', local_comp_ver, '', local_comp_mpi_tc),
 ]

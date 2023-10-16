@@ -68,8 +68,9 @@ postinstallcmds = [
 
     # Ensure we remove the virtuel environment to avoid wrong search path for python packages
     'rm -f %(installdir)s/pyvenv.cfg',
+    'rm -f %(installdir)s/Activate.ps1'
     'rm -f %(installdir)s/bin/python',
-    'rm -f %(installdir)s/bin/python3',
+    'rm -f %(installdir)s/bin/python3*',
     'rm -f %(installdir)s/bin/activate',
     'rm -f %(installdir)s/bin/activate*',
     'rm -f %(installdir)s/bin/easy_install*',

@@ -21,6 +21,7 @@ modextravars = {
     'PSP_CUDA': '1',
     'PSP_SHM': '0',
     'PSP_HARD_ABORT': '1',
+    'SLURM_MPI_TYPE': 'pspmi',
 }
 
 modluafooter = '''

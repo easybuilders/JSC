@@ -17,6 +17,7 @@ sources = []
 modextravars = {
     'FI_PROVIDER': 'mlx',
     'I_MPI_PMI_VALUE_LENGTH_MAX': '900',
+    'SLURM_MPI_TYPE': 'pspmi',
 }
 
 moduleclass = 'system'

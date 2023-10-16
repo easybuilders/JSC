@@ -1,0 +1,12 @@
+diff -Naur 0.7.1.orig/GCCcore-11.3.0-2023.3.6/jupytermatlabproxy/jupyter-matlab-proxy-0.7.1/src/jupyter_matlab_proxy/__init__.py 0.7.1/GCCcore-11.3.0-2023.3.6/jupytermatlabproxy/jupyter-matlab-proxy-0.7.1/src/jupyter_matlab_proxy/__init__.py
+--- 0.7.1.orig/GCCcore-11.3.0-2023.3.6/jupytermatlabproxy/jupyter-matlab-proxy-0.7.1/src/jupyter_matlab_proxy/__init__.py	2023-08-21 14:27:12.000000000 +0200
++++ 0.7.1/GCCcore-11.3.0-2023.3.6/jupytermatlabproxy/jupyter-matlab-proxy-0.7.1/src/jupyter_matlab_proxy/__init__.py	2023-08-29 22:16:29.568376240 +0200
+@@ -48,7 +48,7 @@
+             "--config",
+             config["extension_name"],
+         ],
+-        "timeout": 100,
++        "timeout": 1800,
+         "environment": _get_env,
+         "absolute_url": True,
+         "launcher_entry": {"title": "Open MATLAB", "icon_path": icon_path},

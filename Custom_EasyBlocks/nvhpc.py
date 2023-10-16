@@ -1,7 +1,7 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2015-2022 Bart Oldeman
-# Copyright 2016-2022 Forschungszentrum Juelich
+# Copyright 2015-2023 Bart Oldeman
+# Copyright 2016-2023 Forschungszentrum Juelich
 #
 # This file is triple-licensed under GPLv2 (see below), MIT, and
 # BSD three-clause licenses.
@@ -165,7 +165,10 @@ class EB_NVHPC(PackedBinary):
             line = re.sub(r"^PATH=/", r"#PATH=/", line)
             sys.stdout.write(line)
 
-        cmd = "%s -x %s -g77 gfortran" % (makelocalrc_filename, compilers_subdir)
+        if LooseVersion(self.version) >= LooseVersion('22.9'):
+            cmd = f"%s -x %s -cuda {default_cuda_version} -stdpar {default_compute_capability}" % (makelocalrc_filename, os.path.join(compilers_subdir, "bin"))
+        else:
+            cmd = "%s -x %s -g77 /" % (makelocalrc_filename, compilers_subdir)
         run_cmd(cmd, log_all=True, simple=True)
 
         # If an OS libnuma is NOT found, makelocalrc creates symbolic links to libpgnuma.so
@@ -307,4 +310,3 @@ class EB_NVHPC(PackedBinary):
             if not self.cfg['module_add_cuda'] and get_software_root('CUDA'):
                 txt += self.module_generator.set_environment('NVHPC_CUDA_HOME', os.getenv('CUDA_HOME'))
         return txt
-

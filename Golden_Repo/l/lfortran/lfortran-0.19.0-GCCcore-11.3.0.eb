@@ -25,6 +25,7 @@ builddependencies = [
     ('binutils', '2.38'),
     ('CMake', '3.23.1'),
     ('Python', '3.10.4'),
+    ('Bison', '3.8.2'),
     ('pkgconf', '1.8.0'),
     ('re2c', '2.2'),
 ]

@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'JupyterExtension-jupyterai'
-version = '0.9.0'
+version = '1.0.1'
 local_jupyterver = '2023.3.6'
 versionsuffix = '-' + local_jupyterver
 
@@ -42,20 +42,11 @@ exts_list = [
         'source_tmpl': '%(name)s-%(version)s-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['dca531952a2e3eac56f479ff22951af4715ee44788a3fe991d208d766d3f95f3'],
     }),
-    ('webcolors', '1.13', {
-        'checksums': ['c225b674c83fa923be93d235330ce0300373d02885cef23238813b0d5668304a'],
-    }),
-    ('uri-template', '1.3.0', {
-        'checksums': ['0e00f8eb65e18c7de20d595a14336e9f337ead580c70934141624b6d1ffdacc7'],
-    }),
     ('typing_extensions', '4.5.0', {
         'checksums': ['5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb'],
     }),
     ('numexpr', '2.8.4', {
         'checksums': ['d5432537418d18691b9115d615d6daa17ee8275baef3edf1afbbf8bc69806147'],
-    }),
-    ('jsonpointer', '2.4', {
-        'checksums': ['585cee82b70211fa9e6043b7bb89db6e1aa49524340dde8ad6b63206ea689d88'],
     }),
     ('jsonpath-ng', '1.5.3', {
         'checksums': ['a273b182a82c1256daab86a313b937059261b5c5f8c4fa3fc38b882b344dd567'],
@@ -63,12 +54,9 @@ exts_list = [
     ('importlib_metadata', '5.2.0', {
         'checksums': ['404d48d62bba0b7a77ff9d405efd91501bef2e67ff4ace0bed40a0cf28c3c7cd'],
     }),
-    ('grpcio', '1.51.3', {
+    ('grpcio', '1.56.2', {
         'modulename': False,
-        'checksums': ['be7b2265b7527bb12109a7727581e274170766d5b3c9258d4e466f4872522d7a'],
-    }),
-    ('fqdn', '1.5.1', {
-        'checksums': ['105ed3677e767fb5ca086a0c1f4bb66ebc3c100be518f0e0d755d9eae164d89f'],
+        'checksums': ['0ff789ae7d8ddd76d2ac02e7d13bfef6fc4928ac01e1dcaa182be51b6bcc0aaa'],
     }),
     ('typing_inspect', '0.9.0', {
         'checksums': ['b23fc42ff6f6ef6954e4852c1fb512cdd18dbea03134f91f856a95ccc9461f78'],
@@ -76,18 +64,15 @@ exts_list = [
     ('tiktoken', '0.4.0', {
         'checksums': ['59b20a819969735b48161ced9b92f05dc4519c17be4015cfb73b65270a243620'],
     }),
-    ('ray', '2.4.0', {
+    ('ray', '2.6.1', {
         'source_tmpl': '%(name)s-%(version)s-cp310-cp310-manylinux2014_x86_64.whl',
-        'checksums': ['5ed5a29795b122e9e2b832d5224ab9b1cc235beab700d2a413b23c63b3d3c80c'],
+        'checksums': ['c9b5aabf5f41fe05028e4f3a271dc89ca7cd9c210f48a4ed815b852210ebb5a8'],
     }),
-    ('pydantic', '1.10.10', {
-        'checksums': ['3b8d5bd97886f9eb59260594207c9f57dce14a6f869c6ceea90188715d29921a'],
+    ('pydantic', '1.10.12', {
+        'checksums': ['0fe8a415cea8f340e7a9af9c54fc71a649b43e8ca3cc732986116b3cb135d303'],
     }),
     ('marshmallow', '3.19.0', {
         'checksums': ['90032c0fd650ce94b6ec6dc8dfeb0e3ff50c144586462c389b81a07205bedb78'],
-    }),
-    ('arrow', '1.2.3', {
-        'checksums': ['3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1'],
     }),
     ('openapi-schema-pydantic', '1.2.4', {
         'checksums': ['3e22cf58b74a69f752cc7e5f1537f6e44164282db2700cbbcd3bb99ddd065196'],
@@ -95,30 +80,49 @@ exts_list = [
     ('openai', '0.27.8', {
         'checksums': ['2483095c7db1eee274cebac79e315a986c4e55207bb4fa7b82d185b3a2ed9536'],
     }),
+    ('huggingface_hub', '0.16.4', {
+        'checksums': ['608c7d4f3d368b326d1747f91523dbd1f692871e8e2e7a4750314a2dd8b63e14'],
+    }),
+    ('ai21', '1.2.2', {
+        'checksums': ['753639f579dcff96017af04048fac35c38927d1f969a11fe4699250bf7e6d356'],
+    }),
     ('marshmallow-enum', '1.5.1', {
         'checksums': ['38e697e11f45a8e64b4a1e664000897c659b60aa57bfa18d44e226a9920b6e58'],
     }),
-    ('isoduration', '20.11.0', {
-        'checksums': ['ac2f9015137935279eac671f94f89eb00584f940f5dc49462a0c4ee692ba1bd9'],
+    ('dataclasses_json', '0.5.13', {
+        'checksums': ['425810e1356fb6917eb7c323e3aaee0c9398fc55b5001d3532381679f727fc18'],
     }),
-    ('dataclasses-json', '0.5.9', {
-        'checksums': ['e9ac87b73edc0141aafbce02b44e93553c3123ad574958f0fe52a534b6707e8e'],
+    ('langchainplus_sdk', '0.0.20', {
+        'checksums': ['3d300e2e3290f68cc9d842c059f9458deba60e776c9e790309688cad1bfbb219'],
     }),
-    ('langchain', '0.0.159', {
+    ('langchain', '0.0.220', {
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
-        'checksums': ['d9df75405d6f02cc683bef5b3e79fbf9ca3b22c5ff198dd823b5393c568e2ec4'],
+        'checksums': ['fcba303c0744f74a026eda97d65da51a90cd5b20ab1944ad766d95ee1eb68b75'],
     }),
     ('jupyter_ai_magics', version, {
-        'checksums': ['53d403df3015796c330b496c04609fac16590937be6670fe725d9349f0522059'],
+        'checksums': ['5704f5e3d73b26ff84fffa00718bb53a958494381e60656bacaaabb652a2bebe'],
     }),
     ('jupyter_ai', version, {
-        'checksums': ['ce3c37ae69c90dd62340ef1dc1df2e1cc35c7420eba2aba8b88e9ce97c3b336d'],
+        'patches': ['fix_rootdir_pr327.patch'],
+        'checksums': [
+            '05ea82653365cc2137a2de5576442badb8393c001f68692411e1feb0f5abe955',
+            'c358666fb2a4b72dd43ae81c9d8a043895d1633cacfc0930e5b8f528ee4a8958',
+        ],
     }),
 ]
 
 modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],
+    'JUPYTER_CONFIG_PATH': ['etc/jupyter'],
     'JUPYTER_EXTRA_LABEXTENSIONS_PATH': ['share/jupyter/labextensions'],
 }
+
+# Ensure that the user-specific $HOME/.jupyter is first entry in JUPYTER_CONFIG_PATH
+modluafooter = """
+setenv("JUPYTERAI_SAVEDIR", os.getenv("HOME"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_CONFIG_PATH", pathJoin(os.getenv("HOME"), ".jupyter"))
+"""
 
 sanity_check_paths = {
     'files': [],

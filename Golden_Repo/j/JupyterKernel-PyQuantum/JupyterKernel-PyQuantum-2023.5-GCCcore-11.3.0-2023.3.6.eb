@@ -29,7 +29,7 @@ builddependencies = [
     #    ('DWave', '6.3.0', '', ('gcccoremkl', '11.3.0-2022.4.0')),
     #    ('PyQuil', '3.3.3'),
     #    ('Qiskit', '0.41.0', '', ('gpsmkl', '2022')),
-    #    ('Qiskit-juqcs', '0.5.0', '', ('gpsmkl', '2022')),
+    #    ('Qiskit-juqcs', '0.8.0', '', ('gpsmkl', '2022')),
 ]
 
 dependencies = [
@@ -108,7 +108,7 @@ postinstallcmds = [
         'module load DWave/6.3.0 \n'
         'module load PyQuil/3.3.3 \n'
         'module load Qiskit/0.41.0 \n'
-        # 'module load Qiskit-juqcs/0.5.0 \n' # not yet compatible with current Qiskit
+        'module load Qiskit-juqcs/0.8.0 \n'
         'module load pulser/0.12.0 \n'
         'module load myqlm/1.7.3 \n'
         'module load %s/.%s%s \n'

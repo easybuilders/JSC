@@ -13,7 +13,6 @@ Project Jupyter exists to develop open-source software, open-standards, and serv
 for interactive computing across dozens of programming languages.
 """
 
-# toolchain = {'name': 'gcccoremkl', 'version': '11.3.0-2022.1.0'}
 toolchain = {'name': 'GCCcore', 'version': '11.3.0'}
 toolchainopts = {'pic': True}
 
@@ -66,7 +65,7 @@ components = [
 exts_default_options = {
     'source_urls': [PYPI_SOURCE],
     'use_pip': True,
-    'sanity_pip_check': False,  # skip as it requires protobuf, TensorFlow
+    'sanity_pip_check': True,
     'download_dep_fail': True,
     'use_pip_for_deps': False,
 }

@@ -18,11 +18,11 @@ toolchainopts = {'pic': True}
 
 builddependencies = [
     ('binutils', '2.38'),
+    ('Julia', version, '', ('gcccoremkl', '11.3.0-2022.1.0')),
 ]
 
 dependencies = [
     ('Python', '3.10.4'),
-    ('Julia', version, '', ('gcccoremkl', '11.3.0-2022.1.0')),
 ]
 
 components = [
@@ -70,6 +70,9 @@ exts_list = [
     }),
 ]
 
+local_kernel_dir = 'julia-%(version_major_minor)s'
+local_kernel_name = 'Julia-%s' % version
+
 modextrapaths = {
     'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
     'JUPYTER_PATH': [local_jupyter_path],  # add search path for kernelspecs
@@ -95,13 +98,40 @@ postinstallcmds = [
         'EOF'
     ) % (local_jupyter_path),
 
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC/11.3.0 \n'
+        'module load ParaStationMPI \n'
+        '\n'
+        'module load Julia/%s \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'exec julia \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, version, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
     # configure Python<->Julia bridge (of python package julia)
     'source %(builddir)s/env.sh && python -c "import julia; julia.install()"',
 
-    # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+    # replace `[..]/bin/julia` with `kernel.sh
+    (
+        'sed -i \'s#.*\/bin\/julia.*#    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh",#\' '
+        '    %%(installdir)s/share/jupyter/kernels/%s/kernel.json'
+    ) % (local_kernel_dir, local_kernel_dir),
+
+    # Ensure we remove the virtual environment to avoid wrong search path for python packages
     'rm -f %(installdir)s/pyvenv.cfg',
+    'rm -f %(installdir)s/Activate.ps1'
     'rm -f %(installdir)s/bin/python',
-    'rm -f %(installdir)s/bin/python3',
+    'rm -f %(installdir)s/bin/python3*',
     'rm -f %(installdir)s/bin/activate',
     'rm -f %(installdir)s/bin/activate*',
     'rm -f %(installdir)s/bin/easy_install*',
@@ -115,8 +145,9 @@ postinstallcmds = [
     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
 ]
 
-# specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module
-# full_sanity_check = True
+# Julia is only a build-dependency and MUST NOT be a runtime dependency
+# Hence, we need to disable the sanitycheck
+skipsteps = ['sanitycheck']
 sanity_check_paths = {
     'files': [
         'share/jupyter/kernels/julia-%(version_major_minor)s/kernel.json',

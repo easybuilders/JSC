@@ -117,12 +117,39 @@ exts_list = [
     ('deprecation', '2.1.0', {
         'checksums': ['72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff'],
     }),
+    # jsonschema ####################################
+    ('webcolors', '1.13', {
+        'checksums': ['c225b674c83fa923be93d235330ce0300373d02885cef23238813b0d5668304a'],
+    }),
+    ('uri-template', '1.3.0', {
+        'checksums': ['0e00f8eb65e18c7de20d595a14336e9f337ead580c70934141624b6d1ffdacc7'],
+    }),
     ('rfc3339_validator', '0.1.4', {
         'checksums': ['138a2abdf93304ad60530167e51d2dfb9549521a836871b88d7f4695d0022f6b'],
     }),
     ('rfc3986_validator', '0.1.1', {
         'checksums': ['3d44bde7921b3b9ec3ae4e3adca370438eccebc676456449b145d533b240d055'],
     }),
+    ('rfc3987', '1.3.8', {
+        'checksums': ['d3c4d257a560d544e9826b38bc81db676890c79ab9d7ac92b39c7a253d5ca733'],
+    }),
+    ('jsonpointer', '2.4', {
+        'checksums': ['585cee82b70211fa9e6043b7bb89db6e1aa49524340dde8ad6b63206ea689d88'],
+    }),
+    ('arrow', '1.2.3', {
+        'checksums': ['3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1'],
+    }),
+    ('isoduration', '20.11.0', {
+        'checksums': ['ac2f9015137935279eac671f94f89eb00584f940f5dc49462a0c4ee692ba1bd9'],
+    }),
+    ('fqdn', '1.5.1', {
+        'checksums': ['105ed3677e767fb5ca086a0c1f4bb66ebc3c100be518f0e0d755d9eae164d89f'],
+    }),
+    ('jsonschema', '4.17.3', {
+        'checksums': ['0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d'],
+        'extras': ['format-nongpl'],
+    }),
+    # nbclassic #####################################
     ('jupyter_events', '0.6.3', {
         'checksums': ['9a6e9995f75d1b7146b436ea24d696ce3a35bfa8bfe45e0c33c334c79464d0b3'],
     }),
@@ -136,9 +163,6 @@ exts_list = [
     # jupyterlab-server #############################
     ('requests', '2.30.0', {
         'checksums': ['239d7d4458afcb28a692cdd298d87542235f4ca8d36d03a15bfc128a6559a2f4'],
-    }),
-    ('jsonschema', '4.17.3', {
-        'checksums': ['0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d'],
     }),
     ('json5', '0.9.11', {
         'checksums': ['4f1e196acc55b83985a51318489f345963c7ba84aa37607e49073066c562e99b'],
@@ -172,12 +196,20 @@ exts_list = [
     # jupyterlab ####################################
     ('jupyterlab', local_jlab_version, {
         'patches': [
-            ('401html.patch', 1),
+            {
+                'name': 'jupyterlab-silencenotify.patch',
+                'copy': '.'
+            },
+            {
+                'name': '401.html',
+                'copy': '.'
+            },
             # 'jupyterlab-rendermime_p14618.patch'
         ],
         'checksums': [
             'ac0cb19756be1d1e14b2be1f23c603de46e0f0113960fce9888889ca55ae8923',
-            '094c89560472168c5ca24b3907d4a6a5b090352ef0c7657995d735246cc338f5',  # 401html.patch
+            'dd7b13106dab97cbbc23fdb5457025d0a28b9298da4b0f90e7ef93babe58b6b0',  # jupyterlab-silencenotify.patch
+            '5c1591daa5a428ac6ecb83f6b48dbb8e4e32c152f8ef308ccc4e235ab0dd4903',  # 401.html
         ],
     }),
     # jupyter-server-proxy ##########################
@@ -199,8 +231,8 @@ exts_list = [
     ('aiohttp', '3.8.4', {
         'checksums': ['bf2e1a9162c1e441bf805a1fd166e249d574ca04e03b34f97e2928769e91ab5c'],
     }),
-    ('simpervisor', '0.4', {
-        'checksums': ['cec79e13cdbd6edb04a5c98c1ff8d4bd9713e706c069226909a1ef0e89d393c5'],
+    ('simpervisor', '1.0.0', {
+        'checksums': ['7eb87ca86d5e276976f5bb0290975a05d452c6a7b7f58062daea7d8369c823c1'],
     }),
     ('jupyter_server_proxy', '4.0.0', {
         'patches': [
@@ -247,6 +279,10 @@ exts_list = [
             '5bdd4bd545aa66c8cb534975d77a0c4a23c9993f507e479b23a06ae9618f695f',
         ],
     }),
+    # jupyter-archive ####################################
+    ('jupyter-archive', '3.3.4', {
+        'checksums': ['4f420d5a63876735d60740254cf9e18391a17603ccef30783a07f14fc9b5d179'],
+    }),
     # ipyleaflet ####################################
     ('branca', '0.6.0', {
         'checksums': ['55949855214504c7583b71b9a03a84dce2e96a84027613bb53b42d04844ce24e'],
@@ -290,7 +326,7 @@ exts_list = [
         'patches': [('jupyter-resource-usage.config', '.')],
         'checksums': [
             'ab596a1f2f6ced9e5d063f56b772d88527d2539d61831fbfb80a37f940d3e9df',
-            '7634bf6c4d941e20dca4d910441315047147aedec073f620e15048ec6b31b053',
+            '6c784e1e9abafbacfa37b48dfe5a1b8383bbf209e5e452c7ddbbb37c67f7ebd2',
         ],
     }),
     ('jupyterlab-topbar', '0.6.1', {
@@ -574,17 +610,8 @@ exts_list = [
         'checksums': ['6f8f8a9b06b39677f207c09100c8d386bcf592f0cbbdda9f0f50e81445697627'],
     }),
     # dask ##########################################
-    ('dask_labextension', '6.1.0', {
-        'checksums': ['397cf6f2106650954c3f3bf84fe269a4fb72fb6bf56e6089c75cc3bbf9ff12ae'],
-        'preinstallopts': (
-            # https://github.com/jupyterlab/jupyterlab/issues/14335#issuecomment-1611586421
-            'jlpm install && '
-            'jlpm upgrade --caret --scope jupyterlab && '
-            # Minimize dependency versions
-            'jlpm add -D yarn-deduplicate@^5.0.0 && '
-            'jlpm yarn-deduplicate -s fewer && '
-            'jlpm install && '
-        )
+    ('dask_labextension', '6.2.0', {
+        'checksums': ['1c6864e57ea0f854e0d65649342d4bc8ca830ee255a087cf770f52ac56cda753'],
     }),
     # nbdev #########################################
     ('watchdog', '3.0.0', {
@@ -730,7 +757,7 @@ postinstallcmds = [
     #  https://jupyterlab-lsp.readthedocs.io/en/latest/Language%20Servers.html
     #  must be installed _after_ 'jupyter lab build' as this clears the prefix
     (
-        'source %(builddir)s/env.sh && npm install --prefix %(installdir)s/share/jupyter/lab/staging/ '
+        'cd %(installdir)s/share/jupyter/lab/staging/ && npm install '
         '        bash-language-server@2.1.0 '
         '        dockerfile-language-server-nodejs@0.9.0 '
         '        pyright@1.1.309 '
@@ -749,14 +776,35 @@ postinstallcmds = [
     'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_iframe',
     'source %(builddir)s/env.sh && jupyter serverextension enable --py jupyterlab_s3_browser',
 
-    # STILL NEEDED ???
-    #  dask_labextension
+    # jupyter-archive, server-settings (with commented lines the defaults are used) 
     # (
-    #    'cp %(builddir)s/dask_labextension/dask_labextension-6.1.0/'
-    #    'dask_labextension/labextension/schemas/dask-labextension/plugin.json '
-    #    '   %(installdir)s/share/jupyter/labextensions/dask-labextension/schemas/dask-labextension/plugin.json'
-    # ),
+    #     '{ cat >> %(installdir)s/etc/jupyter/jupyter_server_config.d/jupyter-archive.json; } << \'EOF\'\n'
+    #     '{\n'
+    #     '  "JupyterArchive": {\n'
+    #     '    "stream_max_buffer_size": 104857600, // max size of tornado IOStream buffer\n'
+    #     '    "handler_max_buffer_length": 10240, // max length of chunks in tornado RequestHandler\n'
+    #     '    "archive_download_flush_delay": 100 // delay in ms at which the chunk of data is send to the client\n'
+    #     '  }\n'
+    #     '}\n'
+    #     'EOF'
+    # )
 
+    # jupyterlab-latex fix for https://github.com/jupyterlab/jupyterlab-latex/issues/110#issuecomment-1241460371
+    (
+        '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
+        'try:\n'
+        '    c.ServerApp.notebook_dir = c.ServerApp.root_dir\n'
+        'except:\n'
+        '    pass\n'
+        'EOF'
+    ),
+    # optimize JupyterLab for network file systems
+    (
+        '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
+        'c.NotebookNotary.db_file = \':memory:\'\n'
+        'c.FileManagerMixin.use_atomic_writing = False\n'
+        'EOF'
+    ),
     #  Send2Trash
     (
         '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
@@ -819,6 +867,12 @@ postinstallcmds = [
         'EOF'
     ),
 
+    # disable notifications about new JupyterLab versions
+    (
+        'patch "%%(installdir)s/share/jupyter/lab/schemas/@jupyterlab/apputils-extension/notification.json" '
+        '      < %%(builddir)s/jupyterlab/jupyterlab-%s/jupyterlab-silencenotify.patch'
+    ) % local_jlab_version,
+
     # add webpage, which leads back to https://jupyter-jsc.fz-juelich.de
     'cp %%(builddir)s/jupyterlab/jupyterlab-%s/401.html %%(installdir)s/share/jupyter/lab/static/' % local_jlab_version,
 
@@ -876,7 +930,7 @@ postinstallcmds = [
     #  ###################################################
     #  'chmod -R g-w %(installdir)s ',          # software-group must not modify the installation on accident
     #  'chmod -R ugo-w %(installdir)s/share ', # Noone should add files/configs to the global share after install
-    #  'chmod -R ug-w ...../2023/software/Python/3.10.6-GCCcore-11.3.0/share ',  # Python module, too
+    #  'chmod -R ug-w ...../2023/software/Python/3.10.4-GCCcore-11.3.0/share ',  # Python module, too
 ]
 
 #  specify that Bundle easyblock should run a full sanity check, rather than just trying to load the module

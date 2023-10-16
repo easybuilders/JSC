@@ -33,6 +33,7 @@ class EB_nvidia_minus_driver(Binary):
         """Support for generic 'default' modules with specific real versions"""
         extra_vars = {
             'realversion': [None, "Real version to be used when version = 'default'", CUSTOM],
+            'just_GL_libs': [False, "Install just GL-related libs", CUSTOM],
         }
         return extra_vars
 
@@ -69,33 +70,46 @@ class EB_nvidia_minus_driver(Binary):
         "Install NVIDIA libs simply by copying files. We can't use the installer because it requires root privileges."
 
         # list of libs
-        libs = expand_glob_paths([os.path.join(self.libsdir, 'lib*.so*')])
-        try:
-            libs += expand_glob_paths([os.path.join(self.libsdir, '*.la')])
-        except EasyBuildError:
-            self.log.info("No *.la files found. Proceeding without them.")
-        libs += [os.path.join(self.libsdir, 'nvidia_drv.so')]
+        if not self.cfg['just_GL_libs']:
+            libs = expand_glob_paths([os.path.join(self.libsdir, 'lib*.so*')])
+            try:
+                libs += expand_glob_paths([os.path.join(self.libsdir, '*.la')])
+            except EasyBuildError:
+                self.log.info("No *.la files found. Proceeding without them.")
+            libs += [os.path.join(self.libsdir, 'nvidia_drv.so')]
+        else:
+            libs = expand_glob_paths([os.path.join(self.libsdir, 'libEGL*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libGL*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libOpenGL.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libnvidia-egl*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libnvidia-gl*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libnvidia-rtcore*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libnvidia-tls*.so*')])
+            libs += expand_glob_paths([os.path.join(self.libsdir, 'libnvidia-vulkan*.so*')])
 
-        # list of binaries
-        binaries = ['nvidia-bug-report.sh',
-                    'nvidia-cuda-mps-control',
-                    'nvidia-cuda-mps-server',
-                    'nvidia-debugdump',
-                    'nvidia-settings',
-                    'nvidia-smi',
-                    'nvidia-xconfig']
-        binaries = [os.path.join(self.libsdir, x) for x in binaries]
 
-        # list of manpages
-        manpages = ['nvidia-settings.1.gz',
-                    'nvidia-cuda-mps-control.1.gz',
-                    'nvidia-xconfig.1.gz',
-                    'nvidia-smi.1.gz']
-        manpages = [os.path.join(self.libsdir, x) for x in manpages]
+        if not self.cfg['just_GL_libs']:
+            # list of binaries
+            binaries = ['nvidia-bug-report.sh',
+                        'nvidia-cuda-mps-control',
+                        'nvidia-cuda-mps-server',
+                        'nvidia-debugdump',
+                        'nvidia-settings',
+                        'nvidia-smi',
+                        'nvidia-xconfig']
+            binaries = [os.path.join(self.libsdir, x) for x in binaries]
+
+            # list of manpages
+            manpages = ['nvidia-settings.1.gz',
+                        'nvidia-cuda-mps-control.1.gz',
+                        'nvidia-xconfig.1.gz',
+                        'nvidia-smi.1.gz']
+            manpages = [os.path.join(self.libsdir, x) for x in manpages]
+
+            copy(binaries, os.path.join(self.installdir, 'bin'))
+            copy(manpages, os.path.join(self.installdir, 'man', 'man1'))
 
         copy(libs, os.path.join(self.installdir, 'lib64'))
-        copy(binaries, os.path.join(self.installdir, 'bin'))
-        copy(manpages, os.path.join(self.installdir, 'man', 'man1'))
 
     def post_install_step(self):
         """Generate the appropriate symlinks"""
@@ -105,12 +119,13 @@ class EB_nvidia_minus_driver(Binary):
         # Run ldconfig to create missing symlinks (libcuda.so.1, etc)
         run_cmd("/usr/sbin/ldconfig -N %s" % libdir)
 
-        # Create an extra symlink for libcuda.so, otherwise PGI 19.X breaks
-        # Create an extra symlink for libnvidia-ml.so, otherwise MVAPICH2 doesn't find it if it doesn't rely on stubs
-        missing_links = ['libcuda.so', 'libnvidia-ml.so']
-        for missing_link in missing_links:
-            run_cmd("ln -s %s/%s.1 %s/%s" %
-                    (libdir, missing_link, libdir, missing_link))
+        if not self.cfg['just_GL_libs']:
+            # Create an extra symlink for libcuda.so, otherwise PGI 19.X breaks
+            # Create an extra symlink for libnvidia-ml.so, otherwise MVAPICH2 doesn't find it if it doesn't rely on stubs
+            missing_links = ['libcuda.so', 'libnvidia-ml.so']
+            for missing_link in missing_links:
+                run_cmd("ln -s %s/%s.1 %s/%s" %
+                        (libdir, missing_link, libdir, missing_link))
 
         super(EB_nvidia_minus_driver, self).post_install_step()
 
@@ -121,13 +136,26 @@ class EB_nvidia_minus_driver(Binary):
 
         chk_libdir = ["lib64"]
 
-        nvlibs = ["cuda"]
+        if not self.cfg['just_GL_libs']:
+            nvlibs = ["cuda"]
+            binaries = [os.path.join("bin", x) for x in ["nvidia-smi"]]
+            libs = [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext)
+                    for x in chk_libdir for y in nvlibs]
+        else:
+            nvlibs_0_suffix = ["EGL_nvidia", "GLX_nvidia", "OpenGL"]
+            nvlibs_1_suffix = ["GLESv1_CM_nvidia"]
+            nvlibs_2_suffix = ["GLESv2_nvidia"]
+            binaries = []
+            libs = [os.path.join("%s", "lib%s.%s.0") % (x, y, shlib_ext)
+                    for x in chk_libdir for y in nvlibs_0_suffix]
+            libs += [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext)
+                     for x in chk_libdir for y in nvlibs_1_suffix]
+            libs += [os.path.join("%s", "lib%s.%s.2") % (x, y, shlib_ext)
+                     for x in chk_libdir for y in nvlibs_2_suffix]
+
         custom_paths = {
-            'files': [os.path.join("bin", x) for x in ["nvidia-smi"]] +
-            [os.path.join("%s", "lib%s.%s.1") % (x, y, shlib_ext)
-             for x in chk_libdir for y in nvlibs],
+            'files': binaries + libs,
             'dirs': [''],
         }
-
         super(EB_nvidia_minus_driver, self).sanity_check_step(
             custom_paths=custom_paths)

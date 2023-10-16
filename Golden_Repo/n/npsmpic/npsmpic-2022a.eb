@@ -14,7 +14,7 @@ local_compiler = ('NVHPC', '23.1')
 dependencies = [
     local_compiler,
     ('CUDA', '11.7', '', SYSTEM),
-    ('psmpi', '5.7.0-1', '', local_compiler),
+    ('psmpi', '5.7.1-1', '', local_compiler),
 ]
 
 moduleclass = 'toolchain'

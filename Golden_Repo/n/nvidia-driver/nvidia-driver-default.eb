@@ -17,11 +17,6 @@ source_urls = ['http://us.download.nvidia.com/tesla/%s/' % realversion]
 sources = ['NVIDIA-Linux-x86_64-%s.run' % realversion]
 checksums = ['0492ddc5b5e65aa00cbc762e8d6680205c8d08e103b7131087a15126aee495e9']
 
-# To avoid conflicts between NVML and the kernel driver
-postinstallcmds = ['rm %(installdir)s/lib64/libnvidia-ml.so*']
-
-modluafooter = '''
-add_property("arch","gpu")
-'''
+just_GL_libs = True
 
 moduleclass = 'system'

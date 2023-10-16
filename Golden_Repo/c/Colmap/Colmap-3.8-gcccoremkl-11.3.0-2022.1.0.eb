@@ -15,7 +15,11 @@ toolchainopts = {'cstd': 'c++14'}
 github_account = 'colmap'
 source_urls = [GITHUB_SOURCE]
 sources = ['%(version)s.tar.gz']
-checksums = ['02288f8f61692fe38049d65608ed832b31246e7792692376afb712fa4cef8775']
+patches = ['unpatch-5695733.patch']
+checksums = [
+    {'3.8.tar.gz': '02288f8f61692fe38049d65608ed832b31246e7792692376afb712fa4cef8775'},
+    {'unpatch-5695733.patch': '37aad48aa547f412d9d8be050b7032c168d8512cda995ac773dce1b70772156b'},
+]
 
 builddependencies = [
     ('binutils', '2.38'),
@@ -36,12 +40,12 @@ dependencies = [
     ('CUDA', '11.7', '', SYSTEM),
     ('OpenGL', '2022a'),
     ('Qt5', '5.15.5'),
+    ('tbb', '2021.5.0'),
 ]
 
-configopts = "-DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF "
+configopts = "-DBUILD_TESTING=OFF "
 configopts += "-DCUDA_ENABLED=ON "
 configopts += "-DCMAKE_CUDA_ARCHITECTURES=all-major "
-configopts += "-DCUDA_NVCC_FLAGS='--std c++14' "
 
 sanity_check_paths = {
     'files': ['bin/colmap', 'lib/colmap/libcolmap.a'],

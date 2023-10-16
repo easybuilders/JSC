@@ -78,7 +78,6 @@ LittleCMS
 LuaJIT2-OpenResty
 M4
 MATIO
-MATLAB
 Mako
 NASM
 NLopt

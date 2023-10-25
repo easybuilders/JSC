@@ -35,9 +35,10 @@ implemented as an easyblock.
 """
 import easybuild.tools.toolchain as toolchain
 from easybuild.easyblocks.generic.configuremake import ConfigureMake
+from easybuild.tools import LooseVersion
 from easybuild.tools.build_log import EasyBuildError
+from easybuild.tools.environment import unset_env_vars
 from easybuild.tools.modules import get_software_root, get_software_libdir
-from distutils.version import LooseVersion
 
 
 class EB_Score_minus_P(ConfigureMake):
@@ -48,6 +49,10 @@ class EB_Score_minus_P(ConfigureMake):
 
     def configure_step(self, *args, **kwargs):
         """Configure the build, set configure options for compiler, MPI and dependencies."""
+        # Remove some settings from the environment, as they interfere with
+        # Score-P's configure magic...
+        unset_env_vars(['CPPFLAGS', 'LDFLAGS', 'LIBS'])
+
         # On non-cross-compile platforms, specify compiler and MPI suite explicitly.  This is much quicker and safer
         # than autodetection.  In Score-P build-system terms, the following platforms are considered cross-compile
         # architectures:
@@ -73,7 +78,7 @@ class EB_Score_minus_P(ConfigureMake):
                 'Score-P': '8.0',
                 'Scalasca': '2.6.1',
                 'OTF2': '3.0.2',
-                'CubeW': '4.8',
+                'CubeWriter': '4.8',
                 'CubeLib': '4.8',
                 'CubeGUI': '4.8',
             }

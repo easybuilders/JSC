@@ -1,0 +1,75 @@
+From 8c91e0d75473f0794bba77919ad8ab667aa02d85 Mon Sep 17 00:00:00 2001
+From: Jeff Squyres <jeff@squyres.com>
+Date: Fri, 18 Aug 2023 07:36:08 -0400
+Subject: [PATCH] fortran: fix MPI_F_STATUS_SIZE
+
+This commit is a partial cherry pick of 7fce2f30.  7fce2f30's original
+commit message was:
+
+    update MPI_F08_status type
+
+    Make the C MPI_F08_status type definition match the updated
+    mpi_f08 type(MPI_Status) definition.
+
+    This fix the inconsistency introduced in open-mpi/ompi@98bc7af7d4dce3fe9106ffff39c0b129b9466d40
+
+    Signed-off-by: Gilles Gouaillardet <gilles@rist.or.jp>
+
+This commit only uses a portion of 7fce2f30 because we do not want to
+also take the mpi_f08 Status part of that commit (because the mpi_f08
+module does not exist on the v4.1.x branch).
+
+Thanks to Github user @jprotze for identifying the issue and tracking
+down the fix.
+
+Signed-off-by: Jeff Squyres <jeff@squyres.com>
+(cherry picked from commit 7fce2f3057d6baaba688c99ad5602407df21128d)
+---
+ config/ompi_setup_mpi_fortran.m4 | 4 ++++
+ ompi/include/mpi.h.in            | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/config/ompi_setup_mpi_fortran.m4 b/config/ompi_setup_mpi_fortran.m4
+index f1737a9c888..77a146f469a 100644
+--- a/config/ompi_setup_mpi_fortran.m4
++++ b/config/ompi_setup_mpi_fortran.m4
+@@ -18,6 +18,7 @@ dnl Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
+ dnl Copyright (c) 2014-2020 Research Organization for Information Science
+ dnl                         and Technology (RIST).  All rights reserved.
+ dnl Copyright (c) 2016      IBM Corporation.  All rights reserved.
++dnl Copyright (c) 2023      Jeffrey M. Squyres.  All rights reserved.
+ dnl $COPYRIGHT$
+ dnl
+ dnl Additional copyrights may follow
+@@ -249,6 +250,9 @@ AC_DEFUN([OMPI_SETUP_MPI_FORTRAN],[
+     OMPI_FORTRAN_STATUS_SIZE=$num_integers
+     AC_MSG_RESULT([$OMPI_FORTRAN_STATUS_SIZE Fortran INTEGERs])
+     AC_SUBST(OMPI_FORTRAN_STATUS_SIZE)
++    AC_DEFINE_UNQUOTED([OMPI_FORTRAN_STATUS_SIZE],
++                       [$OMPI_FORTRAN_STATUS_SIZE],
++                       [The number or Fortran INTEGER in MPI Status])
+ 
+     # Setup for the compilers that don't support ignore TKR functionality
+     OPAL_UNIQ(OMPI_FORTRAN_IKINDS)
+diff --git a/ompi/include/mpi.h.in b/ompi/include/mpi.h.in
+index 0657f7745ef..fa4082a37f9 100644
+--- a/ompi/include/mpi.h.in
++++ b/ompi/include/mpi.h.in
+@@ -21,6 +21,7 @@
+  *                         and Technology (RIST).  All rights reserved.
+  * Copyright (c) 2017-2019 IBM Corporation.  All rights reserved.
+  * Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
++ * Copyright (c) 2023      Jeffrey M. Squyres.  All rights reserved.
+  * $COPYRIGHT$
+  *
+  * Additional copyrights may follow
+@@ -98,6 +99,9 @@
+ /* Maximum length of processor names (default is 256) */
+ #undef OPAL_MAX_PROCESSOR_NAME
+ 
++/* The number or Fortran INTEGER in MPI Status */
++#undef OMPI_FORTRAN_STATUS_SIZE
++
+ /* Whether we have FORTRAN LOGICAL*1 or not */
+ #undef OMPI_HAVE_FORTRAN_LOGICAL1
+ 

@@ -12,11 +12,14 @@ source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/
 sources = [SOURCELOWER_TAR_BZ2]
 patches = [
     'OpenMPI-4.1.1_opal-datatype-cuda-performance.patch',
+    'OpenMPI_4.1.x_mpi_f_status_size.patch',
 ]
 checksums = [
     {'openmpi-4.1.5.tar.bz2': 'a640986bc257389dd379886fdae6264c8cfa56bc98b71ce3ae3dfbd8ce61dbe3'},
     {'OpenMPI-4.1.1_opal-datatype-cuda-performance.patch':
      'b767c7166cf0b32906132d58de5439c735193c9fd09ec3c5c11db8d5fa68750e'},
+    {'OpenMPI_4.1.x_mpi_f_status_size.patch':
+     '5cfd01e734a1fb7eb1df59a597de595b3c45ad727b908b56a55129f544f5617c'},
 ]
 
 builddependencies = [

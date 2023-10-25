@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'cuDNN'
-version = '8.9.2.26'
+version = '8.9.5.29'
 versionsuffix = '-CUDA-%(cudaver)s'
 homepage = 'https://developer.nvidia.com/cudnn'
 description = """The NVIDIA CUDA Deep Neural Network library (cuDNN) is
@@ -17,7 +17,7 @@ source_urls = [
     'https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-%(cudnnarch)s/'
 ]
 sources = ['%%(namelower)s-linux-%%(cudnnarch)s-%%(version)s_cuda%s-archive.tar.xz' % local_cuda_major]
-checksums = ['ccafd7d15c2bf26187d52d79d9ccf95104f4199980f5075a7c1ee3347948ce32']
+checksums = ['f36453feda1b952f32086eb1f4ab040c6827a41c4db82a0d8c4cc6013a2fa763']
 
 dependencies = [('CUDA', '12')]
 

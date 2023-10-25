@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'shpc'
-version = '0.1.24'
+version = '0.1.26'
 
 homepage = 'https://github.com/singularityhub/singularity-hpc'
 
@@ -31,7 +31,7 @@ exts_list = [
     (name, version, {
         'source_urls': ['https://github.com/singularityhub/singularity-hpc/archive/refs/tags/'],
         'sources': ['%(version)s.tar.gz'],
-        'checksums': ['ab2c317f4f4e35e95b0fdb0ca1d0318ce2ce433007ecd4ffeaf3136ca3197c04'],
+        'checksums': ['3d9e3a858d8eeee0d3f02ba1d3f79e9aa979739eb8cab1e73e9359cfd1e998f6'],
     }),
 ]
 
@@ -39,11 +39,32 @@ allow_prepend_abs_path = True
 
 # Tries to create its directory on the home dir during the module load, as it cannot be
 # done beforehand.
-modluafooter = """
+modluafooter = '''
 require "lfs"
 lfs.mkdir(pathJoin(os.getenv("HOME"), "easybuild", os.getenv("SYSTEMNAME"), "modules", "containers"))
 prepend_path("MODULEPATH", pathJoin(os.getenv("HOME"), "easybuild", os.getenv("SYSTEMNAME"), "modules", "containers"))
-"""
+
+-- Terminal colors
+local red = "\\027\z[01;31m"
+local yellow = "\\027\z[01;33m"
+local green = "\\027\z[01;32m"
+local normal = "\\027\z[0m"
+
+if lfs.symlinkattributes(pathJoin(os.getenv("HOME"),"easybuild"), "mode") ~= "link" then
+    LmodError(red.."\\nPlease configure ~/easybuild to be a symlink to a project directory\\n"..
+              "for example with: \\n  mkdir -p $PROJECT/$USER/easybuild && "..
+              "ln -s $PROJECT/$USER/easybuild $HOME/easybuild\\n"..normal)
+end
+
+local success = os.execute("groups | grep container")
+if success then
+    LmodMessage(green.."\\nYou have access to containers\\n"..normal)
+else
+    LmodError(red.."\\nPlease go to the SOFTWARE section of JUDOOR "..
+                "and request access to containers\\n"..normal)
+end
+
+'''
 
 sanity_pip_check = True
 
@@ -59,6 +80,7 @@ sanity_check_commands = [
     "shpc config --central set module_base:\$HOME/easybuild/\$SYSTEMNAME/modules/containers",
     "shpc config --central set container_base:\$HOME/easybuild/\$SYSTEMNAME/modules/containers",
     "shpc config --central set container_features:gpu:nvidia",
+    "shpc config --central set wrapper_base:\$HOME/easybuild/\$SYSTEMNAME/modules/containers"
 ]
 
 moduleclass = 'tools'

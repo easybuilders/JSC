@@ -187,7 +187,7 @@ elseif systemname == "jureca_arm" then
     cuda_compute = "8.0"
 -- JURECA-SPR
 elseif systemname == "jureca_spr" then
-    optarch = ""
+    optarch = "GCCcore:march=haswell -mtune=haswell;GCC:march=sapphirerapids -mtune=sapphirerapids -ftree-vectorize;Intel:xCORE-AVX512"
     cuda_compute = "9.0"
 -- JUSUF
 elseif systemname == "jusuf" then

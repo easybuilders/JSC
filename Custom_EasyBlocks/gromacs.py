@@ -385,8 +385,10 @@ class EB_GROMACS(CMakeMake):
             else:
                 self.cfg.update('configopts', "-DGMX_OPENMP=OFF")
 
-            imkl_root = get_software_root('imkl')
-            if imkl_root:
+            # If both FlexiBLAS and MKL are found, we assume that FlexiBLAS has a dependency on MKL.
+            # In this case we want to link to FlexiBLAS and not directly to MKL.
+            imkl_direct = get_software_root("imkl") and not get_software_root("FlexiBLAS")
+            if imkl_direct:
                 # using MKL for FFT, so it will also be used for BLAS/LAPACK
                 imkl_include = os.path.join(
                     os.getenv('MKLROOT'), 'mkl', 'include')

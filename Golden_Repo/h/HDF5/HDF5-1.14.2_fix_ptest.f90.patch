@@ -1,0 +1,73 @@
+--- hdf5-1.14.2/fortran/testpar/ptest.F90.orig	2023-10-26 14:08:42.598880000 +0200
++++ hdf5-1.14.2/fortran/testpar/ptest.F90	2023-10-30 13:04:26.615041119 +0100
+@@ -24,11 +24,15 @@
+   INTEGER :: mpierror                             ! MPI hdferror flag
+   INTEGER :: hdferror                             ! HDF hdferror flag
+   INTEGER :: ret_total_error = 0                  ! number of errors in subroutine
+-  INTEGER :: total_error = 0                      ! sum of the number of errors
++  ! INTEGER :: total_error = 0                      ! sum of the number of errors
++  ! INTEGER, PARAMETER :: total_error(1)            ! (1) = 0
++  INTEGER :: total_error(1)            ! (1) = 0
+   INTEGER :: mpi_size                             ! number of processes in the group of communicator
+   INTEGER :: mpi_rank                             ! rank of the calling process in the communicator
+   INTEGER :: length = 12000                       ! length of array
+-  INTEGER :: i,j, sum
++  ! INTEGER :: i, j, sum
++  INTEGER :: i, j
++  INTEGER :: sum(1)
+   ! use collective MPI I/O
+   LOGICAL, DIMENSION(1:2) :: do_collective = (/.FALSE.,.TRUE./)
+   CHARACTER(LEN=11), DIMENSION(1:2) :: chr_collective =(/"independent", "collective "/)
+@@ -36,6 +40,9 @@
+   LOGICAL, DIMENSION(1:2) :: do_chunk = (/.FALSE.,.TRUE./)
+   CHARACTER(LEN=10), DIMENSION(1:2) :: chr_chunk =(/"contiguous", "chunk     "/)
+ 
++  ! fix allreduce
++  total_error(1) = 0 
++  
+   !
+   ! initialize MPI
+   !
+@@ -67,7 +74,7 @@
+         CALL hyper(length, do_collective(j), do_chunk(i), mpi_size, mpi_rank, ret_total_error)
+         IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+              "Writing/reading dataset by hyperslabs ("//TRIM(chr_chunk(i))//" layout, "//TRIM(chr_collective(j))//" MPI I/O)", &
+-             total_error)
++             total_error(1))
+      ENDDO
+   ENDDO
+ 
+@@ -77,7 +84,7 @@
+   ret_total_error = 0
+   CALL multiple_dset_write(length, do_collective(1), do_chunk(1), mpi_size, mpi_rank, ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'Writing/reading several datasets (contiguous layout, independent MPI I/O)', total_error)
++       'Writing/reading several datasets (contiguous layout, independent MPI I/O)', total_error(1))
+   !
+   ! test write/read multiple hyperslab datasets
+   !
+@@ -87,7 +94,7 @@
+         CALL pmultiple_dset_hyper_rw(do_collective(j), do_chunk(i), mpi_size, mpi_rank, ret_total_error)
+         IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+              "Writing/reading multiple datasets by hyperslab ("//TRIM(chr_chunk(i))//" layout, "&
+-             //TRIM(chr_collective(j))//" MPI I/O)", total_error)
++             //TRIM(chr_collective(j))//" MPI I/O)", total_error(1))
+      ENDDO
+   ENDDO
+   !
+@@ -96,13 +103,14 @@
+   CALL h5close_f(hdferror)
+ 
+   CALL MPI_ALLREDUCE(total_error, sum, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD, mpierror)
++  !CALL MPI_ALLREDUCE(total_error, sum, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD, mpierror)
+ 
+   IF(mpi_rank==0) CALL write_test_footer()
+ 
+   !
+   ! close MPI
+   !
+-  IF (total_error == 0) THEN
++  IF (total_error(1) == 0) THEN
+      CALL mpi_finalize(mpierror)
+      IF (mpierror .NE. MPI_SUCCESS) THEN
+         WRITE(*,*) "MPI_FINALIZE  *FAILED* Process = ", mpi_rank

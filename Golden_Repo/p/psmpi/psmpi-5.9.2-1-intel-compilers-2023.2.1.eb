@@ -10,13 +10,15 @@ various batch systems for tighter process control.
 
 toolchain = {'name': 'intel-compilers', 'version': '2023.2.1'}
 
-sources = [SOURCE_TAR_GZ]
 source_urls = ['https://gitlab.jsc.fz-juelich.de/ParTec/psmpi/uploads/94a30dcd01d7ea49f7a852d68e499aba/']
+sources = [SOURCE_TAR_GZ]
+patches = [
+    '0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch'
+]
 checksums = [
-    # psmpi-5.9.2-1.tar.gz
-    'fb66a62371300bd441d32594b2255e4206c18aa2e0a46cfbbe27a7d2362b6d31',
-    # psmpi-5.9.2-1_ime.patch
-    'b9f92379b18fca596499bde2a53748d102e7c732b34d832f038120762cc9f312',
+    {'psmpi-5.9.2-1.tar.gz': 'fb66a62371300bd441d32594b2255e4206c18aa2e0a46cfbbe27a7d2362b6d31'},
+    {'0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch':
+     '87a4aa7bd03b9be2bc5a82a447e4289102c308552d16cebee90faaa9d9c36ccc'},
 ]
 
 dependencies = [
@@ -28,14 +30,11 @@ dependencies = [
     ('PMIx', '4.2.6')
 ]
 
-patches = [
-    'psmpi-5.9.2-1_ime.patch'
-]
+# We disable IME here, since that ROMIO backend does not compile with oneAPI compilers
+mpich_opts = '--enable-static --with-file-system=ufs+gpfs --enable-romio'
 
-mpich_opts = '--enable-static --with-file-system=ime+ufs+gpfs --enable-romio'
-
-preconfigopts = 'export CFLAGS="-I/opt/ddn/ime/include $CFLAGS" && '
-preconfigopts += 'export LDFLAGS="$LDFLAGS -L/opt/ddn/ime/lib -lim_client" && '
+# Needed because we are patching the autotools templates
+preconfigopts = './autogen.sh &&'
 
 threaded = False
 

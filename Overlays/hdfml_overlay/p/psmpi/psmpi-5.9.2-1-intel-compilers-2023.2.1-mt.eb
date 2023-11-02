@@ -11,11 +11,15 @@ various batch systems for tighter process control.
 
 toolchain = {'name': 'intel-compilers', 'version': '2023.2.1'}
 
-sources = [SOURCE_TAR_GZ]
 source_urls = ['https://gitlab.jsc.fz-juelich.de/ParTec/psmpi/uploads/94a30dcd01d7ea49f7a852d68e499aba/']
+sources = [SOURCE_TAR_GZ]
+patches = [
+    '0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch'
+]
 checksums = [
-    # psmpi-5.9.2-1.tar.gz
-    'fb66a62371300bd441d32594b2255e4206c18aa2e0a46cfbbe27a7d2362b6d31',
+    {'psmpi-5.9.2-1.tar.gz': 'fb66a62371300bd441d32594b2255e4206c18aa2e0a46cfbbe27a7d2362b6d31'},
+    {'0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch':
+     '87a4aa7bd03b9be2bc5a82a447e4289102c308552d16cebee90faaa9d9c36ccc'},
 ]
 
 dependencies = [
@@ -28,6 +32,9 @@ dependencies = [
 ]
 
 mpich_opts = '--enable-static --with-file-system=ufs+gpfs --enable-romio'
+
+# Needed because we are patching the autotools templates
+preconfigopts = './autogen.sh &&'
 
 threaded = True
 

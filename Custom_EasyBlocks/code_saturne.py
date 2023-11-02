@@ -28,12 +28,13 @@ EasyBuild support for building and installing Code_Saturne,
 implemented as an easyblock.
 
 @author: Metin Cakircali (Juelich Supercomputing Centre, FZJ GmbH)
+@author: Seong-Ryong Koh (Juelich Supercomputing Centre, FZJ GmbH)
 """
 
 import os
 
 from easybuild.framework.easyblock import EasyBlock
-from easybuild.framework.easyconfig.default import CUSTOM
+from easybuild.framework.easyconfig import CUSTOM
 from easybuild.tools.filetools import apply_regex_substitutions
 from easybuild.tools.run import run_cmd
 from easybuild.tools.systemtools import get_shared_lib_ext
@@ -126,6 +127,10 @@ class EB_Code_underscore_Saturne(EasyBlock):
             apply_regex_substitutions(
                 from_path,
                 [(r"# batch =", r"batch = SLURM")]
+                )
+            apply_regex_substitutions(
+                from_path,
+                [(r"# submit_command =", r"submit_command = sbatch --account=$BUDGET_ACCOUNTS")]
                 )
             apply_regex_substitutions(
                 from_path,

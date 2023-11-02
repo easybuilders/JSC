@@ -1,0 +1,69 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# easyconfig file for Code_Saturne
+name = 'Code_Saturne'
+version = '8.0.2'
+
+# extra option for the SLURM batch system
+# debug = False
+slurm = True
+
+homepage = 'https://www.code-saturne.org'
+description = """
+Code_saturne is the free, open-source software developed to analyze CFD applications.
+It solves the Navier-Stokes equations for 2D, 2D-axisymmetric and 3D flows, steady or
+unsteady, laminar or turbulent, incompressible or weakly dilatable, isothermal or not,
+with scalar transport.
+
+Code_Saturne %(version)s%(versionsuffix)s is installed in
+$EBROOTCODE_SATURNE
+"""
+
+toolchain = {'name': 'gompi', 'version': '2023a'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True}
+
+source_urls = ['https://github.com/code-saturne/code_saturne/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+patches = [
+    'code_saturne-8.0.2-integer.patch',
+]
+
+checksums = [
+    '911ec01e1bce3937ebb811622788a5671cd171b4411b5db2d66b02f00da6e90f',  # v8.0.2.tar.gz
+    '5c3bb622b3e0b54ab06f23b21b7fbec0bcd82a7b70d623128a8d8c4e0092236b',  # code_saturne-8.0.2-integer.patch
+]
+
+builddependencies = [
+    ('Autotools', '20220317'),
+    ('gettext', '0.21.1', ''),
+    ('Bison', '3.8.2', ''),
+    ('flex', '2.6.4', ''),
+    ('texlive', '20230313'),
+    ('Doxygen', '1.9.7'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('HDF5', '1.14.2'),
+    ('CGNS', '4.4.0'),
+    ('ParMETIS', '4.0.3'),
+    ('SCOTCH', '7.0.3'),
+    ('MED', '4.1.0'),
+    ('PyQt5', '5.15.9'),
+]
+
+configopts = ' '
+configopts += '--with-med=$EBROOTMED --without-medcoupling '
+configopts += '--with-cgns=$EBROOTCGNS '
+configopts += '--with-metis=$EBROOTPARMETIS '
+configopts += '--with-scotch=$EBROOTSCOTCH '
+configopts += '--with-python_prefix=%(installdir)s --with-python_exec_prefix=%(installdir)s '
+
+modloadmsg = "=========================================================================\n"
+modloadmsg += "NOTE: To benefit from shell completion for %(name)s commands/options\n"
+modloadmsg += "you may also source a bash completion file by\n"
+modloadmsg += "> source $CS_BASH\n"
+modloadmsg += "Job submission needs a compute project activated by jutil\n"
+modloadmsg += "> jutil env activate -p <project> [-A <budget>]\n"
+modloadmsg += "=========================================================================\n"
+
+moduleclass = 'cae'

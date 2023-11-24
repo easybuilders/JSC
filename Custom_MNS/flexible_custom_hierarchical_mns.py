@@ -282,11 +282,15 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
                 tc_comp_name, tc_comp_ver = self._find_relevant_compiler_info(tc_comp_info)
                 mpi_name, mpi_ver = self._find_relevant_mpi_info(ec)
                 # Hack the module path extension, so BullMPI actually reuses the stack from OpenMPI
-                # instead of building everything on top unnecessarily. Same for impi on top of psmpi
+                # instead of building everything on top unnecessarily. Same for IntelMPI on top of ParaStationMPI
+                # Note that both paths ("real" MPI and "base" MPI) are expanded. That means that we could
+                # have name collisions if we are not careful. However, the usage of toolchains based on 
+                # BullMPI or IntelMPI should be limited to very particular use cases, where packages
+                # would not work with the "base" MPIs (ParaStationMPI, OpenMPI), so this situation should
+                # simply not happen. If it does, the "real" MPI takes precedence.
+                paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
                 if mpi_name in SWAPPABLE_MPIS:
                     paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, SWAPPABLE_MPIS[mpi_name][0], SWAPPABLE_MPIS[mpi_name][1] or mpi_ver))
-                else:
-                    paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, mpi_name, mpi_ver))
 
                 if ec['name'] in MPI_WITH_SETTINGS:
                     paths.append(os.path.join(MPI_SETTINGS, mpi_name, mpi_ver))

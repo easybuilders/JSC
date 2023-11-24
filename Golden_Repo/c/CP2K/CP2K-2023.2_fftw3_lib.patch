@@ -1,0 +1,18 @@
+--- src/pw/fft/fftw3_lib.F.orig	2022-04-04 11:51:18.547828000 +0200
++++ src/pw/fft/fftw3_lib.F	2022-04-04 11:55:26.685763145 +0200
+@@ -121,6 +121,7 @@
+ 
+       ! Now check if we have a real FFTW3 library, or are using MKL wrappers
+ 
++#ifdef __MKLFFTW3
+ !$    IF (fftw3_is_mkl_wrapper() .and. omp_get_max_threads() .gt. 1) THEN
+ ! If we are not using the Intel compiler, there is no way to tell which
+ ! MKL version is in use, so fail safe...
+@@ -147,6 +148,7 @@
+ !$             "Now exiting..."
+ !$       END IF
+ !$    END IF
++#endif
+ #else
+       MARK_USED(wisdom_file)
+ #endif

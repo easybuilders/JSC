@@ -1,0 +1,103 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'CP2K'
+version = '2023.2'
+versionsuffix = '-mkl'
+
+homepage = 'http://www.cp2k.org/'
+description = """CP2K is a freely available (GPL) program, written in Fortran 95, to perform atomistic and molecular
+ simulations of solid state, liquid, molecular and biological systems. It provides a general framework for different
+ methods such as e.g. density functional theory (DFT) using a mixed Gaussian and plane waves approach (GPW), and
+ classical pair and many-body potentials. 
+ The default eigensolver is set to Scalapack. This setting can be overridden by specifiying 
+ PREFERRED_DIAG_LIBRARY ELPA in the global section of the cp2k input. Note, that application-dependent 
+ - in particular for small basis sizes - the use of the ELPA eigensolver library can cause dead-locks:
+ the program might be killed with a corresponding message from the MPI library ( parastation mpi) 
+ or even hang (openmpi). The user is advised to check whether the particular application is prone to 
+ deadlocks if ELPA is switched on.
+ The Libvori library for  Voronoi integration and the BQB compressed volumetric trajectory data is included
+ (https://brehm-research.de/voronoi, https://brehm-research.de/bqb).
+ Tree-Monte-Carlo is disfunctional; this is the hybrid MPI/OpenMP version of CP2K.
+"""
+
+toolchain = {'name': 'intel-para', 'version': '2023a'}
+toolchainopts = {'pic': True, 'openmp': True, 'usempi': True, 'oneapi':  True}
+
+# which dbcsr_version
+dbcsr_version = '2.6.0'
+libvori_version = '-220621'
+spglib_version = '1.16.5'
+local_libvori_version = '-220621'
+
+sources = [
+    {'download_filename': 'cp2k/cp2k/archive/refs/tags/v%(version)s.tar.gz', 'filename': 'cp2k.%(version)s.tar.gz'},
+    {'download_filename': 'cp2k/dbcsr/archive/refs/tags/v2.6.0.tar.gz', 'filename': 'dbcsr.2.6.0.tar.gz'},
+    {'download_filename': 'libvori-220621.tar.gz', 'filename': 'libvori.220621.tar.gz'},
+    {'download_filename': 'spglib/spglib/archive/refs/tags/v1.16.5.tar.gz', 'filename': 'spglib.1.16.5.tar.gz'},
+]
+
+source_urls = [
+    'https://github.com/',
+    'https://www.brehm-research.de/files/',
+]
+
+patches = [
+    'CP2K-2023.2_fftw3_lib.patch',
+    'CP2K-2023.2_elpa.patch',
+    'CP2K-2023.2_dbcsr.patch',
+]
+
+checksums = [
+    '90b6d777aeac5e18f15dad4a61181c575ca023783d484740e2728a0e05169188',
+    '98fe49c5fd14e1f2712b40f1954b7dde0ae19840ff8eb36e7a5958de0b624c5b',
+    '1cfa98c564814bddacf1c0e7f11582137d758668f6307e6eb392c72317984c14',
+    '1bbde03b6b78da756c07f458bd90d84f3c253841b9b0632db5b72c5961e87aef',
+    '1b7674b0046d329f9913ed99e92b53481e878a04a4856c817228d4816d0ea624',
+    '5971a17f6481493da8e69de57d07d53d27a9e53c10e931accf8f32329d65466f',
+    'c480c46d31290056079f6a9d5fa17454d34169d1a7850af22378dd794257c3b7'
+]
+
+# also libxc-5.2.3 possible
+
+dependencies = [
+    ('libxc', '6.2.2', '', ('intel-compilers', '2023.2.1')),
+    ('FFTW', '3.3.10', ''),
+    ('Libint', '2.7.2', '_cp2k_lmax5', ('intel-compilers', '2023.2.1')),
+    ('ELPA', '2023.05.001', '-mkl'),
+    ('libxsmm', '1.17', '', ('intel-compilers', '2023.2.1')),
+    ('PLUMED', '2.9.0', '-mkl'),
+]
+
+builddependencies = [
+    ('flex', '2.6.4'),
+    ('CMake', '3.26.3'),
+    ('Python', '3.11.3', '', ('GCCcore', '12.3.0')),
+]
+
+# Add PLUMED support
+plumed = True
+
+# Disable CUDA
+cuda = False
+
+# explicit unrolled loops up to __MAX_CONTR, 4 gives excessive compiler times
+configopts = '-D__MAX_CONTR=3'
+
+# popt or psmp
+type = 'psmp'
+
+# run tests separately (2 nodes of juwels approx 1 hour)
+runtest = False
+
+
+# additional DFLAGS
+# -D__COMPILE_HOST="\"jrlogin09.jureca\"" -D__COMPILE_REVISION="\"git:65cca6c\""
+extradflags = '-D__MKL -D__LIBVORI -D__SPGLIB -D__USE_MPI_F08 -D__MPI_F08'
+
+# regression test reports failures
+ignore_regtest_fails = False
+
+modextravars = {
+    'CP2K_DATA_DIR': '%(installdir)s/data',
+}
+
+moduleclass = 'chem'

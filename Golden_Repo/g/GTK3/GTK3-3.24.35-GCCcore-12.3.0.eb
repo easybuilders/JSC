@@ -31,6 +31,8 @@ dependencies = [
     ('libepoxy', '1.5.10'),
     ('X11', '20230603'),
     ('FriBidi', '1.0.13'),
+    # This installs the SVG loader in Gdk-Pixbuf, which is needed for adwaita
+    ('librsvg', '2.56.3'),
 ]
 
 default_easyblock = 'ConfigureMake'
@@ -46,7 +48,7 @@ components = [
         'checksums': ['ec10fe6d712ef0b3c63b5f932639c9d1ae99fce94f500f6f06965629fef60bd1'],
         # fix packaging issue, see https://gitlab.gnome.org/GNOME/gtk/-/issues/5355
         'preconfigopts': "mv testsuite/gtk/gtkresources.c gtk/ && ",
-        'configopts': "--disable-silent-rules --disable-glibtest --enable-introspection=yes --disable-visibility ",
+        'configopts': "--disable-silent-rules --disable-glibtest --enable-introspection=yes ",
     }),
     ('hicolor-icon-theme', '0.17', {
         'source_urls': ['https://icon-theme.freedesktop.org/releases/'],
@@ -65,6 +67,10 @@ components = [
 ]
 
 postinstallcmds = ['gtk-update-icon-cache']
+
+modextrapaths = {
+    'GI_TYPELIB_PATH': 'lib64/girepository-1.0'
+}
 
 sanity_check_paths = {
     'files': ['bin/%s' % x for x in ['gtk3-demo', 'gtk3-demo-application', 'gtk3-icon-browser', 'gtk3-widget-factory',

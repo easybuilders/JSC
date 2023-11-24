@@ -426,9 +426,7 @@ class EB_CP2K(EasyBlock):
 
             # determine Libint libraries based on major version number
             libint_maj_ver = get_software_version('Libint').split('.')[0]
-            if libint_maj_ver == '1':
-                libint_libs = "$(LIBINTLIB)/libderiv.a $(LIBINTLIB)/libint.a $(LIBINTLIB)/libr12.a"
-            elif libint_maj_ver == '2':
+            if libint_maj_ver == '2':
                 # libint_libs = "$(LIBINTLIB)/libint2.a"
                 libint_libs = "-L$(LIBINTLIB) -lint2"
             else:
@@ -448,23 +446,13 @@ class EB_CP2K(EasyBlock):
         libxc = get_software_root('libxc')
         if libxc:
             cur_libxc_version = get_software_version('libxc')
-            if LooseVersion(self.version) >= LooseVersion('6.1'):
-                libxc_min_version = '4.0.3'
-                options['DFLAGS'] += ' -D__LIBXC'
-            else:
-                libxc_min_version = '2.0.1'
-                options['DFLAGS'] += ' -D__LIBXC2'
+            libxc_min_version = '5.2.3'
+            options['DFLAGS'] += ' -D__LIBXC'
 
             if LooseVersion(cur_libxc_version) < LooseVersion(libxc_min_version):
                 raise EasyBuildError("This version of CP2K is not compatible with libxc < %s" % libxc_min_version)
 
-            if LooseVersion(cur_libxc_version) >= LooseVersion('4.0.3'):
-                # cfr. https://www.cp2k.org/howto:compile#k_libxc_optional_wider_choice_of_xc_functionals
-                options['LIBS'] += ' -L%s/lib -lxcf03 -lxc' % libxc
-            elif LooseVersion(cur_libxc_version) >= LooseVersion('2.2'):
-                options['LIBS'] += ' -L%s/lib -lxcf90 -lxc' % libxc
-            else:
-                options['LIBS'] += ' -L%s/lib -lxc' % libxc
+            options['LIBS'] += ' -L%s/lib -lxcf03 -lxc' % libxc
             self.log.info("Using Libxc-%s" % cur_libxc_version)
             options['FCFLAGSOPT'] += ' -I%s/include ' %libxc
         else:
@@ -491,7 +479,7 @@ class EB_CP2K(EasyBlock):
             'FREE': '-fpp -free',
 
             # SAFE = -assume protect_parens -fp-model precise -ftz  # causes problems, so don't use this
-            'SAFE': '-assume protect_parens -no-unroll-aggressive',
+            'SAFE': '-assume protect_parens -std08 ',
 
             'INCFLAGS': '$(DFLAGS) -I$(INTEL_INC) -I$(INTEL_INCF) %s' % extrainc,
 
@@ -630,6 +618,10 @@ class EB_CP2K(EasyBlock):
     def configure_ScaLAPACK(self, options):
         """Configure for ScaLAPACK library"""
 
+# possibly LIBSCALAPACK =" -Wl,-Bstatic -Wl,--start-group -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -Wl,-Bdynamic "
+#          LIBLAPACK=" -Wl,-Bstatic -Wl,--start-group  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -Wl,-Bdynamic " 
+#          LIBBLAS=" -Wl,-Bstatic -Wl,--start-group  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -Wl,-Bdynamic " 
+#  but with other modules using flexiblas are present, then there is still a huge link string referencing flexiblas
         options['LIBS'] += ' %s' % os.getenv('LIBSCALAPACK', '')
 
         return options

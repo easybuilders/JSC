@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 name = 'NVHPC'
-version = '23.7'
+version = '23.11'
 versionsuffix = '-CUDA-%(cudaver)s'
 
 homepage = 'https://developer.nvidia.com/hpc-sdk/'
@@ -17,11 +17,11 @@ sources = [local_tarball_tmpl % '%(arch)s']
 checksums = [
     {
         local_tarball_tmpl % 'aarch64':
-            'd3b9b674045e6e17156b298941be4e1e1e7dea6a3c1938f14ad653b180860ff2',
+            'cf744498d1d74ba0af4294388706644ad3669eb0cacea3b69e23739afa2806a0',
         local_tarball_tmpl % 'ppc64le':
-            '67b137cf67e2c8556ef3952d1ee35f4966c9d1968626825924fb8e4b198a532b',
+            'b08591438bd0802d4c7c78e7c5bc36383a59591b8c2fa8aed5c4b87b24f7bfbb',
         local_tarball_tmpl % 'x86_64':
-            'fea91d95ff18bca1ce7afde50371caa02001ade8bed6ddfc5ff70862ccbebece',
+            '33483a069a911f9309cd53859ab90d2778fb176df906e9e8d2bd55f45eeec400',
     }
 ]
 

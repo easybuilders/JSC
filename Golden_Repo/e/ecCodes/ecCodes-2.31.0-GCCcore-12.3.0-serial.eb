@@ -3,6 +3,7 @@ easyblock = 'CMakeMake'
 
 name = 'ecCodes'
 version = '2.31.0'
+versionsuffix = '-serial'
 
 homepage = 'https://software.ecmwf.int/wiki/display/ECC/ecCodes+Home'
 description = """ecCodes is a package developed by ECMWF which provides an application programming interface and

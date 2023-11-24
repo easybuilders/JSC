@@ -56,15 +56,9 @@ if lfs.symlinkattributes(pathJoin(os.getenv("HOME"),"easybuild"), "mode") ~= "li
               "ln -s $PROJECT/$USER/easybuild $HOME/easybuild\\n"..normal)
 end
 
-local success = os.execute("groups | grep container")
-if success then
-    LmodMessage(green.."\\nYou have access to containers\\n"..normal)
-else
-    LmodError(red.."\\nPlease go to the SOFTWARE section of JUDOOR "..
-                "and request access to containers\\n"..normal)
-end
-
 '''
+
+group = 'container'
 
 sanity_pip_check = True
 

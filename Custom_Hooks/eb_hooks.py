@@ -10,8 +10,6 @@ from easybuild.tools.run import run_cmd
 from easybuild.tools.config import build_option
 from easybuild.tools.config import install_path
 from easybuild.tools.build_log import EasyBuildError, print_msg, print_warning
-from easybuild.tools.toolchain.toolchain import SYSTEM_TOOLCHAIN_NAME
-from easybuild.toolchains.compiler.systemcompiler import TC_CONSTANT_SYSTEM
 
 SUPPORTED_COMPILERS = ["GCC", "iccifort", "intel-compilers", "NVHPC", "PGI"]
 SUPPORTED_MPIS = ["impi", "psmpi", "OpenMPI", "BullMPI"]
@@ -267,6 +265,9 @@ def parse_hook(ec, *args, **kwargs):
 
     ec = tweak_module_conflict_side_compilers(ec)
 
+    if ec.name == 'Clang':
+        ec = tweak_clang(ec)
+
     # If we are parsing we are not searching, in this case if the easyconfig is
     # located in the search path, warn that it's dependencies will (most probably)
     # not be resolved
@@ -288,6 +289,17 @@ def parse_hook(ec, *args, **kwargs):
                 "  eb --robot=$EASYBUILD_ROBOT:$EBROOTEASYBUILD/easybuild/easyconfigs --try-update-deps ...."
             )
 
+def tweak_clang(ec):
+    # Add CUDA as dependency, so the Clang easyblock enables NVPTX as target
+    ec['dependencies'].append(('CUDA', TWEAKABLE_DEPENDENCIES['CUDA'], '', {'name': 'system', 'version': 'system'}))
+
+    # We pick the max CC. The easyblock picks the minimum by default. In our setup
+    # that does not make sense, since the GPUs with the minimum CC are used just
+    # in a handful of nodes used for visualization, which is not the target audience
+    # for Clang
+    ec['default_cuda_capability'] = max(build_option('cuda_compute_capabilities'))
+
+    return ec
 
 def tweak_dependencies(ec):
     for dep_type in ["dependencies", "builddependencies"]:

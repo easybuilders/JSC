@@ -1,0 +1,138 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OpenCV'
+version = '4.8.1'
+versionsuffix = '-contrib'
+
+# the hash is version dependent! see 3rdparty/ippicv/ippicv.cmake
+local_ippicv_hash = '1224f78da6684df04397ac0f40c961ed37f79ccb'
+
+homepage = 'https://opencv.org/'
+description = """OpenCV (Open Source Computer Vision Library) is an open source computer vision
+ and machine learning software library. OpenCV was built to provide
+ a common infrastructure for computer vision applications and to accelerate
+ the use of machine perception in the commercial products.
+ Includes extra modules for OpenCV from the contrib repository."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+# toolchainopts = {'pic': True, 'cstd': 'c++14', 'optarch': True}
+toolchainopts = {'pic': True, 'optarch': True}
+
+sources = [
+    {
+        'source_urls': ['https://github.com/%(namelower)s/%(namelower)s/archive/'],
+        'download_filename': '%(version)s.tar.gz',
+        'filename': SOURCELOWER_TAR_GZ
+    },
+    {
+        'source_urls': ['https://github.com/%(namelower)s/opencv_contrib/archive/'],
+        'download_filename': '%(version)s.tar.gz',
+        'filename': '%(namelower)s_contrib-%(version)s.tar.gz'
+    },
+    {
+        'source_urls': ['https://raw.githubusercontent.com/opencv/opencv_3rdparty/%s/ippicv' % local_ippicv_hash],
+        'filename': 'ippicv_2021.8_lnx_intel64_20230330_general.tgz',
+        'extract_cmd': 'cp %s %(builddir)s'
+    },
+]
+patches = [
+    ('opencv_contrib_python.egg-info', '..'),
+    ('opencv_cuda122-fix.patch'),
+]
+checksums = [
+    {'%(namelower)s-%(version)s.tar.gz': '62f650467a60a38794d681ae7e66e3e8cfba38f445e0bf87867e2f2cdc8be9d5'},
+    {'%(namelower)s_contrib-%(version)s.tar.gz': '0c082a0b29b3118f2a0a1856b403bb098643af7b994a0080f402a12159a99c6e'},
+    {'ippicv_2021.8_lnx_intel64_20230330_general.tgz':
+     '7cfe0fb0e15ea8f3d2d971c19df2d14382469943d4efa85e48bf358930daa85d'},
+    {'opencv_contrib_python.egg-info': '08eb95c735d4ff82e35e3df56c2e7e75501cc263a8efcb9348d04e6322a4b034'},
+    {'opencv_cuda122-fix.patch': 'f386a48207620dd828502f0524029efe65f35a73611945d0745bb0079578c169'},
+]
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+]
+dependencies = [
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07'),
+    ('Python-bundle-PyPI', '2023.06'),
+    ('zlib', '1.2.13'),
+    ('FFmpeg', '6.0'),
+    ('freetype', '2.13.0'),
+    ('HarfBuzz', '5.3.1'),
+    ('libjpeg-turbo', '2.1.5.1'),
+    ('OpenJPEG', '2.5.0'),
+    ('libpng', '1.6.39'),
+    ('LibTIFF', '4.5.0'),
+    ('libwebp', '1.3.1'),
+    ('OpenEXR', '3.1.7'),
+    ('JasPer', '4.0.0'),
+    ('Java', '11', '', SYSTEM),
+    ('ant', '1.10.14', '-Java-%(javaver)s', SYSTEM),
+    ('GLib', '2.77.0'),
+    ('GTK3', '3.24.35'),
+    ('HDF5', '1.14.2', '-serial'),
+    # -----------------
+    ('GStreamer', '1.22.6'),
+    ('Eigen', '3.4.0'),
+    ('CUDA', '12', '', SYSTEM),
+    ('cuDNN', '8.9.5.29', '-CUDA-%(cudaver)s', SYSTEM),
+    ('nvidia-Video_Codec_SDK', '12.1.14', '', SYSTEM),
+    ('OpenGL', '2023a'),
+]
+
+# XXXX in configurations is a bug fix in OpenCV because ocv_check_modules is not able to recognize freetype and harfbuzz
+# ref: https://github.com/opencv/opencv/blob/6e8daaec0f46aaba9ea22e2afce47307b1dbff9f/cmake/OpenCVUtils.cmake#L861
+configopts = " ".join([
+    "-DOPENCV_EXTRA_MODULES_PATH=%(builddir)s/%(namelower)s_contrib-%(version)s/modules",
+    "-DOPENCV_GENERATE_PKGCONFIG=ON",
+    "-DFREETYPE_FOUND=ON",
+    "-DFREETYPE_INCLUDE_DIRS=$EBROOTFREETYPE/include/freetype2/",
+    "-DFREETYPE_LIBRARIES=$EBROOTFREETYPE/lib64/libfreetype.so",
+    "-DFREETYPE_LINK_LIBRARIES=$EBROOTFREETYPE/lib64/libfreetype.so",
+    "-DFREETYPE_LINK_LIBRARIES_XXXXX=ON",
+    "-DHARFBUZZ_FOUND=ON",
+    "-DHARFBUZZ_INCLUDE_DIRS=$EBROOTHARFBUZZ/include/harfbuzz",
+    "-DHARFBUZZ_LIBRARIES=$EBROOTHARFBUZZ/lib64/libharfbuzz.so",
+    "-DHARFBUZZ_LINK_LIBRARIES=$EBROOTHARFBUZZ/lib64/libharfbuzz.so",
+    "-DHARFBUZZ_LINK_LIBRARIES_XXXXX=ON",
+    "-DBUILD_opencv_python2=OFF",
+    # -------------
+    "-DENABLE_PRECOMPILED_HEADERS=OFF",
+    "-DBUILD_EXAMPLES=ON",
+    "-DINSTALL_PYTHON_EXAMPLES=ON",
+    "-DWITH_CUDA=ON",
+    "-DWITH_CUDNN=ON",
+    "-DWITH_CUBLAS=ON",
+    "-DWITH_CUFFT=ON",
+    "-DCUDA_ARCH_BIN='%(cuda_cc_space_sep)s'",
+    # "-DCUDA_ARCH_PTX=''",
+    "-DBUILD_CUDA_STUBS=ON",
+    "-DOPENCV_DNN_CUDA=ON",
+    "-DBUILD_opencv_cudacodec=ON",
+    "-DWITH_NVCUVID=ON",
+    "-DWITH_GSTREAMER=ON",
+])
+
+# Install a egg-info file so it is more python friendly
+local_egg_info_src = '%(builddir)s/opencv_contrib_python.egg-info'
+local_egg_info_dest = '%(installdir)s/lib/python%(pyshortver)s/site-packages/opencv_contrib_python-%(version)s.egg-info'
+postinstallcmds = [
+    'sed "s/#OPENCV_VERSION#/%%(version)s/" %s > %s' % (local_egg_info_src, local_egg_info_dest),
+]
+
+enhance_sanity_check = True
+
+local_contrib_libs = [
+    'aruco', 'bgsegm', 'bioinspired', 'ccalib', 'datasets', 'dnn_objdetect', 'dnn_superres', 'dpm', 'face', 'freetype',
+    'fuzzy', 'hdf', 'hfs', 'img_hash', 'line_descriptor', 'optflow', 'phase_unwrapping', 'plot', 'quality', 'reg',
+    'rgbd', 'saliency', 'shape', 'stereo', 'structured_light', 'superres', 'surface_matching', 'text', 'tracking',
+    'videostab', 'xfeatures2d', 'ximgproc', 'xobjdetect', 'xphoto'
+]
+
+sanity_check_paths = {
+    'files': ['lib64/libopencv_%s.%s' % (x, SHLIB_EXT) for x in local_contrib_libs],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

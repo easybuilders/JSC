@@ -5,8 +5,11 @@ name = 'test'
 version = 'noversion'
 
 homepage = 'https://www.nope.org'
-description = """This is just a test easyconfig file, intended to test CI functionality.
-                 Must be cleaned up after installation in any system"""
+description = """
+This is just a test easyconfig file, intended to test CI functionality.
+Must be cleaned up after installation in any system.
+
+"""
 
 toolchain = SYSTEM
 

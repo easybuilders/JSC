@@ -1,0 +1,68 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'VTKm'
+version = '2.1.0'
+versionsuffix = '-serial'
+
+homepage = 'https://m.vtk.org'
+description = """VTK-m is a toolkit of scientific visualization algorithms for emerging processor architectures.
+VTK-m supports the fine-grained concurrency for data analysis and visualization algorithms
+required to drive extreme scale computing by providing abstract models for data and execution
+that can be applied to a variety of algorithms across many different processor architectures.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://gitlab.kitware.com/vtk/vtk-m/-/archive/v%(version)s/']
+sources = ['vtk-m-v%(version)s.tar.gz']
+checksums = ['9cf3522b6dc0675281a1a16839464ebd1cc5f9c08c20eabee1719b3bcfdcf41f']
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('OpenGL', '2023a'),
+    ('HDF5', '1.14.2', '-serial'),
+    ('CUDA', '12', '', SYSTEM),
+]
+
+separate_build_dir = True
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DBUILD_SHARED_LIBS=ON '
+
+configopts += '-DVTKm_ENABLE_RENDERING=ON '
+
+configopts += '-DVTKm_ENABLE_CUDA=ON '
+configopts += '-DCMAKE_CUDA_ARCHITECTURES="%(cuda_cc_cmake)s" '
+
+# native, avx, avx2, avx512-skl, avx512-kn
+configopts += '-DVTKm_Vectorization=avx2 '
+
+configopts += '-DVTKm_ENABLE_OPENMP=ON '
+# configopts += '-DVTKm_ENABLE_TBB=ON '
+
+# configopts += '-DVTKm_ENABLE_KOKKOS=ON '
+# configopts += '-DVTKm_ENABLE_MPI=ON '
+
+configopts += '-DVTKm_ENABLE_HDF5_IO=ON '
+
+# opts for Ascent
+configopts += '-DVTKm_USE_64BIT_IDS:BOOL=OFF '
+configopts += '-DVTKm_USE_DOUBLE_PRECISION:BOOL=ON '
+configopts += '-DVTKm_USE_DEFAULT_TYPES_FOR_ASCENT:BOOL=ON '
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages']}
+
+sanity_check_paths = {
+    'files': ['lib/cmake/vtkm-%(version_major_minor)s/VTKmConfig.cmake'],
+    'dirs': ['lib', 'include'],
+}
+
+moduleclass = 'vis'

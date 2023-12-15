@@ -137,7 +137,7 @@ def installation_vetoer(ec):
 
 def get_user_info(user=None):
     # Query jutil to extract the contact information
-    if os.getenv('CI') is None:
+    if os.getenv('CI') is None or user is not None:
         jutil_path = os.getenv('JUMO_USRCMD_EXEC')
         if os.path.isfile(jutil_path) and os.access(jutil_path, os.X_OK):
             if user:

@@ -27,13 +27,14 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('HDF5', '1.14.2'),
-    ('cURL', '8.0.1'),
-    ('Szip', '2.1.1'),
-    ('zstd', '1.5.5'),
+    ('Blosc', '1.21.5'),
     ('bzip2', '1.0.8'),
+    ('cURL', '8.0.1'),
+    ('HDF5', '1.14.2'),
     ('libxml2', '2.11.4'),
     ('PnetCDF', '1.12.3'),
+    ('Szip', '2.1.1'),
+    ('zstd', '1.5.5'),
 ]
 
 # disable Szip, zlib parallel I/O tests, since these can hang on some systems, e.g. generoso
@@ -46,10 +47,18 @@ dependencies = [
 
 # make sure both static and shared libs are built
 # and disable "remote" tests that access a unreliable external test server over internet
+# set plugin path to build interface libraries for additional compression algorithms
 configopts = [
-    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DMPIEXEC='/usr/bin/srun'",
-    "-DENABLE_PNETCDF=ON -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DMPIEXEC='/usr/bin/srun'",
+    "-DENABLE_PNETCDF=ON -DENABLE_NCZARR=ON -DPLUGIN_INSTALL_DIR='%(installdir)s/lib' \
+     -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DMPIEXEC='/usr/bin/srun'",
+    "-DENABLE_PNETCDF=ON -DENABLE_NCZARR=ON -DPLUGIN_INSTALL_DIR='%(installdir)s/lib' \
+     -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DMPIEXEC='/usr/bin/srun'",
 ]
+
+# set HDF5_PLUGIN_PATH to netCDF interface libraries
+modextravars = {
+    'HDF5_PLUGIN_PATH': '%(installdir)s/lib/',
+}
 
 # some tests try to start 16 MPI ranks, so we need to allow oversubscription to avoid failing tests
 # pretestopts = "OMPI_MCA_rmaps_base_oversubscribe=1 "

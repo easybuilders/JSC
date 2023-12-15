@@ -1,0 +1,22 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'NVPL_BLAS'
+version = '0.1.0'
+
+homepage = 'https://docs.nvidia.com/nvpl/_static/blas/index.html'
+description = """NVPL BLAS (NVIDIA Performance Libraries BLAS) is part of NVIDIA Performance
+Libraries that provides standard Fortran 77 BLAS APIs as well as C (CBLAS)."""
+
+toolchain = SYSTEM
+
+source_urls = ['https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_blas/linux-sbsa/']
+sources = ['%(namelower)s-linux-sbsa-%(version)s-archive.tar.xz']
+checksums = ['4ccc894593cbcbfaa1a4f3c54505982691971667acf191c9ab0f4252a37c8063']
+
+sanity_check_paths = {
+    'files': ['lib/libnvpl_blas_core.so'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'numlib'

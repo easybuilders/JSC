@@ -14,7 +14,7 @@ sources = ['HDFViewApp-%(version)s-centos7_64.tar.gz']
 checksums = ['abc3693933a29c9c2708a7c376fc1d9cb91b56aad15a763e8c03b40de18f9eae']
 
 dependencies = [
-    ('Java', '11', '', SYSTEM)
+    ('Java', '21', '', SYSTEM)
 ]
 
 install_cmd = "tar xfvz *.tar.gz && "

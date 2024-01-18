@@ -28,18 +28,19 @@ EasyBuild support for building and installing Julia packages, implemented as an 
 
 @author: Victor Holanda (CSCS)
 @author: Samuel Omlin (CSCS)
-minor adjustments by Jens Henrik Goebbert (JSC)
+@author: Jens Henrik Goebbert (JSC)
+@author: Frank W. Wagner (JSC)
 """
 import os
 import socket
+import shutil
 
-from easybuild.tools.config import build_option
 from easybuild.framework.easyconfig import CUSTOM
-from easybuild.easyblocks.generic.configuremake import ConfigureMake
+from easybuild.easyblocks.generic.packedbinary import PackedBinary
 from easybuild.tools import systemtools
 
 
-class EB_Julia(ConfigureMake):
+class EB_Julia(PackedBinary):
     """
     Install an Julia package as a separate module, or as an extension.
     """
@@ -48,19 +49,25 @@ class EB_Julia(ConfigureMake):
         extra_vars = {
             'system_name': [None, "Change julia's Project.toml pathname", CUSTOM],
             'arch_name': [None, "Change julia's Project.toml pathname", CUSTOM],
+            'toolchain_name': [None, "Change julia's Project.toml pathname", CUSTOM],
         }
-        return ConfigureMake.extra_options(extra_vars)
+        return PackedBinary.extra_options(extra_vars)
 
 
     def get_environment_folder(self):
         env_path = ''
 
-        systemname = 'default'
         if self.cfg['system_name']:
             systemname = self.cfg['system_name']
-
+        else:
+            systemname = socket.gethostname().split('.')[1]
+        
         if self.cfg['arch_name']:
             env_path = '-'.join([systemname, self.cfg['arch_name']])
+            return env_path
+
+        if self.cfg['toolchain_name']:
+            env_path = self.cfg['toolchain_name']
             return env_path
 
         arch = systemtools.get_cpu_architecture()
@@ -71,26 +78,24 @@ class EB_Julia(ConfigureMake):
     def get_user_depot_path(self):
         user_depot_path = ''
 
-        arch = systemtools.get_cpu_architecture()
-        cpu_family = systemtools.get_cpu_family()
         user_depot_path = os.path.join('~', '.julia', self.version, self.get_environment_folder())
         return user_depot_path
 
     def __init__(self, *args, **kwargs):
         super(EB_Julia, self).__init__(*args, **kwargs)
 
-        self.user_depot = self.get_user_depot_path()
+        self.user_depots = self.get_user_depot_path()
         local_share_depot = os.path.join(self.installdir, 'local', 'share', 'julia')
         share_depot = os.path.join(self.installdir, 'share', 'julia')
         self.std_depots = ':'.join([local_share_depot, share_depot])
-        self.julia_depot_path = ':'.join([self.user_depot, self.std_depots])
+        self.julia_depot_path = ':'.join([self.user_depots, self.std_depots])
         self.admin_depots = os.path.join(self.installdir, 'extensions')
 
-        self.julia_project = os.path.join(self.user_depot, "environments", '-'.join([self.version, self.get_environment_folder()]))
+        self.julia_project = os.path.join(self.user_depots, "environments", '-'.join([self.version, self.get_environment_folder()]))
 
         self.user_load_path = '@:@#.#.#-%s' % self.get_environment_folder()
-        self.std_load_paths = '@stdlib'
-        self.julia_load_path = ':'.join([self.user_load_path, self.std_load_paths])
+        self.std_load_path = '@stdlib'
+        self.julia_load_path = ':'.join([self.user_load_path, self.installdir, self.std_load_path])
         self.admin_load_path = os.path.join(self.admin_depots, "environments", '-'.join([self.version, self.get_environment_folder()]))
 
     def sanity_check_step(self):
@@ -215,14 +220,16 @@ end
             startup_file.write(txt)
             startup_file.close()
 
+    def post_install_step(self, *args, **kwargs):
+        super(EB_Julia, self).post_install_step(*args, **kwargs)
+        #shutil.rmtree(os.path.join(self.admin_depots, 'registries')) # Remove registries as user cannot update them if readonly.
+
     def make_module_extra(self, *args, **kwargs):
         txt = super(EB_Julia, self).make_module_extra(*args, **kwargs)
 
-        txt += self.module_generator.set_environment('JULIA_INSTALL_FOLDER', self.installdir)
-
         txt += self.module_generator.set_environment('JULIA_PROJECT', self.julia_project)
         txt += self.module_generator.set_environment('JULIA_DEPOT_PATH', self.julia_depot_path)
-        txt += self.module_generator.set_environment('EBJULIA_USER_DEPOT_PATH', self.user_depot)
+        txt += self.module_generator.set_environment('EBJULIA_USER_DEPOT_PATH', self.user_depots)
         txt += self.module_generator.set_environment('EBJULIA_ADMIN_DEPOT_PATH', self.admin_depots)
         txt += self.module_generator.set_environment('EBJULIA_STD_DEPOT_PATH', self.std_depots)
 
@@ -230,7 +237,7 @@ end
         txt += self.module_generator.set_environment('JULIA_LOAD_PATH', self.julia_load_path)
         txt += self.module_generator.set_environment('EBJULIA_USER_LOAD_PATH', self.user_load_path)
         txt += self.module_generator.set_environment('EBJULIA_ADMIN_LOAD_PATH', self.admin_load_path)
-        txt += self.module_generator.set_environment('EBJULIA_STD_LOAD_PATH', self.std_load_paths)
+        txt += self.module_generator.set_environment('EBJULIA_STD_LOAD_PATH', self.std_load_path)
 
         txt += self.module_generator.set_environment('EBJULIA_ENV_NAME', '-'.join([self.version, self.get_environment_folder()]))
 

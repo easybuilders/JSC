@@ -1,0 +1,93 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# 'optim' plugin added which is required for dynare
+# Author: J. Sassmannshausen (Imperial College London/UK)
+
+name = 'Octave'
+version = '8.4.0'
+
+homepage = 'https://www.gnu.org/software/octave/'
+description = """GNU Octave is a high-level interpreted language, primarily intended for numerical computations."""
+
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+toolchainopts = {'cstd': 'c++11'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['6b38dd9751678424aeb3a9d666432b1f378eb3971a21290a90cd3d35119d56ad']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Bison', '3.8.2'),
+    ('flex', '2.6.4'),
+    ('Autotools', '20220317'),
+    ('gperf', '3.1'),
+    ('pkgconf', '1.9.5'),
+]
+
+dependencies = [
+    ('X11', '20230603'),
+    ('PCRE', '8.45'),
+    ('ncurses', '6.4'),
+    ('libreadline', '8.2'),
+    ('arpack-ng', '3.9.0', '-nompi'),
+    ('cURL', '8.0.1'),
+    ('FLTK', '1.3.8'),
+    ('fontconfig', '2.14.2'),
+    ('freetype', '2.13.0'),
+    ('GLPK', '5.0'),
+    ('GL2PS', '1.4.2'),
+    ('gnuplot', '5.4.8'),
+    ('Java', '11', '', SYSTEM),
+    ('zlib', '1.2.13'),
+    ('OpenGL', '2023a'),
+    ('freeglut', '3.4.0'),
+    ('Qhull', '2020.2'),
+    ('Qt5', '5.15.10'),
+    ('HDF5', '1.14.2', '-serial'),
+    ('qrupdate', '1.1.2'),
+    ('SuiteSparse', '7.1.0', '-nompi'),
+    ('makeinfo', '7.0.3'),
+    ('libsndfile', '1.2.2'),
+    ('GraphicsMagick', '1.3.41'),
+    ('SUNDIALS', '6.6.0', '-nompi'),
+    ('FFTW', '3.3.10'),
+    ('texlive', '20230313'),
+    ('Ghostscript', '10.01.2'),
+]
+
+configopts = '--disable-docs '
+# correct for both GCC and Intel compilers
+configopts += '--enable-fortran-calling-convention=gfortran'
+
+local_pkg_url = 'https://downloads.sourceforge.net/'
+local_pkg_url += 'project/octave/Octave%20Forge%20Packages/Individual%20Package%20Releases/'
+exts_default_options = {'source_urls': [local_pkg_url]}
+
+exts_list = [
+    ('control', '3.5.0', {
+        'checksums': ['507d14ea3ea80bdc55b67c146a9dc88229229714fe33febe983393a67dec714a'],
+    }),
+    ('general', '2.1.3', {
+        'checksums': ['6a6b25266de16976807a1766ea3609c5c19997e82051c9c97378ba609dd09323'],
+    }),
+    ('io', '2.6.4', {
+        'checksums': ['a74a400bbd19227f6c07c585892de879cd7ae52d820da1f69f1a3e3e89452f5a'],
+    }),
+    ('signal', '1.4.5', {
+        'checksums': ['555ade2ff80f7118909395c33405f0a17a4fbcd22bc6d2fb9c3f7f45fef648e7'],
+    }),
+    ('statistics', '1.4.3', {
+        'checksums': ['9801b8b4feb26c58407c136a9379aba1e6a10713829701bb3959d9473a67fa05'],
+    }),
+    ('struct', '1.0.18', {
+        'checksums': ['fccea7dd84c1104ed3babb47a28f05e0012a89c284f39ab094090450915294ce'],
+    }),
+    ('optim', '1.6.2', {
+        'checksums': ['554a8e18bb7195ae861f5059c14f1a557844265c1addb5bfbf3ab9885524787e'],
+    }),
+]
+
+runtest = 'check'
+
+moduleclass = 'math'

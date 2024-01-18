@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'ispc'
+version = '1.22.0'
+
+homepage = 'http://ispc.github.io/ , https://github.com/ispc/ispc/'
+description = """Intel SPMD Program Compilers; An open-source compiler for high-performance
+ SIMD programming on the CPU. ispc is a compiler for a variant of the C programming language,
+ with extensions for 'single program, multiple data' (SPMD) programming.
+ Under the SPMD model, the programmer writes a program that generally appears
+ to be a regular serial program, though the execution model is actually that
+ a number of program instances execute in parallel on the hardware.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = [('https://github.com/ispc/ispc/releases/download/v%(version)s')]
+sources = ['ispc-v%(version)s-linux-oneapi.tar.gz']
+checksums = ['428cc9da4260eb520931c1cd5f86ff39cdc0ac4883f2db099dd1010645cccd1a']
+
+dependencies = [
+    ('tbb', '2021.10.0'),
+]
+
+sanity_check_paths = {
+    'files': ["bin/ispc"],
+    'dirs': []
+}
+
+moduleclass = 'system'

@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyTorch-Lightning'
+version = '2.1.3'
+
+homepage = 'https://pytorchlightning.ai'
+description = "PyTorch Lightning is the lightweight PyTorch wrapper for ML researchers."
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+    ('Python', '3.11.3'),
+    ('Python-bundle-PyPI', '2023.06'),
+    ('PyTorch', '2.1.2'),
+    ('tqdm', '4.66.1'),
+    ('tensorboard', '2.15.1'),
+]
+
+exts_list = [
+    ('fsspec', '2022.11.0', {
+        'checksums': ['259d5fd5c8e756ff2ea72f42e7613c32667dc2049a4ac3d84364a7ca034acb8b'],
+    }),
+    ('torchmetrics', '1.2.1', {
+        'checksums': ['217387738f84939c39b534b20d4983e737cc448d27aaa5340e0327948d97ca3e'],
+    }),
+    ('termcolor', '2.1.0', {
+        'checksums': ['b80df54667ce4f48c03fe35df194f052dc27a541ebbf2544e4d6b47b5d6949c4'],
+    }),
+    ('fire', '0.4.0', {
+        'checksums': ['c5e2b8763699d1142393a46d0e3e790c5eb2f0706082df8f647878842c216a62'],
+    }),
+    ('lightning-utilities', '0.10.0', {
+        'checksums': ['9e31617eccbbadc6b737a2432fd7076ff8e24957f9c63aeba2530b189e19319c'],
+    }),
+    ('pytorch-lightning', version, {
+        'checksums': ['2500b002fa09cb37b0e12f879876bf30a2d260b0f04783d33264dab175f0c966'],
+    }),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+moduleclass = 'lib'

@@ -1,0 +1,29 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'ParaViewData'
+version = '5.12.0-RC2'
+
+homepage = 'https://www.paraview.org'
+description = "Testdata for ParaView"
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+local_dwnlsfx_src = 'download.php?submit=Download&version=v%(version_major_minor)s&type=data&os=Sources&downloadFile='
+source_urls = [
+    ('https://www.paraview.org/paraview-downloads/%s' % local_dwnlsfx_src)]
+sources = [
+    ('ParaViewTestingDataFiles-v%(version)s.tar.xz'),
+    ('ParaViewTestingDataStore-v%(version)s.tar.xz'),
+]
+checksums = [
+    ('sha256', '736db9814db0547d59cf056753331ef548409beba672f2695e218022dfd57ee7'),
+    ('sha256', 'ca8256481aa31f30e2be607076100ced3d8e6c6bec701215bc4d67640c759c67'),
+]
+
+sanity_check_paths = {
+    'files': ['.ExternalData/README.rst'],
+    'dirs': ['.ExternalData', 'Clients', 'Plugins', 'Remoting', 'Testing', 'VTKExtensions'],
+}
+
+moduleclass = 'vis'

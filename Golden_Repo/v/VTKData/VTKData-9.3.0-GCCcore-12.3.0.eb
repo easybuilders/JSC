@@ -2,7 +2,7 @@
 easyblock = 'Tarball'
 
 name = 'VTKData'
-version = '9.2.6'
+version = '9.3.0'
 
 homepage = 'https://vtk.org'
 description = "Testdata for VTK"
@@ -17,10 +17,10 @@ sources = [
     ('VTKLargeDataFiles-%(version)s.tar.gz'),
 ]
 checksums = [
-    ('sha256', '032c4b827173f859c898403d25360dc99409a4674559ad58f48828f23a6258b8'),
-    ('sha256', '5d0266e1878e98805578e89c66d6ce41e514d8ab667fd75045a49e2ca60ba69f'),
-    ('sha256', 'b1dbb25f50e325f6df5df465c395eea6d252071e1b3c1fe0803f9b75a7c0e3ea'),
-    ('sha256', 'fb7aa77e8577e88bc9de29b510c4382b01a82f60adb5fc10128dc3f68ad30ee5'),
+    ('sha256', 'f82142dd327e995c9536c1003e1370bb4092c96f23edb8119d16d2411ef35dc3'),
+    ('sha256', '8e3e9b40fa5e9ae95788b7afa0959e319a613a48cc8fc8f2b5e1ca4410f64e01'),
+    ('sha256', '512a840082df993b0466ff3f2ecd90fc88aa20366ed627f9d59ae0d72209038d'),
+    ('sha256', 'bd0c6d1a369cbd03b78a75e4a8d5e3bd4b03f5d8b2685b664aa5ae4a6c52d67f'),
 ]
 
 sanity_check_paths = {

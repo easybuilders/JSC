@@ -57,6 +57,10 @@ VETOED_INSTALLATIONS = {
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings'
     ],
+    'jureca_gh': [
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings'
+    ],
     'jurecadc': [''],
     'jurecabooster': [
         'OpenMPI', 'OpenMPI-settings',

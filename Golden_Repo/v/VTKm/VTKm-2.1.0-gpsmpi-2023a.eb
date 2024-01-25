@@ -3,7 +3,6 @@ easyblock = 'CMakeMake'
 
 name = 'VTKm'
 version = '2.1.0'
-versionsuffix = '-serial'
 
 homepage = 'https://m.vtk.org'
 description = """VTK-m is a toolkit of scientific visualization algorithms for emerging processor architectures.
@@ -12,7 +11,7 @@ required to drive extreme scale computing by providing abstract models for data 
 that can be applied to a variety of algorithms across many different processor architectures.
 """
 
-toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
 toolchainopts = {'pic': True}
 
 source_urls = ['https://gitlab.kitware.com/vtk/vtk-m/-/archive/v%(version)s/']
@@ -26,7 +25,7 @@ builddependencies = [
 dependencies = [
     ('Python', '3.11.3'),
     ('OpenGL', '2023a'),
-    ('HDF5', '1.14.2', '-serial'),
+    ('HDF5', '1.14.2'),
     ('CUDA', '12', '', SYSTEM),
 ]
 
@@ -49,7 +48,7 @@ configopts += '-DVTKm_ENABLE_OPENMP=ON '
 # configopts += '-DVTKm_ENABLE_TBB=ON '
 
 # configopts += '-DVTKm_ENABLE_KOKKOS=ON '
-# configopts += '-DVTKm_ENABLE_MPI=ON '
+configopts += '-DVTKm_ENABLE_MPI=ON '
 
 configopts += '-DVTKm_ENABLE_HDF5_IO=ON '
 

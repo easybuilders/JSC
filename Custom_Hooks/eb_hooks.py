@@ -666,7 +666,7 @@ def pre_module_hook(self, *args, **kwargs):
                 'MKL_THREADING_LAYER': MKL_THREADING_LAYER[self.name]
             })
 
-def post_permissions_hook(self, *args, **kwargs):
+def post_package_hook(self, *args, **kwargs):
     if os.getenv('CI_INSTALLATION'):
         print_msg("Running ACLs script...")
 

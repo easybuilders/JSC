@@ -1,0 +1,26 @@
+From 7cd8af36a440e7e3becbf6b13822e292dce2ba3e Mon Sep 17 00:00:00 2001
+From: janEbert <janpublicebert@posteo.net>
+Date: Mon, 1 Aug 2022 09:07:01 +0200
+Subject: [PATCH 5/5] Add missing type hint
+
+MyPy isn't able to infer this from the return value type.
+---
+ torch/distributed/elastic/rendezvous/utils.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/torch/distributed/elastic/rendezvous/utils.py b/torch/distributed/elastic/rendezvous/utils.py
+index b2c837d1700..997cc199ec9 100644
+--- a/torch/distributed/elastic/rendezvous/utils.py
++++ b/torch/distributed/elastic/rendezvous/utils.py
+@@ -32,7 +32,7 @@ def nic_ip_address(nic_name: str) -> str:
+ # Adapted from https://stackoverflow.com/a/27494105.
+ def nic_info() -> List[Tuple[str, str]]:
+     """Return a list of tuples containing each NIC's hostname and its IPv4."""
+-    nics = []
++    nics: List[Tuple[str, str]] = []
+     try:
+         if_nameindex = socket.if_nameindex()
+     except OSError:
+-- 
+2.25.1
+

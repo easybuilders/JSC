@@ -14,7 +14,12 @@ source_urls = [
     'https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-%(arch)s/'
 ]
 sources = ['libcutensor-linux-%(arch)s-%(version)s-archive.tar.xz']
-checksums = ['dd3557891371a19e73e7c955efe5383b0bee954aba6a30e4892b0e7acb9deb26']
+checksums = [{
+    'libcutensor-linux-sbsa-%(version)s-archive.tar.xz':
+        'c31f8e4386539434a5d1643ebfed74572011783b4e21b62be52003e3a9de3720',
+    'libcutensor-linux-x86_64-%(version)s-archive.tar.xz':
+        'dd3557891371a19e73e7c955efe5383b0bee954aba6a30e4892b0e7acb9deb26',
+}]
 
 dependencies = [('CUDA', '12', '', SYSTEM)]
 

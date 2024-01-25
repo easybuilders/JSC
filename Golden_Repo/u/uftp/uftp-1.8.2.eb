@@ -2,7 +2,7 @@
 easyblock = 'Tarball'
 
 name = 'uftp'
-version = '1.6.1'
+version = '1.8.2'
 
 homepage = 'https://uftp-docs.readthedocs.io/en/latest/user-docs/uftp-client/'
 description = """The UFTP standalone client provides high-performance file transfer."""
@@ -12,7 +12,7 @@ toolchain = SYSTEM
 source_urls = [
     'https://master.dl.sourceforge.net/project/unicore/Clients/UFTP-Client/%(version)s/']
 sources = ['uftp-client-%(version)s-all.zip']
-checksums = ['0ef450c1c3db7d18a8bb35701b24f4d2549b04ce353dbe99ddbf02f522f82bc3']
+checksums = ['30eedfff3bd932e1fed56258e98d226503c6db91d4ccac380ae171412a61f45f']
 dependencies = [
     ('Java', '11'),
 ]

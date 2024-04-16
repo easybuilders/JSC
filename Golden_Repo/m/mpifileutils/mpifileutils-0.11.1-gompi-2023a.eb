@@ -28,7 +28,11 @@ dependencies = [
     ('dtcmp', '1.1.4'),
     ('libarchive', '3.6.2'),
     ('libcircle', '0.3'),
+    ('HDF5', '1.14.2'),
 ]
+
+configopts = "-DENABLE_GPFS=ON "
+configopts += "-DENABLE_HDF5=ON "
 
 sanity_check_paths = {
     'files': ['bin/dsync', 'include/mfu.h', 'lib/libmfu.%s' % SHLIB_EXT],

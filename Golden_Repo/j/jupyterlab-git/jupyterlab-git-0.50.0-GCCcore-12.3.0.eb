@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-git'
+version = '0.50.0'
+
+homepage = "https://github.com/jupyterlab/jupyterlab-git"
+
+description = """
+A Git extension for JupyterLab.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+    ('nbdime', '4.0.1'),
+    ('git', '2.41.0', '-nodocs'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_git', '%(version)s', {
+        'checksums': ['09859546d390134ebb918a965c2c3fe2605feafe327cf61615be7dd90b5bdfbb'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

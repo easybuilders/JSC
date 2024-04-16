@@ -11,6 +11,7 @@ Supported data formats are GRIB, netCDF, SERVICE, EXTRA and IEG.
 """
 
 toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+toolchainopts = {'pic': True, 'usempi': True}
 
 source_urls = [
     'https://gitlab.dkrz.de/mpim-sw/libcdi/-/archive/cdi-%(version)s/']
@@ -22,17 +23,25 @@ start_dir = 'libcdi-cdi-%(version)s'
 builddependencies = [
     ('binutils', '2.40'),
     ('Autoconf', '2.71'),
+    ('Ruby', '3.2.2'),
+    ('pkgconf', '1.9.5'),
 ]
 
 dependencies = [
     ('ecCodes', '2.31.0'),
     ('netCDF', '4.9.2'),
+    ('YAXT', '0.10.0'),
+    ('SZ', '2.1.12.5'),
 ]
 
 preconfigopts = "./autogen.sh && "
 
-configopts = "--with-eccodes=yes --with-grib_api=yes --disable-cgribex "
-configopts += "--with-netcdf=$EBROOTNETCDF "
+configopts = "--enable-openmp --with-grib_api=yes --disable-cgribex "
+configopts += "--with-eccodes=${EBROOTECCODES} "
+configopts += "--with-netcdf=${EBROOTNETCDF} "
+configopts += "--with-szlib=${EBROOTSZ} "
+configopts += "--enable-iso-c-interface "
+configopts += "--enable-mpi "
 
 modextravars = {'CDI_DIR': '%(installdir)s/lib/cmake/cdi/'}
 

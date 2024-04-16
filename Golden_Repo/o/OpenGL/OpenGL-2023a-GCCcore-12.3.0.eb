@@ -151,22 +151,18 @@ components = [
 postinstallcmds = [
     'cd %(installdir)s/lib && ln -sf libGL.so.1.7.0 libGL.so.1',
     'rm %(installdir)s/lib/*.la',
-    # 'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libEGL_nvidia.so.0 .',
-    # 'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libGLX_nvidia.so.0 .',
     'cd %(installdir)s/lib && ln -sf libGLX_mesa.so.0 libGLX_indirect.so.0',
-    # 'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libGLESv1_CM_nvidia.so.1 .',
-    # 'cd %(installdir)s/lib && ln -sf ${EBROOTNVIDIA}/lib64/libGLESv2_nvidia.so.2 .',
     # EGL vendor ICDs
-    # (
-    #     '{ cat > %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json; } << \'EOF\'\n'
-    #     '{\n'
-    #     '  \"file_format_version\" : \"1.0.0\",\n'
-    #     '  \"ICD\" : {\n'
-    #     '     \"library_path\" : \"libEGL_nvidia.so.0\"\n'
-    #     '  }\n'
-    #     '}\n'
-    #     'EOF'
-    # ),
+    (
+        '{ cat > %(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json; } << \'EOF\'\n'
+        '{\n'
+        '  \"file_format_version\" : \"1.0.0\",\n'
+        '  \"ICD\" : {\n'
+        '     \"library_path\" : \"libEGL_nvidia.so.0\"\n'
+        '  }\n'
+        '}\n'
+        'EOF'
+    ),
     (
         '{ cat > %(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json; } << \'EOF\'\n'
         '{\n'
@@ -184,8 +180,10 @@ postinstallcmds = [
 
 modextravars = {
     # '__GLX_VENDOR_LIBRARY_NAME': 'mesa' or 'nvidia'
-    '__EGL_VENDOR_LIBRARY_FILENAMES': (  # '%(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json:'
-        '%(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json'),
+    '__EGL_VENDOR_LIBRARY_FILENAMES': (
+        '%(installdir)s/share/glvnd/egl_vendor.d/10_nvidia.json:'
+        '%(installdir)s/share/glvnd/egl_vendor.d/50_mesa.json'
+    ),
     'EGL_PLATFORM': 'surfaceless',
     # 'EGL_DRIVER': 'swr',
     'EGL_LOG_LEVEL': 'fatal',

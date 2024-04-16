@@ -32,6 +32,7 @@ dependencies = [
     ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
     ('zlib', '1.2.13'),
     ('CUDA', '12', '', SYSTEM),
+    ('HDF5', '1.14.2', '-serial'),
 ]
 
 start_dir = 'src'
@@ -45,6 +46,7 @@ configopts += "-DENABLE_FORTRAN=ON "
 configopts += "-DENABLE_PYTHON=ON "
 configopts += "-DPYTHON_MODULE_INSTALL_PREFIX='%(installdir)s/lib/python%(pyshortver)s/site-packages' "
 configopts += "-DZLIB_DIR=${EBROOTZLIB} "
+configopts += "-DHDF5_DIR=${EBROOTHDF5} "
 
 modextrapaths = {
     'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages',

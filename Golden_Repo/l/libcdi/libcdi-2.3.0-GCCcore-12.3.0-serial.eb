@@ -12,29 +12,35 @@ Supported data formats are GRIB, netCDF, SERVICE, EXTRA and IEG.
 """
 
 toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
 
 source_urls = [
     'https://gitlab.dkrz.de/mpim-sw/libcdi/-/archive/cdi-%(version)s/']
 sources = ['libcdi-cdi-%(version)s.tar.gz']
-checksums = [
-    '233312591757fe882c579346726ffbf64327277dd00890736ee7dc164dc20280']
+checksums = ['233312591757fe882c579346726ffbf64327277dd00890736ee7dc164dc20280']
 
 start_dir = 'libcdi-cdi-%(version)s'
 
 builddependencies = [
     ('binutils', '2.40'),
     ('Autoconf', '2.71'),
+    ('Ruby', '3.2.2'),
+    ('pkgconf', '1.9.5'),
 ]
 
 dependencies = [
     ('ecCodes', '2.31.0', '-serial'),
     ('netCDF', '4.9.2', '-serial'),
+    ('SZ', '2.1.12.5'),
 ]
 
 preconfigopts = "./autogen.sh && "
 
-configopts = "--with-eccodes=yes --with-grib_api=yes --disable-cgribex "
-configopts += "--with-netcdf=$EBROOTNETCDF "
+configopts = "--enable-openmp --with-grib_api=yes --disable-cgribex "
+configopts += "--with-eccodes=${EBROOTECCODES} "
+configopts += "--with-netcdf=${EBROOTNETCDF} "
+configopts += "--with-szlib=${EBROOTSZ} "
+configopts += "--enable-iso-c-interface "
 
 modextravars = {'CDI_DIR': '%(installdir)s/lib/cmake/cdi/'}
 

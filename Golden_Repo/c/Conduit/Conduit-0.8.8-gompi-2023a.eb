@@ -32,6 +32,7 @@ dependencies = [
     ('zlib', '1.2.13'),
     ('mpi4py', '3.1.4'),
     ('CUDA', '12', '', SYSTEM),
+    ('HDF5', '1.14.2'),
 ]
 
 start_dir = 'src'
@@ -46,6 +47,7 @@ configopts += "-DENABLE_FORTRAN=ON "
 configopts += "-DENABLE_PYTHON=ON "
 configopts += "-DPYTHON_MODULE_INSTALL_PREFIX='%(installdir)s/lib/python%(pyshortver)s/site-packages' "
 configopts += "-DZLIB_DIR=${EBROOTZLIB} "
+configopts += "-DHDF5_DIR=${EBROOTHDF5} "
 configopts += "-DENABLE_MPI=ON "
 
 modextrapaths = {

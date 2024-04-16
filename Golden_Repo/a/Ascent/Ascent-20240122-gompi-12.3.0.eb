@@ -1,0 +1,81 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Ascent'
+version = '20240122'
+
+local_commit = '6d1ca3f8d27e9b640be93453c6453f76f545ae7d'
+
+homepage = 'https://ascent.readthedocs.io'
+description = """
+Ascent is a many-core capable flyweight in situ visualization
+and analysis infrastructure for multi-physics HPC simulations.
+"""
+
+toolchain = {'name': 'gompi', 'version': '2023a'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/Alpine-DAV/ascent/archive/']
+sources = ['%s.tar.gz' % local_commit]
+checksums = [None]
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+    ('blt', '0.5.3'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('Conduit', '0.8.8'),
+    ('camp', '2023.06.0'),
+    ('RAJA', '2023.06.1'),
+    ('Umpire', '2023.06.0', '-nompi'),
+    ('VTKm', '2.1.0'),
+    ('CUDA', '12', '', SYSTEM),
+    ('HDF5', '1.14.2')
+]
+
+start_dir = 'src'
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBLT_CXX_STD=c++14 "
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+
+configopts += "-DENABLE_DOCS=OFF "
+
+configopts += "-DENABLE_CUDA=ON "
+configopts += '-DCMAKE_CUDA_ARCHITECTURES="%(cuda_cc_cmake)s" '
+
+configopts += "-DENABLE_OPENMP=ON "
+configopts += "-DENABLE_MPI=ON "
+
+configopts += "-DCONDUIT_DIR=${EBROOTCONDUIT} "
+configopts += "-DCAMP_DIR=${EBROOTCAMP} "
+configopts += "-DRAJA_DIR=${EBROOTRAJA} "
+configopts += "-DUMPIRE_DIR=${EBROOTUMPIRE} "
+configopts += "-DVTKM_DIR=${EBROOTVTKM} "
+configopts += "-DHDF5_DIR=${EBROOTHDF5} "
+
+configopts += "-DENABLE_VTKH=ON "
+# configopts += "-DENABLE_DRAY=ON "
+# configopts += "-DENABLE_APCOMP=ON "
+
+configopts += "-DENABLE_FORTRAN=ON "
+configopts += "-DENABLE_PYTHON=ON "
+configopts += "-DPYTHON_MODULE_INSTALL_PREFIX='%(installdir)s/lib/python%(pyshortver)s/site-packages' "
+
+sanity_check_paths = {
+    'files': ['include/ascent/ascent.h'],
+    'dirs': [
+        'bin', 'include', 'lib',
+        'lib/python%(pyshortver)s/site-packages',
+    ],
+}
+
+modextrapaths = {
+    'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages',
+}
+
+moduleclass = 'vis'

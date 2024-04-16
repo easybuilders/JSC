@@ -1,0 +1,94 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Jupyter-bundle'
+version = '20240300'
+
+homepage = "https://jupyter.org/"
+
+description = """
+ This bundle collects a range of Jupyter interfaces (Lab, Notebook and nbclassic),
+  extensions (Jupyter Server Proxy, Jupyter Resource Monitor, Jupyter Lmod) and
+  the JupyterHub.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+dependencies = [
+    ('JupyterHub', '4.0.2'),
+    ('JupyterLab', '4.1.5'),
+    ('JupyterNotebook', '7.1.1'),
+    ('nbclassic', '1.0.0'),
+
+    # Jupyter extensions
+    ('jupyter-server-proxy', '4.1.2'),
+    ('jupyter-resource-usage', '1.0.2'),
+    ('jupyterlab-gitlab', '4.0.0'),
+    ('jupyterlab-favorites', '3.2.1'),
+    ('jupyter-archive', '3.4.0'),
+    ('jupyterlab-latex', '4.0.0'),
+    ('nbdime', '4.0.1'),
+    ('jupyterlab-git', '0.50.0'),
+    ('jupyterlab-recents', '3.3.0'),
+    ('jupyterlab-spellchecker', '0.8.4'),
+    ('jupyterlab-tour', '4.0.1'),
+    ('jupyterlab-h5web', '12.0.0'),
+    ('jupyter-bokeh', '4.0.0'),
+    ('plotly', '5.20.0'),
+    ('dash', '2.15.0'),
+    ('dask-labextension', '7.0.0'),
+    ('ipyleaflet', '0.18.2'),
+    ('panel', '1.3.8'),
+    ('holoviews', '1.18.3'),
+    ('bqplot', '0.13.0a0'),
+    ('ipympl', '0.9.3'),
+    ('ipyparallel', '8.7.0'),
+    ('jupyterlab-sidecar', '0.7.0'),
+
+    # JupyterLab extensions (optional)
+    # ('nglview', '3.1.2'),
+    # ('jupyterlab-nvdashboard', '0.11.0a'),
+    # ('jupyter-ai', '2.12.0'),
+    # ('jupyter-collaboration', '2.0.2'),
+
+    # Jupyter kernels (optional)
+    # ('JupyterKernel-Bash', '0.9.3', '-4.1.5'),
+    # ('JupyterKernel-Cling', '20231018', '-4.1.5'),
+    # ('JupyterKernel-LFortran', '0.30.0'),
+    # ('JupyterKernel-Julia', '1.9.3'),
+    # ('JupyterKernel-Octave', '8.4.0', '-4.1.5'),
+    # ('JupyterKernel-R', '4.3.2', '-4.1.5'),
+    # ('JupyterKernel-Ruby', '3.2.2'),
+    # ('JupyterKernel-PyEarthSystem', '2024.3', '-4.1.5'),
+    # ('JupyterKernel-PyDeepLearning', '2024.3', '-4.1.5'),
+    # ('JupyterKernel-PyVisualization', '2024.3', '-4.1.5'),
+    # ('JupyterProxy-XpraHTML5', '0.3.5', '-4.1.5'),
+
+    # Extras
+    ('netcdf4-python', '1.6.4', '-serial'),
+    ('FFmpeg', '6.0'),
+    ('LLVM', '14.0.6', '-llvmlite'),
+    ('Seaborn', '0.12.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('sympy', '1.12', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('xarray', '2023.8.0', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('scikit-build', '0.17.6'),
+    ('scikit-learn', '1.3.1', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('scikit-image', '0.22.0', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('numba', '0.58.1'),
+    ('Shapely', '2.0.1'),
+
+    # Missing - compared to software stage 2023
+    # ('Pandoc', '2.19.2', '', SYSTEM),  # missing and not needed
+    # jupyterlab_iframe ############################# -- not needed
+    # jupyter_kernel_gateway ######################## -- requires tornado>=6.4
+    # ipyvue ######################################## -- no JLab 4
+    # ipywebrtc ##################################### -- no JLab 4
+    # ipyvolume ##################################### -- no JLab 4
+    # jupyterlab_plugin_playground ################## -- no JLab 4
+    # jupyterlab-s3-browser ######################### -- no JLab 4
+    # jupyterlab_code_formatter ##################### -- no JLab 4
+    # voila ######################################### -- no support for nbclient >= 0.8.0
+    # nbdev ######################################### -- no support for ipywidgets > 8.0.4
+]
+
+moduleclass = 'tools'

@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-bokeh'
+version = '4.0.0'
+
+homepage = "https://github.com/bokeh/jupyter_bokeh"
+
+description = """
+An extension for rendering Bokeh content in JupyterLab notebooks.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+    ('bokeh', '3.2.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+
+    # for bokeh exports
+    # https://chromedriver.storage.googleapis.com/114.0.5735.16/chromedriver_linux64.zip
+    # ('ChromeDriver', '114.0.5735.16')
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyter_bokeh', '%(version)s', {
+        'checksums': ['c517fee6b373b7f62fae218d6fcef2dc768865fc474143da203ef674aa13dc2d'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

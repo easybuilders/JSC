@@ -121,6 +121,12 @@ postinstallcmds = [
     'sed "s/#OPENCV_VERSION#/%%(version)s/" %s > %s' % (local_egg_info_src, local_egg_info_dest),
 ]
 
+modextrapaths = {
+    'PYTHONPATH': [
+        'lib/python%(pyshortver)s/site-packages',
+    ],
+}
+
 enhance_sanity_check = True
 
 local_contrib_libs = [

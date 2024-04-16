@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# jg (CSCS)
+# AH (JSC)
+easyblock = 'Binary'
+
+name = 'Nsight-Systems'
+version = '2024.2.1'
+homepage = 'https://developer.nvidia.com/nsight-systems'
+description = 'NVIDIA Nsight Systems is a system-wide performance analysis tool'
+
+# GCCcore toolchain is not strictly necessary, but used to bring it to same level as Nsight Compute
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+download_instructions = """Download %(name)s %(version)s from the NVIDIA website, which requires a NVIDIA developer account:
+1. Go to https://developer.nvidia.com/gameworksdownload
+2. Find %(name)s %(version)s
+3. Download "%(name)s %(version)s (Linux)". This may require logging in to your NVIDIA developer account.
+"""
+sources = [{
+    'filename': 'NsightSystems-linux-public-%(version)s.106-3403790.run',
+    'extract_cmd': '/bin/sh %s'
+}]
+checksums = ['04c83ea17525e49f723e2bc26f790c5490359b0613ca32e14dcd4c6cfbd04770']
+
+dependencies = [
+    ('X11', '20230603')
+]
+
+
+extract_sources = True
+unpack_options = '--accept --nochown --noexec --nox11 --target %(builddir)s'
+
+install_cmd = 'cp -r %(builddir)s/pkg/* %(installdir)s/'
+
+sanity_check_paths = {
+    'files': ['bin/nsys'],
+    'dirs': ['target-linux-x64', 'host-linux-x64']
+}
+
+modextravars = {
+    'NSIGHT_DOC': '%(installdir)s/documentation/nsys-exporter'
+}
+
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'tools'

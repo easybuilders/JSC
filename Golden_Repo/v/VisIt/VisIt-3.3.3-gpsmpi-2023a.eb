@@ -1,0 +1,74 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+name = 'VisIt'
+version = '3.3.3'
+
+homepage = 'https://wci.llnl.gov/simulation/computer-codes/visit/'
+description = """VisIt is an Open Source, interactive, scalable, visualization, animation and analysis tool."""
+
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+
+source_urls = ['https://github.com/visit-dav/visit/releases/download/v%(version)s/']
+local_script = 'build_%s%s' % (name.lower(), version.replace('.', '_'))
+sources = [local_script]
+
+patches = [('VisIt_internallauncher.fix', '.')]
+checksums = [
+    'ac5aff43fc8be2403a471261c1e1e967a9e2e7e4b882797e6f1660858911ea2c',
+    'd4b84847ff25b32cbb7d96d395fc3bc7e5ed6bb676c8ea21650723a89970e624'
+]
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+    ('Python', '3.11.3'),  # needed to build VisIt's Qt5 version
+]
+
+dependencies = [
+    # VisIt comes with its own Python as VTK 8.2.0 does not build with Python >3.7:
+    # -> https://gitlab.kitware.com/vtk/vtk/-/issues/17670
+    # VisIt comes with its own Qt5 as this avoids issues with Qwt
+    ('X11', '20230603'),
+    ('OpenGL', '2023a'),
+]
+
+install_cmd = "chmod +x %s && " % local_script
+install_cmd += "mkdir -p %(installdir)s/thirdparty_shared/%(version)s && "
+install_cmd += "yes yes | "  # To accept Qt's license
+install_cmd += "CMAKE_INCLUDE_PATH=$EBROOTX11/include "
+install_cmd += "CMAKE_LIBRARY_PATH=$EBROOTX11/lib "
+install_cmd += "./%s " % local_script
+install_cmd += "--cc $CC --cxx $CXX "
+install_cmd += "--makeflags -j%(parallel)s "
+install_cmd += "--system-cmake "
+install_cmd += "--parallel "
+install_cmd += "--fortran "
+install_cmd += "--thirdparty-path %(installdir)s/thirdparty_shared/%(version)s "
+install_cmd += "--required --no-h5part --hdf5 --netcdf --silo --xdmf "
+# `--no-h5part _MUST_ be set or Ice-T and fortran fails to build as h5part sets LD_LIBRARY_PATH wrong
+install_cmd += "--skip-opengl-context-check "
+install_cmd += "--prefix '%(installdir)s' && "
+
+# patch internallauncher to include "ALL" in export
+install_cmd += "pushd %(installdir)s/%(version)s/bin/ && "
+install_cmd += "patch < %(builddir)s/VisIt_internallauncher.fix && "
+install_cmd += "popd"
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ['frontendlauncher', 'frontendlauncher.py']],
+    'dirs': ['%(version)s'],
+}
+
+modloadmsg = """
+Attention: This software comes with its own Python 3.7, numpy, Qt5, Mesa, HDF5, netCDF, VTK and other packages.\n
+           Do NOT load additional modules from the software stage - this will result in unpredictable results.\n
+"""
+
+modextrapaths = {
+    'PYTHONPATH': ['%(version)s/linux-x86_64/lib/site-packages/']
+}
+
+modextravars = {
+    'VISIT_ROOT': '%(installdir)s'
+}
+
+moduleclass = 'vis'

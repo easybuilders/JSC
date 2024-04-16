@@ -1,0 +1,56 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'ipyparallel'
+version = '8.7.0'
+
+homepage = "https://ipyparallel.readthedocs.io"
+
+description = """
+Interactive Parallel Computing in Python.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+    ('tqdm', '4.66.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('entrypoints', '0.4', {
+        'checksums': ['b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4'],
+    }),
+    ('ipyparallel', '8.7.0', {
+        'checksums': ['403c0971ae56c2b6a39ffe8f35f31c7fd170ce127924629459cdd7f7a0b4e7c3'],
+    }),
+]
+
+postinstallcmds = [
+    # Disable extensions we do not want to show up, but which we want to have installed
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/page_config.json; } << \'EOF\'\n'
+        '{\n'
+        '    "disabledExtensions": {\n'
+        '        "ipyparallel-labextension": true\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

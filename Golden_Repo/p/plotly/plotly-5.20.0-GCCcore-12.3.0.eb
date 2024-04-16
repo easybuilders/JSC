@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'plotly'
+version = '5.20.0'
+
+homepage = "https://plotly.com"
+
+description = """
+The interactive graphing library for Python.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('tenacity', '8.2.3', {
+        'checksums': ['5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a'],
+    }),
+    ('plotly', '%(version)s', {
+        'checksums': ['bf901c805d22032cfa534b2ff7c5aa6b0659e037f19ec1e0cca7f585918b5c89'],
+    }),
+    ('kaleido', '0.2.1', {
+        'source_tmpl': '%(name)s-%(version)s-py2.py3-none-manylinux1_x86_64.whl',
+        'checksums': ['aa21cf1bf1c78f8fa50a9f7d45e1003c387bd3d6fe0a767cfbbf344b95bdc3a8'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

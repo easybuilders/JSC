@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'xeus-zmq'
+version = '1.3.0'
+
+homepage = 'https://github.com/jupyter-xeus/xeus-zmq'
+description = """ZeroMQ-based middleware for xeus
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'jupyter-xeus'
+source_urls = [GITHUB_SOURCE]
+sources = ['%(version)s.tar.gz']
+checksums = [
+    {'1.3.0.tar.gz': '503987f17983f9c877edecf73ba884136eda419e48be82606c7d7670845effb3'},
+]
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('xeus', '3.2.0'),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+
+sanity_check_paths = {
+    'files': [
+        'lib/libxeus-zmq.so'
+    ],
+    'dirs': ['include', 'lib']
+}
+
+moduleclass = 'tools'

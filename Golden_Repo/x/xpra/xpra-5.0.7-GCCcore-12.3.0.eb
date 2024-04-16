@@ -2,8 +2,8 @@
 easyblock = 'Bundle'
 
 name = 'xpra'
-version = '5.0.3'
-local_xprahtml5_version = '9.1'
+version = '5.0.7'
+local_xprahtml5_version = '11.1'
 
 homepage = "http://www.xpra.org"
 description = """Xpra is an open-source multi-platform persistent remote display server and client
@@ -131,7 +131,7 @@ exts_list = [
         'patches': ['xpra-5.0.3-use_Xorg_on_PATH_first.patch'],
         'use_pip': False,
         'checksums': [
-            'a276af27552f47205193e72f0eaad35c06613deb62c3e26e02a678c96389e6c4',
+            'ee9c0d8510153fda25bb9d898b0a98e6a1d93d933549e76dfaf548345a2a26f8',
             'bb274e36a12385bd3454d40c5410a00b15d211af6c501bbafb47a4c9e0022d98',
         ],
     }),
@@ -149,7 +149,7 @@ exts_list = [
             'xprahtml_timeout.patch',
         ],
         'checksums': [
-            'd65c451a2cde6eccc045085b2e9118bb345264fb195a8ee1f5ed4022cd5698eb',
+            '3c735d21759711807d67466b05296a9f256a27345acdc1d38b7cd34440c239c5',
             '86e46d5fb377701e767386b372d7d238c41aa788d560d334596afb662ef897f4',
         ],
     }),

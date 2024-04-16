@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libfyaml'
+version = '0.9'
+
+homepage = 'https://github.com/pantoniou/libfyaml'
+description = """
+Fully feature complete YAML parser and emitter,
+supporting the latest YAML spec and passing the full YAML testsuite. 
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = ['https://github.com/pantoniou/libfyaml/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['927306fc85c7566904751766d36178650766b34e59ce56882eaa5b60f791668c']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Autotools', '20220317'),
+    ('pkgconf', '1.9.5'),
+]
+
+preconfigopts = "sh bootstrap.sh && "
+
+sanity_check_paths = {
+    'files': ['include/libfyaml.h', 'lib/libfyaml.a', 'lib/libfyaml.%s' % SHLIB_EXT],
+    'dirs': ['lib/pkgconfig'],
+}
+
+moduleclass = 'lib'

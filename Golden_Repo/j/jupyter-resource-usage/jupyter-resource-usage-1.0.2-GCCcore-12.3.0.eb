@@ -19,7 +19,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.11.3'),
-    ('JupyterLab', '4.1.5'),
+    ('JupyterLab', '4.2.1'),
 ]
 
 sanity_pip_check = True
@@ -51,10 +51,10 @@ exts_list = [
         'source_urls': ['https://github.com/jupyterlab-contrib/jupyterlab-topbar/releases/download/v%(version)s/'],
         'checksums': ['e3219c35f5ca8ed4f2a6e11a834d2b4f6f8bbf14115c7403846932d707be2197'],
     }),
-    ('jupyterlab-homebtn', '1.0.0', {
+    ('jupyterlab-homebtn', '1.0.1', {
         'source_tmpl': 'v%(version)s.tar.gz',
         'source_urls': ['https://github.com/jhgoebbert/jupyterlab-homebtn/archive/'],
-        'checksums': ['a537f56c950e39c3cbbbeb82cda774fe9cf3102b462cb78c8a6aced0053a959e'],
+        'checksums': ['db840b732fb2ad1fdcaa1e795e75bac5ce469eb07ccf4c07ca2a2b2e68bbad78'],
         'modulename': False,
     }),
 ]

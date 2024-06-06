@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-collaboration'
+version = '2.1.1'
+
+homepage = 'https://github.com/jupyterhub/jupyter-server-proxy'
+description = """JupyterLab Real-Time Collaboration is a Jupyter Server Extension and JupyterLab extensions
+providing support for Y documents and adding collaboration UI elements in JupyterLab."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('maturin', '1.4.0', '-Rust-1.70.0'),
+]
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('pycrdt', '0.8.25', {
+        'checksums': ['30b8e6e8252805e18b1feb14a4bda12e35f10ce71a58ca3821bc26813f535274'],
+    }),
+    ('aiosqlite', '0.20.0', {
+        'checksums': ['6d35c8c256637f4672f843c31021464090805bf925385ac39473fb16eaaca3d7'],
+    }),
+    ('sqlite_anyio', '0.2.0', {
+        'checksums': ['9ecbcddf105e5862f7975a9827b684a19a987aad46f10699eadb22ea33bbd060'],
+    }),
+    ('pycrdt_websocket', '0.13.4', {
+        'checksums': ['dce8259345ac14e08e9cf124cd1d66ea1b9d17ab1af79e63f50a611fb676421c'],
+    }),
+    ('jupyter_ydoc', '2.0.1', {
+        'checksums': ['716dda8cb8af881fec2fbc88aea3fb0d3bb24bbeb80a99a8aff2e01d089d5b0d'],
+    }),
+    ('jupyter_server_fileid', '0.9.2', {
+        'checksums': ['ffb11460ca5f8567644f6120b25613fca8e3f3048b38d14c6e3fe1902f314a9b'],
+    }),
+    ('jupyter_collaboration', version, {
+        'checksums': ['4f50c25c6d81126c16deaf92d2bd78a39b2fcb86690dce696b4006b740d71c1f'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

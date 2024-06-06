@@ -17,7 +17,7 @@ builddependencies = [('binutils', '2.40')]
 
 dependencies = [
     ('zlib', '1.2.13'),
-    ('PCRE', '8.45'),
+    ('PCRE2', '10.42'),
 ]
 
 configopts = '--without-alllang --with-boost=no'

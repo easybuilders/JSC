@@ -10,6 +10,7 @@ description = """ JsonCpp is a C++ library that allows manipulating JSON values,
  unserialization/serialization steps, making it a convenient format to store user input files. """
 
 toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
 
 source_urls = ['https://github.com/open-source-parsers/jsoncpp/archive']
 sources = ['%(version)s.tar.gz']

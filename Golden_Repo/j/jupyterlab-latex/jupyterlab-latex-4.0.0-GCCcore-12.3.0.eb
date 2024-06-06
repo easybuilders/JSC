@@ -18,7 +18,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.11.3'),
-    ('JupyterLab', '4.1.5'),
+    ('JupyterLab', '4.2.1'),
     ('texlive', '20230313'),
 ]
 

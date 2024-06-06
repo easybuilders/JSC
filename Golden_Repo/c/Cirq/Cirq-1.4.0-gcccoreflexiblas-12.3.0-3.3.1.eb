@@ -1,0 +1,184 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Cirq'
+version = '1.4.0'
+
+homepage = 'https://github.com/quantumlib/cirq'
+description = """A python framework for creating, editing,
+and invoking Noisy Intermediate Scale Quantum (NISQ) circuits."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('poetry', '1.5.1'),
+    ('maturin', '1.4.0', '-Rust-1.70.0'),
+    ('Rust', '1.70.0'),
+    ('hatchling', '1.18.0'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('Python-bundle-PyPI', '2023.06'),
+    ('SciPy-bundle', '2023.07'),
+    ('sympy', '1.12'),
+    ('matplotlib', '3.7.2'),
+    ('protobuf-python', '4.24.0'),
+    ('networkx', '3.1'),
+    ('tqdm', '4.66.1'),
+    ('PyQuil', '4.8.0'),
+]
+
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check': True,
+}
+
+exts_list = [
+    ('pyasn1-modules', '0.3.0', {
+        'source_tmpl': 'pyasn1_modules-%(version)s.tar.gz',
+        'checksums': ['5bd01446b736eb9d31512a30d46c1ac3395d676c6f3cafa4c03eb54b9925631c'],
+    }),
+    ('cachetools', '5.3.2', {
+        'checksums': ['086ee420196f7b2ab9ca2db2520aca326318b68fe5ba8bc4d49cca91add450f2'],
+    }),
+    ('rsa', '4.9', {
+        'checksums': ['e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21'],
+    }),
+    ('grpcio', '1.60.0', {
+        'modulename': 'grpc',
+        'preinstallopts': "export GRPC_PYTHON_BUILD_EXT_COMPILER_JOBS=%(parallel)s && ",
+        'checksums': ['2199165a1affb666aa24adf0c97436686d0a61bc5fc113c037701fb7c7fceb96'],
+    }),
+    ('grpcio-status', '1.60.0', {
+        'modulename': 'grpc',
+        'checksums': ['f10e0b6db3adc0fdc244b71962814ee982996ef06186446b5695b9fa635aa1ab'],
+    }),
+    ('googleapis-common-protos', '1.62.0', {
+        'modulename': 'google',
+        'checksums': ['83f0ece9f94e5672cced82f592d2a5edf527a96ed1794f0bab36d5735c996277'],
+    }),
+    ('google-auth', '2.25.2', {
+        'modulename': 'google.auth',
+        'checksums': ['42f707937feb4f5e5a39e6c4f343a17300a459aaf03141457ba505812841cc40'],
+    }),
+    ('google-api-core', '2.15.0', {
+        'modulename': 'google',
+        'checksums': ['abc978a72658f14a2df1e5e12532effe40f94f868f6e23d95133bd6abcca35ca'],
+    }),
+    ('proto-plus', '1.23.0', {
+        'modulename': 'proto',
+        'checksums': ['89075171ef11988b3fa157f5dbd8b9cf09d65fffee97e29ce403cd8defba19d2'],
+    }),
+    ('duet', '0.2.9', {
+        'source_tmpl': 'duet-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['a16088b68b0faee8aee12cdf4d0a8af060ed958badb44f3e32f123f13f64119a'],
+    }),
+    ('rfc3986', '2.0.0', {
+        'checksums': ['97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c'],
+    }),
+    ('rfc3339_validator', '0.1.4', {
+        'checksums': ['138a2abdf93304ad60530167e51d2dfb9549521a836871b88d7f4695d0022f6b'],
+    }),
+    ('sniffio', '1.3.1', {
+        'checksums': ['f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc'],
+    }),
+    ('retrying', '1.3.4', {
+        'checksums': ['345da8c5765bd982b1d1915deb9102fd3d1f7ad16bd84a9700b85f64d24e8f3e'],
+    }),
+    ('PyJWT', '2.8.0', {
+        'modulename': 'jwt',
+        'checksums': ['57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de'],
+    }),
+    ('pydantic-core', '2.16.2', {
+        # Need to use a .whl because eb cannot convert the tar.gz into a .whl
+        'modulename': 'pydantic_core',
+        'sources': ['pydantic_core-2.16.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['dffaf740fe2e147fedcb6b561353a16243e654f7fe8e701b1b9db148242e1272'],
+    }),
+    ('fasteners', '0.19', {
+        'modulename': 'fasteners',
+        'checksums': ['b4f37c3ac52d8a445af3a66bce57b33b5e90b97c696b7b984f530cf8f0ded09c'],
+    }),
+    ('diskcache', '5.6.3', {
+        'modulename': 'diskcache',
+        'checksums': ['2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc'],
+    }),
+    ('dimod', '0.12.14', {
+        'modulename': 'dimod',
+        'checksums': ['ae02597e33d8d3053202ea3cbcdd4261ee047253d416f63b812f7e19e7f3b060'],
+    }),
+    ('annotated-types', '0.6.0', {
+        'modulename': 'annotated_types',
+        'sources': ['annotated_types-%(version)s.tar.gz'],
+        'checksums': ['563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d'],
+    }),
+    ('pydantic', '2.6.1', {
+        'modulename': 'pydantic',
+        'sources': ['pydantic-%(version)s.tar.gz'],
+        'checksums': ['4fd5c182a2488dc63e6d32737ff19937888001e2a6d86e94b3f233104a5d1fa9'],
+    }),
+    ('iso8601', '2.1.0', {
+        'checksums': ['6b1d3829ee8921c4301998c909f7829fa9ed3cbdac0d3b16af2d743aed1ba8df'],
+    }),
+    ('h11', '0.14.0', {
+        'checksums': ['8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d'],
+    }),
+    ('anyio', '4.3.0', {
+        'checksums': ['f75253795a87df48568485fd18cdd2a3fa5c4f7c5be8e5e36637733fce06fed6'],
+    }),
+    ('httpcore', '1.0.5', {
+        'checksums': ['34a38e2f9291467ee3b44e89dd52615370e152954ba21721378a87b2960f7a61'],
+    }),
+    ('cirq-web', version, {
+        'source_tmpl': 'cirq_web-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['1ba3c181173731d254cd20c4d98564840a8ce6feefdbf7d394fc54b88db6c2a4'],
+    }),
+    ('cirq-pasqal', version, {
+        'source_tmpl': 'cirq_pasqal-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['2ba108b3b302377f3ebb4f94defed3ddf32387d95841c0864278d134eb4e86d9'],
+    }),
+    ('cirq-core', version, {
+        'modulename': False,
+        'source_tmpl': 'cirq_core-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['ad68e5a420fc4cf3ad76a0c1bdf3a1fcf21daede8236b850542220cb81504a20'],
+    }),
+    ('cirq-ionq', version, {
+        'source_tmpl': 'cirq_ionq-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['9f5d86f47f1a8b68cea548e2e6c5ef0b2c57d020b006ad89cfabf1837f4556f2'],
+    }),
+    ('cirq-aqt', version, {
+        'source_tmpl': 'cirq_aqt-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['6a41abdb8fff4c47b703bc5413b17b5748022baa1b16afcbb1cb29714d7cfd31'],
+    }),
+    ('cirq-google', version, {
+        'source_tmpl': 'cirq_google-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['f2121e9273f23c77271e81a429d7461b3690b555aa322da8412a3c97c445008e'],
+    }),
+    # ('cirq-rigetti', version, {
+    # # req. https://github.com/quantumlib/Cirq/pull/6281 !!
+    #     'source_tmpl': 'cirq_rigetti-%(version)s-py3-none-any.whl',
+    #     'unpack_sources': False,
+    #     'checksums': ['431795a27e37192d7f99a5309383f31021cddf56a52d735710fd132ec35d0318'],
+    # }),
+    # ('cirq', version, {
+    # # wrapper that includes the cirq-packages from above
+    #     'source_tmpl': 'cirq-%(version)s-py3-none-any.whl',
+    #     'unpack_sources': False,
+    #     'checksums': ['b5ffb032e1640a91e5c82d2d7dc53f1634dfd5d09254c7612c2532e97bfe83ae'],
+    # }),
+]
+
+moduleclass = 'quantum'

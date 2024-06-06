@@ -185,6 +185,10 @@ elseif systemname == "jurecadc" then
 elseif systemname == "jureca_arm" then
     optarch = ""
     cuda_compute = "8.0"
+-- JURECA-GH
+elseif systemname == "jureca_gh" then
+    optarch = "GCC:mcpu=native"
+    cuda_compute = "9.0"
 -- JURECA-SPR
 elseif systemname == "jureca_spr" then
     optarch = "GCCcore:march=haswell -mtune=haswell;GCC:march=sapphirerapids -mtune=sapphirerapids -ftree-vectorize;Intel:xCORE-AVX512"

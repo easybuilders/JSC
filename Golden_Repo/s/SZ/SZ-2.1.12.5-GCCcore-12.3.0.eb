@@ -6,7 +6,7 @@ version = '2.1.12.5'
 
 homepage = 'https://szcompressor.org'
 description = """SZ is a modular parametrizable lossy compressor framework
-for scientific data (floating point and integers)."""
+for scientific data (floating point and integers)"""
 
 toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
 toolchainopts = {'pic': True}

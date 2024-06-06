@@ -11,7 +11,7 @@ toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
 
 source_urls = ['https://gitlab.version.fz-juelich.de/goebbert1/jsc-xdg-menu/-/archive/%(version)s/']
 sources = ['%(name)s-%(version)s.tar.gz']
-checksums = ['4dd71d0e8ee5f06a7d2552c763f87120227f3e75615c578f70b5cb2dfc71660b']
+checksums = ['4936077d2fad084cc47fb7b18124eba15d083e99d42e55ad4383a51662e23994']
 
 builddependencies = [
     # just ensure they exist

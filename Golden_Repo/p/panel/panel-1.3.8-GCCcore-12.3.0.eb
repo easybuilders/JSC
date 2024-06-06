@@ -18,7 +18,7 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.11.3'),
-    ('JupyterLab', '4.1.5'),
+    ('JupyterLab', '4.2.1'),
     ('tqdm', '4.66.1'),
     ('bokeh', '3.2.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
 ]
@@ -51,7 +51,7 @@ exts_list = [
         'modulename': 'linkify_it',
         'checksums': ['68cda27e162e9215c17d786649d1da0021a451bdc436ef9e0fa0ba5234b9b048'],
     }),
-    ('panel', '%(version)s', {
+    ('panel', version, {
         'checksums': ['809afd2b861747a31d6ddaadbbc7c25b8dab392dc78256f68b759214113c5be3'],
     }),
 ]

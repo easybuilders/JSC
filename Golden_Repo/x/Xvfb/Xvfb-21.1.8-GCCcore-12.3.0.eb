@@ -79,7 +79,7 @@ components = [
         'extract_sources': True,
         'install_cmd': (
             'cp -a %(builddir)s/%(name)s-v%(version)s/* %(installdir)s/ && '
-            'sed -i \'s@$EBROOTXVFB@\'"%(installdir)s"\'@g\' %(installdir)s/share/X11/xorg.conf.d/99-fonts.conf'
+            'sed -i \'s@$EBROOTXSERVER@\'"%(installdir)s"\'@g\' %(installdir)s/share/X11/xorg.conf.d/99-fonts.conf'
         ),
         'checksums': [('sha256', '68544c183d153f34105fa08573174650bfe643a6d750bd9da4accac399d375db')],
         # to activate this fontconfig you need to export FONTCONFIG_FILE=${EBROOTXVFB}/config/fontconfig/fonts.conf

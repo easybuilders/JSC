@@ -265,6 +265,15 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             if ec['name'] not in ['icc', 'ifort']:
                 # Overwrite version if necessary
                 comp_name_ver = self._find_relevant_compiler_info(comp_name_ver)
+
+                # Hack the MNS here, so NVHPC 24 expands to the path of NVHPC 23, to reuse the stack there
+                # NVIDIA stated in GTC2024 that they intend to keep ABI compatibility, and if they break it
+                # it would be clearly announced. So for the next stage, we should generalize the modpath expansion
+                # to "2X", instead of 23, 24, or whatever year we are on
+                comp_name, comp_ver = comp_name_ver
+                if comp_name == "NVHPC":
+                    comp_name_ver = (comp_name, "23"+comp_ver[2:])
+
                 paths.append(os.path.join(COMPILER, *comp_name_ver))
                 # Always extend to capture the MPI implementations too (which are in a separate directory)
                 if ec['name'] not in [GCCCORE]:

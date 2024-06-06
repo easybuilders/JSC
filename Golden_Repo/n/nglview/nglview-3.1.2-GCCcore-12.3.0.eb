@@ -18,8 +18,8 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.11.3'),
-    ('JupyterLab', '4.1.5'),
-    ('JupyterNotebook', '7.1.1'),
+    ('JupyterLab', '4.2.1'),
+    ('JupyterNotebook', '7.2.0'),
     ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
 ]
 

@@ -1,0 +1,63 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'dash'
+version = '2.17.0'
+
+homepage = "https://github.com/plotly/dash"
+
+description = """
+Data Apps & Dashboards for Python.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+    ('plotly', '5.22.0'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('dash_table', '5.0.0', {
+        'checksums': ['18624d693d4c8ef2ddec99a6f167593437a7ea0bf153aa20f318c170c5bc7308'],
+    }),
+    ('dash_html_components', '2.0.0', {
+        'checksums': ['8703a601080f02619a6390998e0b3da4a5daabe97a1fd7a9cebc09d015f26e50'],
+    }),
+    ('dash_core_components', '2.0.0', {
+        'checksums': ['c6733874af975e552f95a1398a16c2ee7df14ce43fa60bb3718a3c6e0b63ffee'],
+    }),
+    ('werkzeug', '3.0.1', {
+        'checksums': ['507e811ecea72b18a404947aded4b3390e1db8f826b494d76550ef45bb3b1dcc'],
+    }),
+    ('itsdangerous', '2.1.2', {
+        'checksums': ['5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a'],
+    }),
+    ('blinker', '1.7.0', {
+        'checksums': ['e6820ff6fa4e4d1d8e2747c2283749c3f547e4fee112b98555cdcdae32996182'],
+    }),
+    ('flask', '3.0.2', {
+        'checksums': ['822c03f4b799204250a7ee84b1eddc40665395333973dfb9deebfe425fefcb7d'],
+    }),
+    ('retrying', '1.3.4', {
+        'checksums': ['345da8c5765bd982b1d1915deb9102fd3d1f7ad16bd84a9700b85f64d24e8f3e'],
+    }),
+    ('dash', version, {
+        'checksums': ['d065cd88771e45d0485993be0d27565e08918cb7edd18e31ee1c5b41252fc2fa'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

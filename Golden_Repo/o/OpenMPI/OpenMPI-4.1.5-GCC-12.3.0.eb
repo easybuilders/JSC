@@ -61,6 +61,6 @@ configopts += '--with-ime=/opt/ddn/ime '
 configopts += '--with-gpfs '
 
 # to enable SLURM integration (site-specific)
-configopts += '--with-slurm --with-pmix=external --with-libevent=external --with-ompi-pmix-rte'
+configopts += '--with-slurm --with-ompi-pmix-rte'
 
 moduleclass = 'mpi'

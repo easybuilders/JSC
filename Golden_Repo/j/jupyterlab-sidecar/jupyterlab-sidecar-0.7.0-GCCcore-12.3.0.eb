@@ -18,14 +18,14 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.11.3'),
-    ('JupyterLab', '4.1.5'),
+    ('JupyterLab', '4.2.1'),
 ]
 
 sanity_pip_check = True
 use_pip = True
 
 exts_list = [
-    ('sidecar', '%(version)s', {
+    ('sidecar', version, {
         'checksums': ['c3fa1694b5611c1fab9d7a96c07577ba0764068a89b7b39be9b9ce9770e9d363'],
     }),
 ]

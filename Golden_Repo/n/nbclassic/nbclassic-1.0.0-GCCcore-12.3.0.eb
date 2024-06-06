@@ -17,7 +17,7 @@ builddependencies = [
 ]
 dependencies = [
     ('Python', '3.11.3'),
-    ('jupyter-server', '2.12.5'),
+    ('jupyter-server', '2.14.0'),
 ]
 
 sources = [SOURCE_TAR_GZ]

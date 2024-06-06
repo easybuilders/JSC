@@ -72,6 +72,7 @@ jupyterlab-spellchecker
 jupyterlab-tour
 jupyterlab-h5web
 jupyterlab-nvdashboard
+jupyterlab-variableinspector
 jupyter-ai
 jupyter-archive
 jupyter-bokeh
@@ -95,6 +96,7 @@ JupyterKernel-R
 JupyterKernel-Ruby
 JupyterProxy-Matlab
 JupyterProxy-XpraHTML5
+JupyterProxy-NESTDesktop
 LAME
 LMDB
 LZO
@@ -107,7 +109,6 @@ LuaJIT2-OpenResty
 maturin
 M4
 MATIO
-MATLAB
 Mako
 nbclassic
 nbdime

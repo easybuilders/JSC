@@ -1,0 +1,56 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'nest-desktop'
+version = '4.0-beta4'
+
+homepage = 'https://nest-desktop.readthedocs.io'
+description = """
+NEST Desktop is a web-based GUI application for NEST Simulator,
+an advanced simulation tool for the computational neuroscience.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('nodejs', '18.17.1'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('nest-desktop', version, {
+        'source_urls': ['https://github.com/nest-desktop/nest-desktop/archive/'],
+        'sources': ['v%s.tar.gz' % version],
+        'checksums': ['740fc65ed4eaaeb7346c14259bd514f9c91e44589c12fd65aa3d910eb9cc8cd6'],
+        'buildcmd': (
+            'yarn set version stable && '
+            'yarn install && '
+            'yarn build'
+        ),
+    }),
+]
+
+sanity_check_paths = {
+    'files': [
+        'bin/nest-desktop',
+    ],
+    'dirs': [
+        'bin',
+        'lib/python%(pyshortver)s/site-packages',
+    ],
+}
+
+moduleclass = 'tools'

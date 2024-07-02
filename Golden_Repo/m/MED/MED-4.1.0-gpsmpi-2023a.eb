@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# easyconfig file for MED Library
+easyblock = 'ConfigureMake'
+
+name = 'MED'
+version = '4.1.0'
+
+homepage = 'http://salome-platform.org/'
+description = """Initially defined by EDF R&D,
+this format has been defined and maintained
+through a MED working group comprising members of
+EDF R&D and CEA (the Code Saturne team being represented).
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+toolchainopts = {'optarch': True, 'pic': True, 'usempi': True}
+
+source_urls = ['https://files.salome-platform.org/Salome/Salome9.9.0/']
+sources = ['med-%(version)s.tar.gz']
+patches = [
+    'med-%(version)s_hdf5_v11402.patch',
+    'med-%(version)s_hdf5_H5Oget_info.patch',
+]
+checksums = [
+    '847db5d6fbc9ce6924cb4aea86362812c9a5ef6b9684377e4dd6879627651fce',  # med-4.1.0.tar.gz
+    'd554efc51a2f563927ecebc63f51b231fe1ae3cd32ce3ef61267c749bdef5087',  # med-4.1.0_hdf5_v11402.patch
+    'ded71c03da362efffdb24dcc76e9fae3e36eb58130c70ebe2df8d05c0ec08437',  # med-4.1.0_hdf5_H5Oget_info.patch
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('SWIG', '4.1.1'),
+    ('HDF5', '1.14.2')
+]
+
+prebuildopts = 'autoreconf -f -i && '
+
+# better to configure these dependents explicitly
+configopts = '--with-f90 '
+configopts += '--with-swig=$EBROOTSWIG '
+configopts += '--with-hdf5=$EBROOTHDF5 '
+
+moduleclass = 'lib'

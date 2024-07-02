@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+name = 'arpack-ng'
+version = '3.9.0'
+versionsuffix = '-nompi'
+homepage = 'http://forge.scilab.org/index.php/p/arpack-ng/'
+description = """ARPACK-NG is a collection of Fortran77 subroutines designed to solve large scale eigenvalue problems.
+libarpack.a has been installed in $EBROOTARPACKMINNG.
+"""
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+toolchainopts = {'opt': True, 'optarch': True, 'pic': True}
+source_urls = ['https://github.com/opencollab/arpack-ng/archive/']
+sources = ["%(version)s.tar.gz"]
+checksums = ['24f2a2b259992d3c797d80f626878aa8e2ed5009d549dad57854bbcfb95e1ed0']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Autotools', '20220317'),
+    ('pkgconf', '1.9.5')
+]
+# We hide it since this should be used just for Jupyter and the MPI version should be preferred for normal cases
+hidden = True
+preconfigopts = 'sh bootstrap &&'
+configopts = '--with-pic --with-blas="$LIBBLAS" --with-lapack="$LIBLAPACK"'
+sanity_check_paths = {
+    'files': ["lib/libarpack.%s" % SHLIB_EXT, ],
+    'dirs': []
+}
+modextravars = {
+    'ARPACK_ROOT': '%(installdir)s',
+    'ARPACK_LIB': '%(installdir)s/lib',
+}
+moduleclass = 'numlib'

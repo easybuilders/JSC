@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-latex'
+version = '4.0.0'
+
+homepage = "https://github.com/jupyterlab/jupyterlab-latex"
+
+description = """
+JupyterLab extension for live editing of LaTeX documents.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+    ('texlive', '20230313'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_latex', '%(version)s', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/jupyterlab/jupyterlab-latex/archive/'],
+        'checksums': ['46da59dc8848bfc6cab4ef8c2d6dcadaa13c3143384017b05097d8d8e70adec4'],
+    }),
+]
+
+postinstallcmds = [
+    # jupyterlab-latex fix for https://github.com/jupyterlab/jupyterlab-latex/issues/110#issuecomment-1241460371
+    'mkdir -p %(installdir)s/etc/jupyter/ ',
+    (
+        '{ cat >> %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
+        'try:\n'
+        '    c.ServerApp.notebook_dir = c.ServerApp.root_dir\n'
+        'except:\n'
+        '    pass\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

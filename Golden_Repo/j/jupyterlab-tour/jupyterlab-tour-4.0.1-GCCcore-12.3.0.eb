@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-tour'
+version = '4.0.1'
+
+homepage = "https://github.com/jupyterlab-contrib/jupyterlab-tour"
+
+description = """
+A JupyterLab UI tour built on jupyterlab-tutorial and react-joyride.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_tour', '%(version)s', {
+        'checksums': ['51d860f872775ce7d85dbfd215fbab1d2c79f5c0c1a902a1d46e4bb642090cbd'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

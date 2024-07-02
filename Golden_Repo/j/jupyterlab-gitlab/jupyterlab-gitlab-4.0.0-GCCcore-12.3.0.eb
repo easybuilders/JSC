@@ -1,0 +1,61 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-gitlab'
+version = '4.0.0'
+
+homepage = "https://github.com/jupyterlab-contrib/jupyterlab-gitlab"
+
+description = """
+A JupyterLab extension for browsing GitLab repositories.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_gitlab', version, {
+        'patches': [('jupyterlab-gitlab.config', '.')],
+        'checksums': [
+            '150594530a5f0aea94c4dd5b93ce79065e3ae7655618f6718006afe1a78b81fb',
+            '13dc84e36670a8e45391d72a2a9f5f20a7c7080bf51e9811676d0c3e494ae13d',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    # override lab-defaults
+    (
+        'cat %%(builddir)s/jupyterlab_gitlab/jupyterlab_gitlab-%s/jupyterlab-gitlab.config '
+        '    >>  %%(installdir)s/etc/jupyter/jupyter_notebook_config.py'
+    ) % version,
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "jupyterlab-gitlab:drive": {\n'
+        '        "baseUrl": "https://gitlab.jsc.fz-juelich.de",\n'
+        '        "defaultRepo": "jupyter4jsc/j4j_notebooks"\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyCUDA'
+version = '2022.2.2'
+
+homepage = 'https://mathema.tician.de/software/pycuda'
+description = 'PyCUDA lets you access Nvidia’s CUDA parallel computation API from Python.'
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07'),
+    ('Boost.Python', '1.82.0'),
+    ('Mako', '1.2.4'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('pytools', '2023.1.1', {
+        'checksums': ['80637873d206f6bcedf7cdb46ad93e868acb4ea2256db052dfcca872bdd0321f'],
+    }),
+    (name, version, {
+        'preinstallopts': './configure.py --cuda-root="$EBROOTCUDA" --boost-inc-dir="$EBROOTBOOST/include/boost" \
+                           --boost-lib-dir="$EBROOTBOOST/lib" --no-use-shipped-boost \
+                           --boost-python-libname=boost_python311 && ',
+        'source_tmpl': '%(namelower)s-%(version)s.tar.gz',
+        'checksums': ['cd92e7246bb45ac3452955a110714112674cdf3b4a9e2f4ff25a4159c684e6bb'],
+    }),
+]
+
+moduleclass = 'lang'

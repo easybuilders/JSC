@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# ll4strw Lorentz Institute
+easyblock = 'CMakeMake'
+
+name = 'cppzmq'
+version = '4.10.0'
+
+homepage = 'https://github.com/zeromq/cppzmq'
+description = "cppzmq is a C++ binding for libzmq."
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/zeromq/%(name)s/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['c81c81bba8a7644c84932225f018b5088743a22999c6d82a2b5f5cd1e6942b74']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),
+    ('ZeroMQ', '4.3.4'),
+]
+
+separate_build_dir = True
+
+sanity_check_paths = {
+    'files': ['include/zmq.hpp'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'lib'

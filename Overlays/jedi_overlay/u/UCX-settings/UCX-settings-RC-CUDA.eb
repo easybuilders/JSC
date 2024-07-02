@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'UCX-settings'
+version = 'RC-CUDA'
+
+homepage = ''
+description = '''
+This module sets UCX to use RC as the transport layer, together with the CUWA-aware transports.
+The maximum number of rails is limited to 1 to avoid pitfalls of blindly using multiple rails.
+'''
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'UCX_TLS': 'rc_x,self,sm,cuda_ipc,gdr_copy,cuda_copy',
+    # To make sure that transfers involving buffers allocated with cudaMallocManaged are done by the GPU. Important
+    # mostly for nodes with multiple GPUs per ndoe
+    'UCX_RNDV_FRAG_MEM_TYPE': 'cuda',
+}
+
+moduleclass = 'system'

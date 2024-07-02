@@ -1,0 +1,12 @@
+diff -ruN openbabel-openbabel-3-1-1/include/openbabel/obutil.h openbabel-openbabel-3-1-1-patch/include/openbabel/obutil.h
+--- openbabel-openbabel-3-1-1/include/openbabel/obutil.h	2020-05-08 17:38:02.000000000 +0200
++++ openbabel-openbabel-3-1-1-patch/include/openbabel/obutil.h	2023-12-22 12:00:28.819287375 +0100
+@@ -25,6 +25,8 @@
+ #include <string>
+ #include <iosfwd>
+ 
++#include <ctime>
++
+ #if TIME_WITH_SYS_TIME
+ #include <sys/time.h>
+ #include <time.h>

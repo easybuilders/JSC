@@ -1,0 +1,82 @@
+From ce88ce7078b0fa74473c3bdb1b663889ee82c20f Mon Sep 17 00:00:00 2001
+From: janEbert <janpublicebert@posteo.net>
+Date: Tue, 12 Jul 2022 10:58:18 +0200
+Subject: [PATCH 1/5] Check all NIC hostnames for master host matching
+
+Previously, these were not included, leading to timeouts as no process
+assumed the root role.
+
+Ref #73656, first error.
+---
+ torch/distributed/elastic/rendezvous/utils.py | 37 +++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+
+diff --git a/torch/distributed/elastic/rendezvous/utils.py b/torch/distributed/elastic/rendezvous/utils.py
+index 326bc604a91..a6903eb42cf 100644
+--- a/torch/distributed/elastic/rendezvous/utils.py
++++ b/torch/distributed/elastic/rendezvous/utils.py
+@@ -4,10 +4,12 @@
+ # This source code is licensed under the BSD-style license found in the
+ # LICENSE file in the root directory of this source tree.
+ 
++import fcntl
+ import ipaddress
+ import random
+ import re
+ import socket
++import struct
+ import time
+ import weakref
+ from datetime import timedelta
+@@ -16,6 +18,37 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
+ 
+ __all__ = ['parse_rendezvous_endpoint']
+ 
++
++# From https://stackoverflow.com/a/27494105.
++def nic_ip_address(nic_name):
++    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
++    return socket.inet_ntoa(fcntl.ioctl(
++        s.fileno(),
++        0x8915,  # SIOCGIFADDR
++        struct.pack('256s', nic_name[:15].encode("UTF-8"))
++    )[20:24])
++
++
++# Adapted from https://stackoverflow.com/a/27494105.
++def nic_info():
++    """Return a list of tuples containing each NIC's hostname and its IPv4."""
++    nics = []
++    try:
++        if_nameindex = socket.if_nameindex()
++    except OSError:
++        return nics
++
++    for (_, nic_name) in if_nameindex:
++        try:
++            ip_addr = nic_ip_address(nic_name)
++        except OSError:
++            continue
++
++        hostname = socket.gethostbyaddr(ip_addr)[0]
++        nics.append((hostname, ip_addr))
++    return nics
++
++
+ def _parse_rendezvous_config(config_str: str) -> Dict[str, str]:
+     """Extract key-value pairs from a rendezvous configuration string.
+ 
+@@ -160,6 +193,10 @@ def _matches_machine_hostname(host: str) -> bool:
+         if addr_info[4][0] in host_ip_list:
+             return True
+ 
++    for (nic_host, nic_addr) in nic_info():
++        if nic_host == host or addr and nic_addr == str(addr):
++            return True
++
+     return False
+ 
+ 
+-- 
+2.25.1
+

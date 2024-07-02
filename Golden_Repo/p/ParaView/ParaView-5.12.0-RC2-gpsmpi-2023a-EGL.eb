@@ -1,0 +1,361 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'ParaView'
+version = '5.12.0-RC2'
+versionsuffix = '-EGL'
+
+homepage = "http://www.paraview.org"
+description = "Paraview is a scientific parallel visualizer."
+
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+local_dwnlsfx_src = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=Sources&downloadFile='
+source_urls = [
+    ('http://www.paraview.org/paraview-downloads/%s' % local_dwnlsfx_src),
+    ('https://www.paraview.org/files/dependencies/')
+]
+local_nvIndeX = 'nvidia-index-libs-5.12.0.20231121-linux'
+sources = [
+    ('ParaView-v%(version)s.tar.gz'),
+    ('%s.tar.bz2' % local_nvIndeX)
+]
+
+checksums = [
+    '10e94d8ad511d2342493ed88262678a0604527b28010dd71585c19b79c14dc2d',  # ParaView-v5.12.0-RC2.tar.gz
+    'f82a859482f774f5639be9ddb1c45d1f117a661cab303e8edae93d357729afbe',  # nvidia-index-libs-5.12.0...
+]
+
+builddependencies = [
+    ('CMake', '3.26.3'),
+    ('git', '2.41.0', '-nodocs'),
+    ('pkgconf', '1.9.5'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('Boost', '1.82.0'),
+    ('X11', '20230603'),
+    ('bzip2', '1.0.8'),
+    ('HDF5', '1.14.2'),
+    ('ADIOS2', '2.9.2'),
+    ('FFmpeg', '6.0'),
+    ('Embree', '4.3.0'),
+    ('OSPRay', '2.12.0'),
+    # ('VisRTX', '0.7.1'),  # ANARI interface
+    ('libpng', '1.6.39'),
+    ('expat', '2.5.0'),
+    ('freetype', '2.13.0'),
+    ('libjpeg-turbo', '2.1.5.1'),
+    ('libxml2', '2.11.4'),
+    ('LibTIFF', '4.5.0'),
+    ('zlib', '1.2.13'),
+    ('netCDF', '4.9.2'),
+    ('netCDF-C++4', '4.3.1'),
+    ('netCDF-Fortran', '4.6.1'),
+    ('nlohmann_json', '3.11.2'),  # for ParFlow plugin
+    ('libcdi', '2.3.0'),  # for CDI plugin
+    ('mpi4py', '3.1.4'),
+    ('double-conversion', '3.3.0'),
+    ('Eigen', '3.4.0'),
+    ('Qt5', '5.15.10'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('matplotlib', '3.7.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('OpenGL', '2023a'),
+    ('Catalyst', '2.0.0-rc4'),
+    ('Conduit', '0.8.8'),
+    ('ParaViewData', '%(version)s'),
+    ('VTKData', '9.3.0'),
+]
+
+separate_build_dir = True
+
+# ensure we do not use a too advanced GL-version at config/build-time, which might not be available at run-time
+preconfigopts = "export __EGL_VENDOR_LIBRARY_FILENAMES=${EBROOTOPENGL}/share/glvnd/egl_vendor.d/50_mesa.json && "
+prebuildopts = "export __EGL_VENDOR_LIBRARY_FILENAMES=${EBROOTOPENGL}/share/glvnd/egl_vendor.d/50_mesa.json && "
+
+########################################################################################
+# check ParaView Superbuild options                                                    #
+# https://gitlab.kitware.com/paraview/paraview-superbuild/tree/master                  #
+#                                                                                      #
+# check ParaView Spack options                                                         #
+# https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/paraview/package.py
+#                                                                                      #
+# check ParaView Build documenation                                                    #
+# https://gitlab.kitware.com/paraview/paraview/blob/master/Documentation/dev/build.md  #
+########################################################################################
+
+local_buildsrc = '%(builddir)s/easybuild_obj'
+local_installsrc = '%(installdir)s/debugsrc'
+
+# --- general settings --- #
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DCMAKE_CXX_FLAGS="-fdebug-prefix-map=%s=%s $CMAKE_CXX_FLAGS" ' % (local_buildsrc, local_installsrc)
+configopts += '-DCMAKE_C_FLAGS="-fdebug-prefix-map=%s=%s $CMAKE_C_FLAGS" ' % (local_buildsrc, local_installsrc)
+configopts += '-DCMAKE_CXX_STANDARD=11 '
+configopts += '-DPARAVIEW_BUILD_LEGACY_SILENT=ON '
+
+# https://forum.openframeworks.cc/t/nvidia-drivers-pthreads-and-segfaults/2524
+# configopts += '-DCMAKE_CXX_FLAGS="-lpthread $CMAKE_CXX_FLAGS" '
+# configopts += '-DCMAKE_C_FLAGS="-lpthread $CMAKE_C_FLAGS" '
+
+configopts += '-DPARAVIEW_BUILD_EDITION=CANONICAL '
+configopts += '-DPARAVIEW_BUILD_WITH_KITS=OFF '
+configopts += '-DPARAVIEW_USE_QT=OFF '
+
+# --- tuning --- #
+# better disable for now: https://discourse.paraview.org/t/array-dispatch-issues/10328
+# configopts += '-DVTK_BUILD_SCALED_SOA_ARRAYS=OFF '
+# configopts += '-DVTK_DISPATCH_SOA_ARRAYS=OFF '
+# configopts += '-DVTK_DISPATCH_TYPED_ARRAYS=OFF '
+
+# --- web --- #
+configopts += '-DPARAVIEW_ENABLE_WEB=ON '
+configopts += '-DPARAVIEW_USE_QTWEBENGINE=ON '
+configopts += '-DVTK_MODULE_ENABLE_ParaView_PVWebPython=YES '
+
+# --- python --- #
+configopts += '-DPARAVIEW_USE_PYTHON=ON '
+configopts += "-DPython3_EXECUTABLE=$EBROOTPYTHON/bin/python "
+
+configopts += '-DVTK_PYTHON_VERSION=3 '
+configopts += '-DVTK_NO_PYTHON_THREADS=OFF '
+# visibility depends on VTK_NO_PYTHON_THREADS=OFF
+configopts += '-DVTK_PYTHON_FULL_THREADSAFE=OFF '
+# If you pass VTK_PYTHON_FULL_THREADSAFE to true, then each and every call to python will be protected with GIL,
+# ensuring that you can have eg. other python interpreter in your application and still use python wrapping in vtk.
+
+# --- VTKm --- #
+configopts += '-DPARAVIEW_USE_VTKM=ON '
+configopts += '-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmFilters=YES '
+configopts += '-DVTKm_Vectorization=AVX2 '
+# configopts += '-DVTKm_ENABLE_KOKKOS=OFF '
+# configopts += '-DVTKm_ENABLE_TBB=OFF '
+# configopts += '-DVTKm_ENABLE_CUDA=ON '
+# configopts += '-DVTKm_ENABLE_LOGGING=ON '
+
+# --- parallel (on-node) --- #
+# https://blog.kitware.com/simple-parallel-computing-with-vtksmptools-2/
+configopts += '-DVTK_SMP_IMPLEMENTATION_TYPE=OpenMP '
+configopts += '-DVTK_MAX_THREADS=64 '
+configopts += '-DVTKm_ENABLE_OPENMP=ON '
+
+# --- parallel (distributed) --- #
+configopts += '-DMPIEXEC_MAX_NUMPROCS=24 '
+configopts += '-DPARAVIEW_USE_MPI=ON '
+configopts += '-DVTKm_ENABLE_MPI=ON '
+
+# --- IO --- #
+configopts += '-DXDMF_BUILD_MPI=ON '
+configopts += '-DPARAVIEW_ENABLE_XDMF3=ON '
+configopts += '-DPARAVIEW_ENABLE_ADIOS2=ON '
+# configopts += '-DPARAVIEW_PLUGIN_ENABLE_AdiosReaderPixie=ON '  # req. ADIOS1
+# configopts += '-DPARAVIEW_PLUGIN_ENABLE_AdiosReaderStaging=ON ' # req. ADIOS1
+configopts += '-DVTKm_ENABLE_HDF5_IO=ON '
+
+# --- large data --- #
+configopts += '-DVTK_USE_64BIT_IDS=ON '
+
+# --- rendering --- #
+
+# OpenGL (hardware)
+#  https://kitware.github.io/paraview-docs/latest/cxx/Offscreen.html
+#    If VTK_OPENGL_HAS_EGL or VTK_OPENGL_HAS_OSMESA is ON, the build supports headless rendering,
+#       otherwise VTK_USE_X must be ON and the build does not support headless,
+#       but can still support offscreen rendering.
+#    If VTK_USE_X is OFF, then either VTK_OPENGL_HAS_OSMESA or VTK_OPENGL_HAS_EGL must be ON.
+#       Then the build does not support onscreen rendering, but only headless rendering.
+#    If PARAVIEW_BUILD_QT_GUI is ON and VTK_USE_X is ON, while ParaView command line tools won't link against
+#       or use X calls, Qt will and hence an accessible X server is still needed to run the desktop client.
+#    If VTK_OPENGL_HAS_OSMESA is ON, and VTK_USE_X is ON,
+#       then all the OpenGL and OSMesa variables should point to the Mesa libraries.
+#    Likewise, if VTK_OPENGL_HAS_EGL is ON and VTK_USE_X is ON, then all the OpenGL and EGL variables
+#       should point to the system libraries providing both, typically the NVidia libraries.
+
+configopts += '-DOpenGL_GL_PREFERENCE=GLVND '
+configopts += '-DVTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS=OFF '
+
+configopts += "-DOPENGL_INCLUDE_DIR=${EBROOTOPENGL}/include "
+configopts += "-DOPENGL_GLX_INCLUDE_DIR=${EBROOTOPENGL}/include "
+configopts += "-DOPENGL_EGL_INCLUDE_DIR=${EBROOTOPENGL}/include "
+# configopts += "-DOPENGL_xmesa_INCLUDE_DIR=IGNORE "
+
+configopts += "-DOPENGL_opengl_LIBRARY=${EBROOTOPENGL}/lib/libOpenGL.so.0 "
+configopts += "-DOPENGL_gl_LIBRARY=${EBROOTOPENGL}/lib/libGL.so "
+configopts += "-DOPENGL_glx_LIBRARY=${EBROOTOPENGL}/lib/libGLX.so.0 "
+configopts += "-DOPENGL_glu_LIBRARY=${EBROOTOPENGL}/lib/libGLU.so "
+configopts += "-DOPENGL_egl_LIBRARY=${EBROOTOPENGL}/lib/libEGL.so.1 "
+
+# OpenGL over X
+# configopts += '-DVTK_USE_X=ON '  # OFF:headless rendering
+# already considered by Qt (https://gitlab.kitware.com/lorensen/vtk/commit/b29f6db3f746d84f830c81e4212e48db192e4dbb)
+# configopts += '-DVTK_DEFAULT_RENDER_WINDOW_OFFSCREEN=OFF '
+# http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+# configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF '
+
+# EGL (off-screen rendering with OpenGL, but without the need for X)
+# call pvserver with –egl-device-index=0 or 1 and –disable-xdisplay-test
+configopts += '-DVTK_OPENGL_HAS_EGL=ON '
+configopts += '-DVTK_OPENGL_HAS_OSMESA=OFF '  # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+configopts += '-DVTK_USE_X=OFF '
+configopts += '-DVTK_DEFAULT_EGL_DEVICE_INDEX=0 '
+# configopts += '-DEGL_INCLUDE_DIR=${EBROOTOPENGL}/include/EGL/ ' # https://www.khronos.org/registry/EGL/
+# configopts += '-DEGL_LIBRARY=${EBROOTOPENGL}/lib/libEGL.so.1 '
+# configopts += '-DEGL_opengl_LIBRARY=${EBROOTOPENGL}/lib/libOpenGL.so.0 '
+# configopts += '-DEGL_gldispatch_LIBRARY=${EBROOTOPENGL}/lib/libGLdispatch.so.0 ' # <path_to_libGLdispatch.so.0>
+
+# OSMesa (software)
+# With OSMesa the DISPLAY variable has no meaning and is not needed
+# When ON, implies that ParaView can use OSMesa to support headless modes of operation.
+# configopts += '-DVTK_OPENGL_HAS_OSMESA=ON ' # http://www.paraview.org/Wiki/ParaView_And_Mesa_3D
+# configopts += '-DVTK_USE_X=OFF '
+# configopts += '-DVTK_DEFAULT_RENDER_WINDOW_OFFSCREEN=ON '
+# configopts += '-DOSMESA_INCLUDE_DIR=${EBROOTOPENGL}/include '
+# configopts += '-DOSMESA_LIBRARY=${EBROOTOPENGL}/lib/libOSMesa.so '
+
+# Raytracing
+configopts += '-DPARAVIEW_ENABLE_RAYTRACING=ON '
+configopts += '-DVTK_ENABLE_OSPRAY=ON '
+configopts += '-DVTK_ENABLE_VISRTX=OFF '  # req. VisRTX < 0.2.0
+
+configopts += "-Dospray_DIR=${EBROOTOSPRAY} "
+configopts += "-Dembree_DIR=${EBROOTEMBREE}/lib64/cmake/embree-4.3.0 "
+configopts += '-DVTKOSPRAY_ENABLE_DENOISER=ON '
+
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_pvNVIDIAIndeX=YES '
+
+# --- extra features --- #
+configopts += '-DPARAVIEW_ENABLE_GEOVIS=ON '  # support for geographic projections and transformations
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_GeographicalMap=OFF '  # <-- ON
+
+configopts += "-DFFMPEG_ROOT=$EBROOTFFMPEG "
+configopts += '-DPARAVIEW_ENABLE_FFMPEG=ON '
+configopts += '-DVTK_MODULE_ENABLE_VTK_IOFFMPEG=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_IOVideo=YES '
+
+configopts += '-DVTK_MODULE_ENABLE_VTK_DICOMParser=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersReebGraph=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersSMP=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersSelection=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersTopology=YES '
+configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersTexture=YES '
+# configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersStatisticsGnu=YES '
+# configopts += '-DVTK_MODULE_ENABLE_VTK_FiltersMatlab=YES '
+
+# --- coupling --- #
+configopts += '-DPARAVIEW_ENABLE_CATALYST=ON '  # build the ParaView implementation of Catalyst
+configopts += '-DVTK_MODULE_ENABLE_ParaView_InSitu=YES '
+# configopts += '-DVTK_MODULE_USE_EXTERNAL_ParaView_vtkcatalyst=ON '
+configopts += '-Dcatalyst_DIR=${EBROOTCATALYST}/lib64/cmake/catalyst-2.0/ '
+
+# --- development & testing --- #
+configopts += '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON '
+configopts += '-DPARAVIEW_BUILD_DEVELOPER_DOCUMENTATION=OFF '
+configopts += '-DPARAVIEW_ENABLE_EXAMPLES=OFF '
+configopts += '-DPARAVIEW_BUILD_TESTING=OFF '
+configopts += '-DPARAVIEW_BUILD_VTK_TESTING=OFF '
+
+# --- external data --- #
+# https://cmake.org/cmake/help/latest/module/ExternalData.html
+# https://gitlab.kitware.com/vtk/vtk/blob/master/Documentation/dev/git/data.md
+# configopts += '-DCTEST_TEST_TIMEOUT=10800 '  # unknown setting
+# download inactivity, 0 = no timeout
+configopts += '-DExternalData_TIMEOUT_INACTIVITY=10 '
+# download abs. time, 0 = no timeout
+configopts += '-DExternalData_TIMEOUT_ABSOLUTE=60 '
+# Exclude test data download from default 'all' target.
+configopts += '-DPARAVIEW_DATA_EXCLUDE_FROM_ALL=ON '
+# Local directory holding ExternalData objects in the layout %(algo)/%(hash).
+configopts += '-DPARAVIEW_DATA_STORE=${EBROOTPARAVIEWDATA}/.ExternalData '
+configopts += '-DVTK_DATA_STORE=${EBROOTVTKDATA}/.ExternalData '
+# Local directory holding the real data files of ExternalData.
+configopts += '-DExternalData_BINARY_ROOT=${EBROOTPARAVIEWDATA} '
+# we need to combine VTK and ParaView's External data files as there can only be one ExternalData_BINARY_ROOT
+
+# --- XDMF options --- #
+configopts += '-DXDMF_USE_BZIP2=ON '
+configopts += '-DXDMF_USE_GZIP=ON '
+
+# --- VTK external libraries --- #
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_expat=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_freetype=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_hdf5=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_jpeg=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_libxml2=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_mpi4py=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_netcdf=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_png=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_tiff=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_zlib=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_doubleconversion=ON '
+configopts += '-DVTK_MODULE_USE_EXTERNAL_VTK_eigen=ON '
+
+# --- ParaView Extra-Reader --- #
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_CDIReader=ON '
+configopts += '-DPARAVIEW_PLUGIN_ENABLE_ParFlow=ON '
+configopts += '-DPARAVIEW_ENABLE_MOTIONFX=ON '
+# configopts += '-DPARAVIEW_ENABLE_FIDES=ON '  # req. ADIOS2 as dependency
+# configopts += '-DPARAVIEW_ENABLE_GDAL=ON '  # req. GDAL as dependency
+# configopts += '-DPARAVIEW_ENABLE_LAS=ON '  # req. LAS as dependency
+# configopts += '-DPARAVIEW_ENABLE_PDAL=ON '  # req. PDAL as dependency
+# configopts += '-DPARAVIEW_ENABLE_OPENVDB=ON '  # req. OpenVDB as dependency
+
+# https://gitlab.kitware.com/paraview/visitbridge/-/blob/master/databases/CMakeLists.txt
+configopts += '-DPARAVIEW_ENABLE_VISITBRIDGE=ON '
+configopts += '-DVTK_MODULE_ENABLE_ParaView_IOVisItBridge=YES '
+# configopts += '-DVISIT_BUILD_READER_Boxlib3D=ON '  # req. external dependency
+# configopts += '-DVISIT_BUILD_READER_Mili=ON '  # req. external dependency
+# configopts += '-DVISIT_BUILD_READER_Silo=ON '  # req. external dependency
+# https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7503
+# configopts += '-DVISIT_BUILD_READER_Nek5000=ON '  # MR still open
+
+postinstallcmds = [
+    'python -m compileall %(installdir)s/lib64/python%(pyshortver)s/site-packages/',
+    # 'cp -a %s %s' % (local_buildsrc, local_installsrc),  # copy source from build dir to install dir
+    # '', # move debug info to separate files:
+    #       http://stackoverflow.com/questions/866721/how-to-generate-gcc-debug-symbol-outside-the-build-target
+    # '', # debugedit -i --base-dir=%(builddir)s/ParaView-v%(version)s --dest-dir= %(installdir)s/src <file.debug>
+    #     # change path to source in debug info
+    # copy NVIDIA IndeX libraries to lib
+    'cp %%(builddir)s/%s/lib/* %%(installdir)s/lib64/' % local_nvIndeX,
+]
+
+modextravars = {
+    'PARAVIEW_VTK_DIR': '%(installdir)s/lib64/cmake/paraview-%(version_major_minor)/vtk',
+    # 'CUDA_VISIBLE_DEVICES': '0,1',
+    # OpenSWR fully supports OpenGL 3.0 and most of 3.3, but ParaView requires 3.3 -> clame to fully support 3.3
+    'MESA_GL_VERSION_OVERRIDE': '3.3',
+    'MESA_GLSL_VERSION_OVERRIDE': '330',
+    #  OpenMP will choose an optimum number of threads by default, which is usually the number of cores
+    # 'OMP_NUM_THREADS': '28', # fix number of threads used by paraview filters and parallel sections in the code
+    #  threads used by ospray - details https://github.com/ospray/ospray/blob/release-2.0.x/ospray/api/Device.cpp#L88
+    #  unset => OSPRAY uses all hardware threads
+    # 'OSPRAY_THREADS': '14',     # OSPRay <  2.0
+    # 'OSPRAY_NUM_THREADS': '14', # OSPRay >= 2.0
+    #  When TBB is used for OSPRAY: tbb::task_scheduler_init::default_num_threads() is default if no OSPRAY_NUM_THREADS
+    #    https://github.com/ospray/ospcommon/blob/master/ospcommon/tasking/detail/tasking_system_init.cpp#L47
+    #    https://www.threadingbuildingblocks.org/docs/doxygen/a00150.html
+    #  more ospray definitions: https://www.ospray.org/documentation.html#environment-variables
+    # max. threads used by OpenSWR (limited by number of hardware threads)
+    'KNOB_MAX_WORKER_THREADS': '65535',
+    #  details in https://gitlab.version.fz-juelich.de/vis/vis-software/issues/14
+    #  more knob defs: https://github.com/mesa3d/mesa/blob/master/src/gallium/docs/source/drivers/openswr/knobs.rst
+    'CATALYST_IMPLEMENTATION_NAME': 'paraview',
+    'CATALYST_IMPLEMENTATION_PATHS': '%(installdir)s/lib64/catalyst',
+    # details in https://catalyst-in-situ.readthedocs.io/en/latest/for_simulation_developers.html#catalyst-initialize
+    # NVIDIA IndeX license for ParaView. Generated 2023-04-05. Valid until 2024-04-30
+    'NVINDEX_VENDOR_KEY': 'NVIDIA IndeX License for JSC IndeX:PV::v1 - 20230405 (oem:retail_cloud.20240430)',
+    'NVINDEX_SECRET_KEY': '776c38f918dd03b088c6c7df85412010b2e8c4811fed14fdd338ca49b772ee2a',
+}
+
+modextrapaths = {
+    'PYTHONPATH': [
+        'lib64/python%(pyshortver)s/site-packages',
+        'lib64/python%(pyshortver)s/site-packages/vtkmodules'  # required by Trilinos Catalyst adapter
+    ],
+}
+
+moduleclass = 'vis'

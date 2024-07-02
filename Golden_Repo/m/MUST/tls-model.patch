@@ -1,0 +1,11 @@
+--- externals/GTI/modules/comm-protocols/CMakeLists.txt.orig    2023-10-23 16:51:51.621381148 +0200
++++ externals/GTI/modules/comm-protocols/CMakeLists.txt 2023-10-23 16:51:57.345537751 +0200
+@@ -23,8 +23,6 @@
+ if(GTI_THREAD_SAFETY)
+ GTI_MAC_ADD_MODULE (cProtSharedMemory "CProtSharedMemory.cpp;${BASE_SOURCES}" "CXX")
+ #target_compile_options(cProtSharedMemory PUBLIC "-fsanitize=thread")
+-target_compile_options(cProtSharedMemory PRIVATE
+-    -ftls-model=initial-exec)
+ endif(GTI_THREAD_SAFETY)
+ GTI_MAC_ADD_MODULE (cProtIpcSM "CProtIPC-SM.cpp;${BASE_SOURCES}" "CXX")
+ 

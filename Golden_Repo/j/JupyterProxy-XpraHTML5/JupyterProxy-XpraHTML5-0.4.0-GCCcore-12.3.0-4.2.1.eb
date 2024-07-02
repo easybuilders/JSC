@@ -1,0 +1,80 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-XpraHTML5'
+version = '0.4.0'
+local_jupyterver = '4.2.1'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://xpra.org'
+description = """
+Jupyter proxy for Xpra HTML5 sessions.
+Xpra is an open-source multi-platform persistent remote display server and client
+for forwarding applications and desktop screens.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    # check for existance
+    ('xpra', '5.0.8'),
+    ('jsc-xdg-menu', '2024.3'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', local_jupyterver),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+exts_list = [
+    ('jupyter-xprahtml5-proxy', version, {
+        'source_urls': ['https://github.com/FZJ-JSC/jupyter-xprahtml5-proxy/archive/refs/tags/'],
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'checksums': [
+            'b56286f10a0b23f5e004d40046cf5df7e80164b90cf4be6a9219fd884c1b32fb',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    # write xpra
+    (
+        '{ cat > %(installdir)s/lib/python%(pyshortver)s/'
+        'site-packages/jupyter_xprahtml5_proxy/bin/xpra; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.12.3.0 \n'
+        'module load xpra \n'
+        'module load jsc-xdg-menu/.2024.3 \n'
+        '\n'
+        '# xterm should be part of the module Xvfb which is loaded by xpra\n'
+        'if ! command -v xterm &> /dev/null \n'
+        'then \n'
+        '    echo "xterm not found " \n'
+        'fi \n'
+        '\n'
+        'xpra "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/lib/python%(pyshortver)s/site-packages/jupyter_xprahtml5_proxy/bin/xpra'
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

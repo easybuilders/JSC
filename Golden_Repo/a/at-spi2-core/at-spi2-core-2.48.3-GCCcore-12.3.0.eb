@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'at-spi2-core'
+version = '2.48.3'
+
+homepage = 'https://wiki.gnome.org/Accessibility'
+description = """
+ Assistive Technology Service Provider Interface.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = [FTPGNOME_SOURCE]
+sources = [SOURCELOWER_TAR_XZ]
+checksums = ['37316df43ca9989ce539d54cf429a768c28bb38a0b34950beadd0421827edf55']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Meson', '1.1.1'),
+    ('Ninja', '1.11.1'),
+    ('GObject-Introspection', '1.76.0'),
+    ('gettext', '0.21.1'),
+    ('pkgconf', '1.9.5'),
+]
+
+dependencies = [
+    ('GLib', '2.77.0'),
+    ('DBus', '1.15.4'),
+    ('X11', '20230603'),
+]
+
+configopts = "--libdir lib "
+
+sanity_check_paths = {
+    'files': ['lib/libatspi.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'vis'

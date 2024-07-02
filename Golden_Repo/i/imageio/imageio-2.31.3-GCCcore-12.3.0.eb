@@ -1,0 +1,27 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'imageio'
+version = '2.31.3'
+
+homepage = 'https://imageio.github.io'
+description = """Imageio is a Python library that provides an easy interface to read and write a wide range of
+ image data, including animated images, video, volumetric data, and scientific formats."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+sources = [SOURCE_TAR_GZ]
+checksums = ['74c6a832d81b7ad5a8a80976dea58ee033d3e2b99a54990cbd789b4cb0b31461']
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('Python-bundle-PyPI', '2023.06'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('Pillow-SIMD', '9.5.0'),
+]
+
+download_dep_fail = True
+use_pip = True
+sanity_pip_check = True
+
+moduleclass = 'vis'

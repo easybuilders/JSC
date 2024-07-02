@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'Blender'
+version = '3.6.5'
+versionsuffix = '-binary'
+
+homepage = 'https://www.blender.org'
+description = """
+Blender is the free and open source 3D creation suite. It supports the entirety of the 3D pipeline,
+modeling, rigging, animation, simulation, rendering, compositing and motion tracking, even video 
+editing and game creation.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = ['http://ftp.nluug.nl/pub/graphics/%(namelower)s/release/%(name)s%(version_major_minor)s/']
+sources = ['%(namelower)s-%(version)s-linux-x64.tar.xz']
+checksums = ['05b2e56249a92b856c8b7b4d77c65e245702aaa81d9b4f34734ec09bbcedf42b']
+
+dependencies = [
+    ('X11', '20230603'),
+    ('OpenGL', '2023a'),
+    ('CUDA', '12', '', SYSTEM),
+]
+
+postinstallcmds = [
+    # remove Blenders OpenGL libs
+    'rm -rf %(installdir)s/lib/mesa',
+]
+
+sanity_check_paths = {
+    'files': ['%(namelower)s'],
+    'dirs': ['%(version_major_minor)s'],
+}
+sanity_check_commands = ["blender --help"]
+
+modaliases = {
+    'blender': 'blender -- --cycles-device CUDA',
+}
+
+moduleclass = 'vis'

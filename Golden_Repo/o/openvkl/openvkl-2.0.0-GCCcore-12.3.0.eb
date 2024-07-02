@@ -1,0 +1,45 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'openvkl'
+version = '2.0.0'
+
+homepage = 'http://www.openvkl.org/'
+description = """
+Intel® Open Volume Kernel Library (Intel® Open VKL) is a collection
+of high-performance volume computation kernels, developed at Intel.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/openvkl/openvkl/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['469c3fba254c4fcdd84f8a9763d2e1aaa496dc123b5a9d467cc0a561e284c4e6']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),
+]
+
+dependencies = [
+    ('ispc', '1.22.0'),
+    ('tbb', '2021.10.0'),
+    ('Embree', '4.3.0'),
+    ('rkcommon', '1.11.0'),
+]
+
+separate_build_dir = True
+
+start_dir = '%(name)s-%(version)s'
+
+configopts = '-DBUILD_BENCHMARKS:BOOL=OFF '
+configopts += '-DBUILD_EXAMPLES:BOOL=OFF '
+configopts += '-DBUILD_TESTING:BOOL=OFF '
+
+sanity_check_paths = {
+    'dirs': ['include/openvkl'],
+    'files': ['lib/libopenvkl.so'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-server-proxy'
+version = '4.1.2'
+
+homepage = 'https://github.com/jupyterhub/jupyter-server-proxy'
+description = """Jupyter Server Proxy lets you run arbitrary external processes
+(such as RStudio, Shiny Server, Syncthing, PostgreSQL, Code Server, etc)
+alongside your notebook server and provide authenticated web access to them    
+using a path like /rstudio next to others like /lab. Alongside the python
+package that provides the main functionality, the JupyterLab extension
+(@jupyterlab/server-proxy) provides buttons in the JupyterLab launcher window
+to get to RStudio for example."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+dependencies = [
+    ('Python', '3.11.3'),
+    ('IPython', '8.14.0'),
+    ('jupyter-server', '2.14.0'),
+    ('OpenSSL', '1.1', '', SYSTEM),
+    ('aiohttp', '3.9.3'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('simpervisor', '1.0.0', {
+        'checksums': ['7eb87ca86d5e276976f5bb0290975a05d452c6a7b7f58062daea7d8369c823c1'],
+    }),
+    ('jupyter_server_proxy', version, {
+        'patches': [
+            'jupyter-server-proxy_timeout.patch',  # timeout after 15s instead of 5s
+        ],
+        'checksums': [
+            '6fd8ce88a0100e637b48f1d3aa32f09672bcb2813dc057d70567f0a40b1237f5',
+            '632f95c305dd5363978399a383a077a738069cc4fc13832276a6c9c6e36714e8',
+        ],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'NCO'
+version = '5.1.8'
+
+homepage = "https://github.com/nco/nco"
+description = """The NCO toolkit manipulates and analyzes data stored in netCDF-accessible formats, 
+including DAP, HDF4, and HDF5."""
+
+toolchain = {'name': 'gompi', 'version': '2023a'}
+
+source_urls = ['https://github.com/nco/nco/archive/']
+sources = ['%(version)s.tar.gz']
+checksums = ['f22c63a3cbe1947fbf06160a6ed7b6d1934aa242fbe3feeb8d1964eef266b7d5']
+
+builddependencies = [
+    ('Bison', '3.8.2'),
+    ('flex', '2.6.4'),
+]
+
+dependencies = [
+    ('UDUNITS', '2.2.28'),
+    ('expat', '2.5.0'),
+    ('ANTLR', '2.7.7', '-Java-11'),
+    ('libdap', '3.20.11'),
+    ('GSL', '2.7'),
+    ('netCDF', '4.9.2'),
+    ('zstd', '1.5.5'),
+    ('bzip2', '1.0.8'),
+    ('HDF5', '1.14.2'),
+    ('Blosc', '1.21.5'),  # useful with netCDF/4.9.1+
+    # ('ESMF', '8.3.0'),  # ncremap needs ESMF_RegridWeightGen
+]
+
+configopts = '--enable-nco_cplusplus '
+configopts += '--with-hdf5-plugin-path=$EBROOTHDF5/lib '
+
+sanity_check_paths = {
+    'files': ['bin/nc%s' % x for x in ('ap2', 'atted', 'bo', 'diff', 'ea', 'ecat', 'es',
+                                       'flint', 'ks', 'pdq', 'ra', 'rcat', 'rename', 'wa')] +
+    ['lib/libnco.a', 'lib/libnco.%s' % SHLIB_EXT,
+        'lib/libnco_c++.a', 'lib/libnco_c++.%s' % SHLIB_EXT],
+    'dirs': ['include'],
+}
+sanity_check_commands = [
+    "ncks -O -7 --cnk_dmn time,10 "
+    "%(builddir)s/%(namelower)s-%(version)s/data/in.nc %(builddir)s/%(namelower)s-%(version)s/data/in4.cdl"
+]
+
+moduleclass = 'tools'

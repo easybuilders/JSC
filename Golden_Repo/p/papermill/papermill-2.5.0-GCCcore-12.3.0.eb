@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'papermill'
+version = '2.5.0'
+
+homepage = "https://github.com/nteract/papermill"
+
+description = """
+Parameterize, execute, and analyze notebooks.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+    ('tqdm', '4.66.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('entrypoints', '0.4', {
+        'checksums': ['b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4'],
+    }),
+    ('tenacity', '8.2.3', {
+        'checksums': ['5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a'],
+    }),
+    ('papermill', '%(version)s', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['c42303afb92e482a60ae1df2577be59a5b7a64c5cd52d37c74c7f74e36085708'],
+    }),
+]
+
+moduleclass = 'tools'

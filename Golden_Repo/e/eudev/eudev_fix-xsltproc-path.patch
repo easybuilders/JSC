@@ -1,0 +1,12 @@
+diff -Naur eudev-3.2.11.orig/man/make.sh eudev-3.2.11/man/make.sh
+--- eudev-3.2.11.orig/man/make.sh       2021-12-14 19:57:01.000000000 +0000
++++ eudev-3.2.11/man/make.sh    2023-07-01 18:24:34.751268855 +0000
+@@ -2,7 +2,7 @@
+
+ set -e
+
+-XSLTPROC="/usr/bin/xsltproc"
++XSLTPROC="xsltproc"
+
+ XSLTPROC_FLAGS="--stringparam man.output.quietly 1 \
+ --stringparam funcsynopsis.style ansi \

@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-spellchecker'
+version = '0.8.4'
+
+homepage = "https://github.com/jupyterlab-contrib/spellchecker"
+
+description = """
+Spellchecker for JupyterLab notebook markdown cells and file editor.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_spellchecker', '%(version)s', {
+        'checksums': ['e0722f00c795e8b5d60655ed475dd91a67fe7180c32ac891a50f38c7abc7684b'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

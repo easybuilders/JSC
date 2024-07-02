@@ -1,0 +1,68 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Libint'
+version = '2.7.2'
+versionsuffix = '_cp2k_lmax5'
+
+
+homepage = 'https://github.com/evaleev/libint'
+description = '''Libint library is used to evaluate the traditional (electron repulsion) and certain novel two-body
+ matrix elements (integrals) over Cartesian Gaussian functions used in modern atomic and molecular theory.
+ Libint is configured for maximum angular momentum Lmax=5 suitable for CP2K 2023.1'''
+
+toolchain = {'name': 'GCC', 'version': '12.3.0'}
+toolchainopts = {'pic': True, 'cstd': 'c++11'}
+
+source_urls = ['https://github.com/evaleev/libint/archive']
+sources = ['v%(version)s.tar.gz']
+# there is one test failure out of 16 million unit tests
+# for simplicity ignore unit tests; to run them explicitly remove the patches line
+# for the fortran interface there is also an error (possibly too tight threshold)
+# for the C++ interface there is also an error (possibly too tight threshold)
+patches = ['patch_test.2.7.2c']
+
+checksums = [
+    'fd0466ce9eb6786b8c5bbe3d510e387ed44b198a163264dfd7e60b337e295fd9',
+    '404a46eda49b52ff6c116edfee3aef6d8e5e02f4004a971858dd64860d4f5c66',
+]
+
+builddependencies = [
+    ('Autotools', '20220317'),
+    ('GMP', '6.2.1'),
+    ('Boost', '1.82.0'),
+    ('Eigen', '3.4.0'),
+    ('Python', '3.11.3'),
+    ('CMake', '3.26.3'),
+]
+
+
+local_expdir = 'libint_temp'
+local_l = 5
+local_compiler_configopts = '--enable-eri=1 --enable-eri2=1 --enable-eri3=1 --with-opt-am=3 --enable-generic-code '
+local_compiler_configopts += '--disable-unrolling --enable-shared --with-libint-exportdir=%s ' % local_expdir
+local_compiler_configopts += '--with-max-am={} '.format(local_l)
+local_compiler_configopts += '--with-eri-max-am={},{} '.format(local_l, local_l - 1)
+local_compiler_configopts += '--with-eri2-max-am={},{} '.format(local_l + 1, local_l + 2)
+local_compiler_configopts += '--with-eri3-max-am={},{} '.format(local_l + 1, local_l + 2)
+
+preconfigopts = './autogen.sh && mkdir objects && pushd objects && ../configure %s && ' % local_compiler_configopts
+preconfigopts += 'make -j 24 export && popd && tar xvf objects/%s.tgz && pushd %s && ' % (local_expdir, local_expdir)
+preconfigopts += 'CMAKE_PREFIX_PATH=$EBROOTEIGEN:$CMAKE_PREFIX_PATH'
+
+# without -DCMAKE_CXX_FLAGS_RELEASE, cmake would set -DCMAKE_CXX_FLAGS_RELEASE=-O3 not in line with eb FCFLAGS 
+configopts = '-DENABLE_FORTRAN=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS_RELEASE=-O2'
+
+prebuildopts = 'pushd %s && ' % local_expdir
+preinstallopts = prebuildopts
+pretestopts = prebuildopts
+separate_build_dir = False
+
+
+runtest = 'check'
+
+sanity_check_paths = {
+    'files': ['include/libint2.h', 'include/libint2.hpp', 'include/libint_f.mod', 'lib/libint2.%s' % SHLIB_EXT],
+    'dirs': ['include', 'include/libint2', 'lib', 'share']
+}
+moduleclass = 'chem'

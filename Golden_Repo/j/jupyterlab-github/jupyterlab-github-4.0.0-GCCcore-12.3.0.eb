@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-github'
+version = '4.0.0'
+
+homepage = "https://github.com/jupyterlab/jupyterlab-github"
+
+description = """
+A JupyterLab extension for browsing GitHub repositories.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.1.5'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_github', '%(version)s', {
+        'checksums': [
+            'fab84e981684753f35bc5b55f8e84a30ffbe5b642d7b2d2721e4a048896afa54',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    # override default settings
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "jupyterlab/github:drive": {\n'
+        '        "baseUrl": "https://github.com",\n'
+        '        "defaultRepo": "FZJ-JSC/jupyter-jsc-notebooks"\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

@@ -1,0 +1,20 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Toolchain'
+
+name = 'npsmpic'
+version = '2023a'
+
+homepage = '(none)'
+description = 'NVHPC based compiler toolchain, including Parastation MPICH2 for MPI support.'
+
+toolchain = SYSTEM
+
+local_compiler = ('NVHPC', '23.7-CUDA-12')
+
+dependencies = [
+    local_compiler,
+    ('CUDA', '12', '', SYSTEM),
+    ('psmpi', '5.9.2-1', '', local_compiler),
+]
+
+moduleclass = 'toolchain'

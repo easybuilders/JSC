@@ -1,0 +1,160 @@
+--- hdf5-1.14.2/fortran/testpar/async.F90.orig	2023-10-26 14:08:50.060246000 +0200
++++ hdf5-1.14.2/fortran/testpar/async.F90	2023-10-30 14:24:15.870663946 +0100
+@@ -391,7 +391,6 @@
+ 
+     CALL MPI_COMM_SIZE(comm, mpi_size, mpierror)
+     CALL MPI_COMM_RANK(comm, mpi_rank, mpierror)
+-
+     CALL H5EScreate_f(es_id, hdferror)
+     CALL check("H5EScreate_f", hdferror, total_error)
+     !
+@@ -1248,7 +1247,8 @@
+ 
+   IMPLICIT NONE
+ 
+-  INTEGER :: total_error = 0        ! sum of the number of errors
++  ! INTEGER :: total_error = 0        ! sum of the number of errors
++  INTEGER :: total_error(1)         ! sum of the number of errors
+   INTEGER :: mpierror               ! MPI hdferror flag
+   INTEGER :: mpi_size               ! number of processes in the group of communicator
+   INTEGER :: mpi_rank               ! rank of the calling process in the communicator
+@@ -1257,7 +1257,8 @@
+   INTEGER(HID_T) :: vol_id
+   INTEGER :: hdferror
+   LOGICAL :: registered
+-  INTEGER :: sum
++  ! INTEGER :: sum
++  INTEGER :: sum(1)
+   INTEGER :: nerrors = 0
+   INTEGER :: len, idx
+ 
+@@ -1267,6 +1268,10 @@
+   LOGICAL          :: cleanup
+   INTEGER          :: ret_total_error = 0
+ 
++  INTEGER :: comm
++  comm = MPI_COMM_WORLD
++  total_error(1) = 0
++  
+   !
+   ! initialize MPI
+   !
+@@ -1292,8 +1297,8 @@
+   ENDIF
+ 
+   IF(nerrors.NE.0)THEN
+-     IF(mpi_rank==0) CALL write_test_status(sum, &
+-          'Testing Initializing mpi_init_thread', total_error)
++     IF(mpi_rank==0) CALL write_test_status(sum(1), &
++          'Testing Initializing mpi_init_thread', total_error(1))
+      CALL MPI_Barrier(MPI_COMM_WORLD, mpierror)
+      CALL mpi_abort(MPI_COMM_WORLD, 1, mpierror)
+   ENDIF
+@@ -1324,7 +1329,7 @@
+ 
+      ! (1) Check if the VOL is available
+      CALL H5VLis_connector_registered_by_name_f(TRIM(vol_connector_name), registered,  hdferror)
+-     CALL check("H5VLis_connector_registered_by_name_f", hdferror, total_error)
++     CALL check("H5VLis_connector_registered_by_name_f", hdferror, total_error(1))
+ 
+      IF(.NOT.registered)THEN
+         ! No VOL found registered
+@@ -1333,11 +1338,11 @@
+      ELSE
+         ! (2) Check if the VOL is async compatible
+         CALL h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, hdferror)
+-        CALL check("h5pcreate_f", hdferror, total_error)
++        CALL check("h5pcreate_f", hdferror, total_error(1))
+         CALL h5pget_vol_cap_flags_f(plist_id, cap_flags, hdferror)
+-        CALL check("h5pget_vol_cap_flags_f", hdferror, total_error)
++        CALL check("h5pget_vol_cap_flags_f", hdferror, total_error(1))
+         CALL h5pclose_f(plist_id, hdferror)
+-        CALL check("h5pcreate_f", hdferror, total_error)
++        CALL check("h5pcreate_f", hdferror, total_error(1))
+         IF(IAND(cap_flags,H5VL_CAP_FLAG_ASYNC_F).EQ.0_C_INT64_T) async_enabled = .FALSE.
+         IF(async_enabled .EQV. .FALSE.)THEN
+            ! No async compatible VOL found
+@@ -1345,14 +1350,14 @@
+         ELSE
+            IF(mpi_rank==0) WRITE(*,'(A)') TRIM(vol_connector_name)
+            CALL H5Vlregister_connector_by_name_f(TRIM(vol_connector_name), vol_id, hdferror)
+-           CALL check("H5Vlregister_connector_by_name_f", hdferror, total_error)
++           CALL check("H5Vlregister_connector_by_name_f", hdferror, total_error(1))
+         ENDIF
+      ENDIF
+ 
+      IF ( (async_enabled .EQV. .TRUE.) .AND. (mpi_thread_mult .EQV. .FALSE.) ) THEN
+-        total_error = -1 ! Skip test
+-        IF(mpi_rank==0) CALL write_test_status(total_error, &
+-             "No MPI_Init_thread support for MPI_THREAD_MULTIPLE", total_error)
++        total_error(1) = -1 ! Skip test
++        IF(mpi_rank==0) CALL write_test_status(total_error(1), &
++             "No MPI_Init_thread support for MPI_THREAD_MULTIPLE", total_error(1))
+         CALL MPI_Barrier(MPI_COMM_WORLD, mpierror)
+         CALL MPI_Finalize(mpierror)
+         STOP
+@@ -1365,47 +1370,47 @@
+   ret_total_error = 0
+   CALL H5ES_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5ES API tests', total_error)
++       'H5ES API tests', total_error(1))
+ 
+   ! H5A ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5A_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5A async API tests', total_error)
++       'H5A async API tests', total_error(1))
+ 
+   ! H5D ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5D_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5D async API tests', total_error)
++       'H5D async API tests', total_error(1))
+ 
+   ! H5G ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5G_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5G async API tests', total_error)
++       'H5G async API tests', total_error(1))
+ 
+   ! H5F ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5F_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5F async API tests', total_error)
++       'H5F async API tests', total_error(1))
+ 
+   ! H5L ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5L_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5L async API tests', total_error)
++       'H5L async API tests', total_error(1))
+ 
+   ! H5O ASYNC API TESTING
+   ret_total_error = 0
+   CALL H5O_async_tests(cleanup,  ret_total_error)
+   IF(mpi_rank==0) CALL write_test_status(ret_total_error, &
+-       'H5O async API tests', total_error)
++       'H5O async API tests', total_error(1))
+ 
+   IF(async_enabled)THEN
+      CALL H5VLclose_f(vol_id, hdferror)
+-     CALL check("H5VLclose_f", hdferror, total_error)
++     CALL check("H5VLclose_f", hdferror, total_error(1))
+   ENDIF
+ 
+   !
+@@ -1420,7 +1425,7 @@
+   !
+   ! close MPI
+   !
+-  IF (sum == 0) THEN
++  IF (sum(1) == 0) THEN
+      CALL mpi_finalize(mpierror)
+      IF (mpierror .NE. MPI_SUCCESS) THEN
+         WRITE(*,*) "MPI_FINALIZE  *FAILED* Process = ", mpi_rank

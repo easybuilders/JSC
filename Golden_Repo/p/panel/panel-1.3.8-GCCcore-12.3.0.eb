@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'panel'
+version = '1.3.8'
+
+homepage = "https://panel.holoviz.org"
+
+description = """
+The powerful data exploration & web app framework for Python.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+    ('tqdm', '4.66.1'),
+    ('bokeh', '3.2.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('uc-micro-py', '1.0.3', {
+        'modulename': 'uc_micro',
+        'checksums': ['d321b92cff673ec58027c04015fcaa8bb1e005478643ff4a500882eaab88c48a'],
+    }),
+    ('param', '2.0.2', {
+        'checksums': ['785845a727a588eb94c7666d80551c7e2bb97d4309d3507beab66f95e57f7527'],
+    }),
+    ('Markdown', '3.5.2', {
+        'modulename': 'markdown',
+        'checksums': ['e1ac7b3dc550ee80e602e71c1d168002f062e49f1b11e26a36264dafd4df2ef8'],
+    }),
+    ('pyviz_comms', '3.0.1', {
+        'checksums': ['427c33a5a81780db9b9e757f0675f65ea2292d9a642a2d291cfb5cae6cd46991'],
+    }),
+    ('pyct', '0.5.0', {
+        'checksums': ['dd9f4ac5cbd8e37c352c04036062d3c5f67efec76d404761ef16b0cbf26aa6a0'],
+    }),
+    ('mdit_py_plugins', '0.4.0', {
+        'checksums': ['d8ab27e9aed6c38aa716819fedfde15ca275715955f8a185a8e1cf90fb1d2c1b'],
+    }),
+    ('linkify-it-py', '2.0.3', {
+        'modulename': 'linkify_it',
+        'checksums': ['68cda27e162e9215c17d786649d1da0021a451bdc436ef9e0fa0ba5234b9b048'],
+    }),
+    ('panel', version, {
+        'checksums': ['809afd2b861747a31d6ddaadbbc7c25b8dab392dc78256f68b759214113c5be3'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

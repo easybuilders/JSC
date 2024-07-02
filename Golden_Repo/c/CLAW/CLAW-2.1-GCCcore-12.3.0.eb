@@ -1,0 +1,63 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'CLAW'
+version = '2.1'
+
+homepage = 'https://github.com/claw-project/claw-compiler'
+description = "CLAW Compiler for Performance Portability"
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'opt': False, 'optarch': False, 'pic': False}
+
+sources = [{
+    'filename': 'v%(version)s.tar.gz',
+    'git_config': {
+        'url': 'https://github.com/claw-project',
+        'repo_name': 'claw-compiler',
+        'tag': 'v%(version)s',
+        'recursive': True,
+        'keep_git_dir': True,
+    }
+}]
+# cannot set checksum because of 'recursive = True'
+checksums = [None]
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),
+    ('ant', '1.10.14', '-Java-%(javaver)s', SYSTEM),
+    ('Bison', '3.8.2'),
+    ('flex', '2.6.4'),
+    ('Python', '3.11.3'),
+    ('Perl', '5.36.1'),
+]
+dependencies = [
+    ('Java', '11', '', SYSTEM),
+    ('libxml2', '2.11.4'),
+]
+
+separate_build_dir = True
+
+# workaround to keep '.git' in the submodules
+preconfigopts = (
+    'pushd %(builddir)s && '
+    'rm -rf claw-compiler && '
+    'git clone --branch v%(version)s https://github.com/claw-project/claw-compiler.git && '
+    'cd claw-compiler && '
+    'git submodule init && '
+    'git submodule update --remote && '
+    'popd && '
+)
+
+# workaround for issue: https://github.com/omni-compiler/xcodeml-tools/issues/188
+prebuildopts = 'export CFLAGS="" && export CXXFLAGS="" && '
+
+sanity_check_paths = {
+    'files': ['bin/clawfc'],
+    'dirs': ['bin', 'fincludes'],
+}
+
+sanity_check_commands = [('clawfc --version')]
+
+moduleclass = 'tools'

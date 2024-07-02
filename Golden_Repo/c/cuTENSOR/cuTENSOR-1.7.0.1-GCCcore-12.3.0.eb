@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'cuTENSOR'
+version = '1.7.0.1'
+
+homepage = 'https://developer.nvidia.com/cutensor'
+description = """The cuTENSOR Library is a GPU-accelerated tensor linear algebra library providing tensor contraction,
+reduction and elementwise operations."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-%(arch)s/'
+]
+sources = ['libcutensor-linux-%(arch)s-%(version)s-archive.tar.xz']
+checksums = [{
+    'libcutensor-linux-sbsa-%(version)s-archive.tar.xz':
+        'c31f8e4386539434a5d1643ebfed74572011783b4e21b62be52003e3a9de3720',
+    'libcutensor-linux-x86_64-%(version)s-archive.tar.xz':
+        'dd3557891371a19e73e7c955efe5383b0bee954aba6a30e4892b0e7acb9deb26',
+}]
+
+dependencies = [('CUDA', '12', '', SYSTEM)]
+
+sanity_check_paths = {
+    'files': ['include/cutensor.h', 'include/cutensor/types.h',
+              'lib/%s/libcutensor.%s' % ('%(cudamajver)s', SHLIB_EXT),
+              'lib/%s/libcutensor_static.a' % '%(cudamajver)s'],
+    'dirs': [],
+}
+
+modextrapaths = {
+    'LD_LIBRARY_PATH': ['lib/%s' % '%(cudamajver)s'],
+    'LIBRARY_PATH': ['lib/%s' % '%(cudamajver)s'],
+}
+
+moduleclass = 'numlib'

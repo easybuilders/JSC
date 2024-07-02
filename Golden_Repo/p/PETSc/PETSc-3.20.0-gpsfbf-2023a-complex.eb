@@ -1,0 +1,54 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+import os as local_os
+
+name = "PETSc"
+version = "3.20.0"
+versionsuffix = '-complex'
+
+homepage = 'http://www.mcs.anl.gov/petsc'
+description = """PETSc, pronounced PET-see (the S is silent), is a suite
+of data structures and routines for the scalable (parallel) solution
+of scientific applications modeled by partial differential equations.
+
+This version is configured with several downloads of other libraries,
+with --with-large-file-io and no debugging. It is a C and Fortran
+version with default 4-Byte integer values.
+
+For more information see $PETSC_DIR/lib/petsc/conf/configure-hash.
+"""
+
+toolchain = {'name': 'gpsfbf', 'version': '2023a'}
+
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['https://web.cels.anl.gov/projects/petsc/download/release-snapshots/']
+sources = ['petsc-%s.tar.gz' % version]
+checksums = ['c152ccb12cb2353369d27a65470d4044a0c67e0b69814368249976f5bb232bd4']
+
+builddependencies = [
+    ('CMake', '3.26.3')
+]
+
+download_deps = [
+    'triangle',
+]
+
+dependencies = [
+    ('HDF5', '1.14.2'),
+    ('METIS', '5.1.0'),
+    ('ParMETIS', '4.0.3')
+]
+
+download_deps_static = [
+    'spooles',
+    'superlu',
+    'superlu_dist',
+    'mumps',
+    'chaco',
+]
+
+configopts = '--with-large-file-io '
+configopts += '--with-scalar-type=complex '
+
+shared_libs = 1
+moduleclass = 'numlib'

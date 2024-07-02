@@ -1,0 +1,52 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'RAJA'
+version = '2023.06.1'
+
+homepage = 'https://github.com/LLNL/RAJA'
+description = """
+RAJA is a library of C++ software abstractions, primarily developed
+at Lawrence Livermore National Laboratory (LLNL), that enables architecture 
+and programming model portability for HPC applications.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'LLNL'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['2c7622ddada061a34108d0ffa765e9b4c7ac22134c3f4c3abb649db94bf52374']
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),
+    ('blt', '0.5.3'),
+]
+dependencies = [
+    ('camp', '2023.06.0'),
+    ('CUDA', '12', '', SYSTEM),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+
+configopts += "-DENABLE_CUDA=ON "
+configopts += '-DCMAKE_CUDA_ARCHITECTURES="%(cuda_cc_cmake)s" '
+
+configopts += "-DENABLE_OPENMP=ON "
+configopts += "-DRAJA_ENABLE_VECTORIZATION=ON "
+
+configopts += "-DENABLE_FORTRAN=ON "
+configopts += "-Dcamp_DIR=${EBROOTCAMP} "
+
+sanity_check_paths = {
+    'files': ['include/RAJA/RAJA.hpp'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'vis'

@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'nglview'
+version = '3.1.2'
+
+homepage = "http://nglviewer.org/nglview"
+
+description = """
+Jupyter widget to interactively view molecular structures and trajectories.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+    ('JupyterNotebook', '7.2.0'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('versioneer', '0.29', {
+        'checksums': ['5ab283b9857211d61b53318b7c792cf68e798e765ee17c27ade9f6c924235731'],
+    }),
+    ('nglview', version, {
+        'checksums': ['7f672efa2b6ca0db34de968e5b5766b14b1b3dade212d2f8a083c600a11345ce'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

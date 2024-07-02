@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'cuDNN'
+version = '8.9.5.29'
+versionsuffix = '-CUDA-%(cudaver)s'
+homepage = 'https://developer.nvidia.com/cudnn'
+description = """The NVIDIA CUDA Deep Neural Network library (cuDNN) is
+a GPU-accelerated library of primitives for deep neural networks."""
+
+toolchain = SYSTEM
+
+# note: cuDNN is tied to specific to CUDA versions,
+# see also https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html#cudnn-cuda-hardware-versions
+local_short_ver = '.'.join(version.split('.')[:3])
+local_cuda_major = '12'
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-%(cudnnarch)s/'
+]
+sources = ['%%(namelower)s-linux-%%(cudnnarch)s-%%(version)s_cuda%s-archive.tar.xz' % local_cuda_major]
+checksums = [{
+    '%%(namelower)s-linux-ppc64le-%%(version)s_cuda%s-archive.tar.xz' % local_cuda_major:
+        '4f5e5bd01570c4805b93fb199f8bb6f8475d016948c55abf48fed9ffe89d13e5',
+    '%%(namelower)s-linux-sbsa-%%(version)s_cuda%s-archive.tar.xz' % local_cuda_major:
+        '48b4cf3bf047da34d4cffaeaa5da300fae2df92f799bd33c4a8b4a0bdbd24ac4',
+    '%%(namelower)s-linux-x86_64-%%(version)s_cuda%s-archive.tar.xz' % local_cuda_major:
+        'f36453feda1b952f32086eb1f4ab040c6827a41c4db82a0d8c4cc6013a2fa763',
+}]
+
+dependencies = [('CUDA', '12')]
+
+sanity_check_paths = {
+    'files': [
+        'include/cudnn.h', 'lib64/libcudnn_adv_infer_static.a', 'lib64/libcudnn_adv_train_static.a',
+        'lib64/libcudnn_cnn_infer_static.a', 'lib64/libcudnn_cnn_train_static.a',
+        'lib64/libcudnn_ops_infer_static.a', 'lib64/libcudnn_ops_train_static.a',
+        'lib64/libcudnn.%s' % SHLIB_EXT
+    ],
+    'dirs': ['include', 'lib64'],
+}
+
+moduleclass = 'numlib'

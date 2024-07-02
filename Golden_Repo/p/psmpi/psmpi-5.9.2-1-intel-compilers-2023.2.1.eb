@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.9.2-1'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 4.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with
+various batch systems for tighter process control.
+"""
+
+toolchain = {'name': 'intel-compilers', 'version': '2023.2.1'}
+
+source_urls = ['https://gitlab.jsc.fz-juelich.de/ParTec/psmpi/uploads/94a30dcd01d7ea49f7a852d68e499aba/']
+sources = [SOURCE_TAR_GZ]
+patches = [
+    '0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch'
+]
+checksums = [
+    {'psmpi-5.9.2-1.tar.gz': 'fb66a62371300bd441d32594b2255e4206c18aa2e0a46cfbbe27a7d2362b6d31'},
+    {'0001-configure-Replace-deprecated-icc-icpc-compilers-by-i.patch':
+     '87a4aa7bd03b9be2bc5a82a447e4289102c308552d16cebee90faaa9d9c36ccc'},
+]
+
+dependencies = [
+    ('pscom', '5-default'),
+    # needed due to the inclusion of hwloc
+    ('libxml2', '2.11.4'),
+    # Including CUDA here to trigger the hook to add the gpu property, and because it is actually needed
+    ('CUDA', '12', '', SYSTEM),
+    ('PMIx', '4.2.6')
+]
+
+# We disable IME here, since that ROMIO backend does not compile with oneAPI compilers
+mpich_opts = '--enable-static --with-file-system=ufs+gpfs --enable-romio'
+
+# Needed because we are patching the autotools templates
+preconfigopts = './autogen.sh &&'
+
+threaded = False
+
+cuda = True
+
+# Setting it here, and not in MPI-settings, since this is selectable just on compile time for psmpi
+modextravars = {
+    'SLURM_MPI_TYPE': 'pspmix',
+}
+
+moduleclass = 'mpi'

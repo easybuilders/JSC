@@ -1,0 +1,12 @@
+diff -Naur xterm-362.orig/xtermcap.h xterm-362/xtermcap.h
+--- xterm-362.orig/xtermcap.h	2013-06-23 17:34:37.000000000 +0200
++++ xterm-362/xtermcap.h	2021-02-16 14:00:48.976219215 +0100
+@@ -59,7 +59,7 @@
+ #undef ERR			/* workaround for glibc 2.1.3 */
+ 
+ #ifdef HAVE_NCURSES_CURSES_H
+-#include <ncurses/curses.h>
++#include <curses.h>
+ #else
+ #include <curses.h>
+ #endif

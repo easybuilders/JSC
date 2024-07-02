@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'awscli'
+version = '2.13.6'
+
+homepage = 'https://pypi.python.org/pypi/awscli'
+description = 'Universal Command Line Environment for AWS'
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),  # required for awscrt
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('Python-bundle-PyPI', '2023.06'),
+    ('PyYAML', '6.0'),
+    ('ruamel.yaml', '0.17.21'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('jmespath', '1.0.1', {
+        'checksums': ['90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe'],
+    }),
+    ('botocore', '1.31.19', {
+        'checksums': ['724f9a1a91f88291f5adc6347705a31e52312c88cddd56e38709215b161e025a'],
+    }),
+    ('s3transfer', '0.6.1', {
+        'checksums': ['640bb492711f4c0c0905e1f62b6aaeb771881935ad27884852411f8e9cacbca9'],
+    }),
+    ('prompt-toolkit', '3.0.38', {
+        'sources': ['prompt_toolkit-%(version)s.tar.gz'],
+        'checksums': ['23ac5d50538a9a38c8bde05fecb47d0b403ecd0662857a86f886f798563d5b9b'],
+    }),
+    ('awscrt', '0.16.16', {
+        'preinstallopts': "export AWS_CRT_BUILD_USE_SYSTEM_LIBCRYPTO=1 && ",
+        'checksums': ['13075df2c1d7942fe22327b6483274517ee0f6ae765c4e6b6ae9ef5b4c43a827'],
+    }),
+    (name, version, {
+        'patches': ['cryptography.patch'],
+        'source_tmpl': '%(version)s.tar.gz',
+        'source_urls': ['https://github.com/aws/aws-cli/archive/'],
+        'checksums': [
+            {'2.13.6.tar.gz': '628c9ae1c55d06748d5325cdcdb62fffa1e929a643b691de1f4ab79f56e1af30'},
+            {'cryptography.patch': '0e48cdc7fe69963a44c8ddb8abcb4aea0fea474a92cc75ea74a18c6e0637b7e8'},
+        ],
+    }),
+]
+
+sanity_pip_check = True
+
+sanity_check_paths = {
+    'files': ['bin/aws'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+sanity_check_commands = ["aws help"]
+
+moduleclass = 'tools'

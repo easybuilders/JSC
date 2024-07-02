@@ -1,0 +1,24 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'ISL'
+version = '0.24'
+
+homepage = 'http://isl.gforge.inria.fr/'
+description = "isl is a library for manipulating sets and relations of integer points bounded by linear constraints."
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+source_urls = ['https://sources.easybuild.io/i/ISL/']
+sources = ['isl-%(version)s.tar.bz2']
+checksums = ['fcf78dd9656c10eb8cf9fbd5f59a0b6b01386205fe1934b3b287a0a1898145c0']
+
+builddependencies = [('binutils', '2.40')]
+dependencies = [('GMP', '6.2.1')]
+
+sanity_check_paths = {
+    'files': ['lib/libisl.%s' % SHLIB_EXT, 'lib/libisl.a'],
+    'dirs': ['include/isl']
+}
+
+moduleclass = 'math'

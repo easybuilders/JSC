@@ -1,0 +1,153 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyQuantum'
+
+local_kernel_stage = 2024
+version = f'{local_kernel_stage}.5'
+local_jupyterver = '4.2.1'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Kernel for quantum computing in Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services for interactive computing across
+dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Cartopy', '0.22.0'),
+    ('Cirq', '1.4.0', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('DWave', '6.8.0', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('PyQuil', '4.8.0'),
+    ('cuQuantum-Python', '23.10.0'),
+    # ('Qiskit', '0.45.1', '', ('gpsfbf','2023a')),
+    ('pulser', '0.18.0'),
+    ('myqlm', '1.9.9'),
+    ('ParityOS', '2.3.0')
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', local_jupyterver),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png.base64',
+                'extract_cmd': "base64 -d %s > %%(builddir)s/logo-32x32.png"},
+            {'filename': 'logo-64x64.png.base64',
+                'extract_cmd': "base64 -d %s > %%(builddir)s/logo-64x64.png"},
+            {'filename': 'logo-128x128.png.base64',
+                'extract_cmd': "base64 -d %s > %%(builddir)s/logo-128x128.png"},
+        ],
+        'checksums': [
+            'd252acdbbd8838aff9ff183ce249b5a4c2ef43a6309680f2a4cb13029813e3e9',
+            'b7c900cab9761d24acb1ff98e42cc61c5a14d7c71ee2c91aa4de35508a927dc9',
+            'c2ed9885240b3fbeabf7f8eeef14152f80cf55dc13d8de26f4d8a7a046a8e015',
+        ],
+
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+]
+
+local_kernel_name = 'PyQuantum-%s' % version
+local_kernel_dir = local_kernel_name.lower()
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        f'module load Stages/{local_kernel_stage} \n'
+        'module load GCC/12.3.0 \n'
+        'module load ParaStationMPI \n'
+        'module load Cartopy/0.22.0 \n'
+        'module load Cirq/1.4.0 \n'
+        'module load DWave/6.8.0 \n'
+        'module load PyQuil/4.8.0 \n'
+        'module load cuQuantum-Python/23.10.0 \n'
+        'module load Qiskit/0.45.1 \n'
+        'module load pulser/0.18.0 \n'
+        'module load myqlm/1.9.9 \n'
+        'module load ParityOS/2.3.0 \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

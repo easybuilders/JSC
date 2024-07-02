@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonPackage"
+
+name = "cppy"
+version = "1.2.1"
+
+homepage = "https://github.com/nucleic/cppy"
+description = """A small C++ header library which makes it easier to write
+Python extension modules. The primary feature is a PyObject smart pointer
+which automatically handles reference counting and provides convenience
+methods for performing common object operations."""
+
+
+toolchain = {"name": "GCCcore", "version": "12.3.0"}
+
+builddependencies = [
+    ("binutils", "2.40"),
+    ("hatchling", "1.18.0"),
+]
+
+dependencies = [
+    ("Python", "3.11.3"),
+]
+
+sources = ["%(name)s-%(version)s.tar.gz"]
+
+checksums = ["83b43bf17b1085ac15c5debdb42154f138b928234b21447358981f69d0d6fe1b"]
+
+download_dep_fail = True
+sanity_pip_check = True
+use_pip = True
+
+moduleclass = "tools"

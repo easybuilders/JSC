@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Colmap'
+version = '3.9'
+
+homepage = 'https://colmap.github.io'
+description = """COLMAP is a general-purpose Structure-from-Motion (SfM) and Multi-View Stereo (MVS) pipeline
+with a graphical and command-line interface.
+"""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+toolchainopts = {'cstd': 'c++17'}
+
+github_account = 'colmap'
+source_urls = [GITHUB_SOURCE]
+sources = ['%(version)s.tar.gz']
+checksums = [
+    {'3.9.tar.gz': '68872fb90832e9c3454e6163676ced84901a30b2bd8fb69d36d4a50fa07c032c'},
+]
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('CMake', '3.26.3'),
+]
+
+dependencies = [
+    ('Eigen', '3.4.0'),
+    ('Boost', '1.82.0'),
+    ('gflags', '2.2.2'),
+    ('glog', '0.6.0'),
+    ('SuiteSparse', '7.1.0', '-nompi'),
+    ('CGAL', '5.6'),
+    ('ceres-solver', '2.2.0'),
+    ('FreeImage', '3.18.0'),
+    ('FLANN', '1.9.2'),
+    ('CUDA', '12', '', SYSTEM),
+    ('OpenGL', '2023a'),
+    ('Qt5', '5.15.10'),
+    ('tbb', '2021.10.0'),
+    ('SQLite', '3.42.0'),
+]
+
+configopts = "-DBUILD_TESTING=OFF "
+configopts += "-DCUDA_ENABLED=ON "
+configopts += "-DCMAKE_CUDA_ARCHITECTURES=all-major "
+
+sanity_check_paths = {
+    'files': ['bin/colmap', 'lib/libcolmap_exe.a'],
+    'dirs': ['include/colmap'],
+}
+
+moduleclass = 'tools'

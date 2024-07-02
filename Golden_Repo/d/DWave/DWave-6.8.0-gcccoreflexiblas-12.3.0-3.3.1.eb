@@ -1,0 +1,150 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'DWave'
+version = '6.8.0'
+
+homepage = 'https://docs.ocean.dwavesys.com'
+description = """Ocean software is a suite of tools D-Wave Systems for solving hard problems with quantum computers.
+"""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '12.3.0-3.3.1'}
+toolchainopts = {'pic': True}
+
+
+builddependencies = [
+    # pydantic-core toml requires this version of maturin
+    ('maturin', '1.4.0', '-Rust-1.70.0'),
+    ('Rust', '1.70.0'),
+    # pydantic-core toml requires this version of typing-extensions
+    ('hatchling', '1.18.0'),
+]
+
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07'),
+    ('networkx', '3.1'),
+    ('Flask', '2.3.2'),
+    ('Python-bundle-PyPI', '2023.06'),
+]
+
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+exts_list = [
+    ('rectangle-packer', '2.0.2', {
+        'modulename': 'rpack',
+        'checksums': ['34e450029255f726c4a8e6e939a18cad5879f0d9fe588c1878fe85c872dcbe41'],
+    }),
+    ('plucky', '0.4.3', {
+        'modulename': 'plucky',
+        'checksums': ['5bc75d43ae6b40f1b7ba42000b37e4934fa6bd2d6a6cd4e47461f803a404c194'],
+    }),
+    ('homebase', '1.0.1', {
+        'modulename': 'homebase',
+        'checksums': ['9ee008df4298b420852d815e6df488822229c4bd8d571bcd0a454e04232c635e'],
+    }),
+    ('PySocks', '1.7.1', {
+        'modulename': 'socks',
+        'checksums': ['3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0'],
+    }),
+    ('pydantic-core', '2.16.2', {
+        # Need to use a .whl because eb cannot convert the tar.gz into a .whl
+        'modulename': 'pydantic_core',
+        'sources': ['pydantic_core-2.16.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['dffaf740fe2e147fedcb6b561353a16243e654f7fe8e701b1b9db148242e1272'],
+    }),
+    ('fasteners', '0.19', {
+        'modulename': 'fasteners',
+        'checksums': ['b4f37c3ac52d8a445af3a66bce57b33b5e90b97c696b7b984f530cf8f0ded09c'],
+    }),
+    ('diskcache', '5.6.3', {
+        'modulename': 'diskcache',
+        'checksums': ['2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc'],
+    }),
+    ('dimod', '0.12.14', {
+        'modulename': 'dimod',
+        'checksums': ['ae02597e33d8d3053202ea3cbcdd4261ee047253d416f63b812f7e19e7f3b060'],
+    }),
+    ('annotated-types', '0.6.0', {
+        'modulename': 'annotated_types',
+        'sources': ['annotated_types-%(version)s.tar.gz'],
+        'checksums': ['563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d'],
+    }),
+    ('pydantic', '2.6.1', {
+        'modulename': 'pydantic',
+        'sources': ['pydantic-%(version)s.tar.gz'],
+        'checksums': ['4fd5c182a2488dc63e6d32737ff19937888001e2a6d86e94b3f233104a5d1fa9'],
+    }),
+    ('penaltymodel', '1.1.0', {
+        'modulename': 'penaltymodel',
+        'checksums': ['471592e0756a6ca04c3343cb9c2aa525aaaedc42255201826c8ecdd45f592b1e'],
+    }),
+    ('dwave-samplers', '1.2.0', {
+        'modulename': 'dwave.samplers',
+        'sources': ['dwave_samplers-1.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['9341db5569e506f4f030a376da2c14803d626e499b62efbbd7eedeccb36e8d68'],
+    }),
+    ('dwave-preprocessing', '0.6.5', {
+        'modulename': 'dwave.preprocessing',
+        'checksums': ['dc18e544a8b743e1bbc9e776129c0709247d071e7ec44229df48d92bb993a1be'],
+    }),
+    ('dwave-networkx', '0.8.14', {
+        'modulename': 'dwave_networkx',
+        'sources': ['dwave_networkx-%(version)s.tar.gz'],
+        'checksums': ['03f255192cbb0e3472fdf3cd70b8b6f58d4d71d4b0aeb04746ee4ece9a771318'],
+    }),
+    ('minorminer', '0.2.13', {
+        'modulename': 'minorminer',
+        'checksums': ['1c7d6d8a76d87c6c7a9a633d1262581048c04d358af002f7e129a0776628fe22'],
+    }),
+    ('dwavebinarycsp', '0.3.0', {
+        'modulename': 'dwavebinarycsp',
+        'checksums': ['0e34261e85814bf92dcdacba854c31d2ed4e9f17412bf933810ad6eef3f8e4ef'],
+    }),
+    ('dwave-tabu', '0.5.0', {
+        'modulename': 'tabu',
+        'checksums': ['dcc73883ec491dea2656c8239dc66e9c9871e7f75852be57ea4cec6bccd48d54'],
+    }),
+    ('dwave-neal', '0.6.0', {
+        'modulename': 'neal',
+        'checksums': ['8ce51fee3339195df1ab69920fdb5afc496b5fd945e487fad3547c983d90c564'],
+    }),
+    ('dwave-greedy', '0.3.0', {
+        'modulename': 'greedy',
+        'checksums': ['806c02d6c3f260ef5bf063d4932f43dfb52a0ea00f9db0b0d34d9b15691a011a'],
+    }),
+    ('authlib', '1.3.0', {
+        'modulename': 'authlib',
+        'sources': ['Authlib-%(version)s.tar.gz'],
+        'checksums': ['959ea62a5b7b5123c5059758296122b57cd2585ae2ed1c0622c21b371ffdae06'],
+    }),
+    ('dwave-cloud-client', '0.11.2', {
+        'modulename': 'dwave.cloud',
+        'checksums': ['82d2ae833674d521f0afac41ab75250c9bf08b15542949b64ec96cede94111c4'],
+    }),
+    ('dwave-system', '1.23.0', {
+        'modulename': 'dwave.system',
+        'checksums': ['5f07fc04dc1bddde6c9bd84dc6a22361f4e28e4ca9d7d29d8119eb62d03d9a3b'],
+    }),
+    ('dwave-inspector', '0.4.4', {
+        'modulename': 'dwave.inspector',
+        'checksums': ['ccdf2707971042c1bc7be452312287caefc7f4f21db41524c10fc5ad87703202'],
+    }),
+    ('dwave-hybrid', '0.6.10', {
+        'modulename': 'hybrid',
+        'checksums': ['35ab1a892444754fd61c8ef7ebb965fda30cc5f04b8f415ff5e07581bb155afc'],
+    }),
+    ('dwave-ocean-sdk', version, {
+        'modulename': 'dwave.system',
+        'checksums': ['d23a8651a73745383732c904543ee890cfd55997c3269e2261597e3968baf4e9'],
+    }),
+]
+
+moduleclass = 'quantum'

@@ -1,0 +1,41 @@
+From d89ba41dae2d1debc53078f7c88c0216b7ab6f07 Mon Sep 17 00:00:00 2001
+From: janEbert <janpublicebert@posteo.net>
+Date: Thu, 28 Jul 2022 09:46:35 +0200
+Subject: [PATCH 4/5] Add missing type hints
+
+---
+ torch/distributed/elastic/rendezvous/utils.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/torch/distributed/elastic/rendezvous/utils.py b/torch/distributed/elastic/rendezvous/utils.py
+index 56205af1cd7..b2c837d1700 100644
+--- a/torch/distributed/elastic/rendezvous/utils.py
++++ b/torch/distributed/elastic/rendezvous/utils.py
+@@ -14,13 +14,13 @@ import time
+ import weakref
+ from datetime import timedelta
+ from threading import Event, Thread
+-from typing import Any, Callable, Dict, Optional, Tuple, Union
++from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+ 
+ __all__ = ['parse_rendezvous_endpoint']
+ 
+ 
+ # From https://stackoverflow.com/a/27494105.
+-def nic_ip_address(nic_name):
++def nic_ip_address(nic_name: str) -> str:
+     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+     return socket.inet_ntoa(fcntl.ioctl(
+         s.fileno(),
+@@ -30,7 +30,7 @@ def nic_ip_address(nic_name):
+ 
+ 
+ # Adapted from https://stackoverflow.com/a/27494105.
+-def nic_info():
++def nic_info() -> List[Tuple[str, str]]:
+     """Return a list of tuples containing each NIC's hostname and its IPv4."""
+     nics = []
+     try:
+-- 
+2.25.1
+

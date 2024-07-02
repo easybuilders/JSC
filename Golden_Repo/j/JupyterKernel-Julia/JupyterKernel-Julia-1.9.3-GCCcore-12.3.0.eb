@@ -1,0 +1,138 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+import os
+
+easyblock = 'JuliaBundle'
+
+name = 'JupyterKernel-Julia'
+version = '1.9.3'
+
+homepage = 'https://github.com/JuliaLang/IJulia.jl'
+description = """
+Native Julia kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('Julia', version),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+]
+
+# set the same as defined in module "Julia"
+arch_name = 'gpu'
+system_name = os.getenv('SYSTEMNAME')
+
+components = [
+    ('julia', '0.6.2', {
+        'easyblock': 'PythonPackage',
+        'use_pip': True,
+        'sources': ['v%(version)s.tar.gz'],
+        'source_urls': ['https://github.com/JuliaPy/pyjulia/archive/'],
+        'checksums': [('sha256', 'ca2291bd5560535215f544ec44825a6435462a8c55820c253555b43648bc098d')],
+        'download_dep_fail': True,
+        'start_dir': 'pyjulia-%(version)s',
+    }),
+]
+
+exts_defaultclass = 'JuliaPackage'
+exts_list = [
+    ('ZMQ', '1.2.1', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/JuliaInterop/ZMQ.jl/archive/'],
+        'checksums': [('sha256', '8b42555340d0208e5a36cd5e8f29a3f0d44c13c064382d4b1e5d00c1c4a9dd96')],
+    }),
+    ('Interact', '0.10.5', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/JuliaGizmos/Interact.jl/archive/'],
+        'checksums': ['68b347b97fce2f7aeb26e9c03466406f5183fe7d758066bf6111554ca73c3382'],
+    }),
+    ('LanguageServer', '4.5.1', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/julia-vscode/LanguageServer.jl/archive/'],
+        'checksums': ['478989f9cdbc3ac00fd42fb6f9b8dffe452c4d775a78a3e0e31c07100ab7e387'],
+    }),
+    ('SymbolServer', '7.3.0', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/julia-vscode/SymbolServer.jl/archive/'],
+        'checksums': ['6bb4ebdd74a3a9a22f48f46ebb9c8cdee0a1515d772b331e5e16b29820b606c1'],
+    }),
+    ('IJulia', '1.24.2', {
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/JuliaLang/IJulia.jl/archive/'],
+        'checksums': ['de215348c7c41e1ca15c0d21f5f9a78bedce77b02ef89d67f38702c4d57ee80d'],
+        'preinstallopts': 'export JUPYTER_DATA_DIR=%(installdir)s/share/jupyter'
+    }),
+]
+
+local_kernel_dir = 'julia-%(version_major_minor)s'
+local_kernel_name = 'Julia-%s' % version
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # configure Python<->Julia bridge (of python package julia)
+    # julia.install() installs ijulia in JULIA_DEPOT_PATH and kernel in $JUPYTER_DATA_DIR/kernels
+    (
+        'export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:${PYTHONPATH} && '
+        'export JULIA_DEPOT_PATH=${EBJULIA_STD_DEPOT_PATH}:${EBJULIA_ADMIN_DEPOT_PATH} && '
+        'export JUPYTER_DATA_DIR=%(installdir)s/share/jupyter && '
+        'python -c "import julia; julia.install()" '
+    ),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC/12.3.0 \n'
+        'module load ParaStationMPI \n'
+        '\n'
+        'module load Julia/%s \n'
+        'module load %s/.%s \n'
+        '\n'
+        'exec julia \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, version, name, version),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # replace `[..]/bin/julia` with `kernel.sh
+    (
+        'sed -i \'s#.*\/bin\/julia.*#    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh",#\' '
+        '    %%(installdir)s/share/jupyter/kernels/%s/kernel.json'
+    ) % (local_kernel_dir, local_kernel_dir),
+]
+
+# Julia is only a build-dependency and MUST NOT be a runtime dependency
+# Hence, we need to disable the sanitycheck
+skipsteps = ['sanitycheck']
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/julia-%(version_major_minor)s/kernel.json',
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages',
+        'share/jupyter/kernels/julia-%(version_major_minor)s/',
+    ],
+}
+
+moduleclass = 'tools'

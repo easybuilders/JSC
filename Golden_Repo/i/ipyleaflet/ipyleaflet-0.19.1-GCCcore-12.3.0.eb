@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'ipyleaflet'
+version = '0.19.1'
+
+homepage = "https://ipyleaflet.readthedocs.io"
+
+description = """
+Ipyleaflet is a Jupyter widget enabling interactive maps in the Jupyter notebook.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('xyzservices', '2023.10.1', {
+        'checksums': ['091229269043bc8258042edbedad4fcb44684b0473ede027b5672ad40dc9fa02'],
+    }),
+    ('traittypes', '0.2.1', {
+        'checksums': ['be6fa26294733e7489822ded4ae25da5b4824a8a7a0e0c2dccfde596e3489bd6'],
+    }),
+    ('branca', '0.7.1', {
+        'checksums': ['e6b6f37a37bc0abffd960c68c045a7fe025d628eff87fedf6ab6ca814812110c'],
+    }),
+    ('jupyter_leaflet', version, {
+        'checksums': ['f4c1ab7a8b2c91d01a0940d1bab6543c57e91dca6425789632780eef7d58b266'],
+    }),
+    ('ipyleaflet', version, {
+        'checksums': ['3454dbc0d360150516ea2a3ab4109503ceb9b7347fa1746a6cafd889075a0ff8'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

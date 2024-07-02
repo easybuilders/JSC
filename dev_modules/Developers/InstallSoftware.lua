@@ -59,8 +59,8 @@ if string.find(stage, "Devel") or string.find(stage, "Stage1")  then
     is_devel = true
 end
 local stage_path = pathJoin(software_root, "stages", stage)
-local fastdata = os.getenv("FASTDATA_jsc")
-local common_eb_path = pathJoin(fastdata, "swmanage/EasyBuild")
+local data = os.getenv("DATA_swmanage")
+local common_eb_path = pathJoin(data, "EasyBuild")
 
 local sources_path = pathJoin(common_eb_path, "sources")
 local gr_path = pathJoin(common_eb_path, stage, "Golden_Repo")
@@ -384,8 +384,7 @@ if mode()=="load" then
             LmodMessage("    (You can enable easyconfig autocomplete from robot ")
             LmodMessage("     search path in addition by setting JSC_EASYCONFIG_AUTOCOMPLETE)")
             -- Enable EasyBuild optcomplete autocomplete
-            bash_completion_cmd = bash_completion_cmd.."source /path/to/easybuild/custom/files/2022/bin/eb_bash_completion_local.bash;\n"
---             bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion_local.bash;\n"
+            bash_completion_cmd = bash_completion_cmd.."source $EBROOTEASYBUILD/bin/eb_bash_completion_local.bash;\n"
         end
         bash_completion_cmd = bash_completion_cmd.."complete -F _eb eb"
         execute{

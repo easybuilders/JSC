@@ -16,7 +16,7 @@ source_urls = []
 
 sources = []
 modextravars = {
-    'SLURM_MPI_TYPE': 'pmix_v3',
+    'SLURM_MPI_TYPE': 'pmix_v4',
     'OMPI_MCA_mca_base_component_show_load_errors': '1',
     'OMPI_MCA_mpi_param_check': '1',
     'OMPI_MCA_mpi_show_handle_leaks': '1',

@@ -98,6 +98,7 @@ JupyterKernel-Ruby
 JupyterProxy-Matlab
 JupyterProxy-XpraHTML5
 JupyterProxy-NESTDesktop
+JupyterProxy-RStudio
 LAME
 LMDB
 LZO
@@ -348,6 +349,7 @@ xorg-macros
 xprop
 xproto
 xtrans
+yaml-cpp
 yuicompressor
 zfp
 zlib

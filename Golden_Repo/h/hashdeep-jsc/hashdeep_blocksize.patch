@@ -1,0 +1,11 @@
+--- a/src/main.h
++++ b/src/main.h
+@@ -297,7 +297,7 @@
+     uint64_t   stat_megs() const {     // return how many megabytes is the file in MB?
+        return stat_bytes / ONE_MEGABYTE;
+     }
+-    static const size_t MD5DEEP_IDEAL_BLOCK_SIZE = 8192;
++    static const size_t MD5DEEP_IDEAL_BLOCK_SIZE = 131072;
+     file_data_hasher_t(class display *ocb_):
+        file_is_symlink(false),
+        ocb(ocb_),                      // where we put results

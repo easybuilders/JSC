@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'hashdeep-jsc'
+version = '4.4'
+
+homepage = 'https://github.com/jessek/hashdeep'
+description = """JSC-flavoured version of hashdeep, a set of tools to compute MD5,
+SHA1, SHA256, tiger and whirlpool hashsums of arbitrary number of files recursively.
+Support for xxHash algorithm has been added and the reading block size has been
+increased."""
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/jessek/hashdeep/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+patches = [
+    'hashdeep_master.patch',
+    'hashdeep_xxhash.patch',
+    'hashdeep_blocksize.patch'
+]
+checksums = [
+    {'v4.4.tar.gz': 'ad78d42142f9a74fe8ec0c61bc78d6588a528cbb9aede9440f50b6ff477f3a7f'},
+    {'hashdeep_master.patch': 'e39cdd9a9143e4291b4d7682ae3b711aff514a22bbf8597469fcb97237e944b3'},
+    {'hashdeep_xxhash.patch': '3b9266e1749ea276dbe1116fef173f42d9ee1410364c434151d24ffa1dcbbbc7'},
+    {'hashdeep_blocksize.patch': '24fe33beee8314f985c8180355bd47bb7cf24cc2053135ad826bbd5ee74ecc51'},
+]
+
+builddependencies = [
+    ('Automake', '1.16.5'),
+    ('Autotools', '20231222')
+]
+
+preconfigopts = 'sh bootstrap.sh && '
+
+sanity_check_paths = {
+    'files': [
+        "bin/hashdeep",
+        "bin/md5deep",
+        "bin/sha256deep",
+        "bin/tigerdeep",
+        "bin/whirlpooldeep",
+        "bin/xxhashdeep"
+    ],
+    'dirs': []
+}
+
+moduleclass = 'tools'

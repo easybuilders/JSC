@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "Toolchain"
+
+local_flexiblasver = "3.4.4"
+local_comp_version = "13.3.0"
+name = "gcccoreflexiblas"
+version = "%s-%s" % (local_comp_version, local_flexiblasver)
+
+homepage = "(none)"
+description = """GCCcore compiler toolchain with FlexiBLAS"""
+
+
+toolchain = SYSTEM
+
+local_comp_name = "GCCcore"
+local_comp = (local_comp_name, local_comp_version)
+
+# compiler toolchain dependencies
+dependencies = [
+    local_comp,
+    ("binutils", "2.42", "", local_comp),
+    ("FlexiBLAS", local_flexiblasver, "", local_comp),
+]
+
+moduleclass = "toolchain"

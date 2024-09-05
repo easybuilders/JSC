@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'PRRTE'
+version = '3.0.6'
+
+homepage = 'https://docs.prrte.org/'
+description = """PRRTE is the PMIx Reference RunTime Environment"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/openpmix/prrte/releases/download/v%(version)s']
+sources = ['%(namelower)s-%(version)s.tar.bz2']
+checksums = ['83b6b37e21b315f069d69faa4686dcec3306225b48fdfe64588dec33e6063e72']
+
+builddependencies = [('binutils', '2.42')]
+
+dependencies = [
+    ('libevent', '2.1.12'),
+    ('hwloc', '2.10.0'),
+    ('PMIx', '5.0.3'),
+]
+
+configopts = ' --with-libevent=$EBROOTLIBEVENT'
+configopts += ' --with-hwloc=$EBROOTHWLOC --with-pmix=$EBROOTPMIX'
+
+buildopts = 'V=1'
+
+local_binaries = ['prte', 'prte_info', 'prterun', 'prun', 'pterm']
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in local_binaries] + ['lib/libprrte.%s' % SHLIB_EXT],
+    'dirs': ['etc', 'include', 'share']
+}
+
+sanity_check_commands = ['%s --version' % x for x in local_binaries]
+
+moduleclass = 'lib'

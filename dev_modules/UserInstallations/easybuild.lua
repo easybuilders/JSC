@@ -69,15 +69,6 @@ if mode()=="load" then
     end
 end
 
--- Verify that this is a system wide EasyBuild since we rely on this below
-if mode()=="load" then
-    if (not string.find(os.getenv("EBROOTEASYBUILD"), stages)) then
-        LmodError(yellow.."Sorry but we rely on using an EasyBuild module coming from the system!\n"..
-                  "If you really want to use your own installation, use a system one first, \n"..
-                  "load this module, then afterwards replace the EasyBuild module."..normal)
-    end
-end
-
 -- Mark it as conflictive with the developers module, to don't allow to load both at the same time
 conflict("Developers")
 
@@ -112,6 +103,16 @@ local lmod_systemname = os.getenv("LMOD_SYSTEM_NAME")
 -- To support cross-compilation
 if lmod_systemname == "jureca_mi200" then
     systemname = lmod_systemname
+end
+
+-- Verify that this is a system wide EasyBuild since we rely on this below
+if mode()=="load" then
+    if (not string.find(os.getenv("EBROOTEASYBUILD"), stages)) and 
+       (not string.find(os.getenv("EBROOTEASYBUILD"), string.gsub(stages, "default", systemname))) then
+        LmodError(yellow.."Sorry but we rely on using an EasyBuild module coming from the system!\n"..
+                  "If you really want to use your own installation, use a system one first, \n"..
+                  "load this module, then afterwards replace the EasyBuild module."..normal)
+    end
 end
 
 -- Set up exactly where we put our installations

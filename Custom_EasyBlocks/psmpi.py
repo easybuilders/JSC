@@ -1,6 +1,6 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 ##
-# Copyright 2016-2022 Ghent University, Forschungszentrum Juelich
+# Copyright 2016-2024 Ghent University, Forschungszentrum Juelich
 #
 # This file is part of EasyBuild,
 # originally created by the HPC team of Ghent University (http://ugent.be/hpc/en),
@@ -32,7 +32,7 @@ EasyBuild support for building and installing the ParaStationMPI library, implem
 import easybuild.tools.environment as env
 import easybuild.tools.toolchain as toolchain
 
-from distutils.version import LooseVersion
+from easybuild.tools import LooseVersion
 from easybuild.easyblocks.mpich import EB_MPICH
 from easybuild.framework.easyconfig import CUSTOM
 from easybuild.tools.build_log import EasyBuildError
@@ -93,7 +93,10 @@ class EB_psmpi(EB_MPICH):
 
         if self.cfg['msa']:
             self.log.info("Enabling MSA-Awareness...")
-            self.cfg.update('configopts', ' --with-msa-awareness')
+            if LooseVersion(self.version) >= LooseVersion('5.10.0-1'):
+                self.cfg.update('configopts', ' --enable-msa-awareness')
+            else:
+                self.cfg.update('configopts', ' --with-msa-awareness')
 
         # Set confset
         comp_fam = self.toolchain.comp_family()
@@ -105,7 +108,10 @@ class EB_psmpi(EB_MPICH):
 
         # Enable threading, if necessary
         if self.cfg['threaded']:
-            self.cfg.update('configopts', ' --with-threading')
+            if LooseVersion(self.version) >= LooseVersion('5.10.0-1'):
+                self.cfg.update('configopts', ' --enable-threading')
+            else:
+                self.cfg.update('configopts', ' --with-threading')
 
         # Add extra mpich options, if any
         if self.cfg['mpich_opts'] is not None:
@@ -149,4 +155,6 @@ class EB_psmpi(EB_MPICH):
         # ParaStationMPI < 5.1.1-1 is based on MPICH < 3.1.1.
         use_new_libnames = LooseVersion(self.version) >= LooseVersion('5.1.1-1')
 
-        super(EB_psmpi, self).sanity_check_step(use_new_libnames=use_new_libnames, check_launchers=False, check_static_libs=False)
+        super(EB_psmpi, self).sanity_check_step(use_new_libnames=use_new_libnames,
+                                                check_launchers=False,
+                                                check_static_libs=False)

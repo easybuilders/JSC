@@ -14,21 +14,14 @@ Overview of the custom EasyBlocks.
 - __*added by*__ d.alvarez
 - __*needed because*__ optional `check_static_libs` parameter in the sanity check (used with `psmpi.py`)
 - __*difference compared to upstream*__ the aforementioned parameter
-- __*can not be removed*__ at least until that option (needed just for `psmpi.py`) is merged upstream (PR: [#2787](https://github.com/easybuilders/easybuild-easyblocks/pull/2787))
+- __*can not be removed*__ until EasyBuild 4.9.3 becomes available
 
 ## PSMPI
 
 - __*added by*__ d.alvarez
-- __*needed because*__ MSA and PMIx support
-- __*difference compared to upstream*__ the supporting code to enable PMIx and MSA support
-- __*can not be removed*__ until these options are accepted upstream (PR: [#3383](https://github.com/easybuilders/easybuild-easyblocks/pull/3383))
-
-## OPENMPI
-
-- __*added by*__ d.alvarez
-- __*needed because*__ the check for `mpirun` should be optional
-- __*difference compared to upstream*__ making that check optional
-- __*can not be removed*__ until the check is made optional upstream (PR: [#2788](https://github.com/easybuilders/easybuild-easyblocks/pull/2788))
+- __*needed because*__ changes in options passed to configure
+- __*difference compared to upstream*__ the supporting code to enable threading and MSA support in 5.10.0-1
+- __*can not be removed*__ until these options are accepted upstream (PR: [#3420](https://github.com/easybuilders/easybuild-easyblocks/pull/3420))
 
 ## CODE_SATURNE
 
@@ -72,3 +65,9 @@ Overview of the custom EasyBlocks.
 - __*needed because*__  support for libvori; alternative versions of dbcsr; contains loads of widely obsolete stuff; is  essentially a highly non-portable easyblock working only with intel and gnu (which I am not going to change!); running the tests will not work within an eb environment - at least not sensibly. 
 - __*difference compared to upstream*__ no support for libvori 
 - __*can not be removed*__
+
+## LLVM
+- __*added by*__ j.reuter
+- __*needed because*__ added support for NVPTX target if CUDA compute capabilities are set. This allows users to use JIT for example.
+- __*difference compared to upstream*__ upstream version only sets host architecture if `build_targets` are not manually passed.
+- __*can not be removed*__ until EasyBlock is changed to more general one (https://github.com/easybuilders/easybuild-easyblocks/pull/3373), or this change is upstreamed.

@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'psmpi'
+version = '5.10.0-1'
+versionsuffix = '-mt'
+
+homepage = 'https://github.com/ParaStation/psmpi2'
+description = """ParaStation MPI is an open source high-performance MPI 4.0 implementation,
+based on MPICH v3. It provides extra low level communication libraries and integration with
+various batch systems for tighter process control.
+"""
+
+toolchain = {'name': 'GCC', 'version': '13.3.0'}
+
+sources = [SOURCE_TAR_GZ]
+source_urls = ['https://gitlab.jsc.fz-juelich.de/-/project/2121/uploads/9589ff7181110a4c7cafb0ebbc97ca10/']
+checksums = [
+    # psmpi-5.10.0-1.tar.gz
+    'f83da4f2387852609b905d257b4c5ab1046acb43e3bc23de0bd20c697140ecfd',
+]
+
+dependencies = [
+    ('pscom', '5-default'),
+    # needed due to the inclusion of hwloc
+    ('libxml2', '2.12.7'),
+    # Including CUDA here to trigger the hook to add the gpu property, and because it is actually needed
+    ('CUDA', '12', '', SYSTEM),
+    ('PMIx', '5.0.3')
+]
+
+mpich_opts = '--enable-static --with-file-system=ufs+gpfs --enable-romio'
+
+threaded = True
+
+cuda = True
+
+moduleclass = 'mpi'

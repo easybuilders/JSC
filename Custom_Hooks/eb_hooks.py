@@ -62,6 +62,7 @@ VETOED_INSTALLATIONS = {
         'BullMPI', 'BullMPI-settings'
     ],
     'jedi': [
+        'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings'
     ],

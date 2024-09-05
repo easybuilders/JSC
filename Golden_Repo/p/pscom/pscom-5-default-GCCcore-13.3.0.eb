@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'pscom'
+# Create drop-in replacement version that ensures overriding behaviour
+version = '5-default'
+local_realversion = '5.8.0-1'
+homepage = 'http://www.par-tec.com'
+description = f"""ParaStation is a robust and efficient cluster middleware, consisting of a high-performance
+communication layer (MPI) and a sophisticated management layer.
+
+The real version of this package is {local_realversion}
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/ParaStation/%(name)s/archive/']
+sources = ['%s.tar.gz' % local_realversion]
+checksums = ['e07759bf6efb99c15e9e2a77f32a27af71e0e0438813eaa589ab03d3d0683eca']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('popt', '1.19'),
+    ('CUDA', '12', '', SYSTEM),
+    ('CMake', '3.29.3'),
+]
+
+dependencies = [
+    ('UCX', 'default'),
+]
+
+build_type = 'RelWithDebInfo'
+
+preconfigopts = 'export UCP_LDFLAGS="-L$EBROOTUCX/lib" && '
+
+configopts = '-DCUDA_ENABLED=ON'
+
+sanity_check_paths = {
+    'files': [
+        'include/%(name)s.h',
+        ('lib/libpscom.so', 'lib64/libpscom.so'),
+        ('lib/libpscom4ucp.so', 'lib64/libpscom4ucp.so'),
+    ],
+    'dirs': [],
+}
+
+modextravars = {
+    'PSCOMVERSION': '%s' % local_realversion,
+}
+
+moduleclass = 'tools'

@@ -25,6 +25,7 @@ Dyninst
 ETSF_IO
 Exiv2
 FFmpeg
+FLAC
 FLTK
 FTGL
 FoX
@@ -254,6 +255,7 @@ libjpeg-turbo
 libmatheval
 libmpack-lua
 libmypaint
+libopus
 libpciaccess
 libpng
 libpthread-stubs
@@ -270,6 +272,7 @@ libunistring
 libunwind
 libuv
 libvips
+libvorbis
 libvterm
 libwebp
 libxcb

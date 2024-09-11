@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+##
+# Authors::   Denis Kristak <thenis@inuits.eu>
+##
+name = 'Boost'
+version = '1.86.0'
+
+homepage = 'https://www.boost.org/'
+description = """Boost provides free peer-reviewed portable C++ source libraries."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://archives.boost.io/release/%(version)s/source/']
+sources = ['%%(namelower)s_%s.tar.gz' % '_'.join(version.split('.'))]
+checksums = ['2575e74ffc3ef1cd0babac2c1ee8bdb5782a0ee672b1912da40e5b4b591ca01f']
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+dependencies = [
+    ('bzip2', '1.0.8'),
+    ('zlib', '1.3.1'),
+    ('XZ', '5.4.5'),
+    ('zstd', '1.5.6'),
+    ('ICU', '75.1'),
+]
+
+configopts = '--without-libraries=python,mpi'
+
+# disable MPI, build Boost libraries with tagged layout
+boost_mpi = False
+tagged_layout = True
+
+moduleclass = 'devel'

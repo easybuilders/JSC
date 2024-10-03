@@ -71,3 +71,10 @@ Overview of the custom EasyBlocks.
 - __*needed because*__ added support for NVPTX target if CUDA compute capabilities are set. This allows users to use JIT for example.
 - __*difference compared to upstream*__ upstream version only sets host architecture if `build_targets` are not manually passed.
 - __*can not be removed*__ until EasyBlock is changed to more general one (https://github.com/easybuilders/easybuild-easyblocks/pull/3373), or this change is upstreamed.
+
+## AOCC
+- __*added by*__ j.reuter
+- __*needed because*__ AOCC 4.1.0 and newer are based on LLVM 16.0.3, which cannot be handled by upstream EasyBlock. Upstream EasyBlock fails sanity check due to incorrect paths.
+- __*difference compared to upstream*__ Updated mapping of AOCC to LLVM versions and fix to sanity check to use correct directory.
+- __*can not be removed*__ until EasyBlock PR is merged (https://github.com/easybuilders/easybuild-easyblocks/pull/3458).
+

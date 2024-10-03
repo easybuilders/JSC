@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'OpenMPI'
+version = '5.0.5'
+
+homepage = 'https://www.open-mpi.org/'
+description = """The Open MPI Project is an open source MPI-3 implementation."""
+
+toolchain = {'name': 'NVHPC', 'version': '24.9-CUDA-12'}
+
+source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
+sources = [SOURCELOWER_TAR_BZ2]
+patches = [
+    'OpenMPI-5.0.5_configure_patch_nvidia_compilers.patch',
+    'OpenMPI-5.0.5_fix_hle_make_errors.patch'
+]
+checksums = [
+    '6588d57c0a4bd299a24103f4e196051b29e8b55fbda49e11d5b3d32030a32776',
+    # openmpi-5.0.5.tar.gz
+    'bc1acb65fb1dcfed945c6988f4bdf17cac2f05e85628febc8ceafb574b08f5ed',
+    # OpenMPI-5.0.5_configure_patch_nvidia_compilers.patch
+    '881c907a9f5901d5d6af41cd33dffdcecba4a67a9e5123e602542aea57a80895',
+    # OpenMPI-5.0.5_fix_hle_make_errors.patch
+]
+
+builddependencies = [
+    ('pkgconf', '2.2.0'),
+    ('Autotools', '20231222'),
+]
+
+dependencies = [
+    ('zlib', '1.3.1'),
+    ('hwloc', '2.10.0'),
+    ('libevent', '2.1.12'),
+    ('UCX', 'default'),
+    ('CUDA', '12', '', SYSTEM),
+    ('PMIx', '5.0.3'),
+    ('PRRTE', '3.0.6'),
+    ('UCC', 'default'),
+]
+
+configopts = '--without-psm2 '
+configopts += '--disable-oshmem '
+configopts += '--with-gpfs '
+# Required to prevent internal compiler error in opal.
+configopts += '--enable-alt-short-float=no '
+
+# to enable SLURM integration (site-specific)
+configopts += '--with-slurm '
+
+# needed since otherwise the cuFreeMem test fails and support is not built
+configopts += '--with-cuda-libdir=$EBROOTCUDA '
+
+moduleclass = 'mpi'

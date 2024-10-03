@@ -182,6 +182,7 @@ flatbuffers
 flit
 fontconfig
 fontsproto
+fonttools
 freeglut
 freetype
 g2clib

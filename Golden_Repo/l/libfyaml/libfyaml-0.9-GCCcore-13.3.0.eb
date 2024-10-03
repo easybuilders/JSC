@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+#
+# Author: Sabine Griessbach (Juelich Supercomputing Centre)
+#
+
+easyblock = 'ConfigureMake'
+
+name = 'libfyaml'
+version = '0.9'
+
+homepage = 'https://github.com/pantoniou/libfyaml'
+description = """Libfyaml is a fancy 1.2 YAML and JSON parser/writer.
+ Fully feature complete YAML parser and emitter, supporting the latest YAML 
+ spec and passing the full YAML testsuite.
+ It is designed to be very efficient, avoiding copies of data, and has no 
+ artificial limits like the 1024 character limit for implicit keys.
+ libfyaml is using https://github.com/yaml/yaml-test-suite as a core part 
+ of it's testsuite.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+source_urls = [
+    'https://github.com/pantoniou/%(name)s/releases/download/v%(version)s/']
+sources = ['libfyaml-%(version)s.tar.gz']
+checksums = ['7731edc5dfcc345d5c5c9f6ce597133991a689dabede393cd77bae89b327cd6d']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('libyaml', '0.2.5'),
+]
+
+sanity_check_paths = {
+    'files': ['include/libfyaml.h', 'lib/libfyaml.a', 'lib/libfyaml.%s' % SHLIB_EXT],
+    'dirs': ['lib/pkgconfig'],
+}
+
+moduleclass = 'lib'

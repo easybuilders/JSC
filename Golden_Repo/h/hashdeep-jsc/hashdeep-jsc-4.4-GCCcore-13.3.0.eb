@@ -16,21 +16,28 @@ sources = ['v%(version)s.tar.gz']
 patches = [
     'hashdeep_master.patch',
     'hashdeep_xxhash.patch',
-    'hashdeep_blocksize.patch'
+    'hashdeep_blocksize.patch',
+    'hashdeep_configure.patch'
 ]
 checksums = [
     {'v4.4.tar.gz': 'ad78d42142f9a74fe8ec0c61bc78d6588a528cbb9aede9440f50b6ff477f3a7f'},
     {'hashdeep_master.patch': 'e39cdd9a9143e4291b4d7682ae3b711aff514a22bbf8597469fcb97237e944b3'},
-    {'hashdeep_xxhash.patch': '3b9266e1749ea276dbe1116fef173f42d9ee1410364c434151d24ffa1dcbbbc7'},
+    {'hashdeep_xxhash.patch': 'db56851bdc442140a0ecdca6d9a45935080aa658581faa380b3c08c34c2ca8bc'},
     {'hashdeep_blocksize.patch': '24fe33beee8314f985c8180355bd47bb7cf24cc2053135ad826bbd5ee74ecc51'},
+    {'hashdeep_configure.patch': '0fa5167f00b0826fbb54a328fd83fb7859a5bf00d5dae74b5351a2f237598d45'},
 ]
 
 builddependencies = [
     ('Automake', '1.16.5'),
-    ('Autotools', '20231222')
+    ('Autotools', '20231222'),
+    ('binutils', '2.42')
 ]
 
-preconfigopts = 'sh bootstrap.sh && '
+preconfigopts = 'autoupdate configure.ac && '
+preconfigopts += 'sh bootstrap.sh && '
+preconfigopts += "rm -f install-sh missing depcomp config.guess config.sub && "
+preconfigopts += "cp -r $EBROOTAUTOMAKE/share/automake*/* . && "
+
 
 sanity_check_paths = {
     'files': [

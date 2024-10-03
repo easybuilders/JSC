@@ -687,7 +687,7 @@ index 0000000..3c592d9
 + * xxHash prototypes and implementation
 + */
 +#include "common.h"
-+#include <x86intrin.h>
++
 +#if defined (__cplusplus)
 +extern "C" {
 +#endif

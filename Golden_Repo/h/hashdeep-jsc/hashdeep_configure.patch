@@ -1,0 +1,68 @@
+--- hashdeep-xxhash-master/configure.ac	2024-02-06 08:52:04.000000000 +0100
++++ configure.ac	2024-09-02 15:09:55.347948203 +0200
+@@ -2,7 +2,7 @@
+ # configure.ac script for md5deep/hashdeep family of programs.
+ #
+ 
+-AC_PREREQ(2.57)
++AC_PREREQ([2.71])
+ AC_INIT([MD5DEEP],[4.4],[research@jessekornblum.com])
+ AC_CONFIG_FILES([Makefile src/Makefile man/Makefile tests/Makefile tests/testfiles/Makefile ])
+ AM_INIT_AUTOMAKE
+@@ -58,7 +58,7 @@
+ #
+ ################################################################
+ 
+-AC_GNU_SOURCE
++AC_USE_SYSTEM_EXTENSIONS
+ AC_CANONICAL_HOST
+ 
+ ################################################################
+@@ -131,7 +131,7 @@
+ 
+ # Checks for header files.
+ AC_HEADER_DIRENT
+-AC_HEADER_STDC
++
+ AC_CHECK_HEADERS([libgen.h fcntl.h limits.h inttypes.h malloc.h stdint.h stdlib.h string.h \
+ 			   sys/cdefs.h sys/types.h sys/ioctl.h sys/mmap.h sys/mman.h sys/param.h \
+ 			   sys/resource.h wchar.h unistd.h sys/stat.h sys/disk.h\
+@@ -167,7 +167,7 @@
+ # which can be checked for using AC_CHECK_HEADERS([sys/time.h]).
+ 
+ AC_CHECK_HEADERS([time.h sys/time.h])
+-AC_HEADER_TIME
++
+ 
+ 
+ ################################################################
+@@ -188,7 +188,7 @@
+ AC_FUNC_CLOSEDIR_VOID
+ AC_FUNC_FSEEKO
+ AC_SYS_LARGEFILE
+-AC_PROG_GCC_TRADITIONAL
++AC_PROG_CC
+ AC_FUNC_LSTAT
+ AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
+ AC_FUNC_MEMCMP
+@@ -199,10 +199,7 @@
+ AC_CHECK_FUNCS([fseeko64 ftello64])
+ 
+ # See if program_invocation_name is defined on this system
+-AC_TRY_COMPILE([#include <errno.h>],
+-			[const char *progname = program_invocation_name;],
+-			extern_program_invocation_name=yes,
+-			extern_program_invocation_name=no)
++AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <errno.h>]], [[const char *progname = program_invocation_name;]])],[extern_program_invocation_name=yes],[extern_program_invocation_name=no])
+ if test x"${extern_program_invocation_name}" = x"yes"; then
+   AC_MSG_NOTICE([extern program_invocation_name in errno.h])
+   AC_DEFINE(HAVE_PROGRAM_INVOCATION_NAME,1,[define to 1 if program_invocation_name is available])
+@@ -244,7 +241,7 @@
+ ################################################################
+ 
+ # This allows us to easily disable optimizations for debugging
+-AC_ARG_WITH([noopt], AC_HELP_STRING([--with-noopt],[Drop -O C flags]))
++AC_ARG_WITH([noopt], AS_HELP_STRING([--with-noopt],[Drop -O C flags]))
+ if test x"${AFF_NOOPT}" != "x" ; then
+    with_noopt="yes";
+ fi

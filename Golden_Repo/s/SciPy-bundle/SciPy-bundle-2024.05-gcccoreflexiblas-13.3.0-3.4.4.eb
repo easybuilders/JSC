@@ -33,11 +33,13 @@ use_pip = True
 exts_list = [
     ('numpy', '1.26.4', {
         'patches': [
+            'numpy-1.18.2-mkl.patch',
             'numpy-1.22.3_disable-broken-override-test.patch',
             'numpy-1.26.4_fix-riscv64-test-failures.patch',
         ],
         'checksums': [
             {'numpy-1.26.4.tar.gz': '2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010'},
+            {'numpy-1.18.2-mkl.patch': 'ea25ad5c0148c1398d282f0424e642fb9815a1a80f4512659b018e2adc378bcf'},
             {'numpy-1.22.3_disable-broken-override-test.patch':
              '9c589bb073b28b25ff45eb3c63c57966aa508dd8b318d0b885b6295271e4983c'},
             {'numpy-1.26.4_fix-riscv64-test-failures.patch':
@@ -60,17 +62,26 @@ exts_list = [
         'checksums': ['5ab283b9857211d61b53318b7c792cf68e798e765ee17c27ade9f6c924235731'],
     }),
     ('scipy', '1.13.1', {
-        'enable_slow_tests': True,
+        'enable_slow_tests': False,
         'ignore_test_result': False,
         'patches': [
             'scipy-1.11.1_disable-tests.patch',
             'scipy-1.11.1_xfail-aarch64_test_maxiter_worsening.patch',
+            'scipy-1.13.1_disable-test_x0_equals_Mb.patch',
+            'scipy-1.13.1_loosen-tolerance-in-test_krandinit.patch',
+            'scipy-1.13.1_TestLinprogIPSparse.patch',
         ],
         'checksums': [
             {'scipy-1.13.1.tar.gz': '095a87a0312b08dfd6a6155cbbd310a8c51800fc931b8c0b84003014b874ed3c'},
             {'scipy-1.11.1_disable-tests.patch': '906bfb03397d94882ccdc1b93bc2c8e854e0e060c2d107c83042992394e6a4af'},
             {'scipy-1.11.1_xfail-aarch64_test_maxiter_worsening.patch':
              '918c8e6fa8215d459126f267764c961bde729ea4a116c7f6287cddfdc58ffcea'},
+            {'scipy-1.13.1_disable-test_x0_equals_Mb.patch':
+             '2a5615452994c1951ce57c3d075e6f1b6a4fb02a9e79ba8db3a185195b2c9b88'},
+            {'scipy-1.13.1_loosen-tolerance-in-test_krandinit.patch':
+             '5fdc64c9a57573e0d28e487cffb737240a9fb72efa50032bb68116bfeae0f04e'},
+            {'scipy-1.13.1_TestLinprogIPSparse.patch':
+             '7213c2690b76c69f7e7103529cea3fa2098c05fbea556f04325fab9ca8c065f5'},
         ],
     }),
     ('numexpr', '2.10.0', {

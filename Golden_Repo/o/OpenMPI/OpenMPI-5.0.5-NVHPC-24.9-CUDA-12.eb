@@ -48,6 +48,6 @@ configopts += '--enable-alt-short-float=no '
 configopts += '--with-slurm '
 
 # needed since otherwise the cuFreeMem test fails and support is not built
-configopts += '--with-cuda-libdir=$EBROOTCUDA '
+configopts += '--with-cuda=$EBROOTCUDA --with-cuda-libdir=$EBROOTCUDA/stubs/lib64/ '
 
 moduleclass = 'mpi'

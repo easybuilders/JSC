@@ -1,0 +1,27 @@
+From 07b2f13d834c438ff0d44f8a6a837a334328cb1a Mon Sep 17 00:00:00 2001
+From: Ilhan Polat <ilhanpolat@gmail.com>
+Date: Mon, 17 Jun 2024 08:52:09 +0200
+Subject: [PATCH] TST:sparse.linalg: Skip test due to sensitivity to numerical
+ noise
+
+---
+ scipy/sparse/linalg/_isolve/tests/test_iterative.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scipy/sparse/linalg/_isolve/tests/test_iterative.py b/scipy/sparse/linalg/_isolve/tests/test_iterative.py
+index f3235260b39f..02fd6e3c1662 100644
+--- a/scipy/sparse/linalg/_isolve/tests/test_iterative.py
++++ b/scipy/sparse/linalg/_isolve/tests/test_iterative.py
+@@ -510,8 +510,12 @@ def test_x0_working(solver):
+ 
+ 
+ def test_x0_equals_Mb(case):
++    if (case.solver is bicgstab) and (case.name == 'nonsymposdef-bicgstab'):
++        pytest.skip("Solver fails due to numerical noise "
++                    "on some architectures (see gh-15533).")
+     if case.solver is tfqmr:
+         pytest.skip("Solver does not support x0='Mb'")
++
+     A = case.A
+     b = case.b
+     x0 = 'Mb'

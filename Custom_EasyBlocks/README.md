@@ -74,7 +74,7 @@ Overview of the custom EasyBlocks.
 
 ## AOCC
 - __*added by*__ j.reuter
-- __*needed because*__ AOCC 4.1.0 and newer are based on LLVM 16.0.3, which cannot be handled by upstream EasyBlock. Upstream EasyBlock fails sanity check due to incorrect paths.
-- __*difference compared to upstream*__ Updated mapping of AOCC to LLVM versions and fix to sanity check to use correct directory.
-- __*can not be removed*__ until EasyBlock PR is merged (https://github.com/easybuilders/easybuild-easyblocks/pull/3458).
+- __*needed because*__ AOCC 4.1.0 and newer are based on LLVM 16.0.3, which cannot be handled by EasyBlock in 4.9.4. EasyBlock fails sanity check due to incorrect paths. Also, compilers are not configured correctly starting with AOCC 4.2.0.
+- __*difference compared to upstream*__ None, copied from PR https://github.com/easybuilders/easybuild-easyblocks/pull/3480 and https://github.com/easybuilders/easybuild-easyblocks/pull/3458
+- __*can not be removed*__ until next EasyBuild release (after 4.9.4)
 

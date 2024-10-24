@@ -16,8 +16,8 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('GHC', '9.10.1', '-x86_64', SYSTEM),
-    ('Stack', '3.1.1', '-x86_64', SYSTEM),
+    ('GHC', '9.10.1', '', SYSTEM),
+    ('Stack', '3.1.1', '', SYSTEM),
     ('git', '2.45.1'),
 ]
 

@@ -24,6 +24,9 @@ modextravars = {
     # To make sure that transfers involving buffers allocated with cudaMallocManaged are done by the GPU. Important
     # mostly for nodes with multiple GPUs per ndoe
     'UCX_RNDV_FRAG_MEM_TYPE': 'cuda',
+    # Workaround for CUDA aware MPI crashing with ibv_reg_dmabuf_mr error. Should be removed once UCX 1.18.0 is
+    # available
+    'UCX_CUDA_COPY_DMABUF': 'no',
 }
 
 moduleclass = 'system'

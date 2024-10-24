@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+name = 'Apptainer-Tools'
+version = '2025'
+
+homepage = 'https://gitlab.version.fz-juelich.de/hps-public/container-build-system-cli'
+description = """Apptainer-Tools contain a bunch of tools for Apptainer,
+ e.g. the JSC Build System CLI or singularity-compose.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [('binutils', '2.42')]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('pretty-yaml', '24.7.0'),
+    ('Python-bundle-PyPI', '2024.06'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('semver', '3.0.2', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/semver'],
+        'checksums': ['6253adb39c70f6e51afed2fa7152bcd414c411286088fb4b9effb133885ab4cc'],
+    }),
+    ('spython', '0.3.13', {
+        'source_urls': ['https://pypi.python.org/packages/source/p/spython'],
+        'checksums': ['931105675f7889705e50859df72f01b8e00b5ad92ab2e5d9ef47563343419e4e'],
+    }),
+    ('singularity-compose', '0.1.19', {
+        'modulename': 'scompose',
+        'source_urls': ['https://pypi.python.org/packages/source/p/singularity-compose'],
+        'checksums': ['86ced30ce84a66e481c8ec288b880eea396efd7f8b62257e787c49373f552d38'],
+    }),
+    ('container-build-system-cli', '0.1.1', {
+        'modulename': 'singularitydb_client',
+        'sources': [
+            'https://gitlab.jsc.fz-juelich.de/hps-public/%(name)s/-/archive/v%(version)s/%(name)s-v%(version)s.tar.gz'],
+        'checksums': ['ac008ec07b886470e916a590b965624d89e8206b491aaef697b8a425f3718dd6'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'tools'

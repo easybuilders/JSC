@@ -3,7 +3,6 @@ easyblock = 'Tarball'
 
 name = 'Stack'
 version = '3.1.1'
-versionsuffix = '-x86_64'
 
 homepage = 'https://docs.haskellstack.org'
 description = """Stack is a cross-platform program for developing Haskell projects.
@@ -11,9 +10,13 @@ It is intended for Haskellers both new and experienced."""
 
 toolchain = SYSTEM
 
-source_urls = ['https://github.com/commercialhaskell/stack/releases/download/v%(version)s/']
-sources = ['%(namelower)s-%(version)s-linux-x86_64.tar.gz']
-checksums = ['d096125ea3d987a55d17f7d4f8599ee2fd96bd2d0f033566e28ddfe248f730f9']
+source_urls = [
+    'https://github.com/commercialhaskell/stack/releases/download/v%(version)s/']
+
+sources = [f'%(namelower)s-%(version)s-linux-{ARCH}.tar.gz']
+checksums = [{
+    'stack-3.1.1-linux-aarch64.tar.gz': '033cb75bad3a5299b522c99e8056915bd081879f5df312e6d44d7511fc567455',
+    'stack-3.1.1-linux-x86_64.tar.gz': 'd096125ea3d987a55d17f7d4f8599ee2fd96bd2d0f033566e28ddfe248f730f9'}]
 
 modextrapaths = {'PATH': ''}
 

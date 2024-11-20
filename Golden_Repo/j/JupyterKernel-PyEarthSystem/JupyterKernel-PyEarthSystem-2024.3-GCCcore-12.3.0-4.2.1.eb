@@ -32,6 +32,7 @@ builddependencies = [
     ('ImageMagick', '7.1.1-15'),
     ('GDAL', '3.6.2'),
     ('numba', '0.58.1'),
+    ('plotly', '5.22.0'),
     # ('OpenMPI', ''),
     # ('NCO', '5.1.8'),
     # ('CDO', '2.3.0'),
@@ -120,6 +121,7 @@ postinstallcmds = [
         'module load ImageMagick/7.1.1-15 \n'
         'module load GDAL/3.6.2 \n'
         'module load numba/0.58.1 \n'
+        'module load plotly/.5.22.0 \n'
         '\n'
         'module load NCO/5.1.8 \n'
         'module load CDO/2.3.0 \n'

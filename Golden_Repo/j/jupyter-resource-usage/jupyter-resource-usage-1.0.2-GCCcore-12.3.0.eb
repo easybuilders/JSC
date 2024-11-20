@@ -30,7 +30,7 @@ exts_list = [
         'patches': [('jupyter-resource-usage.config', '.')],
         'checksums': [
             '20babc5a63fd53724b12e50b9046ca07784fb56004c39d0442990116fb925a4b',
-            '3a5bb86b56c08d6b8fc6e13a29129f14e7829d057e56690256bce6e782819356',
+            '9c36aa43d4b0e481a4f58b7d3a53b5fb7a348450f23e3e464576005b9333e3b9',
         ],
     }),
     ('jupyterlab_logout', '1.0.0', {

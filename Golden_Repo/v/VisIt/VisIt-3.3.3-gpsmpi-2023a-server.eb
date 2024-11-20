@@ -27,6 +27,7 @@ dependencies = [
     # VisIt comes with its own Python as VTK 8.2.0 does not build with Python >3.7:
     # -> https://gitlab.kitware.com/vtk/vtk/-/issues/17670
     ('X11', '20230603'),
+    ('PCRE2', '10.42'),
 ]
 
 install_cmd = "chmod +x %s && " % local_script

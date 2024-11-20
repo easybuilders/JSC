@@ -57,7 +57,7 @@ preconfigopts = ' && '.join([
 configopts = '--without-orte '
 configopts += '--without-psm2 '
 configopts += '--disable-oshmem '
-configopts += '--with-ime=/opt/ddn/ime '
+# configopts += '--with-ime=/opt/ddn/ime '
 configopts += '--with-gpfs '
 
 # to enable SLURM integration (site-specific)

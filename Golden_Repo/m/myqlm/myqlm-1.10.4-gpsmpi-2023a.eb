@@ -1,0 +1,230 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'myqlm'
+version = '1.10.4'
+
+homepage = 'https://atos.net/en/lp/myqlm'
+description = """myQLM is a quantum software stack for writing, simulating, optimizing, and executing quantum programs. 
+    myQLM also interfaces with the QLM, for Quantum Learning Machine, the quantum programming appliance of Atos."""
+
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+
+builddependencies = [
+    ('poetry', '1.5.1'),
+    ('CMake', '3.26.3'),
+    ('maturin', '1.4.0', '-Rust-1.70.0'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),  # numpy
+    ('dill', '0.3.7'),
+    ('networkx', '3.1'),
+    ('tqdm', '4.66.1'),
+    ('matplotlib', '3.7.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('IPython', '8.14.0'),
+    ('cryptography', '41.0.1'),
+    ('setuptools-rust', '1.6.0'),
+    ('jax', '0.4.23'),
+    ('pulser', '0.18.0'),
+    ('Cirq', '1.4.0', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('PyQuil', '4.8.0'),
+    ('Qiskit', '0.45.1', '', ('gpsfbf', '2023a')),
+    ('jupyter-ai', '2.15.0'),
+    ('JupyterLab', '4.2.1'),
+    ('jupyter-server', '2.14.0'),
+    ('JupyterNotebook', '7.2.0'),
+    ('qoqo-quest', '0.14.4a3', '-CUDA-12-Rust-1.70.0'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('Wand', '0.6.13', {
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': ['f5013484eaf7a20eb22d1821aaefe60b50cc329722372b5f8565d46d4aaafcca'],
+    }),
+    ('thrift', '0.16.0', {
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': ['2b5b6488fcded21f9d312aa23c9ff6a0195d0f6ae26ddbd5ad9e3e25dfc14408'],
+    }),
+    ('svgwrite', '1.4.3', {
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d'],
+    }),
+    ('prettytable', '3.8.0', {
+        'checksums': ['031eae6a9102017e8c7c7906460d150b7ed78b20fd1d8c8be4edaf88556c07ce'],
+    }),
+    ('anytree', '2.12.1', {
+        'sources': ['%(name)s-%(version)s.tar.gz'],
+        'checksums': ['244def434ccf31b668ed282954e5d315b4e066c4940b94aff4a7962d85947830'],
+    }),
+    ('scs', '3.2.4', {
+        'checksums': ['09ffaa670d8608901db94addd8581376498cd9818eb5ef27fed3560f0bf0661b'],
+    }),
+    ('qdldl', '0.1.7', {
+        'checksums': ['6c86639d11e301e78af2cce885249a286f675cce96d0e6d60f5b14f859d0f10e'],
+    }),
+    ('qat-comm', '1.6.0', {
+        'modulename': 'qat.comm',
+        'sources': ['qat_comm-1.6.0-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['4f12eab6fd74ab7de6f956c7a21b817c333839bc3e39926d9729bea3f971541f'],
+    }),
+    ('ecos', '2.0.14', {
+        'checksums': ['64b3201c0e0a7f0129050557c4ac50b00031e80a10534506dba1200c8dc1efe4'],
+    }),
+    ('clarabel', '0.9.0', {
+        'checksums': ['0d6d3fe8800be5b4b5d40a8e14bd492667b3e46cc5dbe37677ce5ed25f0719d4'],
+    }),
+    ('pyOpenSSL', '23.2.0', {
+        'modulename': False,
+        'checksums': ['276f931f55a452e7dea69c7173e984eb2a4407ce413c918aa34b55f82f9b8bac'],
+    }),
+    ('osqp', '0.6.7', {
+        'checksums': ['3b701198557a499c60ebb53d7f25019064855c732f4f3fbce2055d789e53a61d'],
+    }),
+    ('qat-core', '1.10.0', {
+        'modulename': 'qat.core',
+        'sources': ['qat_core-1.10.0-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['65d8b461767460a194e7e43294e9379d16a31a5ad9b3f42314e1ed0edc4629ba'],
+    }),
+    ('cvxpy', '1.4.4', {
+        'checksums': ['5dbef6f8d8c0e34d55d6eed0698fa0bd345c6e34466baeccb63715227b29d14f'],
+    }),
+    ('qat-lang', '3.1.0', {
+        'modulename': 'qat.lang',
+        'sources': ['qat_lang-3.1.0-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['37223de0857700e5ba81b0569732ceab7a07618c0b947120bbf1d26c7bc686e6'],
+    }),
+    ('qat-fusion', '0.1.0', {
+        'modulename': 'qat.fusion',
+        'sources': ['qat_fusion-%(version)s-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['91f7023a6dcd8b2d024d399fc978ba9bc5d7f9d0f35a8a11a18648d4ad9377fa'],
+    }),
+    ('qat-devices', '0.3.0', {
+        'modulename': 'qat.devices',
+        'sources': ['qat_devices-0.3.0-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['40494c60bc300f6aa9299a773f28f32655a932588876f722d6cbf89af35e217a'],
+    }),
+    ('qat-anapli', '0.01', {
+        'modulename': 'qat.anapli',
+        'sources': ['qat_anapli-0.0.1-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['45cd4d903e7e842fa99b9374c46960986820cb2a74a66fbd87eb1d11129ca3e9'],
+    }),
+    ('myqlm-contrib', '1.9.5', {
+        'modulename': 'qat.sabre',
+        'sources': ['myqlm_contrib-1.9.5-py3-none-any.whl'],
+        'checksums': ['79b0a99466087878f04be6acd0e4a64abcc3efd719627832fb711f96b4f07cf2'],
+    }),
+    ('qat-variational', '1.5.0', {
+        'modulename': 'qat.plugins',
+        'sources': ['qat_variational-1.5.0-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['024614b25e04b690539bd016c411b92f1cc36db7cb769c66cd031892f3ce6750'],
+    }),
+    ('qat-quops', '1.3.4', {
+        'modulename': 'qat.quops',
+        'sources': ['qat_quops-%(version)s-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['4796ed1eeec77efb4fbf6d677a43973fcd2142782a4cdc6f44759ca447cfb854'],
+    }),
+    ('qat-hardware', '1.4.0', {
+        'modulename': 'qat.hardware',
+        'sources': ['qat_hardware-%(version)s-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['8cef45f35540fe98198cc62f4743cf3535fd16acf78c34a566f68530ffe959f8'],
+    }),
+    ('myqlm-interop', '1.9.6', {
+        'modulename': 'qat.interop',
+        'sources': ['myqlm_interop-%(version)s-py3-none-any.whl'],
+        'checksums': ['80bd5f793a9ba49a67c797ee35499086abef768d9ccd0fd42fa3ca5055464664'],
+    }),
+    ('myqlm-clinalg', '0.2.2', {
+        'modulename': 'qat.clinalg',
+        'sources': ['myqlm_clinalg-%(version)s-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['8d4cabd768bebdfa76deef1c0e1b5d4707aadf8f07de8e30aebf2f865f56901f'],
+    }),
+    ('myqlm-simulators', '1.9.5', {
+        'modulename': 'qat.pylinalg',
+        'sources': ['myqlm_simulators-%(version)s-py3-none-any.whl'],
+        'checksums': ['188d470829cc118f3bdfcda176fc7861a870e4d76fc5a7d8df48dd0b9180217c'],
+    }),
+    ('qlmaas', '1.10.2', {
+        'modulename': 'qat.qlmaas',
+        'sources': ['qlmaas-%(version)s-cp311-cp311-manylinux_2_28_x86_64.whl'],
+        'checksums': ['77febb2ecd1282e0b5f63e6801958848dd2c04f448159638cd95b0972fa97ae0'],
+    }),
+    ('myqlm-fermion', '1.1.4', {
+        'modulename': 'qat.fermion',
+        'sources': ['myqlm_fermion-%(version)s-py3-none-any.whl'],
+        'checksums': ['5d447c33a25ef44728d3bceb6e465ba78300649144a7a2f61737a8184c82dc22'],
+    }),
+    (name, version, {
+        'modulename': 'qat',
+        'sources': ['%(name)s-%(version)s-py3-none-any.whl'],
+        'checksums': ['f4aec33f6e566482f9cca13287e0c3c91ad1039a725dfbd301561693bfabde52'],
+    }),
+    ('qoqo-myqlm', '0.4.7', {
+        'modulename': 'qoqo_myqlm',
+        'sources': ['qoqo_myqlm-0.4.7.tar.gz'],
+        'checksums': ['f15317e44391f3fd3456ade391f9370f21d258bf325250bec6b6e1bfd4b7ee2b'],
+    }),
+    ('pulser-myqlm', '0.1.6', {
+        'modulename': 'pulser_myqlm',
+        'source_urls': ['https://github.com/pasqal-io/Pulser-myQLM/archive/refs/tags/'],
+        'sources': ['v%(version)s.zip'],
+        'checksums': ['5c0e329c1b5e5f2e2b8e28564a261395d6e7c16a2d8293679fbae981104d87bb'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['lib/python3.11/site-packages/pulser_myqlm/__init__.py',
+              'lib/python3.11/site-packages/qoqo_myqlm/__init__.py',
+              'lib/python3.11/site-packages/qat/__init__.so'],
+    'dirs': ['bin'],
+}
+
+# TODO: qat.magics.install creates file in $HOME
+# "/p/home/jusers/gonzalezcalaza1/jureca/.ipython/profile_default/startup/myqlm.py"
+# install in PyQuantum instead?
+# postinstallcmds = [
+#     #  ensure we install in the correct directory !!!
+#     'cd %(builddir)s',
+#     'python3 -m venv %(installdir)s --system-site-packages',
+
+#     'echo "#!/bin/bash" > %(builddir)s/env.sh',
+#     'echo "source %(installdir)s/bin/activate" >> %(builddir)s/env.sh',
+#     (
+#         'echo "export PYTHONPATH='
+#         '%(installdir)s/lib/python%(pyshortver)s/site-packages:'
+#         '${EBROOTPYTHON}/lib/python%(pyshortver)s/site-packages:'
+#         '${PYTHONPATH}" >> %(builddir)s/env.sh'
+#     ),
+
+#     'echo "export PATH=%(installdir)s/bin:${PATH}" >> %(builddir)s/env.sh',
+#     'cat %(builddir)s/env.sh',
+#     # install
+#     'source %(builddir)s/env.sh && python -m qat.magics.install',
+
+#     # Ensure we remove the virtuel environment to avoid wrong search path for python packages
+#     'rm -f %(installdir)s/pyvenv.cfg',
+#     'rm -f %(installdir)s/bin/python',
+#     'rm -f %(installdir)s/bin/python3',
+#     'rm -f %(installdir)s/bin/activate',
+#     'rm -f %(installdir)s/bin/activate*',
+#     'rm -f %(installdir)s/bin/easy_install*',
+#     'rm -f %(installdir)s/bin/pip*',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/_distutils_hack',
+#     'rm -f %(installdir)s/lib/python%(pyshortver)s/site-packages/distutils-precedence.pth',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pip-*',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/pkg_resources',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools',
+#     'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/setuptools-*',
+# ]
+
+moduleclass = 'quantum'

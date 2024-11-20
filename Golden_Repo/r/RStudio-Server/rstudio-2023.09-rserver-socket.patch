@@ -1,0 +1,112 @@
+diff -Naur rstudio.orig/src/cpp/server/include/server/ServerOptions.gen.hpp rstudio/src/cpp/server/include/server/ServerOptions.gen.hpp
+--- rstudio.orig/src/cpp/server/include/server/ServerOptions.gen.hpp	2024-07-07 14:55:20.227827786 +0200
++++ rstudio/src/cpp/server/include/server/ServerOptions.gen.hpp	2024-07-07 14:38:03.840303075 +0200
+@@ -102,6 +102,9 @@
+       ("www-port",
+       value<std::string>(&wwwPort_)->default_value(""),
+       "The port that RStudio Server will bind to while listening for incoming connections. If left empty, the port will be automatically determined based on your SSL settings (443 for SSL, 80 for no SSL).")
++      ("www-socket",
++      value<std::string>(&wwwSocket_)->default_value(""),
++      "The socket that RStudio Server will bind to while listening for incoming connections. If left empty, a socket will not be used but a port instead.")
+       ("www-root-path",
+       value<std::string>(&wwwRootPath_)->default_value(kRequestDefaultRootPath),
+       "The path prefix added by a proxy to the incoming RStudio URL. This setting is used so RStudio Server knows what path it is being served from. If running RStudio Server behind a path-modifying proxy, this should be changed to match the base RStudio Server URL.")
+@@ -303,6 +306,7 @@
+    std::vector<std::string> serverAddHeaders_;
+    std::string wwwAddress_;
+    std::string wwwPort_;
++   std::string wwwSocket_;
+    std::string wwwRootPath_;
+    std::string wwwLocalPath_;
+    std::string wwwSymbolMapsPath_;
+diff -Naur rstudio.orig/src/cpp/server/include/server/ServerOptions.hpp rstudio/src/cpp/server/include/server/ServerOptions.hpp
+--- rstudio.orig/src/cpp/server/include/server/ServerOptions.hpp	2024-07-07 14:55:20.228100715 +0200
++++ rstudio/src/cpp/server/include/server/ServerOptions.hpp	2024-07-07 14:38:03.842154683 +0200
+@@ -71,6 +71,11 @@
+       }
+    }
+ 
++   std::string wwwSocket() const
++   {
++      return wwwSocket_;
++   }
++
+    std::string monitorSharedSecret() const
+    {
+       return monitorSharedSecret_;
+diff -Naur rstudio.orig/src/cpp/server/ServerInit.cpp rstudio/src/cpp/server/ServerInit.cpp
+--- rstudio.orig/src/cpp/server/ServerInit.cpp	2024-07-07 14:55:20.170290674 +0200
++++ rstudio/src/cpp/server/ServerInit.cpp	2024-07-07 14:53:37.028369918 +0200
+@@ -18,6 +18,7 @@
+ #include <shared_core/Error.hpp>
+ 
+ #include <core/http/TcpIpAsyncServer.hpp>
++#include <core/http/LocalStreamAsyncServer.hpp>
+ 
+ #include <server/ServerOptions.hpp>
+ 
+@@ -30,21 +31,37 @@
+ 
+ http::AsyncServer* httpServerCreate(const http::Headers& additionalHeaders)
+ {
+-   http::TcpIpAsyncServer* server = new http::TcpIpAsyncServer("RStudio",
+-                                     std::string(),
+-                                     !options().wwwEnableOriginCheck(),
+-                                     options().wwwAllowedOrigins(),
+-                                     additionalHeaders,
+-                                     options().statsMonitorSeconds(),
+-                                     metrics::statsProvider());
+-   return server;
++   if (options().wwwSocket() != "") {
++      return new http::LocalStreamAsyncServer("RStudio",
++                                 std::string(),
++                                 core::FileMode::USER_READ_WRITE_EXECUTE,
++                                 !options().wwwEnableOriginCheck(),
++                                 options().wwwAllowedOrigins(),
++                                 additionalHeaders,
++                                 options().statsMonitorSeconds(),
++                                 metrics::statsProvider());
++   } else {
++      return new http::TcpIpAsyncServer("RStudio",
++                                 std::string(),
++                                 !options().wwwEnableOriginCheck(),
++                                 options().wwwAllowedOrigins(),
++                                 additionalHeaders,
++                                 options().statsMonitorSeconds(),
++                                 metrics::statsProvider());
++   }
+ }
+ 
+ Error httpServerInit(http::AsyncServer* pAsyncServer)
+ {
+    Options& options = server::options();
+-   return dynamic_cast<http::TcpIpAsyncServer*>(pAsyncServer)->init(
++   if (options.wwwSocket() != "") {
++      FilePath streamPath(options.wwwSocket());
++         return dynamic_cast<http::LocalStreamAsyncServer*>(pAsyncServer)->init(
++                                 streamPath);
++   } else {
++         return dynamic_cast<http::TcpIpAsyncServer*>(pAsyncServer)->init(
+                                  options.wwwAddress(), options.wwwPort());
++   }
+ }
+ 
+ } // namespace server
+diff -Naur rstudio.orig/src/cpp/server/server-options.json rstudio/src/cpp/server/server-options.json
+--- rstudio.orig/src/cpp/server/server-options.json	2024-07-07 14:55:20.234862928 +0200
++++ rstudio/src/cpp/server/server-options.json	2024-07-07 14:38:03.845254086 +0200
+@@ -114,6 +114,14 @@
+             "description": "The port that RStudio Server will bind to while listening for incoming connections. If left empty, the port will be automatically determined based on your SSL settings (443 for SSL, 80 for no SSL)."
+          },
+          {
++            "name": "www-socket",
++            "memberName": "wwwSocket_",
++            "type": "string",
++            "defaultValue": "",
++            "skipAccessorGeneration": true,
++            "description": "The socket that RStudio Server will bind to while listening for incoming connections. If left empty, a port will be used."
++         },
++         {
+             "name": "www-root-path",
+             "memberName": "wwwRootPath_",
+             "type": "string",

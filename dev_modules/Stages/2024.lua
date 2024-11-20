@@ -15,7 +15,7 @@ if old_stage == nil then
 end
 
 -- Software root
-local software_root = '/p/software/juwelsbooster'
+local software_root = '/p/software/default'
 
 -- Set new stage variables
 local stage = myModuleVersion()

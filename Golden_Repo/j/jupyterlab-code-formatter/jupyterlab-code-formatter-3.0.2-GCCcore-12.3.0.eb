@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-code-formatter'
+version = '3.0.2'
+
+homepage = "https://jupyterlab-code-formatter.readthedocs.io/"
+
+description = """
+A JupyterLab plugin to facilitate invocation of code formatters.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('poetry', '1.5.1'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', '4.2.1'),
+    ('aiohttp', '3.9.3'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('mypy_extensions', '1.0.0', {
+        'checksums': ['75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782'],
+    }),
+    ('black', '24.8.0', {
+        'checksums': ['2500945420b6784c38b9ee885af039f5e7471ef284ab03fa35ecdde4688cd83f'],
+    }),
+    ('isort', '5.13.2', {
+        'checksums': ['48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109'],
+    }),
+    ('jupyterlab_code_formatter', '%(version)s', {
+        'checksums': ['55adb8fa8b9bd58f0b39e7d3ead6c1e862e9ebc1444a66cdb4233d8dc6351d4b'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+    'JUPYTER_PATH': 'share/jupyter',
+}
+
+moduleclass = 'tools'

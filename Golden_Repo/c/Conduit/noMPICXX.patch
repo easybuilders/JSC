@@ -1,0 +1,68 @@
+diff -Naur conduit.orig/src/cmake/SetupBLT.cmake conduit/src/cmake/SetupBLT.cmake
+--- conduit.orig/src/cmake/SetupBLT.cmake	2024-09-10 21:25:29.000000000 +0200
++++ conduit/src/cmake/SetupBLT.cmake	2024-09-10 21:31:41.293120066 +0200
+@@ -55,15 +55,15 @@
+         if(ENABLE_FIND_MPI)
+             # our import logic needs this info if hdf5 depends
+             # on mpi
+-            if(TARGET MPI::MPI_CXX)
++            if(TARGET MPI::MPI_C)
+                 set(CONDUIT_USE_CMAKE_MPI_TARGETS TRUE CACHE BOOL "")
+-                message(STATUS "Using MPI CMake imported target: MPI::MPI_CXX")
++                message(STATUS "Using MPI CMake imported target: MPI::MPI_C")
+                 # newer cmake we use find mpi targets directly
+-                set(conduit_blt_mpi_deps MPI::MPI_CXX CACHE STRING "")
++                set(conduit_blt_mpi_deps MPI::MPI_C CACHE STRING "")
+             else()
+                 message(FATAL_ERROR "Cannot use CMake imported targets for MPI."
+                                     "(CMake > 3.15, ENABLE_MPI == ON, but "
+-                                    "MPI::MPI_CXX CMake target is missing.)")
++                                    "MPI::MPI_C CMake target is missing.)")
+             endif()
+         else()
+             set(CONDUIT_USE_CMAKE_MPI_TARGETS FALSE CACHE BOOL "")
+diff -Naur conduit.orig/src/config/conduit_setup_deps.cmake conduit/src/config/conduit_setup_deps.cmake
+--- conduit.orig/src/config/conduit_setup_deps.cmake	2024-09-10 21:25:29.000000000 +0200
++++ conduit/src/config/conduit_setup_deps.cmake	2024-09-10 21:32:50.679080797 +0200
+@@ -244,7 +244,7 @@
+     # in other cases, folks will 
+     if(HDF5_IS_PARALLEL AND NOT MPI_FOUND)
+         if(CONDUIT_USE_CMAKE_MPI_TARGETS)
+-            find_package(MPI COMPONENTS CXX)
++            find_package(MPI COMPONENTS C)
+         endif()
+     endif()
+ 
+diff -Naur conduit.orig/src/examples/using-with-cmake/CMakeLists.txt conduit/src/examples/using-with-cmake/CMakeLists.txt
+--- conduit.orig/src/examples/using-with-cmake/CMakeLists.txt	2024-09-10 21:25:30.000000000 +0200
++++ conduit/src/examples/using-with-cmake/CMakeLists.txt	2024-09-10 21:34:54.317230695 +0200
+@@ -95,7 +95,7 @@
+ 
+ # if you are using conduit's mpi features
+ # if(NOT MPI_FOUND)
+-#    find_package(MPI COMPONENTS CXX)
++#    find_package(MPI COMPONENTS C)
+ # endif()
+ # target_link_libraries(conduit_example conduit::conduit_mpi)
+ 
+diff -Naur conduit.orig/src/examples/using-with-cmake-mpi/CMakeLists.txt conduit/src/examples/using-with-cmake-mpi/CMakeLists.txt
+--- conduit.orig/src/examples/using-with-cmake-mpi/CMakeLists.txt	2024-09-10 21:25:30.000000000 +0200
++++ conduit/src/examples/using-with-cmake-mpi/CMakeLists.txt	2024-09-10 21:33:52.172160624 +0200
+@@ -63,7 +63,7 @@
+ # make sure we have mpi, since we are going to use
+ # conduits mpi features
+ if(NOT MPI_FOUND)
+-    find_package(MPI COMPONENTS CXX)
++    find_package(MPI COMPONENTS C)
+ endif()
+ 
+ 
+@@ -95,7 +95,7 @@
+ # link to conduit targets
+ target_link_libraries(conduit_mpi_example conduit::conduit
+                                           conduit::conduit_mpi
+-                                          MPI::MPI_CXX)
++                                          MPI::MPI_C)
+ 
+ # if you are using conduit's python CAPI capsule interface
+ # target_link_libraries(conduit_mpi_example conduit::conduit_python)

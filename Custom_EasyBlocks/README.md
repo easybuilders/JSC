@@ -2,6 +2,13 @@
 
 Overview of the custom EasyBlocks.
 
+## totalview
+
+- __*added by*__ m.knobloch
+- __*needed because*__ New EasyBlock supports Aarch64
+- __*difference compared to upstream*__ support for Aarch64
+- __*can not be removed*__ at least until that option is merged upstream
+
 ## allinea
 
 - __*added by*__ s.achilles
@@ -26,9 +33,9 @@ Overview of the custom EasyBlocks.
 ## PSMPI
 
 - __*added by*__ d.alvarez
-- __*needed because*__ CUDA support
-- __*difference compared to upstream*__ the supporting code to enable CUDA support
-- __*can not be removed*__ until the CUDA options are pushed upstream (PR: #2787)
+- __*needed because*__ MSA and PMIx support
+- __*difference compared to upstream*__ the supporting code to enable PMIx and MSA support
+- __*can not be removed*__ until these options are accepted upstream (PR: #3383)
 
 ## OPENMPI
 
@@ -81,18 +88,6 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ upstream doesn't have such a feature
 - __*can not be removed*__ until merged upstream
 
-## LAMMPS
-- __*added_by*__ d.alvarez
-- __*needed because*__ upstream does not include the changes that we used in the latest stage
-- __*difference compared to upstream*__ various, done by Alan
-- __*can not be removed*__ until merged upstream or the changes here are deprecated (need to be assesed by an expert)
-
-## NAMD
-- __*added_by*__ d.alvarez
-- __*needed because*__ need to disable CUDA support even if CUDA comes as a dependency
-- __*difference compared to upstream*__ upstream doesn't have such a feature
-- __*can not be removed*__ until merged upstream
-
 ## ELPA
 - __*added_by*__ d.alvarez
 - __*needed because*__ to autodetect CUDA and support CUDA compute capabilities
@@ -104,3 +99,10 @@ Overview of the custom EasyBlocks.
 - __*needed because*__  support for libvori; alternative versions of dbcsr; contains loads of widely obsolete stuff; is  essentially a highly non-portable easyblock working only with intel and gnu (which I am not going to change!); running the tests will not work within an eb environment - at least not sensibly. 
 - __*difference compared to upstream*__ no support for libvori 
 - __*can not be removed*__
+
+## VTune
+- __*added_by*__ j.reuter
+- __*needed because*__ 2024 and up changes paths, causing missing paths in modulefile and failed sanity-checks
+- __*difference compared to upstream*__ None
+- __*can not be removed*__ until next EasyBuild release (see https://github.com/easybuilders/easybuild-easyblocks/pull/3465)
+

@@ -1,0 +1,46 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# jg (CSCS)
+# AH (JSC)
+easyblock = 'Binary'
+
+name = 'Nsight-Compute'
+version = '2024.2.1'
+homepage = 'https://developer.nvidia.com/nsight-compute'
+description = 'NVIDIA Nsight Compute is an interactive kernel profiler for CUDA applications'
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+download_instructions = """Download %(name)s %(version)s from the NVIDIA website, which requires a NVIDIA developer account:
+1. Go to https://developer.nvidia.com/gameworksdownload
+2. Find %(name)s %(version)s
+3. Download "%(name)s (ArmServer) %(version)s ". This may require logging in to your NVIDIA developer account.
+"""
+sources = [{
+    'filename': 'nsight-compute-armserver-%(version)s.2-34372528.run',
+    'extract_cmd': '/bin/sh %s'
+}]
+checksums = ['534db1fd732c42a3c3976f08ed9dbb665c3c89d687c48fd9b6761f74ab81503f']
+
+dependencies = [
+    ('X11', '20230603')
+]
+
+extract_sources = True
+unpack_options = '--nochown --noexec --nox11 --target %(builddir)s'
+
+install_cmd = 'cp -r %(builddir)s/pkg/* %(installdir)s/'
+
+# Workaround due to wrong permissions once the files are extracted from the .run file
+postinstallcmds = [
+    'find %(installdir)s -type f -and -executable -and ! -name "lib*" -exec chmod go+x {} \;']
+
+sanity_check_paths = {
+    'files': ['ncu-ui', 'ncu'],
+    'dirs': ['docs', 'extras', 'host', 'sections', 'target']
+}
+
+modluafooter = """
+add_property("arch","gpu")
+"""
+
+moduleclass = 'tools'

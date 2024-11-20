@@ -50,6 +50,7 @@ graphite2
 HarfBuzz
 holoviews
 ICU
+IME
 ISL
 Imath
 iruby
@@ -61,6 +62,8 @@ JSON-GLib
 JUnit
 JasPer
 JsonCpp
+java-language-server
+jupyterlab-code-formatter
 jupyterlab-github
 jupyterlab-gitlab
 jupyterlab-favorites
@@ -72,6 +75,7 @@ jupyterlab-spellchecker
 jupyterlab-tour
 jupyterlab-h5web
 jupyterlab-nvdashboard
+jupyterlab-trame-manager
 jupyterlab-variableinspector
 jupyter-ai
 jupyter-archive
@@ -84,6 +88,7 @@ jupyter-slurm-provisioner
 JupyterHub
 JupyterKernel-Bash
 JupyterKernel-Cling
+JupyterKernel-Java
 JupyterKernel-JavaScript
 JupyterKernel-Julia
 JupyterKernel-LFortran
@@ -98,6 +103,7 @@ JupyterKernel-Ruby
 JupyterProxy-Matlab
 JupyterProxy-XpraHTML5
 JupyterProxy-NESTDesktop
+JupyterProxy-RStudio
 LAME
 LMDB
 LZO
@@ -348,6 +354,7 @@ xorg-macros
 xprop
 xproto
 xtrans
+yaml-cpp
 yuicompressor
 zfp
 zlib

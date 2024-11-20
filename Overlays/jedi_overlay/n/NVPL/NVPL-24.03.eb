@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'NVPL'
+version = '24.03'
+
+homepage = 'https://docs.nvidia.com/nvpl/_static/blas/index.html'
+description = """NVIDIA Performance Libraries (NVPL) are a collection
+of essential mathematical libraries optimized for Arm 64-bit architectures.
+NVPL allows you to easily port HPC applications to NVIDIA Grace™ CPU
+platforms to achieve industry-leading performance and efficiency."""
+
+toolchain = SYSTEM
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_blas/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_common/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_fft/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_lapack/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_rand/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_sparse/linux-sbsa/',
+    'https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_tensor/linux-sbsa/',
+]
+
+default_easyblock = 'PackedBinary'
+
+default_component_specs = {
+    'sources': ['%(name)s-linux-sbsa-%(version)s-archive.tar.xz'],
+    'start_dir': '%(name)s-linux-sbsa-%(version)s-archive',
+    'install_cmd': 'cp -a %(start_dir)s/* %(installdir)s',
+}
+
+components = [
+    ('nvpl_blas', '0.2.0.1', {
+        'checksums': ['ba29f6a9d3831b6ae5c9265b4d124c13b9b9e0faea025359b02b41ad230975c2'],
+    }),
+    ('nvpl_common', '0.2.0.1', {
+        'checksums': ['8b3c65cb5001fd09be1f020582822e2a040a0ad8a30093f58f2eedbcee1e8ff6'],
+    }),
+    ('nvpl_fft', '0.2.0.2', {
+        'checksums': ['264343405aad6aca451bf8bd0988b6217b2bb17fd8f99394b83e04d9ab2f7f91'],
+    }),
+    ('nvpl_lapack', '0.2.2.1', {
+        'checksums': ['cdfbf69517a044e99e3e6231c8b2f4e845fd0de57775ccad6b4b0b4fe7e91e84'],
+    }),
+    ('nvpl_rand', '0.4.0.1', {
+        'checksums': ['5e215cafbe35ca9add584f49529163545ad9ff218e5a46428129b1debe2a5dcc'],
+    }),
+    ('nvpl_sparse', '0.2.0.1', {
+        'checksums': ['70d558a8d7dfc1d39e93db41a89cdc1b48106df4e0f9fe99a87f5fdfb6efd544'],
+    }),
+    ('nvpl_tensor', '0.1.0.1', {
+        'checksums': ['195e07abb6363257e10b5f33f07bfe96f6cca9115c5ea37c2b812019a7e19353'],
+    }),
+]
+
+
+sanity_check_paths = {
+    'files': ['lib/libnvpl_%s.so' % x for x in ['blas_core', 'fftw', 'lapack_core', 'rand', 'sparse', 'tensor']] +
+             ['include/nvpl_%s.h' % x for x in ['blas', 'fftw', 'lapack', 'rand', 'sparse', 'tensor']],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'numlib'

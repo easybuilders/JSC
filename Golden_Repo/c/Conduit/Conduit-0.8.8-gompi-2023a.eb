@@ -20,7 +20,6 @@ sources = [{
         'recursive': True,
     }
 }]
-checksums = [None]
 
 builddependencies = [
     ('binutils', '2.40'),
@@ -33,6 +32,13 @@ dependencies = [
     ('mpi4py', '3.1.4'),
     ('CUDA', '12', '', SYSTEM),
     ('HDF5', '1.14.2'),
+]
+patches = [
+    ('noMPICXX.patch'),
+]
+checksums = [
+    None,
+    'b37ab103f09b31e0bcde0fd2a04833706cc8aab0bdba3411d906aeeeb2a5c35e',
 ]
 
 start_dir = 'src'

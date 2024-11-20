@@ -15,13 +15,16 @@ source_urls = ['https://github.com/Unidata/netcdf-c/archive/']
 sources = ['v%(version)s.tar.gz']
 patches = [
     'netCDF-4.9.0_skip-nasa-test.patch',
+    'pr2675.patch',
 ]
 checksums = [
     {'v4.9.2.tar.gz': 'bc104d101278c68b303359b3dc4192f81592ae8640f1aee486921138f7f88cb7'},
     {'netCDF-4.9.0_skip-nasa-test.patch': '19d99e03c048b037dc01f03f5b8ddc910ebaceb076d0f050540d348f26dfcd2a'},
+    {'pr2675.patch': '0d08bda282cf53215e3350fb65e3adc3da568f91bc89bbcb2f3419776ddfc820'},
 ]
 
 builddependencies = [
+    ('binutils', '2.40'),
     ('Autotools', '20220317'),
     ('CMake', '3.26.3'),
     ('Doxygen', '1.9.7'),

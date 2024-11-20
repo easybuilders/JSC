@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonBundle"
+
+name = 'zarr'
+version = '2.18.3'
+
+homepage = 'https://zarr.readthedocs.io/en/stable/'
+description = """Zarr is a Python package providing an implementation of compressed,
+chunked, N-dimensional arrays, designed for use in parallel computing."""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [
+    ('hatchling', '1.18.0'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('Python-bundle-PyPI', '2023.06'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('py-cpuinfo', '9.0.0', {
+        'modulename': 'cpuinfo',
+        'checksums': ['3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690'],
+    }),
+    ('asciitree', '0.3.3', {
+        'checksums': ['4aa4b9b649f85e3fcb343363d97564aa1fb62e249677f2e18a96765145cc0f6e'],
+    }),
+    ('fasteners', '0.19', {
+        'checksums': ['b4f37c3ac52d8a445af3a66bce57b33b5e90b97c696b7b984f530cf8f0ded09c'],
+    }),
+    ('numcodecs', '0.13.0', {
+        'checksums': ['ba4fac7036ea5a078c7afe1d4dffeb9685080d42f19c9c16b12dad866703aa2e'],
+    }),
+    ('crc32c', '2.7.post1', {
+        'checksums': ['645aa2738710f42b9f33352ebd79bf0de6b7f9e715642d93a939b5b57452871d'],
+    }),
+    ('pyyaml', '6.0.2', {
+        'modulename': 'yaml',
+        'checksums': ['d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e'],
+    }),
+    ('donfig', '0.8.1.post1', {
+        'checksums': ['3bef3413a4c1c601b585e8d297256d0c1470ea012afa6e8461dc28bfb7c23f52'],
+    }),
+    (name, version, {
+        'checksums': ['2580d8cb6dd84621771a10d31c4d777dca8a27706a1a89b29f42d2d37e2df5ce'],
+    }),
+]
+
+moduleclass = 'data'

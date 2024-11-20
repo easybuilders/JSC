@@ -1,0 +1,107 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'JAR'
+
+name = 'JupyterKernel-Java'
+version = '1.3.0'
+local_java_ver = '21'
+
+homepage = 'https://github.com/padreati/rapaio-jupyter-kernel'
+description = """Jupyter kernel for Java language based on JShell.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+# toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/padreati/rapaio-jupyter-kernel/releases/download/%(version)s']
+sources = ['rapaio-jupyter-kernel-%(version)s.jar']
+patches = [
+    ('logo-32x32.png', '.'),
+    ('logo-64x64.png', '.'),
+    ('logo-128x128.png', '.'),
+]
+checksums = [
+    '0996041ecc40bfb928c5709932ad211546db92c27a7481c41c7e21c9a31dee59',
+    'ab3278228d3ed898050bec348c9aee2201f1e7792b7d29cc725b01b71df8dcec',
+    'ff1bf6d14050371c69f1db86e39f02a3f58653915c702d259d7772335efa48cd',
+    '9c1fe77de07e5d2b0d2dbc0945058859a8b2fbc558e4a939db21bf1fba2a534c',
+]
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Java', local_java_ver, '', SYSTEM),
+    ('java-language-server', '0.2.46'),
+]
+
+local_jupyter_path = 'share/jupyter'
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+local_kernel_dir = 'rapaio-jupyter-kernel'
+local_kernel_name = 'Java -%s' % local_java_ver
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'mkdir -p  %%(installdir)s/share/jupyter/kernels/%s && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png && '
+        'mv %%(installdir)s/rapaio-jupyter-kernel-1.3.0.jar %%(installdir)s/share/jupyter/kernels/%s/ '
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/sh\n'
+        'module purge\n'
+        'module load Stages/${STAGE}\n'
+        'module load Java/%s\n'
+        'exec java \$@\n'
+        'EOF'
+    ) % (local_kernel_dir, local_java_ver),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+    # Jupyter Kernel: Java
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << EOF\n'
+        '{\n'
+        '  "argv": [\n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh",\n'
+        '    "--enable-preview",\n'
+        '    "--add-modules",\n'
+        '    "java.base,jdk.incubator.vector",\n'
+        '    "-jar",\n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/rapaio-jupyter-kernel-%%(version)s.jar",\n'
+        '    "{connection_file}"\n'
+        '  ],\n'
+        '  "display_name": "%s",\n'
+        '  "language": "java",\n'
+        '  "interrupt_mode": "message",\n'
+        '  "env": {\n'
+        '    "RJK_COMPILER_OPTIONS": "",\n'
+        '    "RJK_INIT_SCRIPT": "",\n'
+        '    "RJK_TIMEOUT_MILLIS": "-1"\n'
+        '  }\n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.json' % (local_kernel_dir),
+    ],
+    'dirs': [
+        'share/jupyter/kernels/%s' % (local_kernel_dir),
+    ],
+}
+
+moduleclass = 'tools'

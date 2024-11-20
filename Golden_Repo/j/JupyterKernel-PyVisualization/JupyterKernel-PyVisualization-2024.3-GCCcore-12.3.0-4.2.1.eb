@@ -22,6 +22,7 @@ builddependencies = [
     # ('ParaView', '5.12.0-RC2', '-EGL', ('gpsmkl', '2022a')),
     # ('Conduit', '0.8.8'),
     # ('Ascent', '20240122'),
+    # ('trame', '3.6.3', '-ParaView'),
 ]
 
 dependencies = [
@@ -94,6 +95,7 @@ postinstallcmds = [
         'module load ParaView/5.12.0-RC2-EGL \n'
         'module load Conduit/0.8.8 \n'
         'module load Ascent/20240122 \n'
+        'module load trame/3.6.3-ParaView \n'
         '\n'
         'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
         'exec python -m ipykernel \$@\n'

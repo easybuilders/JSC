@@ -1,0 +1,32 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+name = 'IME'
+version = 'mockup'
+
+homepage = 'https://github.com/DDNStorage/ime_2_posix'
+description = f"""
+IME Client wrapper library
+
+It is used to mock IME native calls using POSIX functions.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+
+builddependencies = [('binutils', '2.40')]
+
+skipsteps = ['configure']
+
+github_account = 'DDNStorage-dev'
+source_urls = [' https://github.com/DDNStorage/ime_2_posix/archive/refs/heads']
+sources = ['ime_2_posix.tar.bz2']
+
+checksums = ['5f3f840206ed82d5ffebf0a913cf8825f6e996bf2cc6375e87dd8a46cd78d1c7']
+
+installopts = 'DESTDIR=%(installdir)s'
+
+sanity_check_paths = {
+    'files': ['lib/libim_client.%s' % SHLIB_EXT, 'lib/libim_client.%s.0' % SHLIB_EXT],
+    'dirs': ["lib", "lib64"],
+}
+
+moduleclass = 'lib'

@@ -1,0 +1,126 @@
+From 994c3eb4080631cbcb37d9907d1384876f9dcda7 Mon Sep 17 00:00:00 2001
+From: jbohling <bohling.jw@gmail.com>
+Date: Thu, 24 Mar 2016 16:57:00 -0400
+Subject: [PATCH 1/5] Fix typo
+
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 73260d211..fbda40290 100644
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,4 @@
+-This is md5deep, a set of cross-platform tools to computer hashes, or
++This is md5deep, a set of cross-platform tools to compute hashes, or
+ message digests, for any number of files while optionally recursively
+ digging through the directory structure.  It can also take a list of known
+ hashes and display the filenames of input files whose hashes either do or
+
+From af77d24cb56dcc2dc6d93d9328ee4026cbe92de7 Mon Sep 17 00:00:00 2001
+From: Tony Kelman <tony@kelman.net>
+Date: Fri, 8 Jul 2016 20:47:37 -0700
+Subject: [PATCH 2/5] Fix typo in README.md
+
+I believe "on Windows and refusing" is the intent here?
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index fbda40290..b8958df26 100644
+--- a/README.md
++++ b/README.md
+@@ -73,7 +73,7 @@ that nobody is entirely sure that Windows actually does, and Windows
+ itself may not be consistent.
+ 
+ Version 3 of this program addressed this issue by using the TCHAR
+-variable to hold filenames on Windowa dn by refusing to print them,
++variable to hold filenames on Windows and refusing to print them,
+ priting a "?" instead. Version 4 of this program translates TCHAR
+ strings to std::string strings at the soonest opportunity using the
+ [Windows function WideCharToMultiByte]
+
+From 72e41af057017e30a3014cf7e60dbe37ca482720 Mon Sep 17 00:00:00 2001
+From: Jesse Kornblum <jessekornblum@gmail.com>
+Date: Mon, 11 Jul 2016 16:25:25 -0700
+Subject: [PATCH 3/5] Add release hashes
+
+---
+ README.md | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/README.md b/README.md
+index b8958df26..55e8644c4 100644
+--- a/README.md
++++ b/README.md
+@@ -29,6 +29,14 @@ For example, to install to /home/foo/bin, use:
+ There is complete documentation on how to use the program on the
+ project's homepage, [https://github.com/jessek/hashdeep](https://github.com/jessek/hashdeep)
+ 
++## Release hashes
++
++The latest release is version 4.4. Here are the hashes for the Win32 versions:
++
++* MD5 047ff5311d821f667150f37695bd01b3
++* SHA256 d5e85933e74e5ba6a73f67346bc2e765075d26949c831a428166c92772f67dbc
++
++
+ ## md5deep vs. hashdeep
+ 
+ For historical reasons, the program has different options and features
+
+From 6ef69a26126ee4e69a25392fd456b8a66c51dffd Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Tue, 15 Nov 2016 02:46:55 +0000
+Subject: [PATCH 4/5] Fix errors found by clang
+
+Fixes errors like
+
+../../git/src/hash.cpp:282:19: error: ordered comparison between pointer and zero ('const unsigned char *' and 'int')
+            if(fdht->base>0){
+               ~~~~~~~~~~^~
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ src/hash.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/hash.cpp b/src/hash.cpp
+index 42161579f..52f419b0c 100644
+--- a/src/hash.cpp
++++ b/src/hash.cpp
+@@ -279,7 +279,7 @@ void file_data_hasher_t::hash()
+ 		MAP_FILE|
+ #endif
+ 		MAP_SHARED,fd,0);
+-	    if(fdht->base>0){		
++	    if(fdht->base != (void *) -1){
+ 		/* mmap is successful, so set the bounds.
+ 		 * if it is not successful, we default to reading the fd
+ 		 */
+
+From 6767fdb22c293f4020d62683b7c1fbaafead521d Mon Sep 17 00:00:00 2001
+From: Nikolay <kulakov.n@gmail.com>
+Date: Wed, 21 Jun 2017 13:06:33 +0300
+Subject: [PATCH 5/5] Update README.md
+
+added '-' before 'k' in example
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 55e8644c4..633885d9d 100644
+--- a/README.md
++++ b/README.md
+@@ -59,7 +59,7 @@ Errors are reported to standard error. If no FILES are specified, reads from sta
+ To perform an audit:
+ 
+     hashdeep -r dir  > /tmp/auditfile            # Generate the audit file
+-    hashdeep -a k /tmp/auditfile -r dir          # test the audit
++    hashdeep -a -k /tmp/auditfile -r dir          # test the audit
+ 
+ Notice that the audit is performed with a standard hashdeep output
+ file. (Internally, the audit is computed as part of the hashing process.)

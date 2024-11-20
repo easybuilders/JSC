@@ -16,6 +16,10 @@ source_urls = [
 sources = [SOURCELOWER_TAR_GZ]
 checksums = ['1c342e634008284a8c2794c8e7608e2eaf26d01d445fb3dfd7f33cb2fb51ac53']
 
+builddependencies = [
+    ('binutils', '2.40')
+]
+
 dependencies = [
     ('zlib', '1.2.13'),
     ('Szip', '2.1.1'),

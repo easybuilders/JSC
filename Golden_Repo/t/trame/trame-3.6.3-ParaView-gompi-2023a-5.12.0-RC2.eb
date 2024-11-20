@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'trame'
+version = '3.6.3'
+versionsuffix = '-ParaView'
+
+homepage = 'https://github.com/Kitware/trame'
+description = """
+A web framework that weaves together open source components into customized visual analytics easily.
+"""
+
+toolchain = {'name': 'gompi', 'version': '2023a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('hatchling', '1.18.0'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('trame', '3.6.3'),
+    ('ParaView', '5.12.0-RC2', '-EGL'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('trame_remote_control', '0.1.1', {
+        'checksums': ['1834789ec15ab7964badaa3a13f8dd29c1e96a7f66f5569538d72a30237d96d2'],
+    }),
+    ('trame-vtk', '2.8.9', {
+        'checksums': ['718c378fc54706978e4d87bac6da5dc5e1a9ddde958759f51a0f3f4c7544cc30'],
+    }),
+    ('pv-visualizer', '0.1.6', {
+        'checksums': ['73008860e4910b39e996378fec6d2c3751ef1e44f68a974b2ad9d105d47206e6'],
+    }),
+]
+
+moduleclass = 'vis'

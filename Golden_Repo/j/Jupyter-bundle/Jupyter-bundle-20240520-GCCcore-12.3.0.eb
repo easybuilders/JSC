@@ -25,7 +25,7 @@ dependencies = [
     ('jupyter-resource-usage', '1.0.2'),
     ('jupyterlab-favorites', '3.2.1'),
     ('jupyter-archive', '3.4.0'),
-    ('jupyterlab-variableinspector', '3.2.1'),
+    # ('jupyterlab-variableinspector', '3.2.1'),  # performance issue
     ('ipympl', '0.9.4'),
     ('jupyterlab-git', '0.50.1'),
 
@@ -33,7 +33,7 @@ dependencies = [
     ('jupyterlab-latex', '4.0.0'),
     ('nbdime', '4.0.1'),
     ('jupyterlab-gitlab', '4.0.0'),
-    ('jupyterlab-spellchecker', '0.8.4'),
+    # ('jupyterlab-spellchecker', '0.8.4'),  # for some annoying
     ('jupyterlab-tour', '4.0.1'),
     ('jupyterlab-h5web', '12.1.0'),
     ('jupyter-bokeh', '4.0.4'),
@@ -46,6 +46,7 @@ dependencies = [
     ('bqplot', '0.13.0rc0'),
     ('ipyparallel', '8.8.0'),
     ('jupyterlab-sidecar', '0.7.0'),
+    ('jupyterlab-code-formatter', '3.0.2'),
 
     # JupyterLab extensions (optional)
     # ('nglview', '3.1.2'),
@@ -93,7 +94,6 @@ dependencies = [
     # ipyvolume ##################################### -- no JLab 4
     # jupyterlab_plugin_playground ################## -- no JLab 4
     # jupyterlab-s3-browser ######################### -- no JLab 4
-    # jupyterlab_code_formatter ##################### -- no JLab 4
 ]
 
 moduleclass = 'tools'

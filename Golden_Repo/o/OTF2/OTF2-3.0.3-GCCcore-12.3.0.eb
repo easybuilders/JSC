@@ -37,8 +37,16 @@ builddependencies = [
     # SIONlib container support (optional):
     ('SIONlib', '1.7.7', '-tools'),
 ]
+dependencies = [
+    # OTF2 Python bindings
+    ('Python', '3.11.3'),
+    ('Python-bundle-PyPI', '2023.06'),
+]
 
+local_pyshortver = '3.11'
 configopts = '--enable-shared'
+
+modextrapaths = {'PYTHONPATH': ['lib64/python%s/site-packages' % local_pyshortver]}
 
 sanity_check_paths = {
     'files': ['bin/otf2-config', 'include/otf2/otf2.h',
@@ -46,5 +54,6 @@ sanity_check_paths = {
               ('lib/libotf2.%s' % SHLIB_EXT, 'lib64/libotf2.%s' % SHLIB_EXT)],
     'dirs': [],
 }
+sanity_check_commands = ["python -c 'import otf2'"]
 
 moduleclass = 'perf'

@@ -1,0 +1,221 @@
+From d24b722bbaa898ea9bd79663bb39848f3d56d412 Mon Sep 17 00:00:00 2001
+From: goebbert1 <goebbert1@jwlogin10.juwels>
+Date: Sat, 24 Aug 2024 14:52:14 +0200
+Subject: [PATCH 1/4] Support glob-style operations
+
+---
+ sphinx_autobuild/filter.py                    | 21 +++++++++++++++-
+ tests/test_ignore.py                          | 24 +++++++++++++++++++
+ tests/test_ignore_glob/do_ignore/bar.txt      |  0
+ tests/test_ignore_glob/do_ignore/foo.txt      |  0
+ .../test_ignore_glob/do_ignore/nested/foo.txt |  0
+ .../do_not_ignore/1doignore.txt               |  0
+ .../do_not_ignore/1doignore1.txt              |  0
+ .../do_not_ignore/doignore1.txt               |  0
+ tests/test_ignore_glob/do_not_ignore/foo.txt  |  0
+ 9 files changed, 44 insertions(+), 1 deletion(-)
+ create mode 100644 tests/test_ignore_glob/do_ignore/bar.txt
+ create mode 100644 tests/test_ignore_glob/do_ignore/foo.txt
+ create mode 100644 tests/test_ignore_glob/do_ignore/nested/foo.txt
+ create mode 100644 tests/test_ignore_glob/do_not_ignore/1doignore.txt
+ create mode 100644 tests/test_ignore_glob/do_not_ignore/1doignore1.txt
+ create mode 100644 tests/test_ignore_glob/do_not_ignore/doignore1.txt
+ create mode 100644 tests/test_ignore_glob/do_not_ignore/foo.txt
+
+diff --git a/sphinx_autobuild/filter.py b/sphinx_autobuild/filter.py
+index 456786f..5a57ba0 100644
+--- a/sphinx_autobuild/filter.py
++++ b/sphinx_autobuild/filter.py
+@@ -3,6 +3,7 @@
+ import fnmatch
+ import os
+ import re
++from glob import glob
+ 
+ 
+ class IgnoreFilter:
+@@ -19,9 +20,27 @@ def __repr__(self):
+ 
+     def __call__(self, path):
+         """Determine if 'path' should be ignored."""
++        # Return the full path so we make sure we handle relative paths OK
++        path_expanded = os.path.abspath(path)
+         # Any regular pattern matches.
+         for pattern in self.regular_patterns:
+-            if path.startswith((pattern + os.sep, pattern + "/")):
++
++            # Expand the pattern into a list of files that match a glob
++            matched_files = [os.path.abspath(ii) for ii in glob(pattern, recursive=True)]
++
++            # If this file matches any of the glob matches, we ignore it
++            if path_expanded in matched_files:
++                return True
++
++            # If the parent of this path matches any of the glob matches, ignore it
++            if any(path_expanded.startswith(imatch) for imatch in matched_files):
++                return True
++
++            # These two checks are for preserving old behavior.
++            # They might not be necessary but leaving here just in case.
++            # Neither depends on the files actually being on disk.
++
++            if path.strip(os.path.sep).startswith((pattern.strip(os.path.sep) + os.path.sep, pattern + "/")):
+                 return True
+             if fnmatch.fnmatch(path, pattern):
+                 return True
+diff --git a/tests/test_ignore.py b/tests/test_ignore.py
+index fa6b0bd..2cdeafe 100644
+--- a/tests/test_ignore.py
++++ b/tests/test_ignore.py
+@@ -1,3 +1,5 @@
++from glob import glob
++
+ from sphinx_autobuild.filter import IgnoreFilter
+ 
+ 
+@@ -72,3 +74,25 @@ def test_multiple_both():
+     assert ignored("foo/random.txt")
+     assert ignored("foo/module.pyc")
+     assert ignored("bar/__pycache__/file.pyc")
++
++
++def test_glob_expression():
++    ignored = IgnoreFilter(
++        [
++            # Glob for folder
++            "**/do_ignore",
++            # Glob for files
++            "**/*doignore*.*",
++        ],
++        [],
++    )
++    # Root folder of our glob test files. Assume tests are run from project root.
++    for ifile in glob("tests/test_ignore_glob/**/*"):
++        # Convert to be relative to the tests directory since that mimics
++        # the user's behavior.
++        if "do_ignore" in ifile or "doignore" in ifile:
++            print(f"Should ignore: {ifile})")
++            assert ignored(ifile)
++        else:
++            print(f"Should NOT ignore: {ifile})")
++            assert not ignored(ifile)
+diff --git a/tests/test_ignore_glob/do_ignore/bar.txt b/tests/test_ignore_glob/do_ignore/bar.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_ignore/foo.txt b/tests/test_ignore_glob/do_ignore/foo.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_ignore/nested/foo.txt b/tests/test_ignore_glob/do_ignore/nested/foo.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_not_ignore/1doignore.txt b/tests/test_ignore_glob/do_not_ignore/1doignore.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_not_ignore/1doignore1.txt b/tests/test_ignore_glob/do_not_ignore/1doignore1.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_not_ignore/doignore1.txt b/tests/test_ignore_glob/do_not_ignore/doignore1.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/test_ignore_glob/do_not_ignore/foo.txt b/tests/test_ignore_glob/do_not_ignore/foo.txt
+new file mode 100644
+index 0000000..e69de29
+
+From 0ecb6b4afea8d0437c1c1cf6f6c0b64221ed6d98 Mon Sep 17 00:00:00 2001
+From: goebbert1 <goebbert1@jwlogin10.juwels>
+Date: Sat, 24 Aug 2024 17:09:30 +0200
+Subject: [PATCH 2/4] fix style
+
+---
+ sphinx_autobuild/filter.py | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/sphinx_autobuild/filter.py b/sphinx_autobuild/filter.py
+index 5a57ba0..bf0fc2e 100644
+--- a/sphinx_autobuild/filter.py
++++ b/sphinx_autobuild/filter.py
+@@ -26,9 +26,11 @@ def __call__(self, path):
+         for pattern in self.regular_patterns:
+ 
+             # Expand the pattern into a list of files that match a glob
+-            matched_files = [os.path.abspath(ii) for ii in glob(pattern, recursive=True)]
++            matched_files = [
++                os.path.abspath(ii)
++                for ii in glob(pattern, recursive=True)
++            ]
+ 
+-            # If this file matches any of the glob matches, we ignore it
+             if path_expanded in matched_files:
+                 return True
+ 
+@@ -40,7 +42,9 @@ def __call__(self, path):
+             # They might not be necessary but leaving here just in case.
+             # Neither depends on the files actually being on disk.
+ 
+-            if path.strip(os.path.sep).startswith((pattern.strip(os.path.sep) + os.path.sep, pattern + "/")):
++            if path.strip(os.path.sep).startswith(
++                (pattern.strip(os.path.sep) + os.path.sep, pattern + "/")
++            ):
+                 return True
+             if fnmatch.fnmatch(path, pattern):
+                 return True
+
+From 50b56781cfdc9b62c7d7e06271236fa788a1d493 Mon Sep 17 00:00:00 2001
+From: goebbert1 <goebbert1@jwlogin10.juwels>
+Date: Sat, 24 Aug 2024 17:15:01 +0200
+Subject: [PATCH 3/4] fix style
+
+---
+ sphinx_autobuild/filter.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/sphinx_autobuild/filter.py b/sphinx_autobuild/filter.py
+index bf0fc2e..c5b753a 100644
+--- a/sphinx_autobuild/filter.py
++++ b/sphinx_autobuild/filter.py
+@@ -27,8 +27,7 @@ def __call__(self, path):
+ 
+             # Expand the pattern into a list of files that match a glob
+             matched_files = [
+-                os.path.abspath(ii)
+-                for ii in glob(pattern, recursive=True)
++                os.path.abspath(ii) for ii in glob(pattern, recursive=True)
+             ]
+ 
+             if path_expanded in matched_files:
+@@ -42,9 +41,10 @@ def __call__(self, path):
+             # They might not be necessary but leaving here just in case.
+             # Neither depends on the files actually being on disk.
+ 
+-            if path.strip(os.path.sep).startswith(
+-                (pattern.strip(os.path.sep) + os.path.sep, pattern + "/")
+-            ):
++            if path.strip(os.path.sep).startswith((
++                pattern.strip(os.path.sep) + os.path.sep,
++                pattern + "/",
++            )):
+                 return True
+             if fnmatch.fnmatch(path, pattern):
+                 return True
+
+From d279bee1db21061dea13b326ab421edf34289240 Mon Sep 17 00:00:00 2001
+From: goebbert1 <goebbert1@jwlogin10.juwels>
+Date: Sat, 24 Aug 2024 17:17:29 +0200
+Subject: [PATCH 4/4] fix style
+
+---
+ sphinx_autobuild/filter.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/sphinx_autobuild/filter.py b/sphinx_autobuild/filter.py
+index c5b753a..531a599 100644
+--- a/sphinx_autobuild/filter.py
++++ b/sphinx_autobuild/filter.py
+@@ -24,7 +24,6 @@ def __call__(self, path):
+         path_expanded = os.path.abspath(path)
+         # Any regular pattern matches.
+         for pattern in self.regular_patterns:
+-
+             # Expand the pattern into a list of files that match a glob
+             matched_files = [
+                 os.path.abspath(ii) for ii in glob(pattern, recursive=True)

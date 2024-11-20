@@ -27,6 +27,9 @@ sanity_pip_check = True
 use_pip = True
 
 exts_list = [
+    ('pexpect', '4.9.0', {
+        'checksums': ['ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f'],
+    }),
     ('jupyterlab_git', '%(version)s', {
         'checksums': ['bf4f06a3fbc2b2ab84ea5d52326aa0e0b8ccf4e9a3357fa318a119560e1c6a4d'],
     }),

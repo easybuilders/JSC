@@ -362,6 +362,19 @@ def tweak_module_conflict_side_compilers(ec):
 
     return ec
 
+def find_acls():
+    for p in os.getenv('EASYBUILD_ROBOT_PATHS').split(':'):
+        acls_path = '/'.join(p.split('/')[:-1]+["acls.yml"])
+        if os.path.isfile(acls_path) and os.access(acls_path, os.R_OK):
+            return acls_path
+    raise EasyBuildError(f"No readable acls.yml was found on any of these paths: {os.getenv('EASYBUILD_ROBOT_PATHS')}")
+
+def find_acl_script():
+    for p in os.getenv('EASYBUILD_ROBOT_PATHS').split(':'):
+        setacls_path = '/'.join(p.split('/')[:-1]+['bin','setacls'])
+        if os.path.isfile(setacls_path) and os.access(setacls_path, os.R_OK) and os.access(setacls_path, os.X_OK):
+            return setacls_path
+    raise EasyBuildError(f"No setacls script was found on any of these paths {os.getenv('EASYBUILD_ROBOT_PATHS')}")
 
 def inject_site_contact_and_user_labels(ec):
     ec_dict = ec.asdict()
@@ -371,8 +384,9 @@ def inject_site_contact_and_user_labels(ec):
     # Non-user installation
     if install_path().lower().startswith('/p/software'):
         if os.getenv('CI_INSTALLATION'):
+            # Find acls.yml
+            yaml_acls = find_acls()
             # Get user from ACL
-            yaml_acls = '/'.join(os.getenv('EASYBUILD_ROBOT_PATHS').split(':')[-1].split('/')[:-1]+["acls.yml"])
             with open(yaml_acls) as config:
                 l_config = yaml.safe_load(config)
             f_config = copy.deepcopy(l_config)
@@ -676,8 +690,12 @@ def post_package_hook(self, *args, **kwargs):
         print_msg("Running ACLs script...")
 
         # Try to figure out path to setacls
-        setacls = '/'.join(os.getenv('EASYBUILD_ROBOT_PATHS').split(':')[-1].split('/')[:-1]+["bin","setacls"])
-        acls_cmd = [setacls, "--filter-package", f"{self.name}", "--install-path", f"{self.installdir}"]
+        setacls = find_acl_script()
+        yaml_acls = find_acls()
+        acls_cmd = [setacls,
+                    "--filter-package", self.name,
+                    "--install-path", self.installdir,
+                    "--config", yaml_acls]
 
         # Make sure we are using the system python, so yaml is picked from the system, and not from the python module
         # if it is used as build dependency

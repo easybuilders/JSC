@@ -29,6 +29,7 @@ dependencies = [
     # VisIt comes with its own Qt5 as this avoids issues with Qwt
     ('X11', '20230603'),
     ('OpenGL', '2023a'),
+    ('PCRE2', '10.42'),
 ]
 
 install_cmd = "chmod +x %s && " % local_script

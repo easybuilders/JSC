@@ -24,6 +24,7 @@ builddependencies = [
 ]
 
 dependencies = [
+    ('Python', '3.11.3'),
     ('Conduit', '0.8.8'),
 ]
 
@@ -32,6 +33,7 @@ separate_build_dir = True
 configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
 configopts += '-DCATALYST_BUILD_TOOLS=ON '
 configopts += '-DCATALYST_USE_MPI=ON '
+configopts += '-DCATALYST_WRAP_PYTHON=ON '
 configopts += '-DCATALYST_WRAP_FORTRAN=ON '
 configopts += '-DCATALYST_WITH_EXTERNAL_CONDUIT=ON '
 

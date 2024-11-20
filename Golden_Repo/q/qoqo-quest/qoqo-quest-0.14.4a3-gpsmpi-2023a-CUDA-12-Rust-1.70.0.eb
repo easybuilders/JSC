@@ -1,0 +1,72 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'qoqo-quest'
+version = '0.14.4a3'
+versionsuffix = '-CUDA-12-Rust-1.70.0'
+
+homepage = 'https://github.com/HQSquantumsimulations/qoqo-quest'
+description = """
+qoqo-quest allows to simulate the execution of qoqo quantum circuits with the help of the QuEST quantum simulator. 
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2023a'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('maturin', '1.4.0', '-Rust-1.70.0'),
+    ('Python', '3.11.3'),
+    ('SciPy-bundle', '2023.07', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+    ('CUDA', '12', '', SYSTEM),
+    ('cuQuantum-Python', '23.10.0', '-CUDA-%(cudaver)s', ('gpsfbf', '2023a')),
+]
+
+exts_list = [
+    ('qoqo_calculator_pyo3', '1.2.4', {
+        'postinstallcmds': [
+            'rm -rf %(installdir)s/lib/python3.11/site-packages/qoqo_calculator_pyo3/qoqo_calculator_pyo3'
+        ],
+        'modulename': 'qoqo_calculator_pyo3',
+        'sources': ['qoqo_calculator_pyo3-%(version)s.tar.gz'],
+        'checksums': ['9b22352e1fbdf68288c5f29fb682b0cf771b7c2e01e5b1f3a878ca39b7a64684'],
+    }),
+    ('struqture_py', '1.9.2', {
+        'modulename': 'struqture_py',
+        'sources': ['struqture_py-1.9.2.tar.gz'],
+        'checksums': ['1d1bd3956b174c4d1f365719f295959d4906d0ce4d52c41e9644ac0d9a7c873f'],
+    }),
+    ('qoqo', '1.15.1', {
+        'modulename': 'qoqo',
+        'sources': ['qoqo-1.15.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['67cb3d0dd2e99cb5136b1a4b351bbcf176aaccabd0865dd6b7662c2d2319e83c'],
+    }),
+    (name, version, {
+        'modulename': 'qoqo_quest',
+        'sources': ['qoqo_quest-0.14.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
+        'checksums': ['4ea95c0f4b88dadd86fc7812ed8bf81bf5073eb145bced7e7a6f67cc34b631bb'],
+    }),
+    ('qoqo-mock', '0.5.7', {
+        'modulename': 'qoqo_mock',
+        'sources': ['qoqo_mock-0.5.7.tar.gz'],
+        'checksums': ['3e48c041569e4e629294300cf968cf77af6d750f7c8da14032e0baf433baa8cd'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': [
+        'lib/python%(pyshortver)s/site-packages/qoqo/__init__.py',
+        'lib/python%(pyshortver)s/site-packages/qoqo_quest/__init__.py',
+        'lib/python%(pyshortver)s/site-packages/qoqo_calculator_pyo3/__init__.py'
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages/qoqo',
+        'lib/python%(pyshortver)s/site-packages/qoqo_quest',
+        'lib/python%(pyshortver)s/site-packages/qoqo_calculator_pyo3'
+    ],
+}
+
+use_pip = True
+sanity_pip_check = True
+download_dep_fail = True
+
+moduleclass = 'quantum'

@@ -1,0 +1,108 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'trame'
+version = '3.6.3'
+
+homepage = 'https://github.com/Kitware/trame'
+description = """
+A web framework that weaves together open source components into customized visual analytics easily.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    ('hatchling', '1.18.0'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('PyYAML', '6.0'),
+    ('aiohttp', '3.9.3'),
+    ('matplotlib', '3.7.2', '', ('gcccoreflexiblas', '12.3.0-3.3.1')),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('mpld3', '0.5.10', {
+        'checksums': ['a478eb404fa5212505c59133cf272cd9a94105872e605597720e7f84de38fbc7'],
+    }),
+    ('termcolor', '2.3.0', {
+        'checksums': ['b5b08f68937f138fe92f6c089b99f1e2da0ae56c52b78bf7075fd95420fd9a5a'],
+    }),
+    ('trame-rca', '0.4.4', {
+        'checksums': ['b714775f8c0647ab80e4a93546bc1c5ed159c4db83e1fcf6cb644d030cbee276'],
+    }),
+    ('trame', version, {
+        'checksums': ['09c1193eee3a2b1ed5a3dc46db75d8ee1cd1f8da66e4614d583f0ecf02705fc0'],
+    }),
+    ('trame-client', '3.2.1', {
+        'checksums': ['fa809b59ac39f6940a92816548f8145c3036010efb61abd1469d914f4bc86caa'],
+    }),
+    ('trame-code', '1.0.1', {
+        'checksums': ['b2816e4c66252f88c0c762c30913533ac4f019938b8c490826a9be3353388acc'],
+    }),
+    ('trame-components', '2.3.2', {
+        'checksums': ['006d80938faaff4945fa553e3c4afcefdd81016740c07b650a6c7685b9473c04'],
+    }),
+    ('trame-datagrid', '0.2.1', {
+        'checksums': ['284cbf294dc4c10b32a9fdfcc15391aee5eeb4fd726733ac83a289b959b344ee'],
+    }),
+    ('trame-deckgl', '2.0.3', {
+        'checksums': ['0eeb3aa4e3f62c1380c7a8afde3f0530db72e9b145895c3e23ac557709949194'],
+    }),
+    ('trame-formkit', '0.1.2', {
+        'checksums': ['089ba72ab848373defa041636f41c9db9be316e6e228ae5ec1eb37f7ef98c79e'],
+    }),
+    ('trame-iframe', '1.0.1', {
+        'checksums': ['0d05b56b22c29ca2476b07d0db310431c375213b06fbadbdb112d4a247a7cb17'],
+    }),
+    ('trame-markdown', '3.0.1', {
+        'checksums': ['b93d06ba6fa508dcd6982aee2730b6f50b35e92dbbf7b44734eede32e9dfd340'],
+    }),
+    ('trame-matplotlib', '2.0.3', {
+        'checksums': ['4cf0beb092fc2b11988480346a0cae3ce5fe0267429c7876727a8389bded5cd6'],
+    }),
+    ('trame-plotly', '3.0.2', {
+        'checksums': ['bb472ace64c9c2e65bb7c535c0567a35bfc3711588759731c36b2d7f6e3434b9'],
+    }),
+    ('trame-quasar', '0.2.1', {
+        'checksums': ['be25252e81e32c3ba0e04a8b85de14305a9b556e9315021ce1a8b87fa20fbd01'],
+    }),
+    ('trame-router', '2.2.0', {
+        'checksums': ['7958924c414497722eb3cbad32f0f92638ea262cff97a3bcab985a87146bfb1a'],
+    }),
+    ('trame-server', '3.0.3', {
+        'checksums': ['0261bfca4e2807406ae57b8bc5ce200286606ffd8c57d7b866bc7ab45be2398b'],
+    }),
+    ('trame-simput', '2.4.3', {
+        'checksums': ['3614829c0e0d2577e1c26bafedcb7f0681b8e28722479bc38884645b2b71e0b4'],
+    }),
+    ('trame-tauri', '0.6.0', {
+        'checksums': ['7fce3b33ad8a8415711420d1c3f67edbdf8483f29927bf23d76fd9a609000ba5'],
+    }),
+    ('trame_tweakpane', '0.1.3', {
+        'checksums': ['8c79a02a0b2d6ec49951ade62dc6976522cd76e8ff607dc7384b96aebf6f8ae0'],
+    }),
+    ('trame-vega', '2.1.1', {
+        'checksums': ['a3d82f7535a66a782262647001987dba3ad0ddc64ce21225a4cfccd351fed8fa'],
+    }),
+    ('trame-vtk3d', '0.1.0', {
+        'checksums': ['0ae64f45857760ae41f82491ddff842fd531db9a633ed61e3f7e3a4be7fe8fae'],
+    }),
+    ('trame-vuetify', '2.6.1', {
+        'checksums': ['1f1f421a9a7b5185d3542cfba96db44addcbe42e18becfe21dd86051a4037c6d'],
+    }),
+    ('trame-xterm', '0.2.1', {
+        'checksums': ['208ca977325e7c7b77fe5e1a42d0f54531d2f2d5ecf1e05c666ddf3269e5e41d'],
+    }),
+    ('wslink', '2.1.1', {
+        'checksums': ['16dbda2d60aa663495ce3d4c961e36df52ec3cdab7d4ee8e8489b881e600641e'],
+    }),
+]
+
+moduleclass = 'vis'

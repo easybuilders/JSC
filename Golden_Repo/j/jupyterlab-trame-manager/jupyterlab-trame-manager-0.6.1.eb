@@ -1,0 +1,101 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-trame-manager'
+version = '0.6.1'
+local_jupyterver = '4.2.1'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/jwindgassen/jupyterlab-trame-manager'
+description = """jupyterlab-trame-manager is an extension for JupyterLab that enables the usage of ParaView trame 
+within JupyterLab. It bridges Cloud and interactive Visualization, allowing users to run and control their customized 
+visualization and analysis apps, written in trame, from inside the JupyterLab. 
+It was written with Cloud-Computing and HPC in mind and is designed to be platform-independant.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', local_jupyterver),
+    ('jupyter-server-proxy', '4.1.2'),
+    ('OpenSSL', '1.1', '', SYSTEM),
+    ('aiohttp', '3.9.3'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('jupyterlab_trame_manager', version, {
+        'checksums': ['7ba1ccfc4f060610d10e8a1064ef53b73922eb61526638a254662ebaa61db4e1'],
+    }),
+]
+
+modextrapaths = {
+    'JUPYTER_EXTRA_LABEXTENSIONS_PATH': ['share/jupyter/labextensions'],
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for trame App
+    'JUPYTER_CONFIG_PATH': ['etc/jupyter'],
+}
+
+modextravars = {
+    'TRAME_MANAGER_CONFIGURATION': 'jsc',
+}
+
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is first entry in JUPYTHER_PATH
+modluafooter = """
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # Create dirs
+    'mkdir -p %(installdir)s/share/jupyter/trame/paraview-visualizer',
+
+    # write launch.sh
+    (
+        '{ cat > %(installdir)s/share/jupyter/trame/paraview-visualizer/launch.sh; } << EOF \n'
+        '#! /bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/2024 \n'
+        'module load GCC/12.3.0 \n'
+        'module load ParaStationMPI/5.9.2-1 \n'
+        'module load ParaView/5.12.0-RC2-EGL \n'
+        'module load trame/3.6.3-ParaView \n'
+        'python -m pv_visualizer.app.main --data ~ \$TRAME_INSTANCE_ARGS \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/share/jupyter/trame/paraview-visualizer/launch.sh',
+
+    # write app.yml
+    (
+        '{ cat > %(installdir)s/share/jupyter/trame/paraview-visualizer/app.yml; } << EOF \n'
+        'name: ParaView Visualizer \n'
+        'working_directory: "%(installdir)s/share/jupyter/trame/paraview-visualizer" \n'
+        'command: "source ./launch.sh" \n'
+        '\n'
+        'EOF'
+    ),
+]
+
+
+sanity_check_paths = {
+    'files': [
+        f'share/jupyter/trame/paraview-visualizer/launch.sh',
+        f'share/jupyter/trame/paraview-visualizer/app.yml',
+    ],
+    'dirs': [
+        'share/jupyter/trame',
+        'share/jupyter/labextensions',
+        'lib/python%(pyshortver)s/site-packages',
+    ],
+}
+
+moduleclass = 'tools'

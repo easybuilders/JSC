@@ -1,0 +1,79 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-RStudio'
+version = '2023.09.1'
+local_jupyterver = '4.2.1'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://github.com/jupyterhub/jupyter-rsession-proxy'
+description = """
+Jupyter proxy for RStudio sessions.
+RStudio is an integrated development environment (IDE) for R.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '12.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.40'),
+    # check for existance
+    # ('RStudio-Server', '2023.09.1+494', '-Java-11-R-4.3.2'),
+]
+
+dependencies = [
+    ('Python', '3.11.3'),
+    ('JupyterLab', local_jupyterver),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+exts_list = [
+    ('jupyter-rsession-proxy', '2.2.1', {
+        'source_urls': ['https://github.com/jupyterhub/jupyter-rsession-proxy/archive/'],
+        'source_tmpl': '216d9e5e65f0a16af34cf1bafc418c4daa1e08d6.tar.gz',
+        'patches':  ['socket-support.patch'],
+        'checksums': [
+            '80c7f65b08ddee5c04a25193274328d42ebd4e6e11f372624de5fad91048acc5',
+            'ab04560668a5dace3a7bee7a9656804448378a20ec61c707646efb8283f8f27c',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    'mkdir %(installdir)s/bin/',
+    (
+        '{ cat > %(installdir)s/bin/rserver; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC \n'
+        'module load ParaStationMPI \n'
+        'module load RStudio-Server \n'
+        '\n'
+        'rserver "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/rserver'
+]
+
+modextravars = {
+    'RSERVER_TIMEOUT': '90',
+    'RSERVER_THREAD_POOL_SIZE': '20',
+    'RSERVER_USE_SOCKET': 'ON'
+}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

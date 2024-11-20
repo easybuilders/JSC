@@ -55,7 +55,6 @@ exts_list = [
         'checksums': ['3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0'],
     }),
     ('pydantic-core', '2.16.2', {
-        # Need to use a .whl because eb cannot convert the tar.gz into a .whl
         'modulename': 'pydantic_core',
         'sources': ['pydantic_core-2.16.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'],
         'checksums': ['dffaf740fe2e147fedcb6b561353a16243e654f7fe8e701b1b9db148242e1272'],
@@ -136,6 +135,12 @@ exts_list = [
     ('dwave-inspector', '0.4.4', {
         'modulename': 'dwave.inspector',
         'checksums': ['ccdf2707971042c1bc7be452312287caefc7f4f21db41524c10fc5ad87703202'],
+    }),
+    ('dwave-inspectorapp', '0.3.3', {
+        'modulename': 'dwave._inspectorapp',
+        'source_urls': ['https://pypi.dwavesys.com/simple/dwave-inspectorapp/'],
+        'sources': ['dwave_inspectorapp-0.3.3-py3-none-any.whl'],
+        'checksums': ['3d42b9a8378aba03eeaa1e0622345d8e80f26e78566ab26fc420a720bf879fc4'],
     }),
     ('dwave-hybrid', '0.6.10', {
         'modulename': 'hybrid',

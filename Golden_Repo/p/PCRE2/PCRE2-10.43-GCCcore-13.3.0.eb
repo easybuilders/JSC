@@ -19,10 +19,11 @@ checksums = ['889d16be5abb8d05400b33c25e151638b8d4bac0e2d9c76e9d6923118ae8a34e']
 
 builddependencies = [('binutils', '2.42')]
 
-configopts = "--enable-shared --enable-jit --enable-pcre2-16 --enable-unicode"
+configopts = "--enable-shared --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-unicode"
 
 sanity_check_paths = {
-    'files': ["bin/pcre2-config", "bin/pcre2grep", "bin/pcre2test", "lib/libpcre2-8.a", "lib/libpcre2-16.a"],
+    'files': ["bin/pcre2-config", "bin/pcre2grep", "bin/pcre2test",
+              "lib/libpcre2-8.a", "lib/libpcre2-16.a", "lib/libpcre2-32.a"],
     'dirs': [],
 }
 

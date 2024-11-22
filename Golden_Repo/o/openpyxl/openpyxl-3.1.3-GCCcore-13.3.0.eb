@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'openpyxl'
+version = '3.1.3'
+
+homepage = 'https://openpyxl.readthedocs.io'
+description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [('binutils', '2.42')]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('lxml', '5.3.0'),
+    ('Pillow-SIMD', '10.4.0'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('et_xmlfile', '1.1.0', {
+        'checksums': ['8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c'],
+    }),
+    ('jdcal', '1.4.1', {
+        'checksums': ['472872e096eb8df219c23f2689fc336668bdb43d194094b5cc1707e1640acfc8'],
+    }),
+    (name, version, {
+        'checksums': ['8dd482e5350125b2388070bb2477927be2e8ebc27df61178709bc8c8751da2f9'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'data'

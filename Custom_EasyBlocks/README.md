@@ -78,3 +78,15 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ None, copied from PR https://github.com/easybuilders/easybuild-easyblocks/pull/3480 and https://github.com/easybuilders/easybuild-easyblocks/pull/3458
 - __*can not be removed*__ until next EasyBuild release (after 4.9.4)
 
+## Bundle
+- __*added by*__ j.reuter
+- __*needed because*__ Fixes missing paths in some installations, e.g. FlexiBLAS (https://github.com/easybuilders/easybuild-easyblocks/issues/2733) and allows installation of oneAPI with CUDA SYCL plug-in
+- __*difference compared to upstream*__ None, copied from PR https://github.com/easybuilders/easybuild-easyblocks/pull/3472
+- __*can not be removed*__ until next EasyBuild release (after 4.9.4)
+
+## VTune
+- __*added_by*__ j.reuter
+- __*needed because*__ 2024 and up changes paths, causing missing paths in modulefile and failed sanity-checks
+- __*difference compared to upstream*__ None
+- __*can not be removed*__ until next EasyBuild release (see https://github.com/easybuilders/easybuild-easyblocks/pull/3465)
+

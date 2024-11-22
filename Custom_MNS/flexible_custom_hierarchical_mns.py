@@ -99,7 +99,6 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         return res
 
     def _find_relevant_compiler_info(self, comp_info):
-
         comp_name, comp_ver = comp_info
 
         # Hack the MNS here, so NVHPC 2[4-9] always expands to NVHPC 2X, so all versions of the compiler can reuse the
@@ -107,6 +106,12 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         # clearly announced.
         if comp_name == "NVHPC":
             comp_ver = re.sub(r'^2.', '2X', comp_ver)
+
+        # Also hack the MNS for Intel, since 202x.x.x and 202x.x.x-CUDA-1x are basically the same installation,
+        # only with additional files for SYCL offloading to NVIDIA GPUs.
+        # In Stages 2025, 'intel' seems to be used, but add the other names for safety as well.
+        if comp_name == "intel" or comp_name == "Intel" or comp_name == "intel-compilers":
+            comp_ver = re.sub(r'-CUDA-[0-9]+$', '', comp_ver)
 
         # Strip the irrelevant bits of the version and append the suffix again
         if comp_name in COMP_RELEVANT_VERSIONS:

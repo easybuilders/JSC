@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'SymEngine'
+version = '0.13.0'
+
+homepage = 'https://github.com/symengine/symengine'
+description = "SymEngine is a standalone fast C++ symbolic manipulation library"
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'cstd': 'c++17', 'vectorize': True}
+
+source_urls = ['https://github.com/symengine/symengine/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['f46bcf037529cd1a422369327bf360ad4c7d2b02d0f607a62a5b09c74a55bb59']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.29.3'),
+]
+
+dependencies = [
+    ('GMP', '6.3.0'),
+    ('MPFR', '4.2.1'),
+    ('MPC', '1.3.1'),
+    ('LLVM', '18.1.8'),
+    ('FLINT', '3.1.2'),
+]
+
+local_opts = '-DWITH_OPENMP=ON -DWITH_SYMENGINE_RCP=ON -DWITH_COTIRE=OFF '
+local_opts += '-DWITH_MPFR=ON -DWITH_MPC=ON -DWITH_LLVM=ON -DWITH_BFD=ON -DWITH_FLINT=ON '
+configopts = [local_opts + '-DBUILD_SHARED_LIBS=OFF', local_opts + '-DBUILD_SHARED_LIBS=ON']
+
+sanity_check_paths = {
+    'files': ['lib64/libsymengine.a', 'lib64/libsymengine.%s' % SHLIB_EXT],
+    'dirs': ['include/symengine/']
+}
+
+moduleclass = 'lib'

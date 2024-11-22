@@ -1,0 +1,165 @@
+diff -ruN openslide-4.0.0-orig/src/openslide-decode-sqlite.c openslide-4.0.0/src/openslide-decode-sqlite.c
+--- openslide-4.0.0-orig/src/openslide-decode-sqlite.c	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-decode-sqlite.c	2024-10-16 17:33:43.865235370 +0200
+@@ -44,7 +44,6 @@
+   return 0;
+ }
+ 
+-#undef sqlite3_open_v2
+ static sqlite3 *do_open(const char *filename, int flags, GError **err) {
+   sqlite3 *db;
+ 
+@@ -76,7 +75,6 @@
+ 
+   return db;
+ }
+-#define sqlite3_open_v2 _OPENSLIDE_POISON(_openslide_sqlite_open)
+ 
+ sqlite3 *_openslide_sqlite_open(const char *filename, GError **err) {
+   // ":" filename prefix is reserved.
+@@ -131,7 +129,6 @@
+   _openslide_sqlite_propagate_error(sqlite3_db_handle(stmt), err);
+ }
+ 
+-#undef sqlite3_close
+ void _openslide_sqlite_close(sqlite3 *db) {
+   // sqlite3_close() failures indicate a leaked resource, probably a
+   // prepared statement.
+@@ -139,4 +136,3 @@
+     g_warning("SQLite error: %s", sqlite3_errmsg(db));
+   }
+ }
+-#define sqlite3_close _OPENSLIDE_POISON(_openslide_sqlite_close)
+diff -ruN openslide-4.0.0-orig/src/openslide-decode-tiff.c openslide-4.0.0/src/openslide-decode-tiff.c
+--- openslide-4.0.0-orig/src/openslide-decode-tiff.c	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-decode-tiff.c	2024-10-16 17:34:51.844690398 +0200
+@@ -74,7 +74,6 @@
+     result = tmp;							\
+   } while (0)
+ 
+-#undef TIFFSetDirectory
+ bool _openslide_tiff_set_dir(TIFF *tiff,
+                              tdir_t dir,
+                              GError **err) {
+@@ -89,7 +88,6 @@
+   }
+   return true;
+ }
+-#define TIFFSetDirectory _OPENSLIDE_POISON(_openslide_tiff_set_dir)
+ 
+ bool _openslide_tiff_level_init(TIFF *tiff,
+                                 tdir_t dir,
+@@ -587,7 +585,6 @@
+   return hdl->size;
+ }
+ 
+-#undef TIFFClientOpen
+ static TIFF *tiff_open(struct _openslide_tiffcache *tc, GError **err) {
+   // open
+   g_autoptr(_openslide_file) f = _openslide_fopen(tc->filename, err);
+@@ -656,7 +653,6 @@
+   }
+   return tiff;
+ }
+-#define TIFFClientOpen _OPENSLIDE_POISON(_openslide_tiffcache_get)
+ 
+ struct _openslide_tiffcache *_openslide_tiffcache_create(const char *filename) {
+   struct _openslide_tiffcache *tc = g_new0(struct _openslide_tiffcache, 1);
+diff -ruN openslide-4.0.0-orig/src/openslide-file.c openslide-4.0.0/src/openslide-file.c
+--- openslide-4.0.0-orig/src/openslide-file.c	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-file.c	2024-10-16 17:35:35.164307641 +0200
+@@ -22,7 +22,6 @@
+ 
+ #include <config.h>
+ 
+-#define NO_POISON_FSEEKO
+ #include "openslide-private.h"
+ 
+ #include <stdio.h>
+@@ -44,11 +43,6 @@
+   GDir *dir;
+ };
+ 
+-#undef fopen
+-#undef fread
+-#undef fclose
+-#undef g_file_test
+-
+ static void wrap_fclose(FILE *fp) {
+   fclose(fp);
+ }
+diff -ruN openslide-4.0.0-orig/src/openslide-private.h openslide-4.0.0/src/openslide-private.h
+--- openslide-4.0.0-orig/src/openslide-private.h	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-private.h	2024-10-16 17:37:12.953494960 +0200
+@@ -383,33 +383,6 @@
+ extern const int32_t _openslide_G_Cr[256];
+ extern const int16_t _openslide_B_Cb[256];
+ 
+-/* Prevent use of dangerous functions and functions with mandatory wrappers.
+-   Every @p replacement must be unique to avoid conflicting-type errors. */
+-#define _OPENSLIDE_POISON(replacement) error__use_ ## replacement ## _instead
+-#define fopen _OPENSLIDE_POISON(_openslide_fopen)
+-#define fread _OPENSLIDE_POISON(_openslide_fread)
+-#define fseek _OPENSLIDE_POISON(_openslide_fseek)
+-#define ftell _OPENSLIDE_POISON(_openslide_ftell)
+-#define fclose _OPENSLIDE_POISON(_openslide_fclose)
+-#define g_file_test _OPENSLIDE_POISON(_openslide_fexists)
+-#define strtod _OPENSLIDE_POISON(_openslide_parse_double)
+-#define g_ascii_strtod _OPENSLIDE_POISON(_openslide_parse_double_)
+-#define sqlite3_open _OPENSLIDE_POISON(_openslide_sqlite_open)
+-#define sqlite3_open_v2 _OPENSLIDE_POISON(_openslide_sqlite_open_)
+-#define sqlite3_close _OPENSLIDE_POISON(_openslide_sqlite_close)
+-#define TIFFClientOpen _OPENSLIDE_POISON(_openslide_tiffcache_get)
+-#define TIFFFdOpen _OPENSLIDE_POISON(_openslide_tiffcache_get_)
+-#define TIFFOpen _OPENSLIDE_POISON(_openslide_tiffcache_get__)
+-#define TIFFSetDirectory _OPENSLIDE_POISON(_openslide_tiff_set_dir)
+-
+-#ifndef NO_POISON_FSEEKO
+-// openslide-file.c needs the original macros
+-#undef fseeko
+-#undef ftello
+-#define fseeko _OPENSLIDE_POISON(_openslide_fseek_)
+-#define ftello _OPENSLIDE_POISON(_openslide_ftell_)
+-#endif
+-
+ #ifdef _WIN32
+ // Prevent windows.h from defining the IN/OUT macro
+ #define _NO_W32_PSEUDO_MODIFIERS
+diff -ruN openslide-4.0.0-orig/src/openslide-util.c openslide-4.0.0/src/openslide-util.c
+--- openslide-4.0.0-orig/src/openslide-util.c	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-util.c	2024-10-16 17:37:57.603137697 +0200
+@@ -170,7 +170,6 @@
+   return g_steal_pointer(&dst);
+ }
+ 
+-#undef g_ascii_strtod
+ double _openslide_parse_double(const char *value) {
+   // Canonicalize comma to decimal point, since the locale of the
+   // originating system sometimes leaks into slide files.
+@@ -187,7 +186,6 @@
+   }
+   return result;
+ }
+-#define g_ascii_strtod _OPENSLIDE_POISON(_openslide_parse_double)
+ 
+ char *_openslide_format_double(double d) {
+   char buf[G_ASCII_DTOSTR_BUF_SIZE];
+diff -ruN openslide-4.0.0-orig/src/openslide-vendor-synthetic.c openslide-4.0.0/src/openslide-vendor-synthetic.c
+--- openslide-4.0.0-orig/src/openslide-vendor-synthetic.c	2023-10-11 19:14:23.000000000 +0200
++++ openslide-4.0.0/src/openslide-vendor-synthetic.c	2024-10-16 17:38:51.652705224 +0200
+@@ -204,7 +204,6 @@
+   return mem->size;
+ }
+ 
+-#undef TIFFClientOpen
+ static bool decode_tiff(const void *data, uint32_t len,
+                         uint32_t *dest, GError **err) {
+   // there's no reason for OpenSlide as a whole to support reading entire
+@@ -238,7 +237,6 @@
+ 
+   return _openslide_tiff_read_tile(&tiffl, tiff, dest, 0, 0, err);
+ }
+-#define TIFFClientOpen _OPENSLIDE_POISON(_openslide_tiffcache_get)
+ 
+ static bool decode_xml(const void *data, uint32_t len,
+                        uint32_t *dest, GError **err) {

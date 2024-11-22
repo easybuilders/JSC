@@ -1,0 +1,16 @@
+Add -allow-unsupported-compiler to the check whether icx works as host compiler for nvcc
+author: Sebastian Achilles (Juelich Supercomputing Centre)
+diff --git a/configure.ac b/configure.ac
+index 65129845b..920d311aa 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -260,7 +260,7 @@ case $CONFSET in
+ 	fi
+ 
+ 	# Check whether icx (${CC}) works as host compiler for nvcc
+-	NVCC_FLAGS="-ccbin ${CC}"
++	NVCC_FLAGS="-ccbin ${CC} -allow-unsupported-compiler"
+ 
+ 	# save language settings, customize ac_ext and ac_compile to support CUDA
+ 	AC_LANG_PUSH([C])
+

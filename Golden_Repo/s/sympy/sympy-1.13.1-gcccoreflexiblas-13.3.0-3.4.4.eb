@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'sympy'
+version = '1.13.1'
+
+homepage = 'https://sympy.org/'
+description = """SymPy is a Python library for symbolic mathematics. It aims to
+ become a full-featured computer algebra system (CAS) while keeping the code as
+ simple as possible in order to be comprehensible and easily extensible. SymPy
+ is written entirely in Python and does not require any external libraries."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '13.3.0-3.4.4'}
+
+sources = [SOURCE_TAR_GZ]
+checksums = ['9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f']
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05'),
+    ('gmpy2', '2.2.0'),
+]
+
+
+moduleclass = 'math'

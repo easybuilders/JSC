@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'nbdime'
+version = '4.0.2'
+
+homepage = "https://nbdime.readthedocs.io"
+
+description = """
+Tools for diffing and merging of Jupyter notebooks.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),
+    ('GitPython', '3.1.43'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyter_server_mathjax', '0.2.6', {
+        'checksums': ['bb1e6b6dc0686c1fe386a22b5886163db548893a99c2810c36399e9c4ca23943'],
+    }),
+    ('nbdime', version, {
+        'checksums': ['d8279f8f4b236c0b253b20d60c4831bb67843ed8dbd6e09f234eb011d36f1bf2'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

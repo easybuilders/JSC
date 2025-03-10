@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Catalyst'
+version = '2.0.0'
+
+homepage = "https://gitlab.kitware.com/paraview/catalyst/"
+description = """
+Catalyst is an API specification developed for simulations
+(and other scientific data producers)
+to analyze and visualize data in situ.
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2024a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = [('https://gitlab.kitware.com/paraview/catalyst/-/archive/v%(version)s/')]
+sources = [('catalyst-v%(version)s.tar.gz')]
+checksums = ['e9f072637ebb7108d940fd0abdce1e260f2942790069e8038a5f2906d4563afd']
+
+builddependencies = [
+    ('CMake', '3.30.3'),
+    ('pkgconf', '2.2.0'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Conduit', '0.9.3'),
+]
+
+separate_build_dir = True
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DCATALYST_BUILD_TOOLS=ON '
+configopts += '-DCATALYST_USE_MPI=ON '
+configopts += '-DCATALYST_WRAP_PYTHON=ON '
+configopts += '-DCATALYST_WRAP_FORTRAN=ON '
+configopts += '-DCATALYST_WITH_EXTERNAL_CONDUIT=ON '
+
+modextrapaths = {
+    'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages',
+}
+
+sanity_check_paths = {
+    'files': ['lib/libcatalyst.so'],
+    'dirs': ['include/', 'lib'],
+}
+
+moduleclass = 'vis'

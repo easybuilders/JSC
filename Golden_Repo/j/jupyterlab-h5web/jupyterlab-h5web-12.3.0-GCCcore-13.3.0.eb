@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-h5web'
+version = '12.3.0'
+
+homepage = "https://github.com/silx-kit/jupyterlab-h5web"
+
+description = """
+A JupyterLab extension to explore and visualize HDF5 file contents.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('maturin', '1.6.0'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),
+    ('h5py', '3.12.1', '-serial'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('orjson', '3.10.7', {
+        'checksums': ['75ef0640403f945f3a1f9f6400686560dbfb0fb5b16589ad62cd477043c4eee3'],
+    }),
+    ('tifffile', '2024.12.12', {
+        'checksums': ['c38e929bf74c04b6c8708d87f16b32c85c6d7c2514b99559ea3db8003ba4edda'],
+    }),
+    ('h5grove', '2.3.0', {
+        'checksums': ['8d438f2a4616d64b176e6ff352d23b39027b9f1ab2c9169fcfd6f5f1caca8728'],
+    }),
+    ('jupyterlab_h5web', version, {
+        'checksums': ['117686d4a5185c03f86d6ba1e5da9c51be170d5bc22f5dc930cb5d48a1d46150'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

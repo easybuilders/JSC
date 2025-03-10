@@ -1,0 +1,11 @@
+--- jaxlib/mlir/_mlir_libs/register_jax_dialects.cc.orig	2025-02-26 14:41:04.226048163 +0100
++++ jaxlib/mlir/_mlir_libs/register_jax_dialects.cc	2025-02-26 14:42:15.154103728 +0100
+@@ -23,7 +23,7 @@
+     MlirDialectHandle name##_dialect = mlirGetDialectHandle__##name##__(); \
+     mlirDialectHandleInsertDialect(name##_dialect, registry)
+ 
+-PYBIND11_MODULE(register_jax_dialects, m, py::mod_gil_not_used()) {
++PYBIND11_MODULE(register_jax_dialects, m) {
+   m.doc() = "Registers upstream MLIR dialects used by JAX.";
+ 
+   m.def("register_dialects", [](MlirDialectRegistry registry) {

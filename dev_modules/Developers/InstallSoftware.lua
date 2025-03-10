@@ -197,10 +197,6 @@ elseif systemname == "jureca_spr" then
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"
     cuda_compute = "7.0"
--- HDFML
-elseif systemname == "hdfml" then
-    optarch = "GCCcore:march=haswell -mtune=haswell"
-    cuda_compute = "7.0"
 end
 
 -- Default
@@ -245,10 +241,10 @@ prepend_path("LM_LICENSE_FILE", "port@license3.server.com:".. -- TotalView debug
             )
 
 -- Set up exactly where we put our installations
--- First: where are the sources stored/downloaded 
+-- First: where are the sources stored/downloaded
 setenv("EASYBUILD_SOURCEPATH", sources_path)
 
--- Second: where are the software and modules stored 
+-- Second: where are the software and modules stored
 setenv("EASYBUILD_INSTALLPATH", stage_path)
 
 -- Make sure that people build in a unique space so we avoid stepping on each others toes as much as possible

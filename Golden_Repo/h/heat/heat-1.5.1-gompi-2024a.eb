@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'heat'
+version = '1.5.1'
+
+homepage = 'https://github.com/helmholtz-analytics/heat'
+description = """
+Heat builds on PyTorch and mpi4py to provide high-performance computing infrastructure for
+memory-intensive applications within the NumPy/SciPy ecosystem.
+"""
+
+toolchain = {'name': 'gompi', 'version': '2024a'}
+
+source_urls = ['https://pypi.python.org/packages/source/h/%(name)s']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = ['95fea9daec6c2d5f0453159dbcd5efb26cb23997f0981e49fe9793a2fd342313']
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('PyTorch', '2.5.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('torchvision', '0.20.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('Pillow-SIMD', '10.4.0'),
+    ('mpi4py', '4.0.1'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+download_dep_fail = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/heat']
+}
+
+# `import heat` requires a valid MPI environment and an accessible CUDA device.
+# Hence, a sanity_check will fail in most of our build environments
+skipsteps = ['sanitycheck']
+
+moduleclass = 'lib'

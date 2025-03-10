@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyCUDA'
+version = '2025.1'
+
+homepage = 'https://documen.tician.de/pycuda/'
+description = 'PyCUDA lets you access Nvidia’s CUDA parallel computation API from Python.'
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '13.3.0-3.4.4'}
+
+builddependencies = [
+    ('hatchling', '1.24.2'),
+]
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05'),
+    ('Mako', '1.3.5'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('pytools', '2025.1.1', {
+        'checksums': ['80f8e3f3f7756d0c9bd579879c3528d54e422843b50a288a9c3b6ba3e0eac28b'],
+    }),
+    (name, version, {
+        'preinstallopts': './configure.py --cuda-root="$EBROOTCUDA" && ',
+        'source_tmpl': '%(namelower)s-%(version)s.tar.gz',
+        'checksums': ['52738e9a941c295c0a5df6aa0d49ac89f66d835dacce9c9c8b84e7530fe4622f'],
+    }),
+]
+
+sanity_pip_check = True
+# only successful if CUDA-GPU available
+# sanity_check_commands = [
+#     'python -c "import pycuda.gl"'
+# ]
+
+moduleclass = 'lang'

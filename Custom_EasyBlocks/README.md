@@ -90,3 +90,9 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ None
 - __*can not be removed*__ until next EasyBuild release (see https://github.com/easybuilders/easybuild-easyblocks/pull/3465)
 
+## totalview
+
+- __*added by*__ m.knobloch
+- __*needed because*__ New EasyBlock supports Aarch64
+- __*difference compared to upstream*__ support for Aarch64
+- __*can not be removed*__ at least until that option is merged upstream

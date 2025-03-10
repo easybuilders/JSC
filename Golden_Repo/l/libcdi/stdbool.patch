@@ -1,0 +1,11 @@
+diff -Naur libcdi-cdi-2.3.0.orig/src/cdipio.h libcdi-cdi-2.3.0/src/cdipio.h
+--- libcdi-cdi-2.3.0.orig/src/cdipio.h	2023-10-19 19:18:56.000000000 +0200
++++ libcdi-cdi-2.3.0/src/cdipio.h	2025-02-04 20:22:28.136694497 +0100
+@@ -12,6 +12,7 @@
+ 
+ //FINT_ON  <--- don't change or remove this line!!!
+ // Start of fortran interface for the following routines (make_fint.c)
++#include <stdbool.h>
+ 
+ #include <mpi.h>
+ 

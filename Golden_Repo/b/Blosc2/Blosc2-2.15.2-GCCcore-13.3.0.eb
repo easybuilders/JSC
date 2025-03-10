@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Blosc2'
+version = '2.15.2'
+
+homepage = 'https://www.blosc.org/'
+description = """Blosc2 is a powerful data compression library designed to
+handle and process large datasets effectively. One standout feature is
+its support for lazy expressions and persistent and dynamic reductions.
+These tools make it possible to define complex calculations that execute
+only when necessary, reducing memory usage and optimizing processing time,
+which can be a game-changer when dealing with massive arrays."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True, 'cstd': 'c++11'}
+
+source_urls = ['https://github.com/Blosc/c-blosc2/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['32d0cb011303878bc5307d06625bc6e5fc28e788377873016bc52681e4e9fee9']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.30.3'),
+]
+sanity_check_paths = {
+    'files': ['include/b2nd.h', 'include/blosc2.h'],
+    'dirs': [],
+}
+moduleclass = 'lib'

@@ -1,0 +1,73 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'java-language-server'
+version = '0.2.46'
+local_java_ver = '21'
+
+homepage = 'https://github.com/georgewfraser/java-language-server'
+description = """Java language server using the Java compiler API
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/georgewfraser/java-language-server/archive/refs/tags/']
+sources = ['release.tar.gz']
+checksums = [
+    '8e06569a644ad0de2dfd838f431add432d0eaa7315c9714fb3f87d9c29a4c343',
+]
+builddependencies = [
+    ('binutils', '2.42'),
+    ('Maven', '3.9.7', '', SYSTEM),
+]
+
+dependencies = [
+    ('Java', local_java_ver, '', SYSTEM),
+]
+
+extract_sources = True
+install_cmds = [
+    (
+        'cd %(builddir)s/%(name)s-release && '
+        'jlink '
+        '  --module-path $JAVA_HOME/jmods '
+        '  --add-modules java.base,java.compiler,java.logging,java.sql,java.xml,jdk.compiler,jdk.jdi,'
+        'jdk.unsupported,jdk.zipfs '
+        '  --output dist/linux '
+        '  --no-header-files '
+        '  --no-man-pages '
+        '  --compress 2 && '
+        'mvn package -DskipTests && '
+        'cp -a dist/* %(installdir)s/'
+    ),
+    'rm %(installdir)s/*windows* %(installdir)s/*mac*',
+    'mkdir -p %(installdir)s/etc/jupyter/jupyter_server_config.d/',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/jupyter_server_config.d/java-ls.json; } <<EOF\n'
+        '{\n'
+        '  "LanguageServerManager": {\n'
+        '    "language_servers": {\n'
+        '      "java": {\n'
+        '        "version": 2,\n'
+        '        "argv": ["%(installdir)s/lang_server_linux.sh"],\n'
+        '        "languages": ["java", "java-source"],\n'
+        '        "mime_types": ["text/java", "text/x-java-source"],\n'
+        '        "display_name": "java-language-server"\n'
+        '      }\n'
+        '    }\n'
+        '  }\n'
+        '}\n'
+        'EOF\n'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+}
+
+sanity_check_paths = {
+    'files': ['launch_linux.sh'],
+    'dirs': ['classpath', 'linux'],
+}
+
+moduleclass = 'tools'

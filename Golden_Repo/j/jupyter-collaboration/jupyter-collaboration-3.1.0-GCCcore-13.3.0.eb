@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-collaboration'
+version = "3.1.0"
+
+homepage = 'https://github.com/jupyterlab/jupyter-collaboration'
+description = """JupyterLab Real-Time Collaboration is a Jupyter Server Extension and JupyterLab
+extensions providing support for Y documents and adding collaboration UI
+elements in JupyterLab."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+    ('maturin', '1.6.0'),
+]
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('sqlite_anyio', '0.2.3', {
+        'checksums': ['12a8b0ececaa63d70d5cc5f91edbd932fc1eca9da70ebce2b31d3a199767b3d3'],
+    }),
+    ('pycrdt', '0.10.9', {
+        'checksums': ['4deacfa0025aacbce5f1122124c2265a8cf3a4d2f1d474ec5f844fbc3856f9b2'],
+    }),
+    ('pycrdt_websocket', '0.15.3', {
+        'checksums': ['8f5a487a921cdf45406e0b49e0876e60f840bcc8dcc5a731c48ec95c9c3ba3cc'],
+    }),
+    ('jupyter_ydoc', '3.0.2', {
+        'checksums': ['d5f1d5bc3ec9579e587469496cd33d6f2a69e18e74329e130c231410ba1c31d0'],
+    }),
+    ('jupyter_server_ydoc', '1.1.0', {
+        'checksums': ['270ec51418a541e81249355781633b71c130e2bf4a0905c88ea23b6ce5080d6f'],
+    }),
+    ('jupyter_server_fileid', '0.9.3', {
+        'checksums': ['521608bb87f606a8637fcbdce2f3d24a8b3cc89d2eef61751cb40e468d4e54be'],
+    }),
+    ('jupyter_docprovider', '1.1.0', {
+        'checksums': ['c2ddc8d9a82329fff0a95261cc827b669359876af7fb2f2bafa8dbdf839ab172'],
+    }),
+    ('jupyter_collaboration_ui', '1.1.0', {
+        'checksums': ['e536ca0bace1555bfabda7b05252f6ed93fdd51fa07bfeb014170a6c69553070'],
+    }),
+    ('jupyter_collaboration', version, {
+        'checksums': ['043986e6fcdd8a4161df8d9716a93ddaafec9a274aa9b503584c7a80e461ee9f'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/jupyter-fileid'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'etc/jupyter', 'share/jupyter'],
+}
+
+# Add the notebook extension to the search path for jupyter notebooks
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

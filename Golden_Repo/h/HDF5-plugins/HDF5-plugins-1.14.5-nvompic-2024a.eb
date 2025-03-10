@@ -1,0 +1,71 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Copyright:: 2024 Juelich Supercomputing Centre, Forschungszentrum Juelich
+# Authors::   Alexandre Strube <a.strube@fz-juelich.de>
+# License::   MIT/GPL
+
+easyblock = 'ConfigureMake'
+
+name = 'HDF5-plugins'
+version = '1.14.5'
+
+homepage = 'https://portal.hdfgroup.org/display/support'
+description = """HDF5 is a data model, library, and file format
+ for storing and managing data. It supports an unlimited variety
+ of datatypes, and is designed for flexible and efficient I/O and
+ for high volume and complex data."""
+
+toolchain = {'name': 'nvompic', 'version': '2024a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = [
+    'https://github.com/HDFGroup/hdf5_plugins/releases/download/hdf5-%(version)s/']
+sources = ['hdf5_plugins-%(version)s.tar.gz']
+patches = [
+    'HDF5-5plugins-blosc.patch',
+    'HDF5-5plugins-configure-blosc.patch',
+]
+checksums = [
+    {'hdf5_plugins-1.14.5.tar.gz': '2b7d554767df7ebeee2ca3fcfdcc87d8ec48257d00aad7690a508840e0db68fd'},
+    {'HDF5-5plugins-blosc.patch': '78804c430aaea04131583b038051f35eb49025fbbabe31fb221b0c47155c2b1e'},
+    {'HDF5-5plugins-configure-blosc.patch': '980d9aff2e7f273bcdb0504af7a756f0f8e9e44adcc24d166d1fb1cf75db1024'},
+]
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.29.3'),
+]
+
+dependencies = [
+    ('HDF5', '1.14.5'),
+    ('libjpeg-turbo', '3.0.1'),
+    ('bzip2', '1.0.8'),
+    ('lz4', '1.9.4'),
+    ('Blosc', '1.21.6'),
+    ('Blosc2', '2.15.2'),
+]
+
+local_generate_configure_file = 'libtoolize && aclocal && autoreconf \
+   --install && autoupdate && autoconf  && automake --add-missing'
+local_build_commands = ''
+for local_dir in ['BZIP2', 'LZ4', 'JPEG', 'BLOSC', 'BLOSC2']:
+    local_build_commands += \
+        f'cd {local_dir} && {local_generate_configure_file} && cd .. && '
+configure_cmd = local_build_commands + \
+    f'{local_generate_configure_file} && ./configure --with-hdf5=$EBROOTHDF5 \
+        --with-jpeglib=$EBROOTLIBJPEGMINTURBO \
+        --with-bzip2=$EBROOTBZIP2 \
+        --with-lz4=$EBROOTLZ4 \
+        --with-blosc=$EBROOTBLOSC \
+        --with-blosc2=$EBROOTBLOSC2 \
+        --with-hdf5-plugin-dir=%(installdir)s/lib/plugin'
+
+sanity_check_paths = {
+    'files': ['lib/plugin/libh5jpeg.so',
+              'lib/plugin/libh5lz4.so',
+              'lib/plugin/libh5bz2.so',
+              'lib/plugin/libh5blosc.so',
+              'lib/plugin/libh5blosc2.so'],
+    'dirs': ['lib'],
+}
+
+moduleclass = 'data'

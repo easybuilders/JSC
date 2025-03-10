@@ -107,7 +107,7 @@ end
 
 -- Verify that this is a system wide EasyBuild since we rely on this below
 if mode()=="load" then
-    if (not string.find(os.getenv("EBROOTEASYBUILD"), stages)) and 
+    if (not string.find(os.getenv("EBROOTEASYBUILD"), stages)) and
        (not string.find(os.getenv("EBROOTEASYBUILD"), string.gsub(stages, "default", systemname))) then
         LmodError(yellow.."Sorry but we rely on using an EasyBuild module coming from the system!\n"..
                   "If you really want to use your own installation, use a system one first, \n"..
@@ -258,10 +258,6 @@ elseif systemname == "jureca_spr" then
 -- JUSUF
 elseif systemname == "jusuf" then
     optarch = "Intel:march=core-avx2"
-    cuda_compute = "7.0"
--- HDFML
-elseif systemname == "hdfml" then
-    optarch = "GCCcore:march=haswell -mtune=haswell"
     cuda_compute = "7.0"
 end
 

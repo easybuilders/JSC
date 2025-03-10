@@ -1,0 +1,87 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-VSCode'
+version = '0.9.3'
+
+homepage = 'https://github.com/gitpod-io/openvscode-server'
+description = """
+Run upstream VS Code on a remote machine with access through a modern web browser from any device, anywhere.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    # check for existance
+    # ('psmpi', '')  # ParaStationMPI
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('openvscode-server', '1.97.2'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server-proxy', '20250303'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('jupyter_openvscodeserver_proxy', version, {
+        'checksums': ['72cbd1d86af403b441b42e7f568feda910fc8d978611840ecd228f7c090d9255'],
+    }),
+]
+
+postinstallcmds = [
+    'mkdir %(installdir)s/bin/',
+    (
+        '{ cat > %(installdir)s/bin/openvscode-server; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        'if [[ -f \${HOME}/.openvscode-server/start_openvscode-server.sh ]]; then \n'
+        '  echo "------ loading ~/.openvscode-server/start_openvscode-server.sh ------" 1>&2 \n'
+        '  cat \${HOME}/.openvscode-server/start_openvscode-server.sh 1>&2 \n'
+        '  source \${HOME}/.openvscode-server/start_openvscode-server.sh 1>&2 \n'
+        'else \n'
+        '  module purge \n'
+        '  module load Stages/${STAGE} \n'
+        '  module load GCCcore/.13.3.0 \n'
+        '  module load openvscode-server \n'
+        '  # extra modules \n'
+        '  module load GCC \n'
+        '  module load CMake \n'
+        '  module load ParaStationMPI \n'
+        '  module load Python \n'
+        '  module load Python-bundle-PyPI \n'
+        '  module load SciPy-Stack \n'
+        'fi \n'
+        'openvscode-server "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/openvscode-server'
+]
+
+modextravars = {
+    'JUPYTER_OPENVSCODE_PROXY_TIMEOUT': '90',
+    'JUPYTER_OPENVSCODE_PROXY_USE_SOCKET': 'ON',
+    # 'JUPYTER_OPENVSCODE_PROXY_SERVER_DATA_DIR': '<path>',
+    # 'JUPYTER_OPENVSCODE_PROXY_USER_DATA_DIR': '<path>',
+    # 'JUPYTER_OPENVSCODE_PROXY_EXTENSIONS_DIR: '<path>',
+    'JUPYTER_OPENVSCODE_PROXY_DEBUG': 'ON',
+}
+
+modluafooter = """
+setenv("JUPYTER_OPENVSCODE_PROXY_DEFAULT_FOLDER", pathJoin(os.getenv("HOME"), ".."))
+"""
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

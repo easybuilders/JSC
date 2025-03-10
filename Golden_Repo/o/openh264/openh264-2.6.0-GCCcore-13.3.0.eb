@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'MesonNinja'
+
+name = 'openh264'
+version = '2.6.0'
+
+homepage = 'http://www.openh264.org/'
+description = """
+OpenH264 is a codec library which supports H.264 encoding and decoding.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+github_account = 'cisco'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['558544ad358283a7ab2930d69a9ceddf913f4a51ee9bf1bfb9e377322af81a69']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('Meson', '1.4.0'),
+    ('Ninja', '1.12.1'),
+    ('pkgconf', '2.2.0'),
+]
+
+dependencies = [
+    ('NASM', '2.16.03'),
+]
+
+sanity_check_paths = {
+    'files': ['lib/libopenh264.%s' % SHLIB_EXT],
+    'dirs': [],
+}
+
+moduleclass = 'tools'

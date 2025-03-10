@@ -1,0 +1,67 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'cuQuantum'
+version = '24.11.0'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://docs.nvidia.com/cuda/cuquantum/latest/index.html'
+description = """NVIDIA cuQuantum SDK is a high-performance library
+for quantum information science and beyond.
+Currently its primary target is quantum circuit
+simulations and it consists of two major components:
+
+    cuStateVec: a high-performance library for
+                state vector computations
+
+    cuTensorNet: a high-performance library for
+                 tensor network computations
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2024a'}
+
+source_urls = [
+    'https://developer.download.nvidia.com/compute/cuquantum/redist/cuquantum/linux-x86_64/'
+]
+sources = ['cuquantum-linux-x86_64-24.11.0.21_cuda12-archive.tar.xz']
+checksums = ['4640da62e66f17671c8d89be93a439b8a7a13169f7aa902a3e9b6cf676d4bffd']
+
+dependencies = [
+    # GCC already includes binutils (gpsmpi comes from GCC + psmpi)
+    ('CUDA', '12', '', SYSTEM),
+    # psmpi already included in toolchain (GCC + psmpi --> gpsmpi)
+    ('cuTENSOR', '2.0.2.5', '-CUDA-%(cudaver)s', SYSTEM),
+    ('Python', '3.12.3'),
+]
+
+install_cmd = 'cp -r %(builddir)s/cuquantum-linux-x86_64-24.11.0.21_cuda12-archive/* %(installdir)s/ \n'
+install_cmd += 'cd %(installdir)s/distributed_interfaces/ \n'
+install_cmd += 'chmod +x activate_mpi_cudm.sh && chmod +x activate_mpi_cutn.sh \n'
+install_cmd += './activate_mpi_cudm.sh \n'
+install_cmd += './activate_mpi_cutn.sh \n'
+
+sanity_check_paths = {
+    'files': [
+        'include/custatevec.h',
+        'include/cutensornet.h',
+        'include/cutensornet/types.h',
+        'include/cutensornet/typesDistributed.h',
+        'LICENSE'],
+    'dirs': [
+        'distributed_interfaces',
+        'include',
+        'lib'],
+}
+
+modextravars = {
+    'CUQUANTUM_ROOT': '%(installdir)s',
+    'CUSTATEVEC_ROOT': '%(installdir)s/lib/libcustatevec.so.1',
+    'CUTENSORNET_ROOT': '%(installdir)s/lib/libcutensornet.so.2',
+    'CUTENSOR_ROOT': '/p/software/default/stages/2025/software/cuTENSOR/2.0.2.5-CUDA-12',
+    'CUTENSOR_DIR': '/p/software/default/stages/2025/software/cuTENSOR/2.0.2.5-CUDA-12',
+    'MPI_PATH': '/p/software/default/stages/2025/software/psmpi/5.10.0-1-GCC-13.3.0',
+    'CUTENSORNET_COMM_LIB': '%(installdir)s/distributed_interfaces/libcutensornet_distributed_interface_mpi.so',
+    'CUDENSITYMAT_COMM_LIB': '%(installdir)s/distributed_interfaces/libcudensitymat_distributed_interface_mpi.so',
+}
+
+moduleclass = 'quantum'

@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OpenImageDenoise'
+version = '2.3.2'
+
+homepage = 'https://www.openimagedenoise.org/'
+description = """
+Intel Open Image Denoise is an open source library of high-performance,
+high-quality denoising filters for images rendered with ray tracing.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/OpenImageDenoise/oidn/releases/download/v%(version)s/']
+sources = ['oidn-%(version)s.src.tar.gz']
+checksums = ['0ca50e621294e8be238bee2d814fb0391e252e3f3c93fdd4bc253a60e0d00c68']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.30.3'),
+    ('Python', '3.12.3'),
+]
+
+dependencies = [
+    ('ispc', '1.25.3'),
+    ('tbb', '2021.13.0'),
+]
+
+separate_build_dir = True
+start_dir = 'oidn-%(version)s'
+
+configopts = '-DOIDN_APPS:BOOL=OFF '
+
+sanity_check_paths = {
+    'dirs': ['include/OpenImageDenoise'],
+    'files': ['lib/libOpenImageDenoise.so'],
+}
+
+moduleclass = 'vis'

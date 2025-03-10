@@ -1,0 +1,74 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-XpraHTML5'
+version = '0.4.1'
+
+homepage = 'https://xpra.org'
+description = """
+Jupyter proxy for Xpra HTML5 sessions.
+Xpra is an open-source multi-platform persistent remote display server and client
+for forwarding applications and desktop screens.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    # check for existance
+    ('xpra', '6.2.3'),
+    ('jsc-xdg-menu', '2025.2'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server-proxy', '20250303'),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('jupyter-xprahtml5-proxy', version, {
+        'source_urls': ['https://github.com/FZJ-JSC/jupyter-xprahtml5-proxy/archive/refs/tags/'],
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'checksums': [
+            'a6dc53de88caafc09311ac46c0eab52bfd4bb80e28138692044d6f14ea509005',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    # write xpra
+    (
+        '{ cat > %(installdir)s/lib/python%(pyshortver)s/'
+        'site-packages/jupyter_xprahtml5_proxy/bin/xpra; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.13.3.0 \n'
+        'module load xpra \n'
+        'module load jsc-xdg-menu/.2025.2 \n'
+        '\n'
+        '# xterm should be part of the module Xvfb which is loaded by xpra\n'
+        'if ! command -v xterm &> /dev/null \n'
+        'then \n'
+        '    echo "xterm not found " \n'
+        'fi \n'
+        '\n'
+        'xpra "\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/lib/python%(pyshortver)s/site-packages/jupyter_xprahtml5_proxy/bin/xpra'
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

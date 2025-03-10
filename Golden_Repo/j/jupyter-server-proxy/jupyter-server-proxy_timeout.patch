@@ -1,0 +1,25 @@
+diff -Naur jupyter_server_proxy-4.0.0.orig/jupyter_server_proxy/config.py jupyter_server_proxy-4.0.0/jupyter_server_proxy/config.py
+--- jupyter_server_proxy-4.0.0.orig/jupyter_server_proxy/config.py      2020-02-02 01:00:00.000000000 +0100
++++ jupyter_server_proxy-4.0.0/jupyter_server_proxy/config.py   2023-05-18 22:24:29.149273196 +0200
+@@ -138,7 +138,7 @@
+         name=name,
+         command=server_process_config.get("command", list()),
+         environment=server_process_config.get("environment", {}),
+-        timeout=server_process_config.get("timeout", 5),
++        timeout=server_process_config.get("timeout", 20),
+         absolute_url=server_process_config.get("absolute_url", False),
+         port=server_process_config.get("port", 0),
+         unix_socket=server_process_config.get("unix_socket", None),
+diff -Naur jupyter_server_proxy-4.0.0.orig/jupyter_server_proxy/handlers.py jupyter_server_proxy-4.0.0/jupyter_server_proxy/handlers.py
+--- jupyter_server_proxy-4.0.0.orig/jupyter_server_proxy/handlers.py    2023-05-18 22:19:39.559270969 +0200
++++ jupyter_server_proxy-4.0.0/jupyter_server_proxy/handlers.py 2023-05-18 22:22:16.157555535 +0200
+@@ -771,7 +771,7 @@
+         """
+         Return timeout (in s) to wait before giving up on process readiness
+         """
+-        return 5
++        return 20
+
+     async def _http_ready_func(self, p):
+         if self.unix_socket is not None:
+

@@ -1,0 +1,12 @@
+--- hdf5_plugins-1.14.5/configure.ac.orig	2024-11-26 13:21:21.750453425 +0100
++++ hdf5_plugins-1.14.5/configure.ac	2024-11-26 13:21:41.993411984 +0100
+@@ -55,7 +55,7 @@
+ if test "x$enable_lz4" = xyes; then
+    AC_CONFIG_SUBDIRS([LZ4])
+ fi
+-#AC_CONFIG_SUBDIRS([BLOSC])
++AC_CONFIG_SUBDIRS([BLOSC])
+-#AC_CONFIG_SUBDIRS([BLOSC2])
++AC_CONFIG_SUBDIRS([BLOSC2])
+ #AC_CONFIG_SUBDIRS([BSHUF])
+ AC_CONFIG_SUBDIRS([JPEG])

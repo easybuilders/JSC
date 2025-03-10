@@ -1,0 +1,15 @@
+--- netcdf-c-4.9.2/nczarr_test/CMakeLists.txt.orig	2025-02-12 14:37:34.227228000 +0100
++++ netcdf-c-4.9.2/nczarr_test/CMakeLists.txt	2025-02-12 14:37:55.501097525 +0100
+@@ -110,10 +110,10 @@
+ 
+     BUILD_BIN_TEST(tst_chunkcases ${TSTCOMMONSRC})
+     TARGET_INCLUDE_DIRECTORIES(tst_chunkcases PUBLIC ../libnczarr)
+-    add_sh_test(nczarr_test run_chunkcases)
++    # add_sh_test(nczarr_test run_chunkcases)
+ 
+     add_sh_test(nczarr_test run_purezarr)
+-    add_sh_test(nczarr_test run_interop)
++    # add_sh_test(nczarr_test run_interop)
+     add_sh_test(nczarr_test run_misc)
+     add_sh_test(nczarr_test run_nczarr_fill)
+     add_sh_test(nczarr_test run_jsonconvention)

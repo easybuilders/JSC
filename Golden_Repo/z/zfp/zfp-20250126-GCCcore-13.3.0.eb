@@ -1,0 +1,66 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'zfp'
+version = '20250126'
+
+local_commit = '8fe0059a33e298081409a520c254ebe1836bc20a'
+
+homepage = "https://github.com/LLNL/zfp"
+description = """Optionally error-bounded lossy compressor for HPC data
+with high throughput read and write random access to individual array elements."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'LLNL'
+source_urls = [GITHUB_SOURCE]
+sources = ['%s.tar.gz' % local_commit]
+checksums = ['fae4b87f0bd2b518cd639fa519ed20976083919a37ebef5c2ae12590e5cde038']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.30.3'),
+    ('pkgconf', '2.2.0'),
+]
+dependencies = [
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+separate_build_dir = True
+
+configopts = '-DBUILD_SHARED_LIBS:BOOL=ON '
+configopts += '-DBUILD_EXAMPLES:BOOL=OFF '
+configopts += '-DBUILD_TESTING:BOOL=OFF '
+
+configopts += '-DZFP_WITH_OPENMP:BOOL=ON '
+configopts += '-DZFP_WITH_CUDA:BOOL=OFF '
+
+configopts += '-DBUILD_CFP:BOOL=ON '
+configopts += '-DBUILD_ZFPY:BOOL=ON '
+configopts += '-DBUILD_ZFORP:BOOL=ON '
+
+configopts += '-DBUILD_UTILITIES:BOOL=ON '
+configopts += '-DCMAKE_C_STANDARD_LIBRARIES="-lm" '
+
+# create pkgconfig file
+postinstallcmds = [
+    "mkdir -p %(installdir)s/lib/pkgconfig",
+    """echo -e "prefix=%(installdir)s
+libdir=\${prefix}/lib64
+includedir=\${prefix}/include
+Name: %(name)s
+Description: %(name)s compression library
+Version: %(version)s
+Requires:
+Libs: -L\${libdir} -lzfp -lcfp
+Cflags: -I\${includedir}" > %(installdir)s/lib/pkgconfig/%(name)s.pc""",
+]
+
+sanity_check_paths = {
+    'files': ['lib64/libzfp.so', 'lib64/libcfp.so', 'include/zfp.h'],
+    'dirs': ['lib/pkgconfig'],
+}
+
+moduleclass = 'lib'

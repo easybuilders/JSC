@@ -1,0 +1,53 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Umpire'
+version = '2024.07.0'
+
+homepage = 'https://github.com/LLNL/Umpire'
+description = """
+An application-focused API for memory management on NUMA & GPU architectures
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2024a'}
+toolchainopts = {'pic': True, 'cstd': 'c++17'}
+
+github_account = 'LLNL'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['371fb36075324c492cea19f99041c2064fcaf23592c06122062b272ccff6638e']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.30.3'),
+    ('blt', '0.6.2'),
+]
+
+dependencies = [
+    ('camp', '2024.07.0'),
+    ('fmt', '11.0.2'),
+    ('CUDA', '12', '', SYSTEM),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+configopts += "-Dcamp_DIR=${EBROOTCAMP} "
+configopts += "-Dfmt_DIR=${EBROOTFMT} "
+
+configopts += "-DENABLE_CUDA=ON "
+configopts += '-DCMAKE_CUDA_ARCHITECTURES="%(cuda_cc_cmake)s" '
+
+configopts += "-DENABLE_OPENMP=ON "
+configopts += "-DENABLE_FORTRAN=OFF "  # req. for Ascent
+configopts += "-DUMPIRE_ENABLE_MPI=ON "
+
+sanity_check_paths = {
+    'files': ['include/umpire/Umpire.hpp'],
+    'dirs': ['bin', 'include', 'lib'],
+}
+
+moduleclass = 'vis'

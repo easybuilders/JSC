@@ -20,7 +20,15 @@ toolchainopts = {'pic': True}
 source_urls = [
     'https://github.com/HDFGroup/hdf5_plugins/releases/download/hdf5-%(version)s/']
 sources = ['hdf5_plugins-%(version)s.tar.gz']
-checksums = ['2b7d554767df7ebeee2ca3fcfdcc87d8ec48257d00aad7690a508840e0db68fd']
+patches = [
+    'HDF5-5plugins-blosc.patch',
+    'HDF5-5plugins-configure-blosc.patch',
+]
+checksums = [
+    {'hdf5_plugins-1.14.5.tar.gz': '2b7d554767df7ebeee2ca3fcfdcc87d8ec48257d00aad7690a508840e0db68fd'},
+    {'HDF5-5plugins-blosc.patch': '78804c430aaea04131583b038051f35eb49025fbbabe31fb221b0c47155c2b1e'},
+    {'HDF5-5plugins-configure-blosc.patch': '980d9aff2e7f273bcdb0504af7a756f0f8e9e44adcc24d166d1fb1cf75db1024'},
+]
 
 builddependencies = [
     ('binutils', '2.42'),
@@ -32,12 +40,14 @@ dependencies = [
     ('libjpeg-turbo', '3.0.1'),
     ('bzip2', '1.0.8'),
     ('lz4', '1.9.4'),
+    ('Blosc', '1.21.6'),
+    ('Blosc2', '2.15.2'),
 ]
 
 local_generate_configure_file = 'libtoolize && aclocal && autoreconf \
    --install && autoupdate && autoconf  && automake --add-missing'
 local_build_commands = ''
-for local_dir in ['BZIP2', 'LZ4', 'JPEG']:
+for local_dir in ['BZIP2', 'LZ4', 'JPEG', 'BLOSC', 'BLOSC2']:
     local_build_commands += \
         f'cd {local_dir} && {local_generate_configure_file} && cd .. && '
 configure_cmd = local_build_commands + \
@@ -45,11 +55,17 @@ configure_cmd = local_build_commands + \
         --with-jpeglib=$EBROOTLIBJPEGMINTURBO \
         --with-bzip2=$EBROOTBZIP2 \
         --with-lz4=$EBROOTLZ4 \
+        --with-blosc=$EBROOTBLOSC \
+        --with-blosc2=$EBROOTBLOSC2 \
         --with-hdf5-plugin-dir=%(installdir)s/lib/plugin'
 
 sanity_check_paths = {
     'files': ['lib/plugin/libh5jpeg.so',
               'lib/plugin/libh5lz4.so',
-              'lib/plugin/libh5bz2.so'],
+              'lib/plugin/libh5bz2.so',
+              'lib/plugin/libh5blosc.so',
+              'lib/plugin/libh5blosc2.so'],
     'dirs': ['lib'],
 }
+
+moduleclass = 'data'

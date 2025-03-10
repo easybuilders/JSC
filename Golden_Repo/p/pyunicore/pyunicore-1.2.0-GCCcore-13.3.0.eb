@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'pyunicore'
+version = '1.2.0'
+
+homepage = "https://github.com/HumanBrainProject/pyunicore"
+
+description = """
+UNICORE REST bindings for python.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('pyjwt', '2.10.1', {
+        'modulename': 'jwt',
+        'checksums': ['3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953'],
+    }),
+    ('pyunicore', version, {
+        'checksums': ['5c6cb04986689a754af47eb4f628863486632a9d4e73dc3e992c066737495b72'],
+    }),
+]
+
+moduleclass = 'tools'

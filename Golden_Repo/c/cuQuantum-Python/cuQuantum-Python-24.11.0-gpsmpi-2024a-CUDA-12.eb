@@ -1,0 +1,60 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'cuQuantum-Python'
+version = '24.11.0'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://docs.nvidia.com/cuda/cuquantum/'
+description = """NVIDIA cuQuantum SDK is a high-performance library
+for quantum information science and beyond.
+Currently its primary target is quantum circuit simulations and it consists
+of two major components:
+
+        cuStateVec: a high-performance library for state vector computations
+
+        cuTensorNet: a high-performance library for tensor network computations
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2024a'}
+source_urls = [
+    'https://github.com/NVIDIA/cuQuantum/archive/refs/tags/'
+]
+sources = ['v%(version)s.zip']
+checksums = ['d5add6a45f8d689c6069562c850751cb44ed82961ea4c0d7631c3be6e8ede138']
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    # For cupy, contains numpy 1.26.4
+    ('CUDA', '12', '', SYSTEM),
+    # Contains cuTENSOR, cuStateVec, cuTENSORNET (+MPI)
+    ('cuQuantum', '24.11.0', '-CUDA-%(cudaver)s'),
+    ('CuPy', '13.3.0', '-CUDA-%(cudaver)s', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+install_cmd = 'cp -r %(builddir)s/cuQuantum-24.11.0/* %(installdir)s/ && '
+install_cmd += 'cd %(installdir)s/python '
+
+modextrapaths = {'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages'}
+
+local_install_cmd = 'cd %(installdir)s/python && '
+local_install_cmd += 'pip install -v --no-deps .'
+
+postinstallcmds = [local_install_cmd]
+
+sanity_check_paths = {
+    'files': [
+        'python/cuquantum/__init__.py',
+        'LICENSE'],
+    'dirs': [
+        'extra',
+        'samples'],
+}
+
+# Import cuquantum-python module. Not mistaken with "cuquantum" module which is not python based
+# This call is the actual cuquantum-python module:
+sanity_check_commands = ['python3 -c "import cuquantum"']
+
+moduleclass = 'quantum'

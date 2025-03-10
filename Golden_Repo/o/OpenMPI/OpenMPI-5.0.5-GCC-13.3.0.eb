@@ -9,8 +9,11 @@ toolchain = {'name': 'GCC', 'version': '13.3.0'}
 
 source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
 sources = [SOURCELOWER_TAR_BZ2]
+patches = ['OpenMPI-5.0.x_fix_c90_compliance.patch']
 checksums = [
-    '6588d57c0a4bd299a24103f4e196051b29e8b55fbda49e11d5b3d32030a32776',
+    {'openmpi-5.0.5.tar.bz2': '6588d57c0a4bd299a24103f4e196051b29e8b55fbda49e11d5b3d32030a32776'},
+    {'OpenMPI-5.0.x_fix_c90_compliance.patch':
+     'ece1dff504673179daf298f74c978d31132fcde71af9eca38a530b30aec85cca'},
 ]
 
 builddependencies = [

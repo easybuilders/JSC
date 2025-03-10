@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'jsc-xdg-menu'
+version = '2025.2'
+
+homepage = ''
+description = """setup JSC`s desktop menu"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://gitlab.version.fz-juelich.de/goebbert1/jsc-xdg-menu/-/archive/%(version)s/']
+sources = ['%(name)s-%(version)s.tar.gz']
+checksums = ['3bb392d80ce93a11020dc8b144046d6545d4da29c8bb7d74ac1b2038e4c90cf8']
+
+builddependencies = [
+    # just ensure they exist
+    ('Blender', '4.3.2', '-linux-x86_64-CUDA-12'),
+    # ('CubeGUI', ''),
+    ('HDFView', '3.3.0'),
+    ('Nsight-Compute', '2024.3.2'),
+    ('Nsight-Systems', '2024.7.1'),
+    # ('ParaView', '5.13.2', '', ('gpsmkl', '2024a')),
+    ('TotalView', '2024.4.2'),
+    ('Vampir', '10.5.0', '', SYSTEM),
+]
+
+extract_sources = True,
+install_cmd = 'cp -a %(builddir)s/%(name)s-%(version)s/* %(installdir)s/'
+
+modextravars = {'XDG_MENU_PREFIX': 'jsc-'}
+modextrapaths = {'XDG_CONFIG_DIRS': 'config',
+                 'XDG_DATA_DIRS': 'data'}
+
+sanity_check_paths = {
+    'files': ['README.md', 'config/menus/jsc-applications.menu'],
+    'dirs': ['bin', 'config/menus', 'data/applications', 'data/desktop-directories'],
+}
+
+moduleclass = 'vis'

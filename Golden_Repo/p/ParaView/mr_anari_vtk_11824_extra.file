@@ -1,0 +1,13 @@
+diff -Naur a/Rendering/ANARI/vtkAnariPolyDataMapperNode.cxx a/Rendering/ANARI/vtkAnariPolyDataMapperNode.cxx
+--- a/Rendering/ANARI/vtkAnariPolyDataMapperNode.cxx	2025-02-08 22:13:52.458091531 +0100
++++ a/Rendering/ANARI/vtkAnariPolyDataMapperNode.cxx	2025-02-08 22:19:17.948001557 +0100
+@@ -48,6 +48,9 @@
+   vtkDataArray* Array = nullptr;
+   bool IsCellArray = false;
+   bool IsTimeVarying = true;
++
++  AttributeArray(vtkDataArray* array, bool isCell, bool isTime)
++    : Array(array), IsCellArray(isCell), IsTimeVarying(isTime) {};
+ };
+ using AttributeArrayCollection = std::vector<AttributeArray>;
+ 

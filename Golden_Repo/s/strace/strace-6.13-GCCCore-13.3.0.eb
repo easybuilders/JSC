@@ -1,0 +1,35 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'strace'
+version = '6.13'
+
+homepage = 'https://strace.io/'
+description = """
+strace is a diagnostic, debugging and instructional userspace utility for Linux. It is used to monitor and tamper with
+interactions between processes and the Linux kernel, which include system calls, signal deliveries, and changes of
+process state.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = [
+    'https://github.com/strace/strace/releases/download/v%(version)s/']
+sources = [SOURCE_TAR_XZ]
+checksums = ['e209daf0ee038ca5adcc4c277e9273b4d51f46a2ff86da575d36742ac3508a17']
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+# Add configure option
+configopts = '--enable-mpers=check'
+
+sanity_check_paths = {
+    'files': ['bin/strace-log-merge', 'bin/strace'],
+    'dirs': ['share']
+}
+
+sanity_check_commands = ['strace --help']
+
+moduleclass = 'system'

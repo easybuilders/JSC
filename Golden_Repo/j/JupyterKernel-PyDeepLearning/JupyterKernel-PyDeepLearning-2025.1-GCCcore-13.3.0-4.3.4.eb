@@ -1,0 +1,162 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyDeepLearning'
+version = '2025.1'
+local_jupyterver = '4.3.4'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special DeepLearning kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    # just ensure they exist
+    ('CUDA', '12', '', SYSTEM),
+    ('OpenCV', '4.11.0', '-contrib', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('protobuf-python', '5.28.0'),
+    ('PyTorch', '2.5.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('PyTorch-Lightning', '2.5.0.post0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('torchvision', '0.20.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('torchaudio', '2.5.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('tensorboard', '2.18.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', local_jupyterver),
+]
+
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-64x64.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-128x128.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+        ],
+        'checksums': [
+            {'logo-32x32.png': 'd093715a38f058c78455c0fc15e3eabe18f05a9226574da92a42bb94a84e6dcf'},
+            {'logo-64x64.png': '1429763bb9f1231696b11298a7cb34689941f49164b17150fde8b5ede5feb903'},
+            {'logo-128x128.png': '96d0eac3b9da9b31ac2523e8c0aa64571ae165267443adcd87a8796276aea96c'},
+        ],
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': False,  # skip as it requires protobuf, TensorFlow
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('lmdb', '1.6.2', {
+        'checksums': ['d28e3fa59935ff688858760ec52f202ecb8c1089a3f68d1f162ea3078d151e73'],
+    }),
+    ('gviz_api', '1.10.0', {
+        'checksums': ['846692dd8cc73224fc31b18e41589bd934e1cc05090c6576af4b4b26c2e71b90'],
+    }),
+    ('tensorboard_plugin_profile', '2.18.0', {
+        'checksums': ['6246019aa31e9563e5baf6f67a61c6615e017b705492f6622677acda8cec2108'],
+    }),
+    ('tensorflow_hub', '0.16.1', {
+        'modulename': False,
+        'source_tmpl': 'tensorflow_hub-%(version)s-py2.py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['e10c184b3d08daeafada11ffea2dd46781725b6bef01fad1f74d6634ad05311f'],
+    }),
+]
+
+local_kernel_dir = 'pydeeplearning'
+local_kernel_name = 'PyDeepLearning-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+    'HOROVOD_MPI_THREADS_DISABLE': ['1'],  # no mpi by default
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCCcore/.13.3.0 \n'
+        'module load %s/.%s%s \n'
+        '\n'
+        'module load OpenCV \n'
+        'module load protobuf-python/.5.28.0 \n'
+        'module load PyTorch \n'
+        'module load PyTorch-Lightning \n'
+        'module load torchvision \n'
+        'module load torchaudio \n'
+        'module load tensorboard \n'
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\$PYTHONPATH \n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

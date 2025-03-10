@@ -22,7 +22,11 @@ toolchainopts = {'pic': True}
 
 source_urls = ['https://github.com/openpmix/openpmix/releases/download/v%(version)s']
 sources = ['%(namelower)s-%(version)s.tar.bz2']
-checksums = ['3f779434ed59fc3d63e4f77f170605ac3a80cd40b1f324112214b0efbdc34f13']
+patches = ['%(name)s-%(version)s_fix-delayed-get.patch']
+checksums = [
+    {'pmix-5.0.3.tar.bz2': '3f779434ed59fc3d63e4f77f170605ac3a80cd40b1f324112214b0efbdc34f13'},
+    {'PMIx-5.0.3_fix-delayed-get.patch': '21e1dc1189d749d241fd55205435f0ac769b3b600922f8f555568dbda66fc296'},
+]
 
 builddependencies = [('binutils', '2.42')]
 

@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-sidecar'
+version = '0.7.0'
+
+homepage = "https://github.com/jupyter-widgets/jupyterlab-sidecar"
+
+description = """
+A sidecar output widget for JupyterLab.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),  # provides ipywidgets
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('sidecar', version, {
+        'checksums': ['c3fa1694b5611c1fab9d7a96c07577ba0764068a89b7b39be9b9ce9770e9d363'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

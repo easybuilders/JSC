@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Need to use Meson instead of the "pip" installation
+# See: https://github.com/pygobject/pycairo/issues/312
+easyblock = 'MesonNinja'
+
+name = 'PyCairo'
+version = '1.27.0'
+
+homepage = 'https://pycairo.readthedocs.io/'
+description = """Python bindings for the cairo library"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/pygobject/%(namelower)s/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['ce10721e4a5d74c53c8b7241e5ccfd4627fadb2830ecdae72524c077067ca247']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('pkgconf', '2.2.0'),
+    ('Meson', '1.4.0'),
+    ('Ninja', '1.12.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('cairo', '1.18.0'),
+]
+
+sanity_check_paths = {
+    'files': ['%s/py3cairo.%s' % (p, e) for (p, e) in [('include/pycairo', 'h'), ('lib/pkgconfig', 'pc')]],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/cairo'],
+}
+
+modextrapaths = {
+    'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'vis'

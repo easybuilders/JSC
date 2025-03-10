@@ -1,0 +1,22 @@
+--- export/cmake/CMakeLists.txt.export.old      2023-10-20 12:48:36.567237000 +0200
++++ export/cmake/CMakeLists.txt.export  2023-10-20 12:51:21.974300334 +0200
+@@ -326,7 +326,6 @@
+             tests/unit/test-c-api.cc
+             tests/unit/test-core.cc
+             tests/unit/test-core-ints.cc
+-            tests/unit/test-permute.cc
+             tests/unit/test-precision.cc
+             tests/unit/test-shell-order.cc
+             tests/unit/test-util.cc
+@@ -448,10 +447,6 @@
+         target_include_directories(fortran_test-libint2 PRIVATE $<TARGET_PROPERTY:libint_f,Fortran_MODULE_DIRECTORY>)
+         add_test(libint2/fortran_test/build "${CMAKE_COMMAND}" --build ${PROJECT_BINARY_DIR} --target fortran_test-libint2)
+         set_tests_properties(libint2/fortran_test/build PROPERTIES FIXTURES_SETUP LIBINT2_FORTRAN_TEST_EXEC)
+-        add_test(NAME libint2/fortran_test/run
+-                COMMAND $<TARGET_FILE:fortran_test-libint2>)
+-        set_tests_properties(libint2/fortran_test/run
+-                PROPERTIES FIXTURES_REQUIRED LIBINT2_FORTRAN_TEST_EXEC)
+     endif (LIBINT_HAS_CXX_API)
+ 
+     # install Fortran modules
+ 

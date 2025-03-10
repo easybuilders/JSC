@@ -35,8 +35,10 @@ modextravars = {
     'OMPI_MCA_opal_set_max_sys_limits': '1',
     'OMPI_MCA_opal_event_include': 'epoll',
     'OMPI_MCA_btl_openib_warn_default_gid_prefix': '0',
-    # OMPIO does not seem to work reliably on our system
-    'OMPI_MCA_io': 'romio321',
+    # OMPIO used to don't be reliable in our system
+    # As of 2025, the situation is reversed, and romio321 is not working, so let's give OpenMPI freedom to choose and
+    # prioritize, currently ompio is selected
+    # 'OMPI_MCA_io': 'romio321',
 }
 
 modluafooter = '''

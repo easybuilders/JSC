@@ -50,14 +50,14 @@ class JuliaPackage(ExtensionEasyBlock):
     def extra_options(extra_vars=None):
         if extra_vars is None:
             extra_vars = {}
-
         extra_vars.update({
             'system_name': [None, "Change julia's Project.toml pathname", CUSTOM],
             'arch_name': [None, "Change julia's Project.toml pathname", CUSTOM],
+            'toolchain_name': [None, "Change julia's Project.toml pathname", CUSTOM],
             'packagespec': [None, "Overwrite install options for Pkg.add(PackageSpec(<packagespec>))", CUSTOM],
+            'mpi_path': [None, "Set the MPI installation path", CUSTOM],
             'mpiexec': [None, "Set the mpiexec command", CUSTOM],
             'mpiexec_args': [None, "Set the mpiexec command args", CUSTOM],
-            'mpi_path': [None, "Set the MPI installation path", CUSTOM],
             'mpicc': [None, "Set mpicc command", "mpicc"],
         })
         return ExtensionEasyBlock.extra_options(extra_vars=extra_vars)
@@ -100,7 +100,7 @@ class JuliaPackage(ExtensionEasyBlock):
         else:
             package_spec = "name=\"%s\", version=\"%s\"" % (self.package_name, self.version)
 
-        pre_cmd = '%s unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s' % (self.cfg['preinstallopts'], self.depot, self.projectdir)
+        pre_cmd = '%s unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && export JULIA_CUDA_USE_BINARYBUILDER=false && export JULIA_CUDA_MEMORY_POOL=none' % (self.cfg['preinstallopts'], self.depot, self.projectdir)
 
         if self.cfg['mpi_path']:
             pre_cmd += ' && export JULIA_MPI_BINARY=system'
@@ -114,9 +114,6 @@ class JuliaPackage(ExtensionEasyBlock):
 
         if self.cfg['mpicc']:
             pre_cmd += ' && export JULIA_MPICC="%s"' % self.cfg['mpicc']
-
-        if self.cfg['arch_name'] == 'gpu':
-            pre_cmd += ' && export JULIA_CUDA_USE_BINARYBUILDER=false'
 
         if remove:
             cmd = ' && '.join([pre_cmd, "julia --eval 'using Pkg; Pkg.rm(PackageSpec(%s))'" % package_spec])

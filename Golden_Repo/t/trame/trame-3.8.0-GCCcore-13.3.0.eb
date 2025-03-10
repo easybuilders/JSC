@@ -1,0 +1,124 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'trame'
+version = '3.8.0'
+
+homepage = 'https://github.com/Kitware/trame'
+description = """
+A web framework that weaves together open source components into customized visual analytics easily.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatchling', '1.24.2'),
+    ('hatch-jupyter-builder', '0.9.1'),  # for trame_jupyter_extension
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('PyYAML', '6.0.2'),
+    ('aiohttp', '3.10.10'),
+    ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('JupyterLab', '4.3.4'),  # for trame_jupyter_extension
+]
+
+use_pip = True
+sanity_pip_check = True
+
+exts_list = [
+    ('mpld3', '0.5.10', {
+        'checksums': ['a478eb404fa5212505c59133cf272cd9a94105872e605597720e7f84de38fbc7'],
+    }),
+    ('termcolor', '2.5.0', {
+        'checksums': ['998d8d27da6d48442e8e1f016119076b690d962507531df4890fcd2db2ef8a6f'],
+    }),
+    ('trame_rca', '1.1.1', {
+        'checksums': ['a14fda01d8c78fd789cf15ce8244b13fe1de8b540d0ecdb29d3e6948e3dc8f6f'],
+    }),
+    (name, version, {
+        'checksums': ['d084942828ac7930e05dbb765468cffe4ef8bd5170dbd48333a930140b540ccd'],
+    }),
+    ('trame_client', '3.5.2', {
+        'checksums': ['e46ddb8e3d611bff90803bff176044083ed85095544557a499eae9c231abedc5'],
+    }),
+    ('trame-code', '1.0.2', {
+        'checksums': ['1421ad10d472e7a96b01c8518ff1de565927d2d5ff95230bf934ff33142279b4'],
+    }),
+    ('trame-components', '2.4.2', {
+        'checksums': ['193e103e253c64dc138743fa30463113805e5557f6a18a3689c9276e95ec1b50'],
+    }),
+    ('trame-datagrid', '0.2.1', {
+        'checksums': ['284cbf294dc4c10b32a9fdfcc15391aee5eeb4fd726733ac83a289b959b344ee'],
+    }),
+    ('trame-deckgl', '2.0.3', {
+        'checksums': ['0eeb3aa4e3f62c1380c7a8afde3f0530db72e9b145895c3e23ac557709949194'],
+    }),
+    ('trame-formkit', '0.1.2', {
+        'checksums': ['089ba72ab848373defa041636f41c9db9be316e6e228ae5ec1eb37f7ef98c79e'],
+    }),
+    ('trame-iframe', '1.1.1', {
+        'checksums': ['308901f989832ebb6b3f12c210a55bce5b7fe9dd1e11040b780e341478ef9707'],
+    }),
+    ('trame-markdown', '3.0.2', {
+        'checksums': ['8de1b8c4a92a583f12601f28ddeb9b6ad0a7b3d8d43316285f86c64d6035640d'],
+    }),
+    ('trame-matplotlib', '2.0.3', {
+        'checksums': ['4cf0beb092fc2b11988480346a0cae3ce5fe0267429c7876727a8389bded5cd6'],
+    }),
+    ('trame-plotly', '3.0.2', {
+        'checksums': ['bb472ace64c9c2e65bb7c535c0567a35bfc3711588759731c36b2d7f6e3434b9'],
+    }),
+    ('trame-quasar', '0.2.1', {
+        'checksums': ['be25252e81e32c3ba0e04a8b85de14305a9b556e9315021ce1a8b87fa20fbd01'],
+    }),
+    ('trame-router', '2.3.0', {
+        'checksums': ['b382bdaad59998d5fcb93613a6e6828d68ff168eff87df56b13604a331294216'],
+    }),
+    ('trame_server', '3.3.0', {
+        'checksums': ['b0b1769d9a0eb816c69076188773cb93b0e2f83c27009d8e94d7208e63c33805'],
+    }),
+    ('trame_simput', '2.5.1', {
+        'checksums': ['2d771acd4a9e90d23e032310b1bbbdb31bcb202138c2b11d6fdf5ce755d83212'],
+    }),
+    ('trame-tauri', '0.6.2', {
+        'checksums': ['3431856417aa470313d2f6976a926509d10c8e6c0b63ee17340a4b37c2483210'],
+    }),
+    ('trame_tweakpane', '0.1.3', {
+        'checksums': ['8c79a02a0b2d6ec49951ade62dc6976522cd76e8ff607dc7384b96aebf6f8ae0'],
+    }),
+    ('trame-vega', '2.1.1', {
+        'checksums': ['a3d82f7535a66a782262647001987dba3ad0ddc64ce21225a4cfccd351fed8fa'],
+    }),
+    ('trame-vtk3d', '0.1.0', {
+        'checksums': ['0ae64f45857760ae41f82491ddff842fd531db9a633ed61e3f7e3a4be7fe8fae'],
+    }),
+    ('trame_vuetify', '2.8.1', {
+        'checksums': ['281606797c29b0300ec2b3524c4396ac2b78da1a300d188d603af09eea83bfe2'],
+    }),
+    ('trame-xterm', '0.2.1', {
+        'checksums': ['208ca977325e7c7b77fe5e1a42d0f54531d2f2d5ecf1e05c666ddf3269e5e41d'],
+    }),
+    ('wslink', '2.2.2', {
+        'checksums': ['f9c24c08b89d2bd9bd77951ad0c01da9c28905dda29d7397f7f72b542c496840'],
+    }),
+    ('trame_remote_control', '0.1.1', {
+        'checksums': ['1834789ec15ab7964badaa3a13f8dd29c1e96a7f66f5569538d72a30237d96d2'],
+    }),
+    ('trame_vtk', '2.8.14', {
+        'checksums': ['26baa6cc3be6756c583a5c5fadc8baa954ae1064279f63b5432370345b562098'],
+    }),
+    ('pv-visualizer', '0.1.6', {
+        'checksums': ['73008860e4910b39e996378fec6d2c3751ef1e44f68a974b2ad9d105d47206e6'],
+    }),
+    ('trame_jupyter_extension', '2.1.4', {
+        'checksums': ['b79dc60be7fc14bc4413299e4b00f9b34558d6e55b8be8442c0763783ae5ab5d'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'vis'

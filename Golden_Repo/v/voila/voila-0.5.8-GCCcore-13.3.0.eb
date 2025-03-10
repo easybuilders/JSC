@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'voila'
+version = '0.5.8'
+
+homepage = "https://github.com/voila-dashboards/voila"
+
+description = """
+https://github.com/voila-dashboards/voila
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('websockets', '14.1', {
+        'checksums': ['398b10c77d471c0aab20a845e7a60076b6390bfdaac7a6d2edb0d2c59d75e8d8'],
+    }),
+    (name, version, {
+        'checksums': ['3d9078c252a8b1f3fe58d465749d31cdc241b29c8f4ab77f123be35a17e2da95'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

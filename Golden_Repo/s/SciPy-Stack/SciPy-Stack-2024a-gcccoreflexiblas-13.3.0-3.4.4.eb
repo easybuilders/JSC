@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+name = 'SciPy-Stack'
+version = '2024a'
+
+local_scipy_bundle_ver = '2024.05'
+local_matplotlib_ver = '3.9.2'
+local_seaborn_ver = '0.13.2'
+local_sympy_ver = '1.13.3'
+local_xarray_ver = '2024.11.0'
+local_ipython_ver = '8.27.0'
+
+homepage = 'http://www.scipy.org'
+description = f"""SciPy Stack is a collection of open source software for scientific computing in Python.
+SciPy Stack includes 
+ - SciPy-bundle/{local_scipy_bundle_ver}
+ - matplotlib/{local_matplotlib_ver}
+ - Seaborn/{local_seaborn_ver}
+ - sympy/{local_sympy_ver}
+ - xarray/{local_xarray_ver}
+ - IPython/{local_ipython_ver}
+"""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '13.3.0-3.4.4'}
+
+dependencies = [
+    ("Python", "3.12.3"),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('SciPy-bundle', local_scipy_bundle_ver),
+    ('matplotlib', local_matplotlib_ver),
+    ('Seaborn', local_seaborn_ver),
+    ('sympy', local_sympy_ver),
+    ('xarray', local_xarray_ver),
+    ('IPython', local_ipython_ver),
+]
+
+moduleclass = 'vis'

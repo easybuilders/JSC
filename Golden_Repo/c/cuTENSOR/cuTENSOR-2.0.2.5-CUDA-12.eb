@@ -11,10 +11,13 @@ description = """The cuTENSOR Library is a GPU-accelerated tensor linear algebra
 
 toolchain = SYSTEM
 
+local_arch = {
+    'aarch64': 'sbsa'
+}
 source_urls = [
-    'https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-%(arch)s/'
+    'https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-%s/' % local_arch.get(ARCH, ARCH)
 ]
-sources = ['libcutensor-linux-%(arch)s-%(version)s-archive.tar.xz']
+sources = ['libcutensor-linux-%s-%%(version)s-archive.tar.xz' % local_arch.get(ARCH, ARCH)]
 
 checksums = [{
     'libcutensor-linux-sbsa-%(version)s-archive.tar.xz':

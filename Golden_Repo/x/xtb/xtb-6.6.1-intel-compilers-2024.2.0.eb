@@ -1,0 +1,57 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+name = 'xtb'
+version = '6.6.1'
+
+homepage = 'https://github.com/grimme-lab/xtb'
+description = """The semiempirical extended tight binding code (xtb) 
+is developed by the Grimme group in Bonn.
+It implements the semiempirical quantum mechanical methods GFNn-xTB 
+and offers a wide variety of applications.
+Documentation can be found on https://xtb-docs.readthedocs.io/en/latest/
+
+"""
+# NOTE, tests fail with segmentation violation with ifx compiler!
+
+toolchain = {'name': 'intel-compilers', 'version': '2024.2.0'}
+toolchainopts = {'r8': True, 'openmp': True, 'oneapi_fortran': False}
+
+source_urls = [
+    'https://github.com',
+]
+
+dependencies = [
+    ('CMake', '3.29.3', ''),
+    ('imkl', '2024.2.0', '', SYSTEM),
+]
+
+sources = [
+    {'download_filename': 'grimme-lab/xtb/archive/refs/tags/v%(version)s.tar.gz',
+     'filename': 'xtb-%(version)s.tar.gz'},
+]
+
+patches = [
+    'xtb_compileroptions.patch',
+]
+
+
+checksums = [
+    'df9a9fbcbf685a94ba6e1a97a6fe6a8530227ea380a1507cb758e72907542dfe',
+    'c4fea901e0287a6620e27fd1e2acf2d27ebe58a4dc6db4ec29dec49861b66864',
+]
+
+#  use --trace-expand to get detailed listings of CMake operations
+
+build_type = 'Release'
+
+parallel = 4
+
+runtest = ' MKL_NUM_THREADS=1 OMP_NUM_THREADS=4 test '
+
+sanity_check_paths = {
+    'files': ['bin/xtb'],
+    'dirs': ['bin', 'lib64', 'include', 'share/xtb'],
+}
+
+
+moduleclass = 'chem'

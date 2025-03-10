@@ -1,0 +1,112 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-lsp'
+version = '5.1.0'
+
+homepage = "https://github.com/jupyter-lsp/jupyterlab-lsp"
+
+description = """
+Coding assistance for JupyterLab 
+(code navigation + hover suggestions + linters + autocompletion + rename) 
+using Language Server Protocol
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+    ('python-lsp-server', '1.12.0'),
+    ('nodejs', '20.13.1'),  # req. by language-servers
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyter-lsp', '2.2.5', {
+        'checksums': ['793147a05ad446f809fd53ef1cd19a9f5256fd0a2d6b7ce943a982cb4f545001'],
+    }),
+    ('jupyterlab-lsp', '5.1.0', {
+        'checksums': ['aeac84093ada6d20ef57ae0e97811cc5796a0cab7237b32f8eddf993c0bb0356'],
+    }),
+]
+
+postinstallcmds = [
+    # settings for language server manager
+    'mkdir -p %(installdir)s/etc/jupyter/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/jupyter_notebook_config.json; } << \'EOF\'\n'
+        '{\n'
+        '  "LanguageServerManager": {\n'
+        '    "extra_node_roots": ["%(installdir)s/share/"]\n'
+        '  }\n'
+        '}\n'
+        'EOF'
+    ),
+    # install different language server for jupyter-lsp
+    # https://jupyterlab-lsp.readthedocs.io/en/latest/Language%20Servers.html
+    'mkdir -p %(installdir)s/share/node_modules/ ',
+    (
+        'cd %(installdir)s/share/node_modules/ && npm install '
+        '        bash-language-server@5.4.3 '
+        '        dockerfile-language-server-nodejs@0.13.0 '
+        '        pyright@1.1.392 '
+        '        sql-language-server@1.7.1 '
+        '        typescript-language-server@4.3.3 '
+        '        unified-language-server@4.0.1 '
+        '        vscode-css-languageserver-bin@1.4.0 '
+        '        vscode-html-languageserver-bin@1.4.0 '
+        '        vscode-json-languageserver-bin@1.0.1 '
+        '        yaml-language-server@1.15.0 '
+    ),
+    # more: javascript-typescript-langserver, jedi-language-server, julia-language-server,
+    #       python-language-server, r-languageserver, texlab, unified-language-server
+
+    # override lab-defaults  ########################
+    # Add the default_setting_override.json file for modifications of the system-wide default settings
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "@jupyter-lsp/jupyterlab-lsp:plugin": {\n'
+        '        "language_servers": {\n'
+        '            "pyright": {\n'
+        '                "serverSettings": {\n'
+        '                    "python.analysis.useLibraryCodeForTypes": true\n'
+        '                },\n'
+        '                "priority": 75\n'
+        '            }\n'
+        '        },\n'
+        '        "loggingConsole": "browser",\n'
+        '        "loggingLevel": "warn",\n'
+        '        "logAllCommunication": false,\n'
+        '        "setTrace": null\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    # see https://github.com/easybuilders/easybuild-easyconfigs/issues/19097
+    'EB_ENV_JUPYTER_ROOT': '',
+    # needed to allow `default_settings_overrides.json` files in <jupyter_config>/labconfig dirs
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter/',
+}
+
+# keep user's virtual-document directory in their home directory
+modluafooter = """
+setenv("JP_LSP_VIRTUAL_DIR", pathJoin(os.getenv("HOME"), ".virtual_documents"))
+"""
+modtclfooter = """
+setenv JP_LSP_VIRTUAL_DIR "$::env(HOME)/.virtual_documents"
+"""
+
+moduleclass = 'tools'

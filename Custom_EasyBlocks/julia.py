@@ -53,27 +53,24 @@ class EB_Julia(PackedBinary):
         }
         return PackedBinary.extra_options(extra_vars)
 
-
     def get_environment_folder(self):
-        env_path = ''
-
         if self.cfg['system_name']:
             systemname = self.cfg['system_name']
         else:
             systemname = socket.gethostname().split('.')[1]
-        
+
+        if self.cfg['arch_name'] == '':
+            return systemname
+
         if self.cfg['arch_name']:
-            env_path = '-'.join([systemname, self.cfg['arch_name']])
-            return env_path
+            return '-'.join([systemname, self.cfg['arch_name']])
 
         if self.cfg['toolchain_name']:
-            env_path = self.cfg['toolchain_name']
-            return env_path
+            return self.cfg['toolchain_name']
 
-        arch = systemtools.get_cpu_architecture()
         cpu_family = systemtools.get_cpu_family()
-        env_path = '-'.join([systemname, cpu_family, arch])
-        return env_path
+        arch = systemtools.get_cpu_architecture()
+        return '-'.join([systemname, cpu_family, arch])
 
     def get_user_depot_path(self):
         user_depot_path = ''

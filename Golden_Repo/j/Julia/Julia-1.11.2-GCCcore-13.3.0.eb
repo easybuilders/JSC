@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Recipe for linux created by
+# Samuel Omlin (CSCS), Victor Holanda Rusu (CSCS), Harmen Stoppels (CSCS),
+# Jens Henrik Göbbert (JSC), Frank W. Wagner (JSC)
+import os
+
+name = 'Julia'
+version = '1.11.2'
+arch_name = 'gpu'
+toolchain_name = 'gcccore-13.3.0'
+
+homepage = 'https://julialang.org'
+description = 'The Julia Programming Language'
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True, 'verbose': True}
+local_archs = {'aarch64': 'aarch64', 'x86_64': 'x64'}
+
+source_urls = ['https://julialang-s3.julialang.org/bin/linux/%s/%%(version_major_minor)s/' % local_archs[ARCH]]
+sources = ['%(namelower)s-%(version)s-linux-%(arch)s.tar.gz']
+checksums = [{
+    'julia-1.11.2-linux-aarch64.tar.gz': '0346e6d65852a3b73ced2c80c40f5a8cf38e7048d001cd57d3d1dd9efb2f6641',
+    'julia-1.11.2-linux-x86_64.tar.gz': '8a372ad262d4d4d55a1044f4fe3bce7c9a4a3ce8c513d2470e58e8071eecd476',
+}]
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+]
+
+system_name = os.getenv('SYSTEMNAME')
+
+postinstallcmds = [
+    (
+        "echo -e '"
+        '[extras]\n'
+        'CUDA_Runtime_jll = "76a88914-d11a-5bdc-97e0-2f5a05c973a2"\n'
+        "' >> %(installdir)s/Project.toml"
+    ),
+    (
+        "echo -e '"
+        '[preferences.CUDA_Runtime_jll]\n'
+        'local = "true"\n'
+        'version = "12.6"\n'
+        "' >> %(installdir)s/Project.toml"
+    ),
+]
+
+modextravars = {
+    'JULIA_CUDA_MEMORY_POOL': 'none',
+    'JULIA_CUDA_USE_BINARYBUILDER': 'false',
+}
+
+sanity_check_paths = {
+    'files': [
+        'bin/julia', 'include/julia/julia.h', 'lib/libjulia.so',
+        'lib/libjulia.so.%(version)s', 'lib/libjulia.so.%(version_major)s.%(version_minor)s',
+        'LICENSE.md'
+    ],
+    'dirs':  [
+        'bin', 'etc', 'include', 'lib', 'libexec', 'share', 'etc/julia',
+        'include/julia', 'lib/julia', 'libexec/julia', 'share/julia'
+    ],
+}
+
+moduleclass = 'lang'

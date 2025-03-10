@@ -24,7 +24,7 @@ checksums = [
     {'hashdeep_master.patch': 'e39cdd9a9143e4291b4d7682ae3b711aff514a22bbf8597469fcb97237e944b3'},
     {'hashdeep_xxhash.patch': 'db56851bdc442140a0ecdca6d9a45935080aa658581faa380b3c08c34c2ca8bc'},
     {'hashdeep_blocksize.patch': '24fe33beee8314f985c8180355bd47bb7cf24cc2053135ad826bbd5ee74ecc51'},
-    {'hashdeep_configure.patch': '0fa5167f00b0826fbb54a328fd83fb7859a5bf00d5dae74b5351a2f237598d45'},
+    {'hashdeep_configure.patch': 'add22b5d07bbcbadebae256783a7a0bed9adfa2bb857e1ff29deab231458d14c'},
 ]
 
 builddependencies = [

@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libxsmm'
+version = '1.17'
+
+homepage = 'https://github.com/hfp/libxsmm'
+description = """LIBXSMM is a library for small dense and small sparse matrix-matrix multiplications
+targeting Intel Architecture (x86)."""
+
+toolchain = {'name': 'NVHPC', 'version': '24.9-CUDA-12'}
+
+sources = ['%(version)s.tar.gz']
+source_urls = ['https://github.com/hfp/libxsmm/archive/']
+
+
+builddependencies = [
+    ('imkl', '2024.2.0', '', SYSTEM),
+]
+
+patches = [
+    '%(namelower)s-%(version)s_pthreadyield.patch',
+]
+
+checksums = [
+    '8b642127880e92e8a75400125307724635ecdf4020ca4481e5efe7640451bb92',
+    'f204099b05863b9ce21890e82cdcbe3642dbe2b9a6a5c97f2608b7964ab927e1',
+]
+
+skipsteps = ['configure']
+maxparallel = 1
+
+# install both static and dynamic version
+installopts = ['PREFIX=%(installdir)s ', 'PREFIX=%(installdir)s STATIC=0 ']
+
+runtest = "STATIC=0 test"
+
+# for some reason the stand-alone code libxsmm_gemm_generator is not built
+sanity_check_paths = {
+    'files': ['include/libxsmm.h', 'lib/libxsmm.a', 'lib/libxsmm.%s' % SHLIB_EXT],
+    'dirs': ['share']
+}
+
+moduleclass = 'math'

@@ -48,9 +48,6 @@ class JuliaBundle(Bundle):
     @staticmethod
     def extra_options(extra_vars=None):
         """Easyconfig parameters specific to bundles of Python packages."""
-        #50         extra_vars = {
-        #51             'arch_name': [None, "Change julia's Project.toml pathname", CUSTOM],
-        #52         }
         if extra_vars is None:
             extra_vars = {}
         # combine custom easyconfig parameters of Bundle & JuliaPackage
@@ -58,20 +55,23 @@ class JuliaBundle(Bundle):
         return JuliaPackage.extra_options(extra_vars)
 
     def get_environment_folder(self):
-        env_path = ''
-
-        systemname = 'default'
         if self.cfg['system_name']:
             systemname = self.cfg['system_name']
+        else:
+            systemname = socket.gethostname().split('.')[1]
+
+        if self.cfg['arch_name'] == '':
+            return systemname
 
         if self.cfg['arch_name']:
-            env_path = '-'.join([systemname, self.cfg['arch_name']])
-            return env_path
+            return '-'.join([systemname, self.cfg['arch_name']])
 
-        arch = systemtools.get_cpu_architecture()
+        if self.cfg['toolchain_name']:
+            return self.cfg['toolchain_name']
+
         cpu_family = systemtools.get_cpu_family()
-        env_path = '-'.join([systemname, cpu_family, arch])
-        return env_path
+        arch = systemtools.get_cpu_architecture()
+        return '-'.join([systemname, cpu_family, arch])
 
     def __init__(self, *args, **kwargs):
         super(JuliaBundle, self).__init__(*args, **kwargs)
@@ -98,6 +98,8 @@ class JuliaBundle(Bundle):
 
         self.admin_load_path = os.path.join(self.extensions_depot, "environments", '-'.join([self.version, self.get_environment_folder()]))
 
+        self.install_depot = 'local/share/julia'
+
     def sanity_check_step(self):
         """Custom sanity check for Julia."""
 
@@ -113,5 +115,9 @@ class JuliaBundle(Bundle):
         txt += self.module_generator.prepend_paths('EBJULIA_ADMIN_DEPOT_PATH', self.extensions_depot)
 
         txt += self.module_generator.prepend_paths('EBJULIA_ADMIN_LOAD_PATH', self.admin_load_path)
+
+        txt += self.module_generator.append_paths('JULIA_DEPOT_PATH', self.install_depot)
+
+        txt += self.module_generator.append_paths('EBJULIA_STD_DEPOT_PATH', self.install_depot)
 
         return txt

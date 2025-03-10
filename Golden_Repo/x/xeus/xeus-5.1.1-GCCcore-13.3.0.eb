@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'xeus'
+version = '5.1.1'
+
+homepage = 'https://github.com/jupyter-xeus/xeus'
+description = """Implementation of the Jupyter kernel protocol in C++
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'jupyter-xeus'
+source_urls = [GITHUB_SOURCE]
+sources = ['%(version)s.tar.gz']
+checksums = ['46643f1232a009ef64dc25e7c85da32194bff0c09792f7e56e1bdde2d6f0e948']
+
+builddependencies = [
+    ('CMake', '3.30.3'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('OpenSSL', '3', '', True),
+    ('ZeroMQ', '4.3.5'),
+    ('nlohmann_json', '3.11.3'),
+    ('cppzmq', '4.10.0'),
+    ('xtensor', '0.25.0'),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+
+sanity_check_paths = {
+    'files': [
+        'lib/libxeus.so'
+    ],
+    'dirs': ['include', 'lib']
+}
+
+moduleclass = 'tools'

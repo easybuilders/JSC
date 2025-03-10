@@ -1,0 +1,68 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'PyGObject'
+version = '3.48.2'
+
+homepage = 'https://pygobject.readthedocs.io/'
+description = """PyGObject is a Python package which provides bindings for GObject based
+libraries such as GTK, GStreamer, WebKitGTK, GLib, GIO and many more."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+sources = ['pygobject-%(version)s.tar.gz']
+checksums = ['c3c0a7afbe5b2c1c64dc0530109b4dd571085153dbedfbccb8ec7c5ad233f977']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('pkgconf', '2.2.0'),
+    ('meson-python', '0.16.0'),
+]
+dependencies = [
+    ('Python', '3.12.3'),
+    ('GLib', '2.80.4'),
+    ('GObject-Introspection', '1.80.1'),
+    ('PyCairo', '1.27.0'),
+]
+
+use_pip = True
+sanity_pip_check = True
+download_dep_fail = True
+
+postinstallcmds = [
+    (
+        'mkdir -p %(installdir)s/include/pygobject-3.0/ && '
+        'cp %(installdir)s/include/python3.12/PyGObject/pygobject-3.0/pygobject.h '
+        '   %(installdir)s/include/pygobject-3.0/ && '
+        ''
+        '{ cat >> %(installdir)s/include/pygobject-3.0/pygobject-3.0.pc; } << \'EOF\'\n'
+        'prefix=%(installdir)s\n'
+        'exec_prefix=${prefix}\n'
+        'includedir=${prefix}/include\n'
+        '# datarootdir=@datarootdir@\n'
+        '# datadir=@datadir@\n'
+        '\n'
+        'pygobjectincludedir=${includedir}/python%(pyshortver)s/PyGObject/pygobject-3.0\n'
+        '\n'
+        'Name: PyGObject\n'
+        'Description: Python bindings for GObject\n'
+        'Requires: gobject-2.0\n'
+        'Requires.private: libffi\n'
+        'Version: %(version)s\n'
+        'Cflags: -I${pygobjectincludedir}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {
+    'PKG_CONFIG_PATH': 'include/pygobject-3.0'
+}
+
+sanity_check_paths = {
+    'files': ['include/python%(pyshortver)s/PyGObject/pygobject-%(version_major)s.0/pygobject.h'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+options = {'modulename': 'gi'}
+
+moduleclass = 'vis'

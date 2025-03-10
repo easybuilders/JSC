@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'JupyterNotebook'
+version = '7.3.2'
+
+homepage = 'https://jupyter.org/'
+description = """The Jupyter Notebook is the original web application for creating and
+ sharing computational documents. It offers a simple, streamlined, document-centric experience."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://pypi.python.org/packages/source/n/notebook']
+sources = ['notebook-%(version)s.tar.gz']
+checksums = ['705e83a1785f45b383bf3ee13cb76680b92d24f56fb0c7d2136fe1d850cd3ca8']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+dependencies = [
+    ('Python', '3.12.3'),
+    ('IPython', '8.27.0'),
+    ('jupyter-server', '2.15.0'),
+    ('JupyterLab', '4.3.4'),
+]
+
+download_dep_fail = True
+sanity_pip_check = True
+use_pip = True
+
+options = {'modulename': 'notebook'}
+
+sanity_check_paths = {
+    'files': ['bin/jupyter-notebook'],
+    'dirs': ['etc/jupyter', 'share/jupyter'],
+}
+
+sanity_check_commands = ['jupyter notebook --help']
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

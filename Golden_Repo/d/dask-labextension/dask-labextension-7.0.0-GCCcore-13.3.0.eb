@@ -1,0 +1,38 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'dask-labextension'
+version = '7.0.0'
+
+homepage = "https://github.com/dask/dask-labextension"
+
+description = """
+JupyterLab extension for Dask.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+    ('jupyter-server-proxy', '20250303'),
+    ('dask', '2024.9.1', '-serial', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('nodejs', '20.13.1'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('dask_labextension', version, {
+        'checksums': ['45a60bd0ad31c5e425986b7e40a5aa242aa582ea868025ac2b82d0aa16ffcb8a'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

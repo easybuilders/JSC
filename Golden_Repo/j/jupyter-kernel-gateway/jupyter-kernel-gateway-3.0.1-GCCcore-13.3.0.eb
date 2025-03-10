@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-kernel-gateway'
+version = '3.0.1'
+
+homepage = "https://jupyter-kernel-gateway.readthedocs.io"
+
+description = """
+Jupyter Kernel Gateway is a web server that provides headless access to Jupyter kernels.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('jupyter_kernel_gateway', version, {
+        'modulename': 'kernel_gateway',
+        'checksums': ['900690c4c0e796867355468d685f7fa1cf3c7775d08e871c157f77d65fbd6d7f'],
+    }),
+]
+
+sanity_check_commands = ['jupyter kernelgateway --help']
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

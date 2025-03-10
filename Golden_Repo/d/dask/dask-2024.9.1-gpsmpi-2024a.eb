@@ -1,0 +1,75 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'dask'
+version = '2024.9.1'
+
+homepage = 'https://dask.org/'
+description = """ Dask natively scales Python. Dask provides advanced parallelism for analytics,
+enabling performance at scale for the tools you love."""
+
+toolchain = {'name': 'gpsmpi', 'version': '2024a'}
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('PyYAML', '6.0.2'),
+    ('bokeh', '3.6.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+use_pip = True
+
+exts_list = [
+    ('toolz', '1.0.0', {
+        'checksums': ['2c86e3d9a04798ac556793bced838816296a2f085017664e4995cb40a1047a02'],
+    }),
+    ('locket', '1.0.0', {
+        'checksums': ['5c0d4c052a8bbbf750e056a8e65ccd309086f4f0f18a2eac306a8dfa4112a632'],
+    }),
+    ('partd', '1.4.2', {
+        'checksums': ['d022c33afbdc8405c226621b015e8067888173d85f7f5ecebb3cafed9a20f02c'],
+    }),
+    ('HeapDict', '1.0.1', {
+        'checksums': ['8495f57b3e03d8e46d5f1b2cc62ca881aca392fd5cc048dc0aa2e1a6d23ecdb6'],
+    }),
+    ('zict', '3.0.0', {
+        'checksums': ['e321e263b6a97aafc0790c3cfb3c04656b7066e6738c37fffcca95d803c9fba5'],
+    }),
+    ('tblib', '3.0.0', {
+        'checksums': ['93622790a0a29e04f0346458face1e144dc4d32f493714c6c3dff82a4adb77e6'],
+    }),
+    (name, version, {
+        'checksums': ['06eccc6a68d2882bcd9de24548fa96e8d0da7fbfff0baed3f3c2a526b73dfbb4'],
+    }),
+    ('distributed', version, {
+        'checksums': ['4d573d89ff4fdde0dd96ad5cfdb843ce8ecef8caf002435bc60d14414dc1e819'],
+    }),
+    ('dask-mpi', '2022.4.0', {
+        'patches': ['dask-mpi-2022_fix_python312_safeconfigparser.patch'],
+        'checksums': [
+            {'dask-mpi-2022.4.0.tar.gz': '0a04f1d7d35a06cdff506593330d4414ea242c9172498ce191f5742eac499e17'},
+            {'dask-mpi-2022_fix_python312_safeconfigparser.patch':
+             '028aece34a3a83dd8fea63148fe34d3cbe6d353e72e806285fb2abca9f17dd7a'},
+        ],
+    }),
+    ('docrep', '0.3.2', {
+        'checksums': ['ed8a17e201abd829ef8da78a0b6f4d51fb99a4cbd0554adbed3309297f964314'],
+    }),
+    ('dask-jobqueue', '0.9.0', {
+        'source_urls': ['https://github.com/dask/dask-jobqueue/archive/refs/tags/'],
+        'sources': ['%(version)s.tar.gz'],
+        'checksums': ['02de8048c05d97bc0f2f3f73dce345eacf9c8cab60183b4f0f9e0647ca5af363'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/dask-%s' % x for x in ['mpi', 'scheduler', 'ssh', 'worker']],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = ["dask-scheduler --help"]
+
+sanity_pip_check = True
+
+moduleclass = 'data'

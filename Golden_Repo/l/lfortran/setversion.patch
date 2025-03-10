@@ -1,0 +1,12 @@
+diff -Naur lfortran-0.19.0.orig/build0.sh lfortran-0.19.0/build0.sh
+--- lfortran-0.19.0.orig/build0.sh	2023-04-28 20:42:00.000000000 +0200
++++ lfortran-0.19.0/build0.sh	2023-07-11 14:25:20.573477541 +0200
+@@ -4,7 +4,7 @@
+ set -x
+ 
+ # Generate the `version` file
+-ci/version.sh
++echo $1 > version
+ 
+ # Generate a Fortran AST from AST.asdl (C++)
+ python src/libasr/asdl_cpp.py grammar/AST.asdl src/lfortran/ast.h

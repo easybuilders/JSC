@@ -1,0 +1,41 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-nvdashboard'
+version = '0.12.0'
+
+homepage = "https://github.com/jupyterlab-contrib/jupyterlab-recents"
+
+description = """
+A JupyterLab extension for displaying dashboards of GPU usage.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('JupyterLab', '4.3.4'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('pynvml', '11.5.3', {
+        'checksums': ['183d223ae487e5f00402d8da06c68c978ef8a9295793ee75559839c6ade7b229'],
+    }),
+    ('jupyterlab_nvdashboard', version, {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['6d742e641a4062fbb51b96a0eee2daa6c82a3216c78b616a9640061f9a109630'],
+        'modulename': False,
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

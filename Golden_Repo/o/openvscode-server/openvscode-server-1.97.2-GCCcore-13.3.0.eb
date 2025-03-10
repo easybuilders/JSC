@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'openvscode-server'
+version = '1.97.2'
+
+homepage = 'https://github.com/gitpod-io/openvscode-server'
+description = """
+Run upstream VS Code on a remote machine with access through a modern web browser from any device, anywhere.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+local_filepart = {
+    'aarch64': 'arm64',
+    'x86_64':  'x64'
+}
+
+source_urls = [(
+    'https://github.com/gitpod-io/openvscode-server/releases/'
+    'download/openvscode-server-v%(version)s/')]
+sources = ['openvscode-server-v%%(version)s-linux-%s.tar.gz' % local_filepart[ARCH]]
+checksums = [{
+    '%%(name)s-v%%(version)s-linux-%s.tar.gz' % local_filepart['aarch64']:
+        '51ddb6e3830d791c674b23b12f9263fbd68deb7b9deaaa8fa522898f2c254afc',
+    '%%(name)s-v%%(version)s-linux-%s.tar.gz' % local_filepart['x86_64']:
+        '0b08d844992a96c568b8fa01bff38052c6d97da648f4ea08c38c549e0eac0748',
+}]
+
+dependencies = [
+    ('binutils', '2.42'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/openvscode-server'],
+    'dirs': ['bin', 'extensions', 'resources'],
+}
+
+moduleclass = 'tools'

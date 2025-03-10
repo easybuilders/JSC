@@ -1,0 +1,53 @@
+From b0d6fc70b4e1f0f0e7552d6851b3efc0b91e62bd Mon Sep 17 00:00:00 2001
+From: uweschulzweida <35592488+uweschulzweida@users.noreply.github.com>
+Date: Wed, 5 Apr 2023 18:05:53 +0200
+Subject: [PATCH] Fix issue #2674
+
+---
+ libhdf5/hdf5open.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/libhdf5/hdf5open.c b/libhdf5/hdf5open.c
+index cb2491ff9f..e00f426ef6 100644
+--- a/libhdf5/hdf5open.c
++++ b/libhdf5/hdf5open.c
+@@ -1205,12 +1205,14 @@ static int get_quantize_info(NC_VAR_INFO_T *var)
+ {
+     hid_t attid;
+     hid_t datasetid;
++    htri_t attr_exists;
+ 
+     /* Try to open an attribute of the correct name for quantize
+      * info. */
+     datasetid = ((NC_HDF5_VAR_INFO_T *)var->format_var_info)->hdf_datasetid;
+-    attid = H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_BITGROOM_ATT_NAME,
+-			    H5P_DEFAULT, H5P_DEFAULT);
++    attr_exists = H5Aexists(datasetid, NC_QUANTIZE_BITGROOM_ATT_NAME);
++    attid = attr_exists ? H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_BITGROOM_ATT_NAME,
++			    H5P_DEFAULT, H5P_DEFAULT) : 0;
+ 
+     if (attid > 0)
+       {
+@@ -1218,16 +1220,18 @@ static int get_quantize_info(NC_VAR_INFO_T *var)
+       }
+     else
+       {
+-	attid = H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_GRANULARBR_ATT_NAME,
+-			    H5P_DEFAULT, H5P_DEFAULT);
++        attr_exists = H5Aexists(datasetid, NC_QUANTIZE_GRANULARBR_ATT_NAME);
++	attid = attr_exists ? H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_GRANULARBR_ATT_NAME,
++			    H5P_DEFAULT, H5P_DEFAULT) : 0;
+ 	if (attid > 0)
+ 	  {
+ 	    var->quantize_mode = NC_QUANTIZE_GRANULARBR;
+ 	  }
+ 	else
+ 	  {
+-	    attid = H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_BITROUND_ATT_NAME,
+-				    H5P_DEFAULT, H5P_DEFAULT);
++            attr_exists = H5Aexists(datasetid, NC_QUANTIZE_BITROUND_ATT_NAME);
++	    attid = attr_exists ? H5Aopen_by_name(datasetid, ".", NC_QUANTIZE_BITROUND_ATT_NAME,
++				    H5P_DEFAULT, H5P_DEFAULT) : 0;
+ 	    if (attid > 0)
+ 	      var->quantize_mode = NC_QUANTIZE_BITROUND;
+ 	  }

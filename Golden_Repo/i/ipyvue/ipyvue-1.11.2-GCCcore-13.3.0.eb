@@ -1,0 +1,37 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'ipyvue'
+version = '1.11.2'
+
+homepage = "https://github.com/widgetti/ipyvue"
+
+description = """
+Jupyter widgets base for Vue libraries.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+    ('nodejs', '20.13.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('ipyvue', version, {
+        'checksums': ['3b1381bd120184f970a5d66deac33b8592a666c8e1ab7a5afd33ecff342e0a95'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

@@ -49,6 +49,7 @@ GraphicsMagick
 GtkSourceView
 graphite2
 HarfBuzz
+hatch-jupyter-builder
 holoviews
 ICU
 ISL
@@ -79,7 +80,6 @@ jupyter-archive
 jupyter-bokeh
 jupyter-collaboration
 jupyter-resource-usage
-jupyter-server
 jupyter-server-proxy
 jupyter-slurm-provisioner
 JupyterHub
@@ -124,7 +124,6 @@ OpenImageDenoise
 OpenSlide
 panel
 papermill
-plotly
 pyunicore
 PCRE
 PDT

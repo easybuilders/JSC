@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'PyMech'
+version = '2.0.1'
+
+homepage = 'https://github.com/eX-Mech/pymech'
+description = """A Python suite of routines for Nek5000 and SIMSON"""
+
+toolchain = {'name': 'gompi', 'version': '2024a'}
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('dask', '2024.9.1'),
+    ('VTK', '9.4.1'),
+    ('PDM', '2.18.2'),
+    ('xarray', '2024.11.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+exts_list = [
+    ('apptools', '5.3.0', {
+        'checksums': ['30580bf62a0d5dd616edd5e2b9958227633f35cb557c6860452a56809e6bd567'],
+    }),
+    ('envisage', '7.0.3', {
+        'checksums': ['f7b1af88bf3a8fff2a9ac6e36bb48dea9929e3f612204cfe94aed62b0316c9e3'],
+    }),
+    ('pyface', '8.0.0', {
+        'checksums': ['7e13618347b7a648ed20cdbd4fd1a51648f5010291f35e4e0ff1bf70a720cbf8'],
+    }),
+    ('traits', '7.0.2', {
+        'checksums': ['a563515809cb3911975de5a54209855f0b6fdb7ca6912a5e81de26529f70428c'],
+    }),
+    ('traitsui', '8.0.0', {
+        'checksums': ['901b9d1cbc45513e00a7397677b098441b28774b688f30a159bad4801bf40364'],
+    }),
+    ('mayavi', '4.8.2', {
+        'checksums': ['b10fe9145f21c48e4902f0e746b3603b3cb694d11456515a46820f21a0a74229'],
+    }),
+    ('pymech', version, {
+        'checksums': ['b4976b766221fcb78767bc2ddff16ac625f37c12054a74b1307ff7043173d805'],
+    }),
+]
+
+use_pip = True
+sanity_pip_check = True
+
+moduleclass = 'lib'

@@ -1,0 +1,43 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'camp'
+version = '2024.07.0'
+
+homepage = 'https://github.com/LLNL/camp'
+description = """
+Compiler agnostic metaprogramming library providing concepts, type operations and tuples for C++ and cuda
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+github_account = 'LLNL'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['8a23b9fe1777f79b04020e499ec191899fc9e492598218bb776d60b30cda3697']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.30.3'),
+    ('blt', '0.6.2'),
+]
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+
+configopts += "-DENABLE_CUDA=ON "
+configopts += "-DENABLE_OPENMP=ON "
+
+sanity_check_paths = {
+    'files': ['include/camp/camp.hpp'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'vis'

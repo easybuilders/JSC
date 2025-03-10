@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 # Use ICU and OpenSSL from EasyBuild
-local_common_configopts = "--with-intl=system-icu --shared-openssl "
+local_common_configopts = "--with-intl=full-icu --shared-openssl "
 
 configopts = [
     local_common_configopts,                  # Static build
@@ -43,6 +43,8 @@ local_libnode_real = "libnode.%s.%s" % (SHLIB_EXT, local_libversion)
 
 postinstallcmds = [
     "cd %%(installdir)s/lib && ln -s %s %s" % (local_libnode_real, x) for x in local_extra_libs
+] + [
+    "export PATH=%(installdir)s/bin/:$PATH && %(installdir)s/bin/corepack enable"
 ]
 
 sanity_check_paths = {

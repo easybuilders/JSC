@@ -1,0 +1,36 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'deepdiff'
+version = '8.2.0'
+
+homepage = 'https://zepworks.com/deepdiff/current/'
+description = """DeepDiff: Deep Difference of dictionaries, iterables and almost any other object recursively."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+]
+
+use_pip = True
+
+exts_list = [
+    ('jsonpickle', '4.0.1', {
+        'checksums': ['b5336144d902958b92cb08bc1e76bfa47199b8afd454303693894defd2fa50c5'],
+    }),
+    ('orderly_set', '5.3.0', {
+        'checksums': ['80b3d8fdd3d39004d9aad389eaa0eab02c71f0a0511ba3a6d54a935a6c6a0acc'],
+    }),
+    (name, version, {
+        'checksums': ['6ec78f65031485735545ffbe7a61e716c3c2d12ca6416886d5e9291fc76c46c3'],
+    }),
+]
+
+sanity_pip_check = True
+
+moduleclass = 'tools'

@@ -119,7 +119,6 @@ nglview
 NASM
 NLopt
 OPARI2
-OTF2
 OpenImageDenoise
 OpenSlide
 panel

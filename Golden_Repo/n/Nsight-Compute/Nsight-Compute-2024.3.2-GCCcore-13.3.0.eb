@@ -9,12 +9,13 @@ description = 'NVIDIA Nsight Compute is an interactive kernel profiler for CUDA 
 # GCCcore toolchain is not strictly necessary, but used to bring it to same level as Nsight Compute
 toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
 
-download_instructions = """Download %(name)s %(version)s from the NVIDIA website, which requires a NVIDIA
-developer account:
+download_instructions = """
+Download %(name)s %(version)s from the NVIDIA website, which requires a NVIDIA developer account:
 1. Go to https://developer.nvidia.com/gameworksdownload
 2. Find %(name)s %(version)s
 3. Download "%(name)s (ArmServer) %(version)s (Linux)". This may require logging in to your NVIDIA developer account.
 """
+
 local_nsight_compute_arch = 'armserver-' if ARCH == 'aarch64' else 'linux-'
 sources = [{
     'filename': 'nsight-compute-%s%%(version)s.3-34861637.run' % local_nsight_compute_arch,
@@ -35,12 +36,18 @@ dependencies = [
 extract_sources = True
 unpack_options = '--nochown --noexec --nox11 --target %(builddir)s'
 
-install_cmd = 'cp -r %(builddir)s/pkg/* %(installdir)s/ \
-    && chmod -R a+rX %(installdir)s'
+install_cmd = (
+    'cp -r %(builddir)s/pkg/* %(installdir)s/ && '
+    'chmod -R a+rX %(installdir)s'
+)
 
+# Workaround due to wrong permissions once the files are extracted from the .run file
+postinstallcmds = [
+    'find %(installdir)s -type f -and -executable -and ! -name "lib*" -exec chmod go+x {} \;'
+]
 
-local_target_arch_suffix = 'sbsa-armv8' if ARCH == 'aarch64' else 'x64' if ARCH == 'x86_64' else 'unknown'
-local_host_arch_suffix = 'armv8' if ARCH == 'aarch64' else 'x64' if ARCH == 'x86_64' else 'unknown'
+# local_target_arch_suffix = 'sbsa-armv8' if ARCH == 'aarch64' else 'x64' if ARCH == 'x86_64' else 'unknown'
+# local_host_arch_suffix = 'armv8' if ARCH == 'aarch64' else 'x64' if ARCH == 'x86_64' else 'unknown'
 
 sanity_check_paths = {
     'files': ['ncu-ui', 'ncu'],

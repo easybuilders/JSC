@@ -26,6 +26,7 @@ dependencies = [
     ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('networkx', '3.3'),
     ('Flask', '3.0.3'),
+    ('pydantic', '2.9.1'),
     ('Python-bundle-PyPI', '2024.06'),
     ('meson-python', '0.16.0'),
 ]
@@ -36,11 +37,6 @@ exts_default_options = {
     'sanity_pip_check': True,
     'download_dep_fail': True,
     'use_pip_for_deps': False,
-}
-
-local_pydantic = {
-    'x86_64': 'x86_64.manylinux2014_x86_64',
-    'aarch64':  'aarch64.manylinux2014_aarch64'
 }
 
 exts_list = [
@@ -77,16 +73,6 @@ exts_list = [
     ('annotated_types', '0.7.0', {
         'checksums': ['aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89'],
     }),
-    ('pydantic_core', '2.23.4', {
-        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.whl' % local_pydantic[ARCH],
-        'checksums': [{
-            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.whl' % local_pydantic['aarch64']:
-                '723314c1d51722ab28bfcd5240d858512ffd3116449c557a1336cbe3919beb87',
-            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.whl' % local_pydantic['x86_64']:
-                '128585782e5bfa515c590ccee4b727fb76925dd04a98864182b22e89a4e6ed36',
-        }],
-
-    }),
     ('penaltymodel', '1.1.0', {
         'checksums': ['471592e0756a6ca04c3343cb9c2aa525aaaedc42255201826c8ecdd45f592b1e'],
     }),
@@ -100,9 +86,6 @@ exts_list = [
     }),
     ('dwave_networkx', '0.8.15', {
         'checksums': ['ecafcd7d12e257d771b8a0522c6dc8794be310c112d49768c1caf804ab54b423'],
-    }),
-    ('pydantic', '2.9.2', {
-        'checksums': ['d155cef71265d1e9807ed1c32b4c8deec042a44a50a4188b25ac67ecd81a9c0f'],
     }),
     ('minorminer', '0.2.15', {
         'checksums': ['7c19c580103d50df309adb8a2b9bfb8e30a9a7d72d154412dcb35fafafb77856'],

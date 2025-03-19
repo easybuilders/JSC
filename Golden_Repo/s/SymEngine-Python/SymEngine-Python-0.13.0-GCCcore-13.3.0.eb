@@ -1,7 +1,7 @@
 # This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
 easyblock = 'PythonPackage'
 
-name = 'SymEngine-python'
+name = 'SymEngine-Python'
 version = '0.13.0'
 
 homepage = 'https://github.com/symengine/symengine.py'

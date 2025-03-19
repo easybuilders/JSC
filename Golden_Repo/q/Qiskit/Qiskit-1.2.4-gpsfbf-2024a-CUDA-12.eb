@@ -1,0 +1,234 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Qiskit'
+version = '1.2.4'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+
+homepage = 'https://qiskit.org'
+description = """Qiskit is an open-source framework for working with noisy quantum computers
+ at the level of pulses, circuits, and algorithms."""
+
+# This Qiskit module contains Qiskit CPU + Qiskit GPU
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+toolchainopts = {'pic': True}
+
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('CMake', '3.29.3'),
+    ('Ninja', '1.12.1'),
+    ('pkgconf', '2.2.0'),
+    ('pybind11', '2.12.0'),  # for aer
+    ('Rust', '1.78.0'),  # for retworkx
+    ('maturin', '1.6.0'),
+    ('hatchling', '1.24.2'),  # for annotated_types
+    # Required by qiskit_aer:
+    ('nlohmann_json', '3.11.3'),
+    ('setuptools-rust', '1.9.0'),
+]
+
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('sympy', '1.13.1', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('dill', '0.3.9'),
+    ('SymEngine-Python', '0.13.0', '', ('GCCcore', '13.3.0')),
+    ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('IPython', '8.27.0'),
+    ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('h5py', '3.12.1', '-serial', ('GCCcore', '13.3.0')),
+    ('PySCF', '2.7.0'),
+    ('scikit-learn', '1.5.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('CUDA', '12', '', SYSTEM),
+    ('cuTENSOR', '2.0.2.5', versionsuffix, SYSTEM),
+    ('cuQuantum', '24.11.0', '-CUDA-%(cudaver)s', ('gpsfbf', '2024a')),
+    ('cuQuantum-Python', '24.11.0', '-CUDA-%(cudaver)s', ('gpsfbf', '2024a')),
+    # Required for Qiskit_aer:
+    ('scikit-build', '0.17.6'),
+    ('pydantic', '2.9.1'),
+]
+
+local_common_opts = {
+    'req_py_majver': '3',
+    'req_py_minver': '0'
+}
+
+# qiskit-aer must not use CONAN to install dependencies
+modextravars = {'DISABLE_CONAN': 'YES'}
+
+sanity_pip_check = True
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    # DISABLED: because 'pip check' does not find pyscf (not installed with pip)
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+local_architecture = {
+    'aarch64': 'aarch64',
+    'x86_64':  'x86_64'
+}
+
+local_qisk_aer_gpu_download_path = '/p/project1/cslqip/easybuild/jedi/'
+local_qisk_aer_gpu_download_path += 'sources/q/Qiskit/extensions/'
+local_qisk_aer_gpu_download_path += 'qiskit_aer-0.15.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl'
+
+exts_list = [
+    ('websockets', '14.1', {
+        'checksums': ['398b10c77d471c0aab20a845e7a60076b6390bfdaac7a6d2edb0d2c59d75e8d8'],
+    }),
+    ('websocket_client', '1.8.0', {
+        'modulename': 'websocket',
+        'checksums': ['3239df9f44da632f96012472805d40a23281a991027ce11d2f45a6f24ac4c3da'],
+    }),
+    ('stevedore', '5.4.0', {
+        'checksums': ['79e92235ecb828fe952b6b8b0c6c87863248631922c8e8e0fa5b17b232c4514d'],
+    }),
+    ('rustworkx', '0.15.1', {
+        'checksums': ['0e0cc86599f979285b2ab9c357276f3272f3fcb3b2df5651a6bf9704c570d4c1'],
+    }),
+    ('pyjwt', '2.10.1', {
+        'modulename': 'jwt',
+        'checksums': ['3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953'],
+    }),
+    ('nvidia_nvjitlink_cu12', '12.4.127', {
+        'modulename': 'nvidia.nvjitlink',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                '4abe7fef64914ccfa909bc2ba39739670ecc9e820c83ccc7a6ed414122599b83',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                '06b3b9b25bf3f8af351d664978ca26a16d2c5127dbd53c0497e28d1fb9611d57',
+        }],
+    }),
+    ('nvidia_cuda_runtime_cu12', '12.4.127', {
+        'modulename': 'nvidia.cuda_runtime',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                '961fe0e2e716a2a1d967aab7caee97512f71767f852f67432d572e36cb3a11f3',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                '64403288fa2136ee8e467cdc9c9427e0434110899d07c779f25b5c068934faa5',
+        }],
+    }),
+    ('nvidia_cublas_cu12', '12.4.5.8', {
+        'modulename': 'nvidia.cublas',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                '0f8aa1706812e00b9f19dfe0cdb3999b092ccb8ca168c0db5b8ea712456fd9b3',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                '2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b',
+        }],
+    }),
+    ('annotated_types', '0.7.0', {
+        'checksums': ['aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89'],
+    }),
+    ('qiskit', '1.2.4', {
+        'source_tmpl': '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_architecture[ARCH], local_architecture[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_%s.whl'
+            % local_architecture['aarch64']:
+                '124777b0d9caf40932e02d1d2c6be3a12ff058990e6ae55f45a315a9a51da75b',
+            '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_%s.whl'
+            % local_architecture['x86_64']:
+                'a66303ab4f939080ca0b8c4102040a89417a99f2621978c7bca8b1d5f6c6e103',
+        }],
+        # 'checksums': ['3f30b1fc6c66dec240428991da75cc6c35cc75152baff8daf3f8ca71b60684e8'],
+    }),
+    ('nvidia_cusparse_cu12', '12.3.1.170', {
+        'modulename': 'nvidia.cusparse',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                '9d32f62896231ebe0480efd8a7f702e143c98cfaa0e8a76df3386c1ba2b54df3',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                'ea4f11a2904e2a8dc4b1833cc1b5181cde564edd0d5cd33e3c168eff2d1863f1',
+        }],
+    }),
+    ('ibm_cloud_sdk_core', '3.22.1', {
+        'checksums': ['096dd22c146848a87053f8f2bfbd5dfdf089eefe81ee1c448ca22c4304751dfd'],
+    }),
+    ('cuquantum_cu12', '24.11.0', {
+        'modulename': 'cuquantum',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                'b68b279bae1d1e6d0688a371083ede4ede90d19ab5b1a4f9123a30db3e3317e9',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                'a4d1d054fd6038bae3326237cf69395a25d52b54a509a17fc1fd320808ad114a',
+        }],
+    }),
+    ('qiskit_machine_learning', '0.8.2', {
+        'checksums': ['90ec0e96edb735181ec41a54d9461301584b1e660d7dfa51d51f285876c14d80'],
+    }),
+    ('qiskit_algorithms', '0.3.1', {
+        'checksums': ['cba9c573d47c0f9508745a5a2794298084ec4f8833781b426fa9b2cea0fca794'],
+    }),
+    ('pyspnego', '0.11.2', {
+        'modulename': 'spnego',
+        'checksums': ['994388d308fb06e4498365ce78d222bf4f3570b6df4ec95738431f61510c971b'],
+    }),
+    ('nvidia_cusolver_cu12', '11.6.1.9', {
+        'modulename': 'nvidia.cusolver',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['aarch64']:
+                'd338f155f174f90724bbde3758b7ac375a70ce8e706d70b018dd3375545fc84e',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_architecture['x86_64']:
+                '19e33fa442bcfd085b3086c4ebf7e8debc07cfe01e11513cc6d332fd918ac260',
+        }],
+    }),
+    ('ibm_platform_services', '0.59.1', {
+        'checksums': ['5d0f5a64ddb0cc2dfbeb89da0df611faa9b2494a091f8bba5e8f44a497e7c0c3'],
+    }),
+    ('requests_ntlm', '1.3.0', {
+        'checksums': ['b29cc2462623dffdf9b88c43e180ccb735b4007228a542220e882c58ae56c668'],
+    }),
+    ('qiskit-nature', '0.7.2', {
+        'checksums': ['621b9bb88c0fa4c705948af86e3ef7d36bb8e7aa11b95801264527de58fcd694'],
+    }),
+    ('qiskit_ibm_runtime', '0.34.0', {
+        'checksums': ['58905231fa326d8c8e5b72c1eb55d0ca193af8276eeb4b8a55e9b7cddfc98882'],
+    }),
+    ('qiskit_ibm_provider', '0.11.0', {
+        'checksums': ['31a29701120dd0b27e1d8e691b4e7262580cda6f85b85610697577920d8c2f0c'],
+    }),
+]
+
+if ARCH == "x86_64":
+    exts_list.insert(-7, ('qiskit_aer', '0.15.1', {
+        'modulename': 'qiskit_aer',
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_architecture[ARCH], local_architecture[ARCH]),
+        'checksums': ['f2257b4828df8cb3f37e153c220cd72f54a81d89875711efbc3ac2f265e0ae4a'],
+    }))
+    exts_list.insert(-2, ('qiskit_aer_gpu', '0.15.1', {
+        'modulename': 'qiskit_aer',
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_%s.whl'
+        % local_architecture[ARCH],
+        'checksums': ['5b65d98386a703a3ec351ee343169f66072179e92dd61bbf3a035912465bb924'],
+    }))
+else:
+    # This whl contains both qiskit_aer CPU and GPU
+    exts_list.insert(-2, ('qiskit_aer', '0.15.1', {
+        'download_instructions': "Download via %s" % local_qisk_aer_gpu_download_path,
+        'modulename': 'qiskit_aer',
+        'sources': ['qiskit_aer-0.15.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl'],
+        # 'checksums': ['8e0d8f8090361128d99008680c0f9413aadc5750ca3b8eaa15a1dc1119be522b'],
+        'checksums': ['1288fd5c36235f5fedfc228956049e87bdd804cbc2b3a487a4453d9e7e72f420'],
+    }))
+
+sanity_check_paths = {
+    'files': ['lib/python%(pyshortver)s/site-packages/qiskit/__init__.py', 'bin/pyspnego-parse', 'bin/wsdump'],
+    'dirs': ['bin', 'lib'],
+}
+
+moduleclass = 'quantum'

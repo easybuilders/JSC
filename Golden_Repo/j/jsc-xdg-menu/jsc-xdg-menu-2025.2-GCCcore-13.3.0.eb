@@ -11,19 +11,22 @@ toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
 
 source_urls = ['https://gitlab.version.fz-juelich.de/goebbert1/jsc-xdg-menu/-/archive/%(version)s/']
 sources = ['%(name)s-%(version)s.tar.gz']
-checksums = ['3bb392d80ce93a11020dc8b144046d6545d4da29c8bb7d74ac1b2038e4c90cf8']
+checksums = ['a28259b0fa14b79c7d46a79dcb0af2e32af37fbf929bc5802697d235e18f7b57']
 
 builddependencies = [
     # just ensure they exist
-    ('Blender', '4.3.2', '-linux-x86_64-CUDA-12'),
     # ('CubeGUI', ''),
     ('HDFView', '3.3.0'),
     ('Nsight-Compute', '2024.3.2'),
     ('Nsight-Systems', '2024.7.1'),
-    # ('ParaView', '5.13.2', '', ('gpsmkl', '2024a')),
+    # ('ParaView', '5.13.2', '', ('gpsmpi', '2024a')),
     ('TotalView', '2024.4.2'),
-    ('Vampir', '10.5.0', '', SYSTEM),
 ]
+if ARCH == "x86_64":
+    builddependencies.extend([
+        ('Blender', '4.3.2', '-linux-x86_64-CUDA-12'),
+        ('Vampir', '10.5.0', '', SYSTEM),
+    ])
 
 extract_sources = True,
 install_cmd = 'cp -a %(builddir)s/%(name)s-%(version)s/* %(installdir)s/'

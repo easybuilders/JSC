@@ -74,7 +74,7 @@ dependencies = [
     # ('JupyterKernel-PyDeepLearning', '2025.1', '-4.3.4'),
     # ('JupyterKernel-PyVisualization', '2025.2', '-4.3.4'),
     # # ('JupyterKernel-PyQuantum', '', '-4.3.4'),
-    # ('JupyterProxy-XpraHTML5', '0.4.1'),
+    # ('JupyterProxy-XpraHTML5', '0.4.3'),
     # # ('JupyterProxy-Matlab', ''),
     # ('JupyterProxy-NESTDesktop, '0.4.0'),
     # ('JupyterProxy-RStudio', '2024.12.0').

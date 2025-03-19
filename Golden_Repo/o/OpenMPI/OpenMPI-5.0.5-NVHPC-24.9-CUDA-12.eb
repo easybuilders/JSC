@@ -12,15 +12,18 @@ sources = [SOURCELOWER_TAR_BZ2]
 patches = [
     'OpenMPI-5.0.5_configure_patch_nvidia_compilers.patch',
     'OpenMPI-5.0.5_fix_hle_make_errors.patch',
-    'OpenMPI-5.0.x_fix_c90_compliance.patch'
+    'OpenMPI-5.0.x_fix_c90_compliance.patch',
+    'OpenMPI-5.0.x_fixlock_pr13126.patch',
 ]
 checksums = [
-    {'openmpi-5.0.5.tar.gz': '6588d57c0a4bd299a24103f4e196051b29e8b55fbda49e11d5b3d32030a32776'},
+    {'openmpi-5.0.5.tar.bz2': '6588d57c0a4bd299a24103f4e196051b29e8b55fbda49e11d5b3d32030a32776'},
     {'OpenMPI-5.0.5_configure_patch_nvidia_compilers.patch':
      'bc1acb65fb1dcfed945c6988f4bdf17cac2f05e85628febc8ceafb574b08f5ed'},
     {'OpenMPI-5.0.5_fix_hle_make_errors.patch': '881c907a9f5901d5d6af41cd33dffdcecba4a67a9e5123e602542aea57a80895'},
     {'OpenMPI-5.0.x_fix_c90_compliance.patch':
      'ece1dff504673179daf298f74c978d31132fcde71af9eca38a530b30aec85cca'},
+    {'OpenMPI-5.0.x_fixlock_pr13126.patch':
+     '4da47b3909fea67a06bbaba10d0a964cab089f6d052351b3949f772b001a1898'},
 ]
 
 builddependencies = [

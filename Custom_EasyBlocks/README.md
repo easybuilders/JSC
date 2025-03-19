@@ -96,3 +96,10 @@ Overview of the custom EasyBlocks.
 - __*needed because*__ New EasyBlock supports Aarch64
 - __*difference compared to upstream*__ support for Aarch64
 - __*can not be removed*__ at least until that option is merged upstream
+
+## Score-P
+- __*added by*__ j.reuter
+- __*needed because*__ Adds GOTCHA dependency and fixes missing path specification for Qt5 and newer
+- __*difference compared to upstream*__ See above.
+- __*can not be removed*__ until next EasyBuild release (see https://github.com/easybuilders/easybuild-easyblocks/pull/3548)
+

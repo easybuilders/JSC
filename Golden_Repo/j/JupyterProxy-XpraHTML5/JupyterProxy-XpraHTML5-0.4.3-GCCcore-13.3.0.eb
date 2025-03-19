@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'JupyterProxy-XpraHTML5'
-version = '0.4.1'
+version = '0.4.3'
 
 homepage = 'https://xpra.org'
 description = """
@@ -17,7 +17,7 @@ toolchainopts = {'pic': True}
 builddependencies = [
     ('binutils', '2.42'),
     # check for existance
-    ('xpra', '6.2.3'),
+    ('xpra', '5.0.12'),
     ('jsc-xdg-menu', '2025.2'),
 ]
 
@@ -34,7 +34,7 @@ exts_list = [
         'source_urls': ['https://github.com/FZJ-JSC/jupyter-xprahtml5-proxy/archive/refs/tags/'],
         'source_tmpl': 'v%(version)s.tar.gz',
         'checksums': [
-            'a6dc53de88caafc09311ac46c0eab52bfd4bb80e28138692044d6f14ea509005',
+            'ce6e2a6e7a8d3b70b26bd03cf223861f59e01b4f5aca9a14dbd831014b3c9f0b',
         ],
     }),
 ]
@@ -50,7 +50,7 @@ postinstallcmds = [
         'module purge \n'
         'module load Stages/${STAGE} \n'
         'module load GCCcore/.13.3.0 \n'
-        'module load xpra \n'
+        'module load xpra/5.0.12 \n'
         'module load jsc-xdg-menu/.2025.2 \n'
         '\n'
         '# xterm should be part of the module Xvfb which is loaded by xpra\n'

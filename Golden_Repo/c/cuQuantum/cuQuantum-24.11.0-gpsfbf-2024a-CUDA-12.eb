@@ -1,0 +1,72 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PackedBinary'
+
+name = 'cuQuantum'
+version = '24.11.0'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://docs.nvidia.com/cuda/cuquantum/latest/index.html'
+description = """NVIDIA cuQuantum SDK is a high-performance library
+for quantum information science and beyond.
+Currently its primary target is quantum circuit
+simulations and it consists of two major components:
+
+        cuStateVec: a high-performance library for
+                    state vector computations
+
+        cuTensorNet: a high-performance library for
+                     tensor network computations
+"""
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+
+if ARCH == "aarch64":
+    source_urls = [
+        'https://developer.download.nvidia.com/compute/cuquantum/redist/cuquantum/linux-sbsa/'
+    ]
+    sources = ['cuquantum-linux-sbsa-24.11.0.21_cuda12-archive.tar.xz']
+    checksums = ['e3e4a289887d17d4b78eaac97f2fa03b2de9d832f918eb48ab97de997c104ce6']
+if ARCH == "x86_64":
+    source_urls = [
+        'https://developer.download.nvidia.com/compute/cuquantum/redist/cuquantum/linux-x86_64/'
+    ]
+    sources = ['cuquantum-linux-x86_64-24.11.0.21_cuda12-archive.tar.xz']
+    checksums = ['4640da62e66f17671c8d89be93a439b8a7a13169f7aa902a3e9b6cf676d4bffd']
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+    ('cuTENSOR', '2.0.2.5', '-CUDA-%(cudaver)s', SYSTEM),
+]
+
+postinstallcmds = [
+    (  # from %(installdir)s/distributed_interfaces/activate_mpi_cutn.sh
+        'cd %(installdir)s/distributed_interfaces/ && '
+        'mpicc -shared -std=c99 -fPIC '
+        '-I${EBROOTCUDA}/include -I../include '
+        'cutensornet_distributed_interface_mpi.c '
+        '-o libcutensornet_distributed_interface_mpi.so '
+    ),
+    (  # from %(installdir)s/distributed_interfaces/activate_mpi_cudm.sh
+        'cd %(installdir)s/distributed_interfaces/ && '
+        'mpicc -shared -std=c99 -fPIC '
+        '-I${EBROOTCUDA}/include -I../include '
+        'cudensitymat_distributed_interface_mpi.c '
+        '-o libcudensitymat_distributed_interface_mpi.so '
+    ),
+]
+
+modextrapaths = {
+    'CUTENSORNET_COMM_LIB': 'distributed_interfaces/libcutensornet_distributed_interface_mpi.so',
+    'CUDENSITYMAT_COMM_LIB': 'distributed_interfaces/libcudensitymat_distributed_interface_mpi.so',
+}
+
+sanity_check_paths = {
+    'files': ['include/custatevec.h', 'include/cutensornet.h',
+              'include/cutensornet/types.h',
+              'distributed_interfaces/libcudensitymat_distributed_interface_mpi.so',
+              'distributed_interfaces/libcutensornet_distributed_interface_mpi.so',
+              'include/cutensornet/typesDistributed.h', 'LICENSE'],
+    'dirs': ['distributed_interfaces', 'include', 'lib'],
+}
+
+moduleclass = 'quantum'

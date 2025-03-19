@@ -2,10 +2,10 @@
 easyblock = 'PythonBundle'
 
 name = 'xpra'
-version = '6.2.3'
-
+version = '5.0.12'
 local_xprahtml5_version = '17'
-local_xpra_commit = 'aef04a39a7a0b59db2dacb869990d9e186f3b532'
+
+local_xpra_commit = '5ed4fea0ee724a7301c35e7a804430c5e8207530'  # v5.0.12
 
 homepage = "http://www.xpra.org"
 description = """Xpra is an open-source multi-platform persistent remote display server and client
@@ -60,6 +60,18 @@ dependencies = [
     ('PyYAML', '6.0.2'),
 ]
 
+components = [
+    ('images', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'background.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+        ],
+        'checksums': [
+            {'background.png': 'f6839f24cab4af4613511d151dd43fcc6c5e65dcffb31ec7f02178bf20521b6a'},
+        ],
+    }),
+]
+
 use_pip = True
 
 exts_list = [
@@ -96,22 +108,22 @@ exts_list = [
         ),
         'installopts': "--with-tests --without-service --without-printing --without-docs ",
         'modulename': False,
-        'patches': ['xpra-6.2.3-use_Xorg_on_PATH_first.patch'],
+        'patches': ['xpra-5.0.3-use_Xorg_on_PATH_first.patch'],
         'prebuildopts': "export INCLUDE_DIRS=${EBROOTBROTLI}/include && ",
         'preinstallopts': "export INCLUDE_DIRS=${EBROOTBROTLI}/include && ",
         'source_tmpl': '%s.tar.gz' % local_xpra_commit,
         'source_urls': ['https://github.com/Xpra-org/%(name)s/archive/'],
         'use_pip': False,
         'checksums': [
-            {'aef04a39a7a0b59db2dacb869990d9e186f3b532.tar.gz':
-             '58800a1fb9f61755815c1d2f84dfa2fe1263603b2b8ef452fcf970577ffb2613'},
-            {'xpra-6.2.3-use_Xorg_on_PATH_first.patch':
-             '72dc64a2260e69b671738fc42726ac165038693dbc6c661b8315b84f8f908eb4'},
+            {('%s.tar.gz' % local_xpra_commit):
+             'fae4eb6b3e2732c512f2524b4d2cb2b4fc4ea97d663103274ea2a5beb59aed6e'},
+            {'xpra-5.0.3-use_Xorg_on_PATH_first.patch':
+             'bb274e36a12385bd3454d40c5410a00b15d211af6c501bbafb47a4c9e0022d98'},
         ],
     }),
     ('xpra-html5', local_xprahtml5_version, {
         'modulename': False,
-        'patches': ['xprahtml_timeout.patch'],
+        'patches': ['xprahtml_v17_timeout.patch'],
         'skipsteps': [
             'configure',
             'build',
@@ -122,7 +134,7 @@ exts_list = [
         'use_pip': False,
         'checksums': [
             {'v17.tar.gz': '9f36217e48531cee0b0834a921acfd3c3e3f14170a8970312dc820b2332f9c9d'},
-            {'xprahtml_timeout.patch': 'beef903b304a54d6ba9037590b8b7c7cf8adcb60141fb175e0e4709696720e72'},
+            {'xprahtml_v17_timeout.patch': 'beef903b304a54d6ba9037590b8b7c7cf8adcb60141fb175e0e4709696720e72'},
         ],
     }),
 ]
@@ -144,6 +156,12 @@ postinstallcmds = [
         'ln -sf ../../../etc/xpra/html5-client/default-settings.txt && '
         'popd'
     ) % (local_xprahtml5_version),
+    # install background image
+    (
+        'mkdir -p %(installdir)s/share/xpra/www/ && '
+        'rm -f %(installdir)s/share/xpra/www/background.png && '
+        'mv %(installdir)s/background.png %(installdir)s/share/xpra/www/ '
+    ),
     # set specific configurations
     (
         # fix the xvfb call

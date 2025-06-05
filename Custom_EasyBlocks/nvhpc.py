@@ -154,6 +154,8 @@ class EB_NVHPC(PackedBinary):
             'NVHPC_DEFAULT_CUDA': str(default_cuda_version),  # 10.2, 11.0
             'NVHPC_STDPAR_CUDACC': str(default_compute_capability),  # 70, 80; single value, no list!
             }
+        if LooseVersion(self.version) >= LooseVersion('25.3'):
+            nvhpc_env_vars.update({'CXXFLAGS': '"-std=c++17"'})
         cmd = "%s ./install" % ' '.join(['%s=%s' % x for x in sorted(nvhpc_env_vars.items())])
         run_cmd(cmd, log_all=True, simple=True)
 
@@ -165,7 +167,9 @@ class EB_NVHPC(PackedBinary):
             line = re.sub(r"^PATH=/", r"#PATH=/", line)
             sys.stdout.write(line)
 
-        if LooseVersion(self.version) >= LooseVersion('22.9'):
+        if LooseVersion(self.version) >= LooseVersion('25.3'):
+            cmd = f"%s -x %s -cuda {default_cuda_version}" % (makelocalrc_filename, os.path.join(compilers_subdir, "bin"))
+        elif LooseVersion(self.version) >= LooseVersion('22.9'):
             cmd = f"%s -x %s -cuda {default_cuda_version} -stdpar {default_compute_capability}" % (makelocalrc_filename, os.path.join(compilers_subdir, "bin"))
         else:
             cmd = "%s -x %s -g77 /" % (makelocalrc_filename, compilers_subdir)

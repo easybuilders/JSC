@@ -1,0 +1,194 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CargoPythonBundle'
+
+name = 'myqlm'
+version = '1.11.2'
+
+homepage = 'https://atos.net/en/lp/myqlm'
+description = """myQLM is a quantum software stack for writing, simulating, optimizing, and executing quantum programs.
+    myQLM also interfaces with the QLM, for Quantum Learning Machine, the quantum programming appliance of Atos."""
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+
+# Comment: MyQLM didn't release aarch64 files. They are in process of building.
+# In the meantime only x86_64 will be merged. JEDI installation will be blocked until June.
+# No aarch64 files from MyQLM until June 2025.
+
+builddependencies = [
+    ('poetry', '1.8.3'),
+    ('CMake', '3.29.3'),
+    ('maturin', '1.6.0'),
+    ('Rust', '1.78.0'),
+    ('setuptools-rust', '1.9.0'),
+    ('hatchling', '1.24.2'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),  # numpy
+    ('dill', '0.3.9'),
+    ('networkx', '3.3'),
+    ('tqdm', '4.66.5'),
+    ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('qutip', '5.0.4'),
+    ('IPython', '8.27.0'),
+    ('jax', '0.4.34', '-CUDA-12'),
+    ('pulser', '1.3.0'),
+    ('Qiskit', '1.2.4', '-CUDA-12'),
+    ('qoqo-quest', '0.16.0', '-CUDA-12'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('packaging', '24.1', {
+        'checksums': ['026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002'],
+    }),
+    ('prettytable', '3.14.0', {
+        # qiskit dependency uses hatchling enforces strict validation of pyproject.toml, and prettytable defines
+        # project.license-files incorrectly, causing a TypeError. Versions tested: 3.15.1, 3.15.0, 3.14.0i, 3.13.0
+        # Needs .whl file, tar.gz incompatible with current hatchling
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['61d5c68f04a94acc73c7aac64f0f380f5bed4d2959d59edc6e4cbb7a0e7b55c4'],
+    }),
+    ('Wand', '0.6.13', {
+        'checksums': ['f5013484eaf7a20eb22d1821aaefe60b50cc329722372b5f8565d46d4aaafcca'],
+    }),
+    ('thrift', '0.21.0', {
+        'checksums': ['5e6f7c50f936ebfa23e924229afc95eb219f8c8e5a83202dd4a391244803e402'],
+    }),
+    ('svgwrite', '1.4.3', {
+        'checksums': ['a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3'],
+        'source_tmpl': '%(name)s-%(version)s.zip'
+    }),
+    ('stim', '1.14.0', {
+        'checksums': ['a0bbac90e81a50084ec104a04f6075956a266083370dd9e73210aabf770b469d'],
+    }),
+    ('anytree', '2.12.1', {
+        'checksums': ['244def434ccf31b668ed282954e5d315b4e066c4940b94aff4a7962d85947830'],
+    }),
+    ('qat_comm', '1.7.0', {
+        'modulename': 'qat.comm',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['c4f4bf4543ff91433742309edd68aca2057435351f51d814c64377c9e9c0d1fb'],
+    }),
+    ('pyopenssl', '24.3.0', {
+        'modulename': 'OpenSSL',
+        'checksums': ['49f7a019577d834746bc55c5fce6ecbcec0f2b4ec5ce1cf43a9a173b8138bb36'],
+    }),
+    ('qat_core', '1.11.0', {
+        'modulename': 'qat.core',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['405365e27d79a1deeda0f1cbc5e377a7458de8c54adb7930540bf41cee1568c1'],
+    }),
+    ('qat_lang', '3.2.0', {
+        'modulename': 'qat.lang',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['3d7b543ec40b6078a2a4165e8fc8cc6e87bf26f2c18cce4218e4b5a3289b5029'],
+    }),
+    ('qat_fusion', '0.2.0', {
+        'modulename': 'qat.fusion',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['78e9dc22ef2799829da2b1e377e118b6130bcf932546995916f5f4cea563e9b1'],
+    }),
+    ('qat_devices', '0.4.0', {
+        'modulename': 'qat.devices',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['a60692738b26a8c2bb751ba3d49be04b7f03f03f0dc86562da2f358ca6426939'],
+    }),
+    ('qat_anapli', '0.1.0', {
+        'modulename': 'qat.anapli',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['2e67c5410f0050f00b55ae7c162d11d85a380f981c9b146d09a17f2810432c07'],
+    }),
+    ('myqlm_contrib', '1.10.0', {
+        'modulename': 'qat.sabre',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['bf35744f8d70048a87321219a542bc413f8f9111931654c55eace6421a0665b7'],
+    }),
+    ('qat_variational', '1.6.0', {
+        'modulename': 'qat.plugins',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['ebaf5a79a39064d30470d381221e6ea753c0d8ffc7349419cbf0eb40ddf2b4bb'],
+    }),
+    ('qat_quops', '1.4.0', {
+        'modulename': 'qat.quops',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['b8ab82e305145b32afc3e6da7b5376142a5d1c08e12ba4b1faf167bb11590dd4'],
+    }),
+    ('qat_pbo', '1.5.0', {
+        'modulename': 'qat.pbo',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['b4dd3e97c2bcb9b06d0646a74c86878ab844c94c3b7c1e076a60cb86f209e34c'],
+    }),
+    ('qat_hardware', '1.5.0', {
+        'modulename': 'qat.hardware',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['019182c85c7295f806ef5b782885e04826e902199f740231cae0e1b3acfddf6f'],
+    }),
+    ('myqlm_clinalg', '0.3.0', {
+        'modulename': 'qat.clinalg',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['90e9207b2eefd972daad8a2e3d006727dc6638186fe5e44240cfbead4a81aa57'],
+    }),
+    ('qat_nnize', '1.3.0', {
+        'modulename': 'qat.clinalg',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['21d0220d0604e13f3a31a4ab3ad0e9e2a3fcc2baf490fc9a02623f7a26b6ede2'],
+    }),
+    ('myqlm_simulators', '1.10.1', {
+        'modulename': 'qat.pylinalg',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['62f921aa1754dd146825f168ad2e32b04d534315f4af00120895120ac9091fa4'],
+    }),
+    ('qat_synthopline', '0.4.0', {
+        'modulename': 'qat.synthopline',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['7fd9843d0293d52dc75a8372a0cb55bbbfebedc0e42e5e46d554eb074c568a16'],
+    }),
+    ('qlmaas', '1.11.2', {
+        'modulename': 'qat.qlmaas',
+        'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
+        'checksums': ['c7147d43c9efca2a1ee9dcfd09f271f20f42e0cc2cd6fa038bbf2ffdb8d2eedd'],
+    }),
+    ('myqlm_fermion', '1.2.0', {
+        'modulename': 'qat.fermion',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['37090ca59304b9abb7d237ddc0bd278af9f86f73209531f5483d54a0b42d482b'],
+    }),
+    (name, version, {
+        'modulename': 'qat',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['ee60d1f7c124d18cbede0e104236df0fdc46c61f9801a09d028ccd3a894591fe'],
+    }),
+    # myqlm-qiskit binding:
+    ('myqlm_interop', '1.10.0', {
+        'modulename': 'qat.interop',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['5adc6592528f72d86f10cbee37c8ff8ee40a7967b88724fad11c30aa987de2a6'],
+    }),
+    # myqlm-pulser binding:
+    ('pulser-myqlm', '0.3.1', {
+        'modulename': 'pulser_myqlm',
+        'source_urls': ['https://github.com/pasqal-io/Pulser-myQLM/archive/refs/tags/'],
+        'sources': ['v%(version)s.zip'],
+        'checksums': ['1d6336f6308febaceb0f01668f0e773d73f8fef717131fc273151618fd7b4c26'],
+    }),
+    # myqlm-qoqo binding:
+    ('qoqo_myqlm', '0.3.0', {
+        'checksums': ['eaf92acfecfe880818073f733e75aed9b473f7371795ddb83025e363b6c5cfe0'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['lib/python3.12/site-packages/qat/__init__.so'],
+    'dirs': ['bin'],
+}
+
+moduleclass = 'quantum'

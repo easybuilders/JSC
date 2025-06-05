@@ -32,6 +32,10 @@ sanity_check_paths = {
     'dirs': [],
 }
 
+modluafooter = """
+prepend_path{"TCLLIBPATH",pathJoin(os.getenv("EBROOTTK"), "lib"),delim=" "}
+"""
+
 start_dir = 'unix'
 
 moduleclass = 'vis'

@@ -23,6 +23,7 @@ dependencies = [
     ('PyZMQ', '26.2.0'),
     ('tornado', '6.4.1'),
     ('BeautifulSoup', '4.12.3'),  # needed by nbconvert
+    ('Pandoc', '3.6.2', '', SYSTEM),
 ]
 
 sanity_pip_check = True
@@ -94,7 +95,11 @@ exts_list = [
         'checksums': ['35b3a0947c4a6e9d589eb97d7d4cd5e90f910ee73101611f01283732bd6d9419'],
     }),
     ('nbconvert', '7.16.5', {
-        'checksums': ['c83467bb5777fdfaac5ebbb8e864f300b277f68692ecc04d6dab72f2d8442344'],
+        'patches': ['pandoc-fix_pr2196.patch'],
+        'checksums': [
+            'c83467bb5777fdfaac5ebbb8e864f300b277f68692ecc04d6dab72f2d8442344',
+            '422e001b8c2e9d23d15ff302a21877ce934282e32a8c022f61a91f01277af1ef',
+        ],
     }),
     ('jupyter_server_terminals', '0.5.3', {
         'checksums': ['5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269'],

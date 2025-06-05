@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'pscom'
+version = '5.9.0-1'
+homepage = 'http://www.par-tec.com'
+description = f"""ParaStation is a robust and efficient cluster middleware, consisting of a high-performance
+communication layer (MPI) and a sophisticated management layer.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/ParaStation/%(name)s/archive/refs/tags']
+sources = [f'{version}.tar.gz']
+checksums = ['9e1be8c1a7929a14f638c4024a4bc21cffd889b2b68f2c8bef4b512334fdcecc']
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('popt', '1.19'),
+    ('CUDA', '12', '', SYSTEM),
+    ('CMake', '3.29.3'),
+]
+
+dependencies = [
+    ('UCX', 'default'),
+]
+
+build_type = 'RelWithDebInfo'
+
+preconfigopts = 'export UCP_LDFLAGS="-L$EBROOTUCX/lib" && '
+
+configopts = '-DCUDA_ENABLED=ON'
+
+sanity_check_paths = {
+    'files': [
+        'include/%(name)s.h',
+        ('lib/libpscom.so', 'lib64/libpscom.so'),
+        ('lib/libpscom4ucp.so', 'lib64/libpscom4ucp.so'),
+    ],
+    'dirs': [],
+}
+
+modextravars = {
+    'PSCOMVERSION': '%s' % version,
+}
+
+moduleclass = 'tools'

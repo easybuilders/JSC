@@ -1,7 +1,7 @@
 From d0be2942c512e7b6fa8cb425481d68a519b96b13 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Tue, 10 Sep 2024 16:54:12 +0200
-Subject: [PATCH 01/22] Merge jhsingle-native-proxy.
+Subject: [PATCH 01/24] Merge jhsingle-native-proxy.
 
 ---
  jupyter_server_proxy/native_proxy.py | 473 +++++++++++++++++++++++++++
@@ -516,7 +516,7 @@ index 9334e5e6..84e97bc5 100644
 From 26059b0a2d609376437d9f55e401e0c558fb7331 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Wed, 11 Sep 2024 11:56:57 +0200
-Subject: [PATCH 02/22] Rename to `standalone`
+Subject: [PATCH 02/24] Rename to `standalone`
 
 ---
  jupyter_server_proxy/standalone/__init__.py   | 168 ++++++++++++++++++
@@ -910,7 +910,7 @@ index 84e97bc5..abf57f5f 100644
 From fae833b8182d5b226f5e614784bc9a2cd1659361 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Thu, 12 Sep 2024 14:07:00 +0200
-Subject: [PATCH 03/22] Remove `forward-user-info`, `query-user-info` and
+Subject: [PATCH 03/24] Remove `forward-user-info`, `query-user-info` and
  remains of `presentation-path`
 
 ---
@@ -1078,7 +1078,7 @@ index b0fcd413..b769971a 100644
 From 36c8e17949d2e41da3e4115d6168bafc4520bd1d Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 13 Sep 2024 13:39:05 +0200
-Subject: [PATCH 04/22] Create StandaloneHubProxyHandler and timeout Argument.
+Subject: [PATCH 04/24] Create StandaloneHubProxyHandler and timeout Argument.
  Fix authentication and check_origin
 
 ---
@@ -1259,7 +1259,7 @@ index b769971a..6bf48b72 100644
 From 087c11d9f5ce10a2253d5731929d74835ea37a87 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 13 Sep 2024 16:14:56 +0200
-Subject: [PATCH 05/22] Send Activity Notifications to JupyterHub
+Subject: [PATCH 05/24] Send Activity Notifications to JupyterHub
 
 ---
  jupyter_server_proxy/standalone/__init__.py | 26 ++-----
@@ -1504,7 +1504,7 @@ index 6bf48b72..fe954487 100644
 From 0d4e701f815cfd7acf5ad95c4a2bd94461a83d5a Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Wed, 18 Sep 2024 12:04:02 +0200
-Subject: [PATCH 06/22] Fix Authentication with JupyterHub
+Subject: [PATCH 06/24] Fix Authentication with JupyterHub
 
 ---
  jupyter_server_proxy/standalone/__init__.py | 48 ++++++------
@@ -1757,7 +1757,7 @@ index fe954487..18d10ccc 100644
 From fa8621fb4cc4142618a0b955616f09fc0bef9f67 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 6 Dec 2024 13:00:51 +0100
-Subject: [PATCH 07/22] Remove jupyter-server Authentication
+Subject: [PATCH 07/24] Remove jupyter-server Authentication
 
 ---
  jupyter_server_proxy/standalone/proxy.py | 20 +++++++++-----------
@@ -1823,7 +1823,7 @@ index 18d10ccc..f6cbd61e 100644
 From 5cae144c7ca07620b87d4c7733ce3e8f35446d6c Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 6 Dec 2024 13:19:40 +0100
-Subject: [PATCH 08/22] Set env & mappath via CLI, add Args for Unix Sockets
+Subject: [PATCH 08/24] Set env & mappath via CLI, add Args for Unix Sockets
 
 ---
  jupyter_server_proxy/standalone/__init__.py | 151 +++++++++++++-------
@@ -2169,7 +2169,7 @@ index f6cbd61e..7d996850 100644
 From 6b9336da90707bdbbd251251eed96ad1e633172f Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 6 Dec 2024 13:37:43 +0100
-Subject: [PATCH 09/22] Merge `StandaloneProxyHandler` into
+Subject: [PATCH 09/24] Merge `StandaloneProxyHandler` into
  `StandaloneHubProxyHandler`, extract address from `JUPYTERHUB_SERVICE_URL`
 
 ---
@@ -2587,7 +2587,7 @@ index 7d996850..a332c497 100644
 From 51ee31cf46f03162859f1b7ece749d93f001d5d1 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Wed, 2 Oct 2024 17:40:25 +0200
-Subject: [PATCH 10/22] Fix SSL Configuration, Add SlashHandler to Application
+Subject: [PATCH 10/24] Fix SSL Configuration, Add SlashHandler to Application
 
 ---
  jupyter_server_proxy/standalone/proxy.py | 31 ++++++++++++++++++------
@@ -2667,7 +2667,7 @@ index a332c497..5d4b87b2 100644
 From f547e5f1d1f67efd7087a359cda3c8d17094996e Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Mon, 7 Oct 2024 13:36:29 +0200
-Subject: [PATCH 11/22] Add Slash to Prefix
+Subject: [PATCH 11/24] Add Slash to Prefix
 
 ---
  jupyter_server_proxy/standalone/proxy.py | 15 +++++++++------
@@ -2742,7 +2742,7 @@ index 5d4b87b2..0d62db4c 100644
 From 2a8334313c2baa15673215f9d2585d3f2776234d Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 11 Oct 2024 12:15:41 +0200
-Subject: [PATCH 12/22] Fix error generation
+Subject: [PATCH 12/24] Fix error generation
 
 ---
  jupyter_server_proxy/standalone/proxy.py | 14 +++++++++-----
@@ -2791,7 +2791,7 @@ index 0d62db4c..9e9f8848 100644
 From 325217bf01566a830a16a7806a8775a111162c0f Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Tue, 15 Oct 2024 16:35:29 +0200
-Subject: [PATCH 13/22] Fixed ordering in handlers
+Subject: [PATCH 13/24] Fixed ordering in handlers
 
 The `oauth_callback` requests were handled by the ProxyHandler, effectively causing the request to ping-pong between JupyterHub Login and `/oauth_callback`
 ---
@@ -2829,7 +2829,7 @@ index 9e9f8848..610d11e9 100644
 From 7f85c9f428bf347d3b20d1920002f74b864199fe Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 18 Oct 2024 12:03:18 +0200
-Subject: [PATCH 14/22] Defer xsrf checking to proxied app
+Subject: [PATCH 14/24] Defer xsrf checking to proxied app
 
 ---
  jupyter_server_proxy/standalone/proxy.py | 4 ++++
@@ -2854,7 +2854,7 @@ index 610d11e9..a00181fd 100644
 From 87efc56b8b88751b16dbfd225cee5488b7c14dd9 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Tue, 12 Nov 2024 14:54:15 +0100
-Subject: [PATCH 15/22] Add Documentation for standalone
+Subject: [PATCH 15/24] Add Documentation for standalone
 
 ---
  docs/source/index.md                        |   1 +
@@ -3114,7 +3114,7 @@ index 31902ee9..3ce43754 100644
 From 7b33d45bc021c25db472dc9a3c33ebf2b0e0ce74 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 15 Nov 2024 13:37:01 +0100
-Subject: [PATCH 16/22] Add Tests for the StandaloneProxy
+Subject: [PATCH 16/24] Add Tests for the StandaloneProxy
 
 ---
  jupyter_server_proxy/standalone/__init__.py |   2 +
@@ -3300,7 +3300,7 @@ index 00000000..f630bb44
 From 941356f9761ce549a7acf1a4b4a54e419189e5e9 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Tue, 3 Dec 2024 17:01:04 +0100
-Subject: [PATCH 17/22] Fix Typos and minor cleanups
+Subject: [PATCH 17/24] Fix Typos and minor cleanups
 
 ---
  docs/source/standalone.md                   | 45 ++++++++++-----------
@@ -3518,7 +3518,7 @@ index 24ea63e9..6dc7dea1 100644
 From 0228e867944491a234ea170214754140f6f94eac Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 6 Dec 2024 15:59:10 +0100
-Subject: [PATCH 18/22] Switch from argparse to traitlets.Application and use
+Subject: [PATCH 18/24] Switch from argparse to traitlets.Application and use
  config.ServerProcess
 
 ---
@@ -4154,7 +4154,7 @@ index 6dc7dea1..645d3941 100644
 From 7ed897455b1bd18c4745696300a4f9da5afbb480 Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Sat, 7 Dec 2024 22:39:48 +0100
-Subject: [PATCH 19/22] Refactor and reuse Proxy generation in standalone
+Subject: [PATCH 19/24] Refactor and reuse Proxy generation in standalone
 
 ---
  jupyter_server_proxy/config.py           | 143 +++++++++++++----------
@@ -4568,7 +4568,7 @@ index 645d3941..35c30991 100644
 From 1ff60517b0396c3f7cf9350899f8951b9311441b Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Sat, 7 Dec 2024 22:45:57 +0100
-Subject: [PATCH 20/22] Update standalone tests
+Subject: [PATCH 20/24] Update standalone tests
 
 ---
  tests/test_standalone.py | 101 +++++++++++++++++++--------------------
@@ -4740,7 +4740,7 @@ index f630bb44..cc55548d 100644
 From e07a61533ea0e5d89dd0cfec9ee6717fbc9c0b1a Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Tue, 7 Jan 2025 13:11:07 +0100
-Subject: [PATCH 21/22] Allow configuration via traitlets
+Subject: [PATCH 21/24] Allow configuration via traitlets
 
 ---
  docs/source/standalone.md              | 23 +++++++++++++++++++++++
@@ -4866,7 +4866,7 @@ index 8239ad94..ebdd2d40 100644
 From 9ad5c25b7b1d1e62dfa87923b77a536afa3d76cd Mon Sep 17 00:00:00 2001
 From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
 Date: Fri, 28 Feb 2025 15:29:13 +0100
-Subject: [PATCH 22/22] Fix some typos
+Subject: [PATCH 22/24] Fix some typos
 
 ---
  docs/source/standalone.md              | 22 +++++++++++-----------
@@ -4994,4 +4994,75 @@ index ebdd2d40..0ae612da 100644
 +                f"Sending Activity Notification to JupyterHub with interval={self.activity_interval}s"
              )
              start_activity_update(self.activity_interval)
+ 
+
+From bf32cf32bc14f8e852bc9f5e44ed55fc349af20c Mon Sep 17 00:00:00 2001
+From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
+Date: Mon, 17 Mar 2025 11:09:03 +0100
+Subject: [PATCH 23/24] Do not use `removesuffix` and logging for callable
+ command
+
+---
+ jupyter_server_proxy/standalone/app.py | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/jupyter_server_proxy/standalone/app.py b/jupyter_server_proxy/standalone/app.py
+index 0ae612da..0feeb7d3 100644
+--- a/jupyter_server_proxy/standalone/app.py
++++ b/jupyter_server_proxy/standalone/app.py
+@@ -45,11 +45,18 @@ class StandaloneProxyServer(JupyterApp, ServerProcess):
+ 
+     @default("base_url")
+     def _default_prefix(self):
+-        return os.environ.get("JUPYTERHUB_SERVICE_PREFIX", "/").removesuffix("/")
++        # Python 3.8 does not support removesuffix
++        prefix = os.environ.get("JUPYTERHUB_SERVICE_PREFIX", "/")
++        if prefix[-1] == "/":
++            prefix = prefix[:-1]
++        return prefix
+ 
+     @validate("base_url")
+     def _validate_prefix(self, proposal):
+-        return proposal["value"].removesuffix("/")
++        prefix = proposal["value"]
++        if prefix[-1] == "/":
++            prefix = prefix[:-1]
++        return prefix
+ 
+     skip_authentication = Bool(
+         default=False,
+@@ -277,7 +284,7 @@ def start(self):
+ 
+         self.log.info(f"Starting standaloneproxy on '{self.address}:{self.port}'")
+         self.log.info(f"Base URL: {self.base_url!r}")
+-        self.log.info(f"Command: {' '.join(self.command)!r}")
++        self.log.info(f"Command: {self.command}")
+ 
+         # Periodically send JupyterHub Notifications, that we are still running
+         if self.activity_interval > 0:
+
+From cb4766dd1edde94d7cefeff6ed794575e8965946 Mon Sep 17 00:00:00 2001
+From: Jonathan Windgassen <j.windgassen@fz-juelich.de>
+Date: Tue, 18 Mar 2025 16:41:18 +0100
+Subject: [PATCH 24/24] Ensure correct generation of "X-Forwarded"-Headers
+
+---
+ jupyter_server_proxy/standalone/app.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/jupyter_server_proxy/standalone/app.py b/jupyter_server_proxy/standalone/app.py
+index 0feeb7d3..0b0fbfd8 100644
+--- a/jupyter_server_proxy/standalone/app.py
++++ b/jupyter_server_proxy/standalone/app.py
+@@ -200,6 +200,11 @@ def get_proxy_base_class(self) -> tuple[type | None, dict]:
+ 
+     def get_proxy_attributes(self) -> dict:
+         attributes = super().get_proxy_attributes()
++
++        # The ProxyHandler will be listening on "{base_url}/" instead of "{base_url}/{name}".
++        # Needed for correct header generation of "X-Forwarded-Context", etc.
++        attributes["proxy_base"] = "/"
++
+         attributes["requested_port"] = self.server_port
+         attributes["skip_authentication"] = self.skip_authentication
  

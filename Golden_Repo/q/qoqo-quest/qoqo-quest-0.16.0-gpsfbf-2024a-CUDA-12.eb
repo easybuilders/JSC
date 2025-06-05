@@ -1,0 +1,113 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'qoqo-quest'
+version = '0.16.0'
+versionsuffix = '-CUDA-12'
+
+homepage = 'https://github.com/HQSquantumsimulations/qoqo-quest'
+description = """
+qoqo-quest allows to simulate the execution of qoqo quantum circuits with the help of the QuEST quantum simulator. 
+"""
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('maturin', '1.6.0'),
+    ('Rust', '1.78.0'),
+]
+
+dependencies = [
+    ('dill', '0.3.9'),
+    ('SymEngine', '0.13.0'),
+    ('sympy', '1.13.3',  '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('CUDA', '12', '', SYSTEM),
+    ('cuQuantum-Python', '24.11.0', '-CUDA-%(cudaver)s'),
+    ('Qiskit', '1.2.4', '-CUDA-%(cudaver)s'),
+]
+
+local_arch = {
+    'aarch64': 'aarch64',
+    'x86_64':  'x86_64'
+}
+
+
+exts_list = [
+    ('struqture_py', '1.12.2', {
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_arch[ARCH], local_arch[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['aarch64'], local_arch['aarch64']):
+                'd0b37718eb0235711d17f8822a3b84460323c3dcff299fa4ea2e974aee1880df',
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['x86_64'], local_arch['x86_64']):
+                '3f9935b23375ff42511ba079aad50f26c59a9d2e9c32a92062619968cf91bee0',
+        }],
+    }),
+    ('qoqo_calculator_pyo3', '1.5.0', {
+        'postinstallcmds': [
+            'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/%(name)s/%(name)s'
+        ],
+        'checksums': ['cf87465a7ae15100fdd1d0ca04da2d3e188fb78b70a2009b67ec483c7a433218'],
+    }),
+    ('qoqo', '1.19.2', {
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_arch[ARCH], local_arch[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['aarch64'], local_arch['aarch64']):
+                'b8b94d899ca304afadd48fdd6b4297e568e1eeba2cc055b828ee164b71c67c89',
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['x86_64'], local_arch['x86_64']):
+                '79401ba13b12d39c2e2f0d7ad883fc72803b988a4092707e3405946b959df25d',
+        }],
+    }),
+    ('qoqo_quest', version, {
+        'checksums': ['dbc5fe399f98c86fd204c10304d0d2c4f6094a2c625704699667c1a5290fe6ca'],
+    }),
+    ('qoqo_qasm', '0.12.4', {
+        # The same as qoqo_calculator_pyo3 is applied. There is a redundancy in folders,
+        # DEPENDENCIES and __init__.py exist twice in another folder.
+        'postinstallcmds': [
+            'rm -rf %(installdir)s/lib/python%(pyshortver)s/site-packages/%(name)s/%(name)s'
+        ],
+        'checksums': ['9e2ae53d47a17f7000f00eaf8b47f400fa0080e6fd8f8014c9921a021a28cccf'],
+    }),
+    ('qoqo_qiskit', '0.10.0', {
+        'checksums': ['a130ce2a1ef916475d2d4ffbb2b1e2753631fc9113782d24ee7bedffc5dc7884'],
+    }),
+    ('qoqo_qiskit_devices', '0.10.0', {
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_arch[ARCH], local_arch[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['aarch64'], local_arch['aarch64']):
+                '6e8401343ea4f564ec0da5e415cdb29e53749f3113fec3d2625a074251cc185a',
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_arch['x86_64'], local_arch['x86_64']):
+                '21ab4537f2657795823a9d022f03fe61dba735dd10997acdb9e32fa8df628b35',
+        }],
+    }),
+]
+
+sanity_check_paths = {
+    'files': [
+        'lib/python%(pyshortver)s/site-packages/qoqo/qoqo.pyi',
+        'lib/python%(pyshortver)s/site-packages/qoqo_quest/__init__.py',
+    ],
+    'dirs': [
+        'lib/python%(pyshortver)s/site-packages/qoqo',
+        'lib/python%(pyshortver)s/site-packages/qoqo_quest',
+        'lib/python%(pyshortver)s/site-packages/qoqo_calculator_pyo3'
+    ],
+}
+
+use_pip = True
+sanity_pip_check = True
+download_dep_fail = True
+
+moduleclass = 'quantum'

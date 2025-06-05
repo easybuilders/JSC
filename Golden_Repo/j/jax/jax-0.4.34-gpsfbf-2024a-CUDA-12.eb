@@ -1,0 +1,244 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jax'
+version = '0.4.34'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://jax.readthedocs.io/'
+description = """Composable transformations of Python+NumPy programs:
+differentiate, vectorize, JIT to GPU/TPU, and more"""
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+cuda_compute_capabilities = ["5.0", "6.0", "6.1", "7.0", "7.5", "8.0", "8.6", "9.0"]
+
+builddependencies = [
+    # No Bazel required
+    # Python-bundle-PyPI contains pytest-xdist 3.6.1
+    ('Python-bundle-PyPI', '2024.06'),
+    ('git', '2.45.1'),
+    ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),  # required for tests/lobpcg_test.py
+    ('poetry', '1.8.3'),
+    # No Clang-CUDA-12 needed
+    ('Clang', '18.1.8', '', ('GCCcore', '13.3.0')),
+]
+
+dependencies = [
+    ('CUDA', '12', '', SYSTEM),
+    ('cuDNN', '9.5.0.50', versionsuffix, SYSTEM),
+    ('NCCL', 'default', versionsuffix),
+    ('Python', '3.12.3'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('flatbuffers-python', '24.3.25'),
+    ('zlib', '1.3.1'),
+    ('pybind11', '2.12.0'),
+    # Patches required for pybind11 to work
+]
+
+local_extract_cmd = 'mkdir -p %(builddir)s/archives && cp %s %(builddir)s/archives'
+# note: following commits *must* be the exact same onces used upstream
+# XLA_COMMIT from jax-jaxlib: third_party/xla/workspace.bzl
+local_xla_commit = 'cd6e808c59f53b40a99df1f1b860db9a3e598bff'
+# TFRT_COMMIT from xla: third_party/tsl/third_party/tf_runtime/workspace.bzl
+local_tfrt_commit = '0aeefb1660d7e37964b2bb71b1f518096bda9a25'
+
+# Use sources downloaded by EasyBuild
+_jaxlib_buildopts = '--bazel_options="--distdir=%(builddir)s/archives" '
+# Use dependencies from EasyBuild
+_jaxlib_buildopts += '--bazel_options="--action_env=TF_SYSTEM_LIBS=pybind11" '
+_jaxlib_buildopts += '--bazel_options="--action_env=CPATH=$EBROOTPYBIND11/include:$EBROOTCUDA/extras/CUPTI/include" '
+# Avoid warning (treated as error) in upb/table.c
+_jaxlib_buildopts += '--bazel_options="--copt=-Wno-maybe-uninitialized" '
+_jaxlib_buildopts += '--cuda_version=12.6.0 '  # %(cudaver)s ' doesn't work (12), complete version required.
+_jaxlib_buildopts += '--python_bin_path=$EBROOTPYTHON/bin/python3 '
+# Do not use hermetic CUDA/cuDNN/NCCL: (requires action_env=CPATH=$EBROOTCUDA/extras/CUPTI/include";
+# requires patch of external/xla/xla/tsl/cuda/cupti_stub.cc and jaxlib/gpu/vendor.h (#include <cupti.h>): 
+_jaxlib_buildopts += """--bazel_options=--repo_env=LOCAL_CUDNN_PATH="$EBROOTCUDNN" """
+_jaxlib_buildopts += """--bazel_options=--repo_env=LOCAL_NCCL_PATH="$EBROOTNCCL" """
+_jaxlib_buildopts += """--bazel_options=--repo_env=LOCAL_CUDA_PATH="$EBROOTCUDA" """
+_jaxlib_buildopts += """--bazel_options="--copt=-Ithird_party/gpus/cuda/extras/CUPTI/include" """
+
+_plugins_buildopts = """--enable_cuda """
+_plugins_buildopts += """--build_gpu_plugin """
+_plugins_buildopts += """--build_gpu_pjrt_plugin """
+_plugins_buildopts += """--build_gpu_kernel_plugin=cuda """
+
+# get rid of .devDate versionsuffix:  TODO: find a better way
+_no_devtag = """ sed -i "s/version=__version__/version='%(version)s'/g" setup.py && """
+_jaxlib_buildopts += """--bazel_options="--action_env=JAXLIB_RELEASE=1" """
+
+components = [
+    ('jaxlib', version, {
+        'sources': [
+            {
+                'source_urls': ['https://github.com/google/jax/archive/'],
+                'filename': 'jax-v%(version)s.tar.gz',
+            },
+            {
+                'source_urls': ['https://github.com/openxla/xla/archive'],
+                'download_filename': '%s.tar.gz' % local_xla_commit,
+                'filename': 'xla-%s.tar.gz' % local_xla_commit[:8],
+                'extract_cmd': local_extract_cmd,
+            },
+            {
+                'source_urls': ['https://github.com/tensorflow/runtime/archive'],
+                'download_filename': '%s.tar.gz' % local_tfrt_commit,
+                'filename': 'tf_runtime-%s.tar.gz' % local_tfrt_commit[:8],
+                'extract_cmd': local_extract_cmd,
+            },
+        ],
+        'patches': [
+            'jax-0.4.35_easyblock_compat.patch',
+            'jax-0.4.35_fix-pybind11-systemlib_cupti.patch',
+            'jax-0.4.35_version.patch',
+            'fix_triton.patch',
+            'fix_dialects.patch',
+            'fix_tpu_ext.patch',
+        ],
+        'checksums': [
+            {'jax-v0.4.34.tar.gz':
+             'd3a75ad667772309ade81350fa70c4a78028a920028800282e46d8383c0ee6bb'},
+            {'xla-cd6e808c.tar.gz':
+             '65cb6d63ef4083b35775052636cb9c629f86db6947c8b91711923ba31dbdcde8'},
+            {'tf_runtime-0aeefb16.tar.gz':
+             'a3df827d7896774cb1d80bf4e1c79ab05c268f29bd4d3db1fb5a4b9c2079d8e3'},
+            {'jax-0.4.35_easyblock_compat.patch':
+             'cbf4ad92b8438c4ce2a975efce1c47c57d4c3b117bceee071ab660f964057223'},
+            {'jax-0.4.35_fix-pybind11-systemlib_cupti.patch':
+             '51369589193be60dc94ec2de1b35d0a9268288578903fb05d41b6d1a8c9df460'},
+            {'jax-0.4.35_version.patch':
+             'cd2139a7802abf14b4b2cecee331aed80fff2ef91e16fa105093aea0795455e8'},
+            {'fix_triton.patch':
+             '0c73574401211304b551481cf0d164d34c7be8af58cbff4056776830c2686ed9'},
+            {'fix_dialects.patch':
+             'f9dce22ef5975b521d847720550c0025f742cd50d9376631ddc93cd9243443fe'},
+            {'fix_tpu_ext.patch':
+             'ccde568ab95526171f1a4a2876abba3f8836d08adc10a49b901d2b62b6d72a60'},
+        ],
+        'start_dir': 'jax-jax-v%(version)s',
+        'buildopts': _jaxlib_buildopts,
+        'prebuildopts': ' mkdir third_party/gpus/cuda/extras/ -p && ' +
+                        'ln -s $EBROOTCUDA/extras/CUPTI third_party/gpus/cuda/extras --relative &&' +
+                        _no_devtag
+    }),
+    # build jaxlib first and then plugins in 2nd interation:
+    ('jaxlib', version, {
+        'sources': [
+            {
+                'source_urls': ['https://github.com/google/jax/archive/'],
+                'filename': 'jax-v%(version)s.tar.gz',
+            },
+            {
+                'source_urls': ['https://github.com/openxla/xla/archive'],
+                'download_filename': '%s.tar.gz' % local_xla_commit,
+                'filename': 'xla-%s.tar.gz' % local_xla_commit[:8],
+                'extract_cmd': local_extract_cmd,
+            },
+            {
+                'source_urls': ['https://github.com/tensorflow/runtime/archive'],
+                'download_filename': '%s.tar.gz' % local_tfrt_commit,
+                'filename': 'tf_runtime-%s.tar.gz' % local_tfrt_commit[:8],
+                'extract_cmd': local_extract_cmd,
+            },
+        ],
+        'checksums': [
+            {'jax-v0.4.34.tar.gz':
+             'd3a75ad667772309ade81350fa70c4a78028a920028800282e46d8383c0ee6bb'},
+            {'xla-cd6e808c.tar.gz':
+             '65cb6d63ef4083b35775052636cb9c629f86db6947c8b91711923ba31dbdcde8'},
+            {'tf_runtime-0aeefb16.tar.gz':
+             'a3df827d7896774cb1d80bf4e1c79ab05c268f29bd4d3db1fb5a4b9c2079d8e3'},
+        ],
+        'start_dir': 'jax-jax-v%(version)s',
+        'buildopts': _jaxlib_buildopts + _plugins_buildopts,
+        'prebuildopts': _no_devtag
+    }),
+
+]
+
+local_isolated_tests = [
+    'tests/host_callback_test.py::HostCallbackTapTest::test_tap_scan_custom_jvp',
+    'tests/host_callback_test.py::HostCallbackTapTest::test_tap_transforms_doc',
+    'tests/lax_scipy_special_functions_test.py::LaxScipySpcialFunctionsTest' +
+    '::testScipySpecialFun_gammainc_s_2x1x4_float32_float32',
+]
+
+local_test_exports = [
+    "NVIDIA_TF32_OVERRIDE=0",
+    "CUDA_VISIBLE_DEVICES=0",
+    "XLA_PYTHON_CLIENT_ALLOCATOR=platform",
+    "JAX_ENABLE_X64=true",
+]
+local_test = ''.join(['export %s;' % x for x in local_test_exports])
+# run all tests at once except for local_isolated_tests:
+local_test += "pytest -vv tests %s && " % ' '.join(['--deselect %s' % x for x in local_isolated_tests])
+# run remaining local_isolated_tests separately: 
+local_test += ' && '.join(['pytest -vv %s' % x for x in local_isolated_tests])
+
+use_pip = True
+
+
+local_dtypes = {
+    'aarch64': 'aarch64',
+    'x86_64':  'x86_64'
+}
+
+exts_list = [
+    ('absl-py', '2.1.0', {
+        'modulename': 'absl',
+        'checksums': ['7820790efbb316739cde8b4e19357243fc3608a152024288513dd968d7d959ff'],
+    }),
+    ('opt_einsum', '3.4.0', {
+        'checksums': ['96ca72f1b886d148241348783498194c577fa30a8faac108586b14f1ba4473ac'],
+    }),
+    ('ml_dtypes', '0.5.0', {
+        # Cannot use from source file. Required prebuilt file.
+        'source_tmpl': '%%(name)s-0.5.0-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_dtypes[ARCH], local_dtypes[ARCH]),
+        'checksums': [{
+            '%%(name)s-0.5.0-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_dtypes['aarch64'], local_dtypes['aarch64']):
+                'a988bac6572630e1e9c2edd9b1277b4eefd1c86209e52b0d061b775ac33902ff',
+            '%%(name)s-0.5.0-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_dtypes['x86_64'], local_dtypes['x86_64']):
+                'a38df8df61194aeaae1ab7579075779b4ad32cd1cffd012c28be227fa7f2a70a',
+        }],
+    }),
+    (name, version, {
+        'patches': [
+            'jax-0.4.35_version.patch',
+            'fix_triton.patch',
+            'fix_dialects.patch',
+            'fix_tpu_ext.patch',
+        ],
+        'preinstallopts': _no_devtag,
+        'runtest': False,
+        'source_tmpl': '%(name)s-v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/google/jax/archive/'],
+        'checksums': [
+            {'jax-v0.4.34.tar.gz': 'd3a75ad667772309ade81350fa70c4a78028a920028800282e46d8383c0ee6bb'},
+            {'jax-0.4.35_version.patch': 'cd2139a7802abf14b4b2cecee331aed80fff2ef91e16fa105093aea0795455e8'},
+            {'fix_triton.patch':
+             '0c73574401211304b551481cf0d164d34c7be8af58cbff4056776830c2686ed9'},
+            {'fix_dialects.patch':
+             'f9dce22ef5975b521d847720550c0025f742cd50d9376631ddc93cd9243443fe'},
+            {'fix_tpu_ext.patch':
+             'ccde568ab95526171f1a4a2876abba3f8836d08adc10a49b901d2b62b6d72a60'},
+        ],
+    }),
+]
+sanity_check_commands = [
+    """python -c "import jax_cuda"$(echo $EBVERSIONCUDA|awk -F '.' '{print $1}')"_plugin" """
+]
+sanity_pip_check = True
+
+modluafooter = """
+setenv("XLA_FLAGS", "--xla_gpu_cuda_data_dir=" .. os.getenv("CUDA_HOME"));
+"""
+
+modtclfooter = """
+setenv XLA_FLAGS --xla_gpu_cuda_data_dir=$::env(CUDA_HOME)
+"""
+
+
+moduleclass = 'ai'

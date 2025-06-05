@@ -80,18 +80,18 @@ dependencies = [
     # ('JupyterProxy-RStudio', '2024.12.0').
 
     # Extras
-    # ('netcdf4-python', '1.7.1.post2', '-serial'),
-    # ('FFmpeg', '7.0.2'),
-    # ('LLVM', '14.0.6', '-llvmlite'),
-    # ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('sympy', '1.13.3', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('xarray', '2024.11.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('scikit-build', '0.17.6'),
-    # ('scikit-learn', '1.5.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('scikit-image', '0.25.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('numba', '0.60.0'),
-    # ('Shapely', '2.0.6', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
-    # ('pyunicore', '1.2.0'),
+    ('netcdf4-python', '1.7.1.post2', '-serial', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('FFmpeg', '7.0.2'),
+    ('LLVM', '14.0.6', '-llvmlite'),
+    ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('sympy', '1.13.3', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('xarray', '2024.11.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('scikit-build', '0.17.6'),
+    ('scikit-learn', '1.5.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('scikit-image', '0.25.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('numba', '0.60.0'),
+    ('Shapely', '2.0.6', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('pyunicore', '1.2.0'),
 
     # Missing - compared to software stage 2023
     # ('Pandoc', '', '', SYSTEM),  # missing and not needed

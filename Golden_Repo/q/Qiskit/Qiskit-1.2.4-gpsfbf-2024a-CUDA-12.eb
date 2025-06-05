@@ -45,11 +45,12 @@ dependencies = [
     ('scikit-learn', '1.5.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('CUDA', '12', '', SYSTEM),
     ('cuTENSOR', '2.0.2.5', versionsuffix, SYSTEM),
-    ('cuQuantum', '24.11.0', '-CUDA-%(cudaver)s', ('gpsfbf', '2024a')),
-    ('cuQuantum-Python', '24.11.0', '-CUDA-%(cudaver)s', ('gpsfbf', '2024a')),
+    ('cuQuantum', '24.11.0', '-CUDA-%(cudaver)s'),
+    ('cuQuantum-Python', '24.11.0', '-CUDA-%(cudaver)s'),
     # Required for Qiskit_aer:
     ('scikit-build', '0.17.6'),
     ('pydantic', '2.9.1'),
+    ('pyunicore', '1.2.0'),  # Required for Qiskit-juqcs
 ]
 
 local_common_opts = {
@@ -131,17 +132,7 @@ exts_list = [
         'checksums': ['aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89'],
     }),
     ('qiskit', '1.2.4', {
-        'source_tmpl': '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_%s.manylinux2014_%s.whl'
-        % (local_architecture[ARCH], local_architecture[ARCH]),
-        'checksums': [{
-            '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_%s.whl'
-            % local_architecture['aarch64']:
-                '124777b0d9caf40932e02d1d2c6be3a12ff058990e6ae55f45a315a9a51da75b',
-            '%%(name)s-%%(version)s-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_%s.whl'
-            % local_architecture['x86_64']:
-                'a66303ab4f939080ca0b8c4102040a89417a99f2621978c7bca8b1d5f6c6e103',
-        }],
-        # 'checksums': ['3f30b1fc6c66dec240428991da75cc6c35cc75152baff8daf3f8ca71b60684e8'],
+        'checksums': ['3f30b1fc6c66dec240428991da75cc6c35cc75152baff8daf3f8ca71b60684e8'],
     }),
     ('nvidia_cusparse_cu12', '12.3.1.170', {
         'modulename': 'nvidia.cusparse',
@@ -195,11 +186,19 @@ exts_list = [
     ('qiskit-nature', '0.7.2', {
         'checksums': ['621b9bb88c0fa4c705948af86e3ef7d36bb8e7aa11b95801264527de58fcd694'],
     }),
-    ('qiskit_ibm_runtime', '0.34.0', {
-        'checksums': ['58905231fa326d8c8e5b72c1eb55d0ca193af8276eeb4b8a55e9b7cddfc98882'],
+    ('qiskit_ibm_runtime', '0.35.0', {
+        'checksums': ['8b5919bfb96215d13ca5b103b8652c194e2e85b78dbe937dc2b6f675646de65f'],
     }),
     ('qiskit_ibm_provider', '0.11.0', {
         'checksums': ['31a29701120dd0b27e1d8e691b4e7262580cda6f85b85610697577920d8c2f0c'],
+    }),
+    ('qiskit_juqcs', '1.0.1', {
+        'modulename': False,
+        # 'juqcs', when building asks for credentials and sanity check fails.
+        # Fails because no credentials are introduced in the automated built. Only manually.
+        'source_urls': ['https://jugit.fz-juelich.de/juniq/qiskit-juqcs/-/archive/1.0.1/'],
+        'sources': ['qiskit-juqcs-1.0.1.tar.gz'],
+        'checksums': ['4fcb6d9eca84173348bc286db194f37c546a737a99efebebf6fa6423e64af77d'],
     }),
 ]
 
@@ -222,12 +221,13 @@ else:
         'download_instructions': "Download via %s" % local_qisk_aer_gpu_download_path,
         'modulename': 'qiskit_aer',
         'sources': ['qiskit_aer-0.15.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl'],
-        # 'checksums': ['8e0d8f8090361128d99008680c0f9413aadc5750ca3b8eaa15a1dc1119be522b'],
         'checksums': ['1288fd5c36235f5fedfc228956049e87bdd804cbc2b3a487a4453d9e7e72f420'],
     }))
 
 sanity_check_paths = {
-    'files': ['lib/python%(pyshortver)s/site-packages/qiskit/__init__.py', 'bin/pyspnego-parse', 'bin/wsdump'],
+    'files': ['lib/python%(pyshortver)s/site-packages/qiskit/_accelerate.abi3.so',
+              'bin/pyspnego-parse',
+              'bin/wsdump'],
     'dirs': ['bin', 'lib'],
 }
 

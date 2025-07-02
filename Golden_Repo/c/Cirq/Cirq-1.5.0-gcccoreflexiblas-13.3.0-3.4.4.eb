@@ -1,0 +1,106 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'Cirq'
+version = '1.5.0'
+
+homepage = 'https://github.com/quantumlib/cirq'
+description = """A python framework for creating, editing,
+and invoking Noisy Intermediate Scale Quantum (NISQ) circuits."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '13.3.0-3.4.4'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('poetry', '1.8.3'),
+    ('maturin', '1.6.0'),
+    ('Rust', '1.78.0'),
+    ('hatchling', '1.24.2'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('SciPy-bundle', '2024.05'),
+    ('sympy', '1.13.3'),
+    ('matplotlib', '3.9.2'),
+    ('protobuf-python', '5.28.0'),
+    ('networkx', '3.3'),
+    ('tqdm', '4.66.5'),
+    ('ruamel.yaml', '0.18.6'),
+    ('flit', '3.9.0'),
+    ('PyQuil', '4.16.2', '', ('GCCcore', '13.3.0')),
+    ('tensorboard', '2.18.0'),
+    ('grpcio', '1.67.1'),
+]
+
+exts_default_options = {
+    'download_dep_fail': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'use_pip_for_deps': False,
+    'sanity_pip_check': True,
+}
+
+exts_list = [
+    ('typedunits', '95e698b10454dc8dffdb708d56199a748e6dab75', {
+        'modulename': 'tunits',
+        'source_tmpl': '%(version)s.tar.gz',
+        'source_urls': ['https://github.com/quantumlib/TypedUnits/archive/'],
+        'checksums': ['8c1c3d171a06ada9fade4fd30a83d5261b6cc9c1ababfc0bd681f0469ce897d2'],
+    }),
+    ('proto_plus', '1.26.1', {
+        'modulename': 'proto',
+        'checksums': ['21a515a4c4c0088a773899e23c7bbade3d18f9c66c73edd4c7ee3816bc96a012'],
+    }),
+    ('googleapis_common_protos', '1.70.0', {
+        'modulename': 'google.api',
+        'checksums': ['0e1b44e0ea153e6594f9f394fef15193a68aaaea2d843f83e2742717ca753257'],
+    }),
+    ('duet', '0.2.9', {
+        'checksums': ['d6fa39582e6a3dce1096c47e5fbcbda648a633eed94a38943e68662afa2587f3'],
+    }),
+    ('grpcio_status', '1.67.1', {
+        'modulename': 'google.rpc',
+        'checksums': ['2bf38395e028ceeecfd8866b081f61628114b384da7d51ae064ddc8d766a5d11'],
+    }),
+    ('google_api_core', '2.25.1', {
+        'modulename': 'google.api_core',
+        'checksums': ['d2aaa0b13c78c61cb3f4282c464c046e45fbd75755683c9c525e6e8f7ed0a5e8'],
+    }),
+    ('cirq_core', '1.5.0', {
+        'modulename': 'cirq',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['104a574c766011c979e897f0fb5e90eb69a2b58ec1dc389a73495e63124923d0'],
+    }),
+    ('cirq_web', '1.5.0', {
+        'modulename': 'cirq_web',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['47b931a8c8dbebde4775c6e82dc404c178b7592a24456e485e43ae823660984e'],
+    }),
+    ('cirq_pasqal', '1.5.0', {
+        'modulename': 'cirq_pasqal',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['cce81c59688612b07a01a1490b3a358a644a4e7c6cd23ce81255bf439800db06'],
+    }),
+    ('cirq_ionq', '1.5.0', {
+        'modulename': 'cirq_ionq',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['00316ca8baf76fca1bd9ac7b48589858fbfadf3a8e5be22fa102e4714beec21a'],
+    }),
+    ('cirq_aqt', '1.5.0', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['c3bcb4251cff03e344cd6dc4744afe9bd1dfd84da5d9fde9413adfedf8c3cc36'],
+    }),
+    ('cirq_google', '1.5.0', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['e8092a248a62fe130e14bc47830d63a6d26f4e586f9572de70dfd82c1cde70a5'],
+    }),
+    ('cirq', '1.5.0', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['c710e5be35087a6d2457dcb1ecb93a0a492a98bb3b27e8a14b8a3a9ad14dca3c'],
+    }),
+]
+
+moduleclass = 'quantum'

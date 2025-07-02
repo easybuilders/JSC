@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'k3d'
+version = '2.16.1'
+
+homepage = "https://github.com/K3D-tools/K3D-jupyter"
+
+description = """
+K3D lets you create 3D plots backed by WebGL with high-level API 
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1')
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4'))
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('traittypes', '0.2.1', {
+        'checksums': ['be6fa26294733e7489822ded4ae25da5b4824a8a7a0e0c2dccfde596e3489bd6'],
+    }),
+    ('k3d', version, {
+        'checksums': ['d4c6314c90fae1362869909d28c04a86e805b35d320ec78d44255090c568c609'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

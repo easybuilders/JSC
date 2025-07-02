@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'tvb-ext-bucket'
+version = '2.0.1'
+
+homepage = "https://github.com/the-virtual-brain/tvb-ext-bucket"
+
+description = """
+Jupyter extension for working with EBRAINS Bucket.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),
+    ('tqdm', '4.66.5'),
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('ebrains_drive', '0.6.0', {  # wheel because of https://github.com/HumanBrainProject/ebrains-storage/issues/33
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'unpack_sources': False,
+        'checksums': ['8b734a0323ee2b3ee30f69d59d5fb93787da5928d152160df062f0049c152d3f'],
+    }),
+    ('tvb_ext_bucket', '%(version)s', {
+        'checksums': ['d5bf3a68e34befccc533634a9bf77520c22728df65d64dbc36024092fac3e6c3'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

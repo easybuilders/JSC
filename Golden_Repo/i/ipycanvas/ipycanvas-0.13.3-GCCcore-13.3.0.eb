@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'ipycanvas'
+version = '0.13.3'
+
+homepage = "https://github.com/jupyter-widgets-contrib/ipycanvas"
+
+description = """
+ipycanvas is a lightweight, fast and stable library exposing the browser's Canvas API to IPython
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    ('nodejs', '20.13.1'),
+    ('hatch-jupyter-builder', '0.9.1')
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', '4.3.4'),
+    ('Pillow-SIMD', '10.4.0'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4'))
+]
+
+sanity_pip_check = True
+use_pip = True
+
+exts_list = [
+    ('ipycanvas', version, {
+        'checksums': ['4e867c509b01f5c4cfc009f7d921e32e5a12a029ac856e78c04ff15b65692c4a'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

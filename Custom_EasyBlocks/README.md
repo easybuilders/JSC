@@ -23,6 +23,13 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ the supporting code to enable threading and MSA support in 5.10.0-1
 - __*can not be removed*__ until these options are accepted upstream (PR: [#3420](https://github.com/easybuilders/easybuild-easyblocks/pull/3420))
 
+## OPENMPI
+
+- __*added by*__ s.achilles
+- __*needed because*__ the check for `mpirun` should be optional
+- __*difference compared to upstream*__ making that check optional
+- __*can not be removed*__ until the check is made optional upstream (PR: [#2788](https://github.com/easybuilders/easybuild-easyblocks/pull/2788))
+
 ## CODE_SATURNE
 
 - __*added by*__ m.cakircali

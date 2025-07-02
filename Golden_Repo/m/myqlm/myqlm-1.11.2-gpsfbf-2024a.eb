@@ -35,7 +35,7 @@ dependencies = [
     ('jax', '0.4.34', '-CUDA-12'),
     ('pulser', '1.3.0'),
     ('Qiskit', '1.2.4', '-CUDA-12'),
-    ('qoqo-quest', '0.16.0', '-CUDA-12'),
+    ('qoqo-quest', '0.16.1', '-CUDA-12'),
 ]
 
 exts_default_options = {

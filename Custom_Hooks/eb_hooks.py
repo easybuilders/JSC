@@ -61,6 +61,12 @@ VETOED_INSTALLATIONS = {
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings'
     ],
+    'jupiter': [
+        'AOCC',
+        'Intel', 'intel-compilers', 'imkl',
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings'
+    ],
     'jedi': [
         'AOCC',
         'Intel', 'intel-compilers', 'imkl',
@@ -146,6 +152,12 @@ def installation_vetoer(ec):
             print_msg(f"- {package}", stderr=True)
         exit(1)
 
+def is_system_path(path):
+    system_installation_paths = r'^/(e|p)/software'
+    if re.match(system_installation_paths, path):
+        return True
+    else:
+        return False
 
 def get_user_info(user=None):
     # Query jutil to extract the contact information
@@ -169,7 +181,7 @@ def get_user_info(user=None):
             if name and email:
                 return [name, email]
             else:
-                if install_path().lower().startswith('/p/software'):
+                if is_system_path(install_path().lower()):
                     print_warning(
                         f"\n'jutil' is not present and 'SITE_CONTACT_NAME' or 'SITE_CONTACT_EMAIL' are not defined\n"
                         "Please defined both in your environment and try again\n"
@@ -385,7 +397,7 @@ def inject_site_contact_and_user_labels(ec):
     # not sure of a fool-proof way to do this, let's just try a heuristic
     site_contacts = None
     # Non-user installation
-    if install_path().lower().startswith('/p/software'):
+    if is_system_path(install_path().lower()):
         if os.getenv('CI_INSTALLATION'):
             # Find acls.yml
             yaml_acls = find_acls()
@@ -490,7 +502,7 @@ def inject_modaltsoftname(ec):
 def inject_ucx_tweaks(ec):
     # UCX require to load UCX-settings
     ec_dict = ec.asdict()
-    if ec.name in 'UCX' and install_path().lower().startswith('/p/software'):
+    if ec.name in 'UCX' and is_system_path(install_path().lower()):
         key = "modluafooter"
         value = '''
 -- This weird construct is to prevent lmod from loading the default settings when reloading/swapping UCX
@@ -521,7 +533,7 @@ def inject_mpi_tweaks(ec):
         ec['set_mpi_wrappers_all'] = 'True'
         ec.log.info("[parse hook] Injecting set_mpi_wrappers_all = True ")
     # MPIs are a family (in the Lmod sense) and require to load MPI-settings
-    if ec.name in SUPPORTED_MPIS and install_path().lower().startswith('/p/software'):
+    if ec.name in SUPPORTED_MPIS and is_system_path(install_path().lower()):
         key = "modluafooter"
         value = '''
 if not ( isloaded("MPI-settings") ) then
@@ -566,7 +578,7 @@ def inject_compiler_tweaks(ec):
 def inject_perl_tweaks(ec):
     # Perl require to load Perl-JSC-extra
     ec_dict = ec.asdict()
-    if ec.name == 'Perl' and install_path().lower().startswith('/p/software'):
+    if ec.name == 'Perl' and is_system_path(install_path().lower()):
         key = "modluafooter"
         value = '''
 if mode()=="load" then
@@ -587,7 +599,7 @@ end
 def inject_python_tweaks(ec):
     # Python require to load Python-JSC-extra
     ec_dict = ec.asdict()
-    if ec.name == 'Python' and install_path().lower().startswith('/p/software'):
+    if ec.name == 'Python' and is_system_path(install_path().lower()):
         key = "modluafooter"
         value = '''
 if mode()=="load" then
@@ -621,7 +633,7 @@ def pre_ready_hook(self, *args, **kwargs):
     override_toolchain_check = os.getenv("JSC_OVERRIDE_TOOLCHAIN_CHECK")
     if not override_toolchain_check:
         toolchain_name = toolchain["name"]
-        if not toolchain_name in SUPPORTED_TOOLCHAIN_FAMILIES and not install_path().lower().startswith('/p/software'):
+        if not toolchain_name in SUPPORTED_TOOLCHAIN_FAMILIES and not is_system_path(install_path().lower()):
             stage = os.getenv("STAGE", default=None)
             if stage:
                 # Clean things up if it is a Devel stage
@@ -649,7 +661,7 @@ def pre_ready_hook(self, *args, **kwargs):
     # experts should know that. This applies just to user installations
     override_gcccore_check = os.getenv("JSC_OVERRIDE_GCCCORE_CHECK")
     if not override_gcccore_check:
-        if is_gcccore and not install_path().lower().startswith('/p/software'):
+        if is_gcccore and not is_system_path(install_path().lower()):
             print_warning(
                 "\nYou are attempting to install GCCcore (%s) into a non-system "
                 "location (%s), this won't work as expected without additional effort "

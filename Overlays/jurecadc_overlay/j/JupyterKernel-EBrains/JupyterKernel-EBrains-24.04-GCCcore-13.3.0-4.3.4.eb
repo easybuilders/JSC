@@ -1,0 +1,129 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-EBrains'
+version = '24.04'
+local_jupyterver = '4.3.4'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special EBrains kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('JupyterLab', local_jupyterver),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-64x64.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-128x128.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+        ],
+        'checksums': [
+            {'logo-32x32.png': 'a72346a08d054848cecc67e98d27705be4289c9eab59f70196e679bd94d30da3'},
+            {'logo-64x64.png': '3dd4b8ca62c10a1dc2a4a395d1f70554edbaea6cdf980321dcfd7070d83e2fef'},
+            {'logo-128x128.png': '1403c0e901319e9095d3889b22565ad6e2c4b88721a60f807775346db23ef1b3'},
+        ]
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+]
+
+local_kernel_dir = 'ebrains'
+local_kernel_name = 'ebrains-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/2024 \n'
+        'module load GCC/12.3.0 \n'
+        'module load ParaStationMPI \n'
+        '\n'
+        'module load ebrains/24.04 \n'
+        '\n'
+        'exec python -m ipykernel \$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

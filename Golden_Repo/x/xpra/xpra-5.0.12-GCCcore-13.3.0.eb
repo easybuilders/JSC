@@ -162,6 +162,16 @@ postinstallcmds = [
         'rm -f %(installdir)s/share/xpra/www/background.png && '
         'mv %(installdir)s/background.png %(installdir)s/share/xpra/www/ '
     ),
+    # set default configurations
+    (
+        'cat <<EOF > %(installdir)s/etc/xpra/html5-client/default-settings.txt\n'
+        'blocked-hosts = xpra.org,www.xpra.org\n'
+        '\n'
+        'min-quality = 80\n'
+        'min-speed = 30\n'
+        'offscreen = false\n'
+        'EOF'
+    ),
     # set specific configurations
     (
         # fix the xvfb call

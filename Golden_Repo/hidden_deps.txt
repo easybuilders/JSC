@@ -94,6 +94,7 @@ JupyterKernel-PyDeepLearning
 JupyterKernel-PyParaView
 JupyterKernel-PyVisualization
 JupyterKernel-PyQuantum
+JupyterKernel-EBrains
 JupyterKernel-R
 JupyterKernel-Ruby
 JupyterProxy-Matlab

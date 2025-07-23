@@ -34,7 +34,6 @@ dependencies = [
     ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('sympy', '1.13.3', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('dill', '0.3.9'),
-    ('SymEngine-Python', '0.13.0', '', ('GCCcore', '13.3.0')),
     ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('IPython', '8.27.0'),
     ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
@@ -573,6 +572,20 @@ exts_list = [
     ('annotated_types', '0.7.0', {
         'checksums': ['aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89'],
     }),
+    ('symengine', '0.13.0', {
+        # symengine dependency overrides C++ capabilities on cudaQ. Prebuilt extension solves it.
+        'modulename': 'symengine',
+        'source_tmpl': '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+        % (local_architecture[ARCH], local_architecture[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_architecture['aarch64'], local_architecture['aarch64']):
+                'fb92bdf0890de264abaeacbfbdbd4dd7444b94057bd47958d913b662e549ad8a',
+            '%%(name)s-%%(version)s-cp312-cp312-manylinux_2_17_%s.manylinux2014_%s.whl'
+            % (local_architecture['x86_64'], local_architecture['x86_64']):
+                'f7e6bae9cfcdde2775d92fbb0abe3ef04e32f65ebc4c2d164ca33f4da202d4a7',
+        }],
+    }),
     ('qiskit', '1.2.4', {
         'checksums': ['3f30b1fc6c66dec240428991da75cc6c35cc75152baff8daf3f8ca71b60684e8'],
     }),
@@ -604,6 +617,9 @@ exts_list = [
     }),
     ('qiskit_algorithms', '0.3.1', {
         'checksums': ['cba9c573d47c0f9508745a5a2794298084ec4f8833781b426fa9b2cea0fca794'],
+    }),
+    ('pylatexenc', '2.10', {
+        'checksums': ['3dd8fd84eb46dc30bee1e23eaab8d8fb5a7f507347b23e5f38ad9675c84f40d3'],
     }),
     ('pyspnego', '0.11.2', {
         'modulename': 'spnego',

@@ -1,8 +1,0 @@
---- hdf5_plugins-1.14.5/Makefile.am.orig	2024-11-26 16:05:55.015954647 +0100
-+++ hdf5_plugins-1.14.5/Makefile.am	2024-11-26 16:06:12.146010718 +0100
-@@ -18,4 +18,4 @@
- endif
- 
- # Build the desired subdirectories.
--SUBDIRS = libs $(BZIP2) $(LZ4) JPEG #BSHUF # BLOSC BLOSC2 JPEG LZF
-+SUBDIRS = libs $(BZIP2) $(LZ4) JPEG BLOSC BLOSC2 #BSHUF # BLOSC BLOSC2 JPEG LZF

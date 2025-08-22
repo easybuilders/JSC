@@ -2,7 +2,7 @@
 easyblock = 'PythonBundle'
 
 name = 'tvb-ext-xircuits'
-version = '2.0.1'
+version = '2.1.1'
 
 homepage = "https://github.com/the-virtual-brain/tvb-ext-xircuits"
 
@@ -26,19 +26,24 @@ dependencies = [
     ('tvb-ext-bucket', '2.0.1'),
     ('tvb-ext-unicore', '3.1.1'),
     ('tvb-library', '2.9.1'),
+    ('dill', '0.3.9'),
 ]
 
 sanity_pip_check = True
 use_pip = True
 
 exts_list = [
+    ('asgiref', '3.9.1', {
+        'modulename': 'github',
+        'checksums': ['a5ab6582236218e5ef1648f242fd9f10626cfd4de8dc377db215d5d5098e3142'],
+    }),
     ('pygithub', '2.5.0', {
         'modulename': 'github',
         'checksums': ['e1613ac508a9be710920d26eb18b1905ebd9926aa49398e88151c1b526aad3cf'],
     }),
     ('tvb_ext_xircuits', version, {
         'modulename': False,
-        'checksums': ['a53cef9891457a8c2350d43c097fbc22dac87ec66c7505681392c6691e27eba5'],
+        'checksums': ['7c9949af64fa9c52d216b18c4a8b8cfe7baac36325ec5f37c9bf33e5c76d0ae9'],
     }),
 ]
 

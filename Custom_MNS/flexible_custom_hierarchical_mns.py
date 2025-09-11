@@ -78,25 +78,32 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             <name>/<version>[-<toolchain>]
         """
         # We rename our iccifort compiler to INTEL and this needs a hard fix because it is a toolchain
-        if name == 'iccifort' or name == 'intel-compilers':
-            modname_regex = re.compile('^%s/\S+$' % re.escape('Intel'))
-        elif name == 'psmpi':
-            modname_regex = re.compile('^%s/\S+$' % re.escape('ParaStationMPI'))
-        elif name == 'impi':
-            modname_regex = re.compile('^%s/\S+$' % re.escape('IntelMPI'))
-        elif name in ['-'.join([x, 'settings']) for x in MPI_WITH_SETTINGS]:
-            modname_regex = re.compile('^%s/\S+$' % re.escape('MPI-settings'))
-        elif name == 'LWP-settings':
-            # Match almost anything, since the name depends actually on the version, to avoid load conflicts
-            modname_regex = re.compile('^LWP-\S+/enable$')
-        else:
-            modname_regex = re.compile('^%s/\S+$' % re.escape(name))
-        res = bool(modname_regex.match(short_modname))
+        self.log.debug("Checking whether '%s' is a module name for software with name '%s'",
+                       short_modname, name)
 
-        self.log.debug("Checking whether '%s' is a module name for software with name '%s' via regex %s: %s",
-                       short_modname, name, modname_regex.pattern, res)
+        res = False
 
-        return res
+        # Direct mapping of short_modname to name
+        mapping = {
+            'intel-compilers': 'Intel',
+            'iccifort': 'Intel',
+            'psmpi': 'ParaStationMPI',
+            'impi': 'IntelMPI',
+            'LWP-settings': 'LWP',
+        }
+
+        # Strip version from short_modname
+        versionless_short_modname = short_modname.split('/')[0]
+        if versionless_short_modname in mapping:
+            res = bool(mapping[versionless_short_modname] == name)
+
+        # Special case MPI-settings
+        if versionless_short_modname == 'MPI-settings':
+            settings_name = name.split('-settings')[0]
+            res = res or bool(settings_name in MPI_WITH_SETTINGS)
+
+        # Generic mapping
+        return res or super(FlexibleCustomHierarchicalMNS, self).is_short_modname_for(short_modname, name)
 
     def _find_relevant_compiler_info(self, comp_info):
         comp_name, comp_ver = comp_info

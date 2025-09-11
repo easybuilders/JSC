@@ -38,7 +38,6 @@ from easybuild.framework.easyblock import EasyBlock
 from easybuild.framework.easyconfig import CUSTOM
 from easybuild.tools.build_log import EasyBuildError
 from easybuild.tools.filetools import adjust_permissions, copy_file
-from easybuild.tools.py2vs3 import string_type
 
 
 class EB_Allinea(Binary):
@@ -80,7 +79,7 @@ class EB_Allinea(Binary):
         # allow to copy multiple licenses
         lic_path = os.path.join(self.installdir, 'licences')
         licenses = self.cfg['license_file']
-        if isinstance(licenses, string_type):
+        if isinstance(licenses, str):
             licenses = [licenses]
         try:
             for license in licenses:

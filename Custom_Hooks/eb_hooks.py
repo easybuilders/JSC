@@ -51,65 +51,115 @@ SUPPORTED_TOOLCHAIN_FAMILIES = (
     + SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES
 )
 VETOED_INSTALLATIONS = {
-    'juwelsbooster': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
-    'juwels': ['BullMPI', 'BullMPI-settings'],
-    'jureca_arm': [
+    'juwelsbooster': [
         'impi', 'impi-settings',
-        'BullMPI', 'BullMPI-settings'
+        'BullMPI', 'BullMPI-settings',
+        'NVPL'
+    ],
+    'juwels': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
+    ],
+    'jureca_arm': [
+        'Advisor', 'AOCC', 'AMD-uProf',
+        'Intel', 'intel-compilers', 'imkl',
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings',
+        'VTune'
     ],
     'jureca_gh': [
+        'Advisor', 'AOCC', 'AMD-uProf',
+        'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
-        'BullMPI', 'BullMPI-settings'
+        'BullMPI', 'BullMPI-settings',
+        'VTune'
     ],
     'jupiter': [
-        'AOCC',
+        'Advisor', 'AOCC', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
-        'BullMPI', 'BullMPI-settings'
+        'BullMPI', 'BullMPI-settings',
+        'VTune'
     ],
     'jedi': [
-        'AOCC',
+        'Advisor', 'AOCC', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
-        'BullMPI', 'BullMPI-settings'
+        'BullMPI', 'BullMPI-settings',
+        'VTune'
     ],
-    'jurecadc': [''],
+    'jurecadc': ['NVPL'],
     'jurecabooster': [
         'OpenMPI', 'OpenMPI-settings',
         'CUDA', 'nvidia-driver',
         'UCX', 'UCX-settings',
         'NCCL', 'NCCL-settings', 'NVHPC',
         'BullMPI', 'BullMPI-settings',
-        'pscom'
+        'pscom', 'NVPL',
     ],
     'jureca_mi200': [
         'CUDA', 'nvidia-driver',
         'impi', 'impi-settings',
-        'BullMPI', 'BullMPI-settings'
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
     ],
-    'jureca_spr': ['BullMPI', 'BullMPI-settings'],
-    'jureca_hwai': ['BullMPI', 'BullMPI-settings'],
-    'jusuf': ['impi', 'impi-settings', 'BullMPI', 'BullMPI-settings'],
-    'hdfml': ['BullMPI', 'BullMPI-settings'],
-    'deep': ['BullMPI', 'BullMPI-settings'],
-    'hdfcloud': [''],
-    'jsccloud': ['BullMPI', 'BullMPI-settings'],
+    'jureca_spr': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
+    ],
+    'jureca_hwai': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
+    ],
+    'jusuf': [
+        'impi', 'impi-settings',
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
+    ],
+    'hdfml': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL',
+    ],
+    'deep': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL'
+    ],
+    'hdfcloud': ['NVPL'],
+    'jsccloud': [
+        'BullMPI', 'BullMPI-settings',
+        'NVPL'
+    ],
 }
 
 TWEAKABLE_DEPENDENCIES = {
     # 'Boost': '1.78.0',
     # 'Boost.Python': '1.78.0',
-    'CUDA': '12',
-    'glu': ('OpenGL', '2024a'),
-    'glew': ('OpenGL', '2024a'),
-    'libglvnd': ('OpenGL', '2024a'),
+    'CUDA': '13',
+    'glu': ('OpenGL', '2025b'),
+    'glew': ('OpenGL', '2025b'),
+    'libglvnd': ('OpenGL', '2025b'),
     # 'libxc': '5.1.7',
-    'libGLU': ('OpenGL', '2024a'),
-    'Mesa': ('OpenGL', '2024a'),
+    'libGLU': ('OpenGL', '2025b'),
+    'Mesa': ('OpenGL', '2025b'),
     'NCCL': 'default',
-    'pkg-config': ('pkgconf', '2.2.0'),
+    'pkg-config': ('pkgconf', '2.4.3'),
     'UCC': 'default',
     'UCX': 'default',
+}
+
+TWEAKABLE_DEPENDENCIES_PER_SYSTEM = {
+    'juwels': {
+        'CUDA': '12',
+    },
+    'jusuf': {
+        'CUDA': '12',
+    },
+    'deep': {
+        'CUDA': '12',
+    },
+    'jsccloud': {
+        'CUDA': '12',
+    },
 }
 
 MKL_THREADING_LAYER = {
@@ -255,7 +305,7 @@ def parse_hook(ec, *args, **kwargs):
     """Custom parse hook to manage installations intended for JSC systems."""
 
     # First of all check if this should be installed
-    if os.getenv('CI') is None:
+    if os.getenv('CI_CHECK_STYLE') is None:
         installation_vetoer(ec)
 
     # Process compiler options
@@ -282,7 +332,7 @@ def parse_hook(ec, *args, **kwargs):
 
     ec = inject_site_contact_and_user_labels(ec)
 
-    if os.getenv('CI') is None:
+    if os.getenv('CI_CHECK_STYLE') is None:
         ec = tweak_dependencies(ec)
 
     ec = tweak_moduleclass(ec)
@@ -313,9 +363,27 @@ def parse_hook(ec, *args, **kwargs):
                 "  eb --robot=$EASYBUILD_ROBOT:$EBROOTEASYBUILD/easybuild/easyconfigs --try-update-deps ...."
             )
 
+def get_combined_tweakable_deps():
+    # Read system_name
+    system_name = os.getenv('LMOD_SYSTEM_NAME')
+    if system_name is None:
+        with open('/etc/FZJ/systemname') as sn:
+            system_name = sn.read().strip()
+
+    # Combine global and system-specific dependencies
+    combined_tweakable_deps = TWEAKABLE_DEPENDENCIES.copy()
+
+    # Add system-specific dependencies (overrides global ones in case of conflicts)
+    if system_name and system_name in TWEAKABLE_DEPENDENCIES_PER_SYSTEM:
+        combined_tweakable_deps.update(TWEAKABLE_DEPENDENCIES_PER_SYSTEM[system_name])
+
+    return combined_tweakable_deps
+
 def tweak_clang(ec):
+    combined_tweakable_deps = get_combined_tweakable_deps()
+
     # Add CUDA as dependency, so the Clang easyblock enables NVPTX as target
-    ec['dependencies'].append(('CUDA', TWEAKABLE_DEPENDENCIES['CUDA'], '', {'name': 'system', 'version': 'system'}))
+    ec['dependencies'].append(('CUDA', combined_tweakable_deps['CUDA'], '', {'name': 'system', 'version': 'system'}))
 
     # We pick the max CC. The easyblock picks the minimum by default. In our setup
     # that does not make sense, since the GPUs with the minimum CC are used just
@@ -326,23 +394,25 @@ def tweak_clang(ec):
     return ec
 
 def tweak_dependencies(ec):
+    combined_tweakable_deps = get_combined_tweakable_deps()
+
     for dep_type in ["dependencies", "builddependencies"]:
         dependencies = ec[dep_type]
         # Check for dependencies to be tweaked. This assumes simply that the version is
         # being overwritten
-        for dep_to_tweak in TWEAKABLE_DEPENDENCIES:
+        for dep_to_tweak in combined_tweakable_deps:
             for dep in dependencies:
                 remove = False
                 if dep_to_tweak == dep[0]:
                     list_dep = list(dep)
-                    if isinstance(TWEAKABLE_DEPENDENCIES[dep_to_tweak], str):
-                        list_dep[1] = TWEAKABLE_DEPENDENCIES[dep_to_tweak]
+                    if isinstance(combined_tweakable_deps[dep_to_tweak], str):
+                        list_dep[1] = combined_tweakable_deps[dep_to_tweak]
                     else:
                         # Assume that the name of the dependency also needs to be replaced, using the specified tuple
-                        if TWEAKABLE_DEPENDENCIES[dep_to_tweak][0] not in [x[0] for x in dependencies]:
+                        if combined_tweakable_deps[dep_to_tweak][0] not in [x[0] for x in dependencies]:
                             # The new dependency is not on the list, so add it
-                            list_dep[0] = TWEAKABLE_DEPENDENCIES[dep_to_tweak][0]
-                            list_dep[1] = TWEAKABLE_DEPENDENCIES[dep_to_tweak][1]
+                            list_dep[0] = combined_tweakable_deps[dep_to_tweak][0]
+                            list_dep[1] = combined_tweakable_deps[dep_to_tweak][1]
                         else:
                             # Remove it from the list to don't have the same dependency added N times
                             remove = True

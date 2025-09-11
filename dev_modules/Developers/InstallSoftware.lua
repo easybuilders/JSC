@@ -287,11 +287,16 @@ if is_devel and (isloaded("Stages/"..stage) or isloaded("Stages/Devel")) then
     end
     -- Tell the robot where to search there when looking for missing dependencies
     append_path("EASYBUILD_ROBOT", pathJoin(stage_path, "eb_repo"))
+    append_path("EASYBUILD_ROBOT_PATHS", pathJoin(stage_path, "eb_repo"))
     setenv("EASYBUILD_GROUP_WRITABLE_INSTALLDIR", "1")
     setenv("EASYBUILD_UMASK", "002")
     -- We need to allow people to clean out an installation in Devel
     setenv("EASYBUILD_STICKY_BIT", "0")
 else
+    -- Tell the robot where to search there when looking for missing dependencies
+    append_path("EASYBUILD_ROBOT", pathJoin(stage_path, "eb_repo"))
+    append_path("EASYBUILD_ROBOT_PATHS", pathJoin(stage_path, "eb_repo"))
+
     -- The default is to have user-only write access to files/dirs
     setenv("EASYBUILD_UMASK", "022")
 

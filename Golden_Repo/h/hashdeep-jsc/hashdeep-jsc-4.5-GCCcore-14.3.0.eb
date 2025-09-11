@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'hashdeep-jsc'
+version = '4.5'
+
+homepage = 'https://github.com/FZJ-JSC/xxhashdeep'
+description = """JSC-flavoured version of hashdeep, a set of tools to compute MD5,
+SHA1, SHA256, tiger and whirlpool hashsums of arbitrary number of files recursively.
+Support for xxHash algorithm has been added and the reading block size has been
+increased."""
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+source_urls = ['https://github.com/FZJ-JSC/xxhashdeep/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['f96c02f502272b67f8e94f14558bd83bd555d6e0e9eefd0007e806591e3e39c9']
+
+builddependencies = [
+    ('Automake', '1.18'),
+    ('Autotools', '20250527'),
+    ('binutils', '2.44')
+]
+
+preconfigopts = 'autoupdate configure.ac && '
+preconfigopts += 'sh bootstrap.sh && '
+preconfigopts += "rm -f install-sh missing depcomp config.guess config.sub && "
+preconfigopts += "cp -r $EBROOTAUTOMAKE/share/automake*/* . && "
+
+
+sanity_check_paths = {
+    'files': [
+        "bin/hashdeep",
+        "bin/md5deep",
+        "bin/sha256deep",
+        "bin/tigerdeep",
+        "bin/whirlpooldeep",
+        "bin/xxhashdeep"
+    ],
+    'dirs': []
+}
+
+moduleclass = 'tools'

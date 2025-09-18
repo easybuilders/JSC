@@ -1,0 +1,42 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'uv'
+version = '0.8.17'
+homepage = 'https://docs.astral.sh/uv/'
+description = "An extremely fast Python package and project manager, written in Rust."
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+]
+
+local_arch_uv = {
+    'aarch64': '2_28_aarch64',
+    'x86_64':  '2_17_x86_64.manylinux2014_x86_64'
+}
+
+sources = ['%%(name)s-%%(version)s-py3-none-manylinux_%s.whl' % (local_arch_uv[ARCH])]
+
+checksums = [{
+    '%%(name)s-%%(version)s-py3-none-manylinux_%s.whl'
+    % (local_arch_uv['aarch64']):
+        '3941cecd9a6a46d3d4505753912c9cf3e8ae5eea30b9d0813f3656210f8c5d01',
+    '%%(name)s-%%(version)s-py3-none-manylinux_%s.whl'
+    % (local_arch_uv['x86_64']):
+        'b6d30d02fb65193309fc12a20f9e1a9fab67f469d3e487a254ca1145fd06788f',
+}]
+
+sanity_check_paths = {
+    'files': ['bin/uv', 'bin/uvx'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/'],
+}
+
+sanity_check_commands = ['uv --help', 'uvx --help']
+
+moduleclass = 'tools'

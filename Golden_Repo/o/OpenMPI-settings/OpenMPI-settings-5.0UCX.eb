@@ -1,0 +1,40 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'SystemBundle'
+
+name = 'OpenMPI-settings'
+version = '5.0'
+versionsuffix = 'UCX'
+
+homepage = ''
+description = 'This module loads the default OpenMPI configuration. It relies on UCX.'
+
+toolchain = SYSTEM
+
+source_urls = []
+
+sources = []
+modextravars = {
+    'SLURM_MPI_TYPE': 'pspmix',
+    'OMPI_MCA_mca_base_component_show_load_errors': '1',
+    'OMPI_MCA_mpi_param_check': '1',
+    'OMPI_MCA_mpi_show_handle_leaks': '1',
+    'OMPI_MCA_mpi_warn_on_fork': '1',
+    # Disable uct for the time being due to:
+    # https://github.com/openucx/ucx/wiki/OpenMPI-and-OpenSHMEM-installation-with-UCX#running-open-mpi-with-ucx
+    # Also openib, since it is deprecated and should be substituted by the UCX support in the pml
+    'OMPI_MCA_btl': '^uct,openib',
+    'OMPI_MCA_btl_openib_allow_ib': '1',
+    'OMPI_MCA_bml_r2_show_unreach_errors': '0',
+    'OMPI_MCA_pml': 'ucx',
+    'OMPI_MCA_osc': '^rdma',
+    'OMPI_MCA_opal_abort_print_stack': '1',
+    'OMPI_MCA_opal_set_max_sys_limits': '1',
+    'OMPI_MCA_opal_event_include': 'epoll',
+    'OMPI_MCA_btl_openib_warn_default_gid_prefix': '0',
+    # OMPIO seems to provide significantly reduced performance, and romio321 does not exist anymore.
+    # Therefore, choose romio341 with ufs as the filesystem backend.
+    'OMPI_MCA_io': 'romio341',
+    'ROMIO_FSTYPE_FORCE': 'ufs:',
+}
+
+moduleclass = 'system'

@@ -106,3 +106,9 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ support for Aarch64
 - __*can not be removed*__ at least until that option is merged upstream
 
+## FlexiBLAS
+
+- __*added by*__ j.reuter
+- __*needed because*__ EasyBlock supports NVPL
+- __*difference compared to upstream*__ support for NVPL
+- __*can not be removed*__ until EasyBuild v5.1.2

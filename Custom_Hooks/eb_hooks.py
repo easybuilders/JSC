@@ -61,28 +61,28 @@ VETOED_INSTALLATIONS = {
         'NVPL',
     ],
     'jureca_arm': [
-        'Advisor', 'AOCC', 'AMD-uProf',
+        'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
         'VTune'
     ],
     'jureca_gh': [
-        'Advisor', 'AOCC', 'AMD-uProf',
+        'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
         'VTune'
     ],
     'jupiter': [
-        'Advisor', 'AOCC', 'AMD-uProf',
+        'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
         'VTune'
     ],
     'jedi': [
-        'Advisor', 'AOCC', 'AMD-uProf',
+        'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',

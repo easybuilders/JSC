@@ -178,7 +178,7 @@ class EB_OpenMPI(ConfigureMake):
 
         bin_names = ['mpicc', 'mpicxx', 'mpif90', 'mpifort', 'ompi_info', 'opal_wrapper']
         if LooseVersion(self.version) >= LooseVersion('5.0.0'):
-            if not get_software_root('PRRTE'):
+            if not get_software_root('PRRTE') and '--without-prrte' not in self.cfg['configopts']:
                 bin_names.append('prterun')
         else:
             if '--with-orte=no' not in self.cfg['configopts'] and '--without-orte' not in self.cfg['configopts']:
@@ -188,15 +188,16 @@ class EB_OpenMPI(ConfigureMake):
         shlib_ext = get_shared_lib_ext()
         lib_names = ['mpi_mpifh', 'mpi', 'open-pal']
         if LooseVersion(self.version) >= LooseVersion('5.0.0'):
-            if not get_software_root('PRRTE'):
+            if not get_software_root('PRRTE')  and '--without-prrte' not in self.cfg['configopts']:
                 lib_names.append('prrte')
         else:
             lib_names.extend(['ompitrace', 'open-rte'])
         lib_files = [os.path.join('lib', 'lib%s.%s' % (x, shlib_ext)) for x in lib_names]
 
         inc_names = ['mpi-ext', 'mpif-config', 'mpif', 'mpi', 'mpi_portable_platform']
-        if LooseVersion(self.version) >= LooseVersion('5.0.0') and not get_software_root('PRRTE'):
-            inc_names.append('prte')
+        if LooseVersion(self.version) >= LooseVersion('5.0.0'):
+            if not get_software_root('PRRTE') and '--without-prrte' not in self.cfg['configopts']:
+                inc_names.append('prte')
         inc_files = [os.path.join('include', x + '.h') for x in inc_names]
 
         custom_paths = {

@@ -1,0 +1,23 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'ParityOS'
+version = '2.8.0'
+
+homepage = 'https://parityqc.com/parityos'
+description = """We created ParityOS with the aim to offer an all-in-one
+solution to solve real-world problems on quantum computers.
+"""
+
+toolchain = {'name': 'GCC', 'version': '14.3.0'}
+
+sources = ['parityos-%(version)s.tar.gz']
+checksums = ['1d53c2355f2713de697ff3a64801536184d229f466fec003e7bcdbb3a2a32bc6']
+
+dependencies = [
+    ('binutils', '2.44'),
+    ('Python', '3.13.5'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+]
+
+moduleclass = 'quantum'

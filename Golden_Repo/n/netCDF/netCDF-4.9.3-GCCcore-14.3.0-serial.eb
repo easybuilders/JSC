@@ -1,0 +1,72 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'netCDF'
+version = '4.9.3'
+versionsuffix = '-serial'
+
+homepage = 'https://www.unidata.ucar.edu/software/netcdf/'
+description = """NetCDF (network Common Data Form) is a set of software libraries
+ and machine-independent data formats that support the creation, access, and sharing of array-oriented
+ scientific data."""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/Unidata/%(namelower)s-c/archive/']
+sources = ['v%(version)s.tar.gz']
+patches = ['%(name)s-%(version_major_minor)s.0_skip-nasa-test.patch']
+checksums = [
+    {'v4.9.3.tar.gz': '990f46d49525d6ab5dc4249f8684c6deeaf54de6fec63a187e9fb382cc0ffdff'},
+    {'netCDF-4.9.0_skip-nasa-test.patch': '19d99e03c048b037dc01f03f5b8ddc910ebaceb076d0f050540d348f26dfcd2a'},
+]
+
+builddependencies = [
+    ('Autotools', '20250527'),
+    ('binutils', '2.44'),
+    ('CMake', '4.0.3'),
+    ('Doxygen', '1.14.0'),
+]
+dependencies = [
+    ('Blosc', '1.21.6'),
+    ('bzip2', '1.0.8'),
+    ('cURL', '8.14.1'),
+    ('HDF5', '1.14.6', '-serial'),
+    ('HDF5-plugins', '1.14.6'),
+    ('libxml2', '2.14.3'),
+    ('Szip', '2.1.1'),
+    ('zstd', '1.5.7'),
+]
+
+# # disable Szip, zlib parallel I/O tests, since these can hang on some systems, e.g. generoso
+# # see: https://github.com/easybuilders/easybuild-easyconfigs/pull/16834
+# # and  https://github.com/easybuilders/easybuild-easyconfigs/pull/17107#issuecomment-1432947172
+# preconfigopts = (
+#     "sed -i"
+#     " -e 's|@MPIEXEC@ -n 4 ./tst_parallel5|echo \"skipped by EasyBuild\"|g'"
+#     " -e 's|@MPIEXEC@ -n 4 ./tst_parallel_zlib|echo \"skipped by EasyBuild\"|g'"
+#     " -e 's|@MPIEXEC@ -n 4 ./tst_parallel_compress|echo \"skipped by EasyBuild\"|g'"
+#     # disable check for H5 plugins
+#     " -e '10,23d'"
+#     " %(builddir)s/%(namelower)s-c-%(version)s/nc_test4/run_par_test.sh.in &&"
+# )
+
+# make sure both static and shared libs are built
+# and disable "remote" tests that access a unreliable external test server over internet
+# enable nczarr
+# specify directory for plugins
+configopts = [
+    "-DENABLE_NCZARR=ON -DPLUGIN_INSTALL_DIR='%(installdir)s/lib' \
+     -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=OFF",
+    "-DENABLE_NCZARR=ON -DPLUGIN_INSTALL_DIR='%(installdir)s/lib' \
+     -DENABLE_DAP_REMOTE_TESTS=OFF -DBUILD_SHARED_LIBS=ON",
+]
+
+# set HDF5_PLUGIN_PATH to netCDF interface libraries
+modextravars = {
+    'HDF5_PLUGIN_PATH': '%(installdir)s/lib/',
+}
+
+# some tests try to start 16 MPI ranks, so we need to allow oversubscription to avoid failing tests
+pretestopts = "PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe "
+runtest = 'test'
+
+moduleclass = 'data'

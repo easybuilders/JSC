@@ -1,0 +1,13 @@
+Fix data type.
+
+--- src/interface/filesel.c_bak	2025-10-08 15:03:06.813261000 +0200
++++ src/interface/filesel.c	2025-10-08 15:03:32.961317199 +0200
+@@ -241,7 +241,7 @@
+ 			fprintf( stderr, "Error when trying to chdir to %s\n", highlited_entry->string );
+ 		fs_get_file_dir_list( &files_and_dirs );
+ 		XawListChange( fs_list_widget, 
+-			(_Xconst char **)stringlist_to_Xawlist( files_and_dirs ),
++			(char **)stringlist_to_Xawlist( files_and_dirs ),
+ 			0, 0, False );
+ 		XtVaSetValues( fs_pathname_text_widget, 
+ 			XtNstring, fs_cwd(), NULL );

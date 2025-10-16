@@ -77,18 +77,17 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         Default implementation checks via a strict regex pattern, and assumes short module names are of the form:
             <name>/<version>[-<toolchain>]
         """
-        # We rename our iccifort compiler to INTEL and this needs a hard fix because it is a toolchain
-        self.log.debug("Checking whether '%s' is a module name for software with name '%s'",
-                       short_modname, name)
-
         res = False
 
         # Direct mapping of short_modname to name
         mapping = {
             'intel-compilers': 'Intel',
             'iccifort': 'Intel',
+            'Intel': 'intel-compilers',
             'psmpi': 'ParaStationMPI',
+            'ParaStationMPI': 'psmpi',
             'impi': 'IntelMPI',
+            'IntelMPI': 'impi',
             'LWP-settings': 'LWP',
         }
 
@@ -101,6 +100,9 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
         if versionless_short_modname == 'MPI-settings':
             settings_name = name.split('-settings')[0]
             res = res or bool(settings_name in MPI_WITH_SETTINGS)
+
+        self.log.debug("Checking whether '%s' is a module name for software with name '%s': %s",
+                       versionless_short_modname, name, res)
 
         # Generic mapping
         return res or super(FlexibleCustomHierarchicalMNS, self).is_short_modname_for(short_modname, name)

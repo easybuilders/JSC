@@ -1,0 +1,24 @@
+Comment out logging since we do not enable logging with netCDF. Actually this
+error is considered solved: https://github.com/Unidata/netcdf-c/issues/341
+but still present: https://github.com/Unidata/netcdf-cxx4/issues/166
+
+--- examples/pres_temp_4D_plugin_wr.cpp.orig	2025-10-08 17:01:17.952763000 +0200
++++ examples/pres_temp_4D_plugin_wr.cpp	2025-10-08 17:02:00.910995000 +0200
+@@ -71,7 +71,7 @@
+ 
+ int main()
+ {
+-  nc_set_log_level(5);
++  // nc_set_log_level(5);
+   // We will write latitude and longitude fields.
+    float lats[NLAT],lons[NLON];
+ 
+@@ -103,7 +103,7 @@
+ 
+       // Create the file.
+       NcFile test(FILE_NAME, NcFile::replace);
+-      nc_set_log_level(5);
++      // nc_set_log_level(5);
+       // Define the dimensions. NetCDF will hand back an ncDim object for
+       // each.
+       NcDim lvlDim = test.addDim(LVL_NAME, NLVL);

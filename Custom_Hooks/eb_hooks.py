@@ -65,28 +65,28 @@ VETOED_INSTALLATIONS = {
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
-        'VTune'
+        'VTune', 'intel-XED', 'intel-mbuild',
     ],
     'jureca_gh': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
-        'VTune'
+        'VTune', 'intel-XED', 'intel-mbuild',
     ],
     'jupiter': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
-        'VTune'
+        'VTune', 'intel-XED', 'intel-mbuild',
     ],
     'jedi': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
-        'VTune'
+        'VTune', 'intel-XED', 'intel-mbuild'
     ],
     'jurecadc': ['NVPL'],
     'jurecabooster': [
@@ -135,12 +135,12 @@ TWEAKABLE_DEPENDENCIES = {
     # 'Boost': '1.78.0',
     # 'Boost.Python': '1.78.0',
     'CUDA': '13',
-    'glu': ('OpenGL', '2025b'),
-    'glew': ('OpenGL', '2025b'),
-    'libglvnd': ('OpenGL', '2025b'),
+    'glu': ('OpenGL', '2025.09'),
+    'glew': ('OpenGL', '2025.09'),
+    'libglvnd': ('OpenGL', '2025.09'),
     # 'libxc': '5.1.7',
-    'libGLU': ('OpenGL', '2025b'),
-    'Mesa': ('OpenGL', '2025b'),
+    'libGLU': ('OpenGL', '2025.09'),
+    'Mesa': ('OpenGL', '2025.09'),
     'NCCL': 'default',
     'pkg-config': ('pkgconf', '2.4.3'),
     'UCC': 'default',
@@ -384,13 +384,6 @@ def tweak_clang(ec):
 
     # Add CUDA as dependency, so the Clang easyblock enables NVPTX as target
     ec['dependencies'].append(('CUDA', combined_tweakable_deps['CUDA'], '', {'name': 'system', 'version': 'system'}))
-
-    # We pick the max CC. The easyblock picks the minimum by default. In our setup
-    # that does not make sense, since the GPUs with the minimum CC are used just
-    # in a handful of nodes used for visualization, which is not the target audience
-    # for Clang
-    ec['default_cuda_capability'] = max(build_option('cuda_compute_capabilities'))
-
     return ec
 
 def tweak_dependencies(ec):

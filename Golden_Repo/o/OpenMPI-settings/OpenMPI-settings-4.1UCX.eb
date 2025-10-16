@@ -34,6 +34,9 @@ modextravars = {
     # OMPIO does not seem to work reliably on our system
     'OMPI_MCA_io': 'romio321',
     'ROMIO_FSTYPE_FORCE': 'ufs:',
+    # Workaround for "PSI: doSpawn: spawn to node XXXX failed". To be removed probably after the next psmgmt update
+    'PSPMIX_ENV_TMOUT': '20',
+
 }
 
 moduleclass = 'system'

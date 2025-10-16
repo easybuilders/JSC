@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Clang'
+version = '20.1.8'
+
+homepage = 'https://clang.llvm.org/'
+description = """C, C++, Objective-C compiler, based on LLVM.
+ This is a wrapper module for LLVM."""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+dependencies = [
+    ('binutils', '2.44'),
+    ('LLVM', '20.1.8'),
+]
+
+skipsteps = ['sanitycheck']
+
+sanity_check_paths = {
+    'files': [''],
+    'dirs': [''],
+}
+
+moduleclass = 'compiler'

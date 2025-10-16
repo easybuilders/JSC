@@ -1,0 +1,13 @@
+Fix data type.
+
+--- hdf5_plugins-1.14/JPEG/src/H5Zjpeg.c.orig	2025-09-26 10:33:39.285220000 +0200
++++ hdf5_plugins-1.14/JPEG/src/H5Zjpeg.c	2025-09-26 10:33:54.336419881 +0200
+@@ -253,7 +253,7 @@
+           PUSH_ERR("jpeg_h5_filter", H5E_CALLBACK, "Could not initialize JPEG compression object.");
+           goto failed;
+         }
+-        jpegInfo.err = jpeg_std_error(&jpegErr);
++        jpegInfo.err = jpeg_std_error(&jpegErr.pub);
+         /* Now we can initialize the JPEG compression object. */
+         jpeg_create_compress(&jpegInfo);
+ 

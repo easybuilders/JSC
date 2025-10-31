@@ -26,6 +26,8 @@ builddependencies = [
 
 dependencies = [
     ('Python', '3.12.3'),
+    ('mpi4py', '4.0.1'),  # for mpi-support in Python
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),  # numpy needed for mpi-support in Python
     ('Conduit', '0.9.3'),
     ('camp', '2024.07.0'),
     ('RAJA', '2024.07.0'),

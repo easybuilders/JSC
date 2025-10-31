@@ -22,6 +22,7 @@ dependencies = [
 
     # Jupyter kernels
     ('JupyterKernel-EBrains', '24.04', '-' + local_jupyterver),
+    ('JupyterKernel-VirtualBrainTwin', '25.07', '-' + local_jupyterver),
 
     # Jupyter proxies
     ('JupyterProxy-NESTDesktop', '0.4.0'),

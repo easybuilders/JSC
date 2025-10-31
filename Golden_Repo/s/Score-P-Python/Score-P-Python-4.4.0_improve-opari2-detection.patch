@@ -1,0 +1,58 @@
+From 7bdcd74e2495b5484cf9505e032a468971d64291 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jan=20Andr=C3=A9=20Reuter?= <j.reuter@fz-juelich.de>
+Date: Tue, 29 Jul 2025 19:06:53 +0200
+Subject: [PATCH] Adapt OPARI2 check for Score-P v9.0+
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Since Score-P v9.0, applications using OPARI2 as their OpenMP backend do
+not link "scorep_adapter_opari2_mgmt" anymore. To still handle OpenMP
+correctly, also check for "scorep_adapter_opari2_openmp_mgmt" and
+"scorep_adapter_opari2_user_mgmt"
+
+Signed-off-by: Jan André Reuter <j.reuter@fz-juelich.de>
+---
+ scorep/subsystem.py | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/scorep/subsystem.py b/scorep/subsystem.py
+index e359aa6..ec0520e 100644
+--- a/scorep/subsystem.py
++++ b/scorep/subsystem.py
+@@ -52,7 +52,7 @@ def generate_subsystem_code(config):
+ def generate(scorep_config, keep_files=False):
+     """
+     Uses the scorep_config to compile the scorep subsystem.
+-    Returns the name of the compiled subsystem, and the path the the temp folder, where the lib is located
++    Returns the name of the compiled subsystem, and the path of the temp folder, where the lib is located
+ 
+     @param scorep_config scorep configuration to build subsystem
+     @param keep_files whether to keep the generated files, or not.
+@@ -61,7 +61,13 @@ def generate(scorep_config, keep_files=False):
+     (include, lib, lib_dir, macro,
+      linker_flags_tmp) = scorep.helper.generate_compile_deps(scorep_config)
+     scorep_adapter_init = generate_subsystem_code(scorep_config)
+-    if ("-lscorep_adapter_opari2_mgmt" in lib):
++    # scorep_adapter_opari2_mgmt: Score-P v8.4 and lower
++    # scorep_adapter_opari2_{openmp,user}_mgmt: Score-P v9.0 and newer
++    if any(libname in lib for libname in [
++        "-lscorep_adapter_opari2_mgmt",
++        "-lscorep_adapter_opari2_openmp_mgmt",
++        "-lscorep_adapter_opari2_user_mgmt"
++    ]):
+         scorep_adapter_init += "\n"
+         scorep_adapter_init += "/* OPARI dependencies */\n"
+         scorep_adapter_init += "void POMP2_Init_regions(){}\n"
+@@ -69,9 +75,9 @@ def generate(scorep_config, keep_files=False):
+         scorep_adapter_init += "void POMP2_USER_Init_regions(){};\n"
+         scorep_adapter_init += "size_t POMP2_USER_Get_num_regions(){return 0;};\n"
+ 
+-    # add -Wl,-no-as-needed to tell the compiler that we really want to link these. Actually this sould be default.
++    # add -Wl,-no-as-needed to tell the compiler that we really want to link these. Actually this should be default.
+     # as distutils adds extra args at the very end we need to add all the libs
+-    # after this and skipt the libs later in the extension module
++    # after this and skip the libs later in the extension module
+     linker_flags = ["-Wl,-no-as-needed"]
+     linker_flags.extend(lib)
+     linker_flags.extend(linker_flags_tmp)

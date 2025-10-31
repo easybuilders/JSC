@@ -40,6 +40,7 @@ import os
 import easybuild.tools.environment as env
 from easybuild.framework.easyblock import EasyBlock
 from easybuild.framework.easyconfig import CUSTOM
+from easybuild.framework.easyconfig.default import DEFAULT_CONFIG
 from easybuild.framework.easyconfig.easyconfig import get_easyblock_class
 from easybuild.tools.build_log import EasyBuildError, print_msg
 from easybuild.tools.modules import get_software_root, get_software_version
@@ -121,8 +122,21 @@ class Bundle(EasyBlock):
             comp_cfg['name'] = comp_name
             comp_cfg['version'] = comp_version
 
+            # The copy above may include unexpected settings for common values.
+            # In particular for a Pythonbundle we have seen a component inheriting
+            #  runtest = True
+            # which is not a valid value for many easyblocks.
+            # Reset runtest to the original default, if people want the test step
+            # they can set it explicitly, in default_component_specs or by the component easyblock
+            if comp_cfg._config['runtest'] != DEFAULT_CONFIG["runtest"]:
+                self.log.warning(
+                    "Resetting runtest to default value for component easyblock "
+                    f"(from {comp_cfg._config['runtest']})."
+                    )
+                comp_cfg._config['runtest'] = DEFAULT_CONFIG["runtest"]
+
             # determine easyblock to use for this component
-            # - if an easyblock is specified explicitely, that will be used
+            # - if an easyblock is specified explicitly, that will be used
             # - if not, a software-specific easyblock will be considered by get_easyblock_class
             # - if no easyblock was found, default_easyblock is considered
             comp_easyblock = comp_specs.get('easyblock')
@@ -300,7 +314,7 @@ class Bundle(EasyBlock):
                 self.comp_cfgs_sanity_check.append(comp)
 
             # run relevant steps
-            for step_name in ['patch', 'configure', 'build', 'install']:
+            for step_name in ['patch', 'configure', 'build', 'test', 'install']:
                 if step_name in cfg['skipsteps']:
                     comp.log.info("Skipping '%s' step for component %s v%s", step_name, cfg['name'], cfg['version'])
                 else:

@@ -175,7 +175,10 @@ if mode()=="load" then
                 "  - Allowing searching of distribution easyconfigs (EASYBUILD_SEARCH_PATHS)\n"..
                 "  - To keep module view clean, hiding some dependencies (EASYBUILD_HIDE_DEPS)\n"..
                 "  - Using JSC EasyBuild hooks (EASYBUILD_HOOKS)\n"..
-                "  - Setting module classes to include side compilers (EASYBUILD_MOODULECLASSES)\n")
+                "  - Setting module classes to include side compilers (EASYBUILD_MOODULECLASSES)")
+    if (convertToCanonical(stage) > convertToCanonical("2025") ) then
+        LmodMessage("  - Disable RPATH (EASYBUILD_DISABLE_RPATH)")
+    end
 end
 
 -- Unload some modules for convenience
@@ -248,7 +251,7 @@ elseif systemname == "jureca_arm" then
     optarch = ""
     cuda_compute = "8.0"
 -- JURECA-GH or JEDI
-elseif systemname == "jureca_gh" or systemname == "jedi" then
+elseif systemname == "jureca_gh" or systemname == "jedi" or systemname == "jupiter" then
     optarch = "GCC:mcpu=native"
     cuda_compute = "9.0"
 -- JURECA-SPR
@@ -372,6 +375,11 @@ setenv("EASYBUILD_MINIMAL_TOOLCHAINS", "1")
 -- multiple exist, the picked up one depends on the order of the paths in MODULEPATH (typically, toolchains higher in
 -- the hierarchy will have "preference")
 setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
+
+-- Disable RPATH on EasyBuild 5+
+if (convertToCanonical(stage) > convertToCanonical("2025") ) then
+    setenv("EASYBUILD_DISABLE_RPATH", "True")
+end
 
 -- Filter for test reports
 setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", ".*PS1.*|PROMPT.*|.*LICENSE.*|.*PROJECT.*|.*DATA.*|.*FASTDATA.*|.*SCRATCH.*|.*IMESCRATCH.*|.*HOME.*|.*ARCHIVE.*|.*LOGNAME.*|^SSH|USER|HOSTNAME|UID|.*COOKIE.*")

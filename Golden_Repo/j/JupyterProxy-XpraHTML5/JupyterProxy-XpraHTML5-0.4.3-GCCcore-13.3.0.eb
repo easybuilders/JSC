@@ -17,7 +17,7 @@ toolchainopts = {'pic': True}
 builddependencies = [
     ('binutils', '2.42'),
     # check for existance
-    ('xpra', '5.0.12'),
+    ('xpra', '6.3.4'),
     ('jsc-xdg-menu', '2025.2'),
 ]
 
@@ -50,7 +50,7 @@ postinstallcmds = [
         'module purge \n'
         'module load Stages/${STAGE} \n'
         'module load GCCcore/.13.3.0 \n'
-        'module load xpra/5.0.12 \n'
+        'module load xpra \n'
         'module load jsc-xdg-menu/.2025.2 \n'
         '\n'
         '# xterm should be part of the module Xvfb which is loaded by xpra\n'
@@ -59,7 +59,7 @@ postinstallcmds = [
         '    echo "xterm not found " \n'
         'fi \n'
         '\n'
-        'xpra "\$@" \n'
+        'xpra "\\$@" \n'
         '\n'
         'EOF'
     ),

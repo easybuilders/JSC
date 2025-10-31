@@ -55,7 +55,7 @@ local systemname = capture("cat /etc/FZJ/systemname")
 --Sanitize systemname
 systemname = string.gsub(systemname, "\\n", "")
 if systemname == "jupiter" then
-    setenv("SLURM_MPI_TYPE", "pmix_v3")
+    setenv("SLURM_MPI_TYPE", "pmix_v5")
 else
     setenv("SLURM_MPI_TYPE", "pspmix")
 end

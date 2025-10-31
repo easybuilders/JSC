@@ -1,0 +1,72 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'NEURON'
+version = '8.2.7'
+
+homepage = 'https://www.neuron.yale.edu/neuron'
+description = """Empirically-based simulations of neurons and networks of neurons."""
+
+toolchain = {'name': 'gpsfbf', 'version': '2024a'}
+
+source_urls = ['https://github.com/neuronsimulator/nrn/releases/download/%(version)s/']
+sources = ['nrn-full-src-package-%(version)s.tar.gz']
+checksums = ['6f3382f4e46cedc9eb5980231105d8214a2fd3f5468b6ac3dde0f822c2ac9e0b']
+
+builddependencies = [
+    ('CMake', '3.30.3'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.8.2'),
+    ('Python', '3.12.3'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Python-bundle-PyPI', '2024.06'),
+    ('PyYAML', '6.0.2'),
+    ('X11', '20240607'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+]
+
+configopts = '-DNRN_ENABLE_PYTHON=ON '
+configopts += '-DNRN_PYTHON_DYNAMIC=OFF '
+configopts += '-DPython_ROOT_DIR="$EBROOTPYTHON" '
+configopts += '-DPYTHON_EXECUTABLE=$(which python3) '
+configopts += '-DNRN_ENABLE_INTERVIEWS=OFF '
+configopts += '-DNRN_ENABLE_MPI=ON '
+configopts += '-DNRN_ENABLE_CORENEURON=ON '
+configopts += '-DCORENRN_ENABLE_OPENMP=ON '
+configopts += '-DCORENRN_ENABLE_GPU=OFF '
+configopts += '-DCMAKE_BUILD_TYPE=Release '
+
+sanity_check_paths = {
+    'files': [
+        'bin/neurondemo',
+        'bin/nrngui',
+        'bin/nrniv',
+        'bin/nrnivmodl',
+        'bin/nocmodl',
+        'bin/modlunit',
+        'bin/nrnmech_makefile',
+        'bin/mkthreadsafe',
+        'bin/nrnpyenv.sh',
+        'bin/set_nrnpyenv.sh',
+        'bin/sortspike',
+        'lib/libnrniv.so',
+        'lib/librxdmath.so'
+    ],
+    'dirs': [
+        'include/%(namelower)s',
+        'lib/python/neuron',
+    ],
+}
+
+sanity_check_commands = [
+    'python3 -c "import neuron; print(neuron.__version__)"',
+]
+
+modextrapaths = {
+    'PYTHONPATH': 'lib/python',
+}
+
+moduleclass = 'bio'

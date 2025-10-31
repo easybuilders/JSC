@@ -1,0 +1,239 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-VirtualBrainTwin'
+version = '25.07'
+local_jupyterver = '4.3.4'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.virtualbraintwin.eu'
+description = """
+Special Virtual-Brain-Twin kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.42'),
+    # ('mpi4py', '4.0.1'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),  # numpy, matplotlib
+    ('Python-bundle-PyPI', '2024.06'),
+    ('numba', '0.60.0'),
+    ('GSL', '2.8'),
+    ('Boost', '1.86.0'),
+    ('CMake', '3.30.3'),
+    ('jemalloc', '5.3.0'),
+    ('Autotools', '20231222'),
+    ('GitPython', '3.1.43'),
+    ('sympy', '1.13.3', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('scikit-learn', '1.5.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('scikit-image', '0.25.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('pydantic', '2.9.1'),
+    # ('h5py', '3.12.1'),
+    ('ipyparallel', '9.0.0'),
+    ('plotly.py', '5.24.1'),
+    ('SQLAlchemy', '2.0.36'),
+    ('ipycanvas', '0.13.3'),
+    ('k3d', '2.16.1'),
+    ('ipycanvas', '0.13.3'),
+    ('ruamel.yaml', '0.18.6'),
+    ('Markdown', '3.7'),
+    ('Flask', '3.0.3'),
+    ('tvb-ext-bucket', '2.0.1'),
+    ('tvb-ext-xircuits', '2.0.1'),
+]
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('jupyter-server', '2.15.0'),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-64x64.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-128x128.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+        ],
+        'checksums': [
+            {'logo-32x32.png': '9f106482022b9f664a9c2f99298e0104a3decee1d2a2173bd8a4452bdd783eda'},
+            {'logo-64x64.png': 'b5d29ea641f51614c237a40f61a678eac47b5b87c0102e86c0e94bee957f1ce3'},
+            {'logo-128x128.png': '82f71d1c1a5712b533847c770f73e7de437d3975d5635d3819e3320f8db90487'},
+        ]
+    }),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+]
+
+local_kernel_dir = 'virtualbraintwin'
+local_kernel_name = 'virtualbraintwin-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+    # create the kernel's virtual environment
+    (
+        'module purge && '
+        'module load Stages/2025 && '
+        'module load GCC && '
+        'module load Python && '
+        'module load jupyter-server && '
+        ''
+        # Load extra modules you need for your kernel
+        'module load ParaStationMPI && '
+        'module load mpi4py && '
+        ''
+        'module load SciPy-bundle/2024.05  && '
+        'module load Python-bundle-PyPI/2024.06 && '
+        'module load numba && '
+        'module load GSL && '
+        'module load Boost && '
+        ''
+        'module load CMake && '
+        'module load jemalloc && '
+        'module load Autotools && '
+        ''
+        'module load GitPython && '
+        'module load sympy && '
+        'module load scikit-learn && '
+        'module load scikit-image && '
+        'module load pydantic && '
+        'module load h5py && '
+        'module load ipyparallel/.9.0.0  && '
+        'module load plotly.py && '
+        'module load SQLAlchemy && '
+        'module load ipycanvas && '
+        'module load k3d && '
+        'module load ruamel.yaml && '
+        'module load Markdown && '
+        'module load Flask && '
+        ''
+        'module load tvb-ext-bucket && '
+        'module load tvb-ext-xircuits && '
+        ''
+        #  Create and activate a virtual environment for the kernel
+        'python -m venv --system-site-packages %(installdir)s/venv && '
+        'source %(installdir)s/venv/bin/activate && '
+        'export PYTHONPATH=%(installdir)s/venv/lib/python%(pyshortver)s/site-packages:${PYTHONPATH} && '
+        ''
+        # Install whatever else you need in your Python virtual environment (using pip)
+        'pip install Brian2 bsb bsb-nest bsb-neuron bsb-arbor bsb[parallel] && '
+        'pip install snudda tvb-framework siibra tvb-gdist tvb-widgets gpflow '
+    ),
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge\n'
+        'module load Stages/2025\n'
+        'module load GCC\n'
+        'module load Python\n'
+        'module load jupyter-server\n'
+        '\n'
+        'module load ParaStationMPI\n'
+        'module load mpi4py\n'
+        '\n'
+        'module load SciPy-bundle/2024.05  # numpy, matplotlib\n'
+        'module load Python-bundle-PyPI/2024.06\n'
+        'module load numba\n'
+        'module load GSL\n'
+        'module load Boost\n'
+        '\n'
+        'module load CMake\n'
+        'module load jemalloc\n'
+        'module load Autotools\n'
+        '\n'
+        'module load GitPython\n'
+        'module load sympy\n'
+        'module load scikit-learn\n'
+        'module load scikit-image\n'
+        'module load pydantic\n'
+        'module load h5py\n'
+        'module load ipyparallel/.9.0.0\n'
+        'module load plotly.py\n'
+        'module load SQLAlchemy\n'
+        'module load ipycanvas\n'
+        'module load k3d\n'
+        'module load ruamel.yaml\n'
+        'module load Markdown\n'
+        'module load Flask\n'
+        '\n'
+        'module load tvb-ext-bucket\n'
+        'module load tvb-ext-xircuits\n'
+        '\n'
+        '# Activate your Python virtual environment\n'
+        'source %%(installdir)s/venv/bin/activate\n'
+        '\n'
+        '# Ensure python packages installed in the virtual environment are always prefered\n'
+        'export PYTHONPATH=%%(installdir)s/venv/lib/python%%(pyshortver)s/site-packages:\\${PYTHONPATH}\n'
+        '\n'
+        'exec python -Xfrozen_modules=off -m ipykernel \\$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

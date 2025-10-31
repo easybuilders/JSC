@@ -1,0 +1,17 @@
+diff -Naur xpra-6.2.2.orig/xpra/scripts/config.py xpra-6.2.2/xpra/scripts/config.py
+--- xpra-6.2.2.orig/xpra/scripts/config.py      2024-12-12 07:05:25.000000000 +0100
++++ xpra-6.2.2/xpra/scripts/config.py   2025-02-12 18:09:12.255797711 +0100
+@@ -122,6 +122,13 @@
+     xorg = os.environ.get("XPRA_XORG_BIN")
+     if xorg:
+         return xorg
++
++    #look for it in $PATH:
++    for x in os.environ.get("PATH").split(os.pathsep): # pragma: no cover
++        xorg = os.path.join(x, "Xorg")
++        if os.path.isfile(xorg):
++            return xorg
++
+     # Detect Xorg Binary
+     if is_arm() and is_DEB() and os.path.exists("/usr/bin/Xorg"):
+         # Raspbian breaks if we use a different binary..

@@ -12,7 +12,7 @@ homepage = 'https://www.fz-juelich.de'
 description = """
 Kernel for quantum computing in Jupyter.
 Project Jupyter exists to develop open-source software, open-standards, and services for interactive computing across
-dozens of programming languages.
+dozens of programming languages
 """
 
 toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
@@ -25,7 +25,7 @@ builddependencies = [
     ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('ParityOS', '2.6.0'),
     ('qutip', '5.0.4'),
-    ('pulser', '1.3.0'),
+    ('pulser', '1.5.5'),
     ('PyQuil', '4.16.2'),
     ('Cirq', '1.5.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
     ('DWave', '8.0.1'),
@@ -112,7 +112,7 @@ postinstallcmds = [
         'module load matplotlib/3.9.2 \n'
         'module load ParityOS/2.6.0 \n'
         'module load qutip/5.0.4 \n'
-        'module load pulser/1.3.0 \n'
+        'module load pulser/1.5.5 \n'
         'module load PyQuil/4.16.2 \n'
         'module load Cirq/1.5.0 \n'
         'module load DWave/8.0.1 \n'

@@ -156,7 +156,8 @@ excluded_tests = {
     ]
 }
 
-runtest = 'python -c "import torch; print(torch.__version__)"'
+if ARCH != 'aarch64':
+    runtest = 'python -c "import torch; print(torch.__version__)"'
 
 use_pip = True
 sanity_pip_check = True

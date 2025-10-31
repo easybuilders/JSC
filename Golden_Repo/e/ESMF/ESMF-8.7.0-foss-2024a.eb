@@ -27,6 +27,19 @@ dependencies = [
     ('libarchive', '3.7.4'),
 ]
 
+# ESMF ignores xxFLAGS
+preconfigopts = 'export ESMF_BOPT="O" && '
+preconfigopts += 'export ESMF_OPTLEVEL="2" && '
+preconfigopts += 'export ESMF_PNETCDF="standard && '
+preconfigopts += 'export ESMF_PNETCDF_INCLUDE=$EBROOTPNETCDF/include && '
+preconfigopts += 'export ESMF_PNETCDF_LIBPATH=$EBROOTPNETCDF/lib && '
+preconfigopts += 'export ESMF_PNETCDF_LIBS=-lpnetcdf && '
+
+preinstallopts = 'export ESMF_NETCDF_LIBS="$ESMF_NETCDF_LIBS -L${PNETCDF}/lib -lpnetcdf" &&'
+preinstallopts += 'export ESMF_PNETCDF_INCLUDE=$EBROOTPNETCDF/include && '
+preinstallopts += 'export ESMF_PNETCDF_LIBPATH=$EBROOTPNETCDF/lib && '
+preinstallopts += 'export ESMF_PNETCDF_LIBS=-lpnetcdf && '
+
 # disable errors from GCC 10 on mismatches between actual and dummy argument lists (GCC 9 behaviour)
 prebuildopts = 'ESMF_F90COMPILEOPTS="${ESMF_F90COMPILEOPTS} -fallow-argument-mismatch"'
 

@@ -35,6 +35,8 @@ dependencies = [
     ('PDM', '2.18.2'),
     ('PyYAML', '6.0.2'),
     ('uv', '0.7.4'),
+    # required for qoqo_myqlm:
+    ('myqlm', '1.11.2'),
 ]
 
 crates = [
@@ -908,70 +910,6 @@ local_arch = {
     'x86_64':  'x86_64'
 }
 
-local_noise_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_noise_download_path += 'sources/q/qoqo-quest/extensions/'
-local_noise_download_path += 'hqs_noise_app_py-0.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_qltr_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_qltr_download_path += 'sources/q/qoqo-quest/extensions/'
-local_qltr_download_path += 'hqs_qorrelator_app_py-0.8.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_stage_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_stage_download_path += 'sources/q/qoqo-quest/extensions/'
-local_stage_download_path += 'hqstage-0.8.8-py3-none-any.whl'
-
-local_bath_fitter_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_bath_fitter_download_path += 'sources/q/qoqo-quest/extensions/'
-local_bath_fitter_download_path += 'bath_fitter-0.4.0-py3-none-any.whl'
-
-local_pyqonv_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_pyqonv_download_path += 'sources/q/qoqo-quest/extensions/'
-local_pyqonv_download_path += 'pyqonvert-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_latfunc_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_latfunc_download_path += 'sources/q/qoqo-quest/extensions/'
-local_latfunc_download_path += 'lattice_functions-0.46.1-cp312-cp312-linux_x86_64.whl'
-
-local_hqstyle_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_hqstyle_download_path += 'sources/q/qoqo-quest/extensions/'
-local_hqstyle_download_path += 'HQStyle-0.2.8-py3-none-any.whl'
-
-local_qlibraries_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_qlibraries_download_path += 'sources/q/qoqo-quest/extensions/'
-local_qlibraries_download_path += 'hqs_quantum_libraries-0.2.0-py3-none-any.whl'
-
-local_bathmap_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_bathmap_download_path += 'sources/q/qoqo-quest/extensions/'
-local_bathmap_download_path += 'bath_mapper_py-0.16.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_noisemap_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_noisemap_download_path += 'sources/q/qoqo-quest/extensions/'
-local_noisemap_download_path += 'noise_mapper_py-0.13.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_alqorithms_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_alqorithms_download_path += 'sources/q/qoqo-quest/extensions/'
-local_alqorithms_download_path += 'py_alqorithms-0.23.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_latval_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_latval_download_path += 'sources/q/qoqo-quest/extensions/'
-local_latval_download_path += 'lattice_validator-1.2.1-py3-none-any.whl'
-
-local_crystools_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_crystools_download_path += 'sources/q/qoqo-quest/extensions/'
-local_crystools_download_path += 'crystal_tools-0.6.0-py3-none-any.whl'
-
-local_pyqonv_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_pyqonv_download_path += 'sources/q/qoqo-quest/extensions/'
-local_pyqonv_download_path += 'pyqonvert-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl'
-
-local_latbuild_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_latbuild_download_path += 'sources/q/qoqo-quest/extensions/'
-local_latbuild_download_path += 'lattice_builder-1.5.0-py3-none-any.whl'
-
-local_spinmap_download_path = '/p/project1/cslqip/easybuild/jurecadc/'
-local_spinmap_download_path += 'sources/q/qoqo-quest/extensions/'
-local_spinmap_download_path += 'hqs_spin_mapper-0.9.1-cp312-cp312-manylinux_2_28_x86_64.whl'
-
 sanity_pip_check = True
 
 exts_default_options = {
@@ -981,6 +919,7 @@ exts_default_options = {
     'use_pip_for_deps': False,
 }
 
+# No 'local_download_path'. Move files to swmanage global directory for qoqo-quest (best practices).
 exts_list = [
     ('py-machineid', '0.7.0', {
         'modulename': 'machineid',
@@ -1015,7 +954,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_noisemap_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['2dabec04a0f4a00737363f142638c07eb17b1df9fb1579ef9f53fe3c56e0d19e'],
     }),
@@ -1023,7 +961,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_alqorithms_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['17ec02ed70539d3c4794ab729b5463aabe4257ee403fd3da1de7258f2005f668'],
     }),
@@ -1034,7 +971,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_latfunc_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-linux_x86_64.whl',
         'checksums': ['78522089be2eb3ef3fcd152bec9f53ef4467da9d667ea97d51ca858240b1cd71'],
     }),
@@ -1056,7 +992,6 @@ exts_list = [
     ('lattice_validator', '1.2.1', {
         # No .tar.gz in HQS repository
         'modulename': 'lattice_validator',
-        'download_instructions': "Download via %s" % local_latval_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['c560bd73f68856398345b903940ba6967037b7b51688d7e42d8d340e3238814e'],
     }),
@@ -1089,7 +1024,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': 'crystal_tools',
-        'download_instructions': "Download via %s" % local_crystools_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['e559c332c5db8b8260a4eeb193b3f8388c4cfb583d41fb3843bf9cf0368c7ee4'],
     }),
@@ -1100,7 +1034,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_pyqonv_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['d922f406481402d4460f900ad087336820514ec013e9d53a8f36f83ea7a4b6d9'],
     }),
@@ -1110,7 +1043,6 @@ exts_list = [
     }),
     ('lattice_builder', '1.5.0', {
         # No .tar.gz in HQS repository
-        'download_instructions': "Download via %s" % local_latbuild_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['d874d75326a00d8bebfd76b3c24ef0662d9360eb77924f5aced82db4ee6e7ad0'],
     }),
@@ -1118,7 +1050,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_qltr_download_path,
         'source_tmpl': 'hqs_qorrelator_app_py-0.12.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['0f9772feeca3b04d65a5249e1c89cd44b62ba538dda146e502360ad00aab9619'],
     }),
@@ -1126,7 +1057,6 @@ exts_list = [
         'checksums': ['b629cc8ae916e3afbd36d1b3d093f34193d851e11998920fdcfc4552218b7b70'],
     }),
     ('hqstage', '0.8.8', {
-        'download_instructions': "Download via %s" % local_stage_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['6dcbe9b1ec58e0ed8397473bc8529a5c403e2e104d7310319189d21550e49782'],
         'preinstallopts': 'module load uv/0.7.4 && ',
@@ -1138,7 +1068,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_spinmap_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_28_x86_64.whl',
         'checksums': ['b68c17d405bb29572af3ccffcc7e1ad6a998bb0f58b8245a22f1c018c43a5e31'],
     }),
@@ -1149,7 +1078,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_bath_fitter_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['f6f29cdf4d855b40505903ceb4cc1c8d1183630f0dec03a4b2294276298e1ff3'],
     }),
@@ -1157,7 +1085,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_bathmap_download_path,
         'source_tmpl': '%(name)s_py-%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['35063046e913b2f4c12d6a6842d35996b32a87c4e99c6fd92357f4151114419b'],
     }),
@@ -1165,7 +1092,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_qlibraries_download_path,
         'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
         'checksums': ['192eeae330eac358c71eb4bd6d9531c8e318fcdca93f8a4a80bde9e2c2b85be7'],
     }),
@@ -1173,7 +1099,6 @@ exts_list = [
         # No .tar.gz in HQS repository
         # Requires hqstage init to run the module which requires login first
         'modulename': False,
-        'download_instructions': "Download via %s" % local_noise_download_path,
         'source_tmpl': '%(name)s-%(version)s-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
         'checksums': ['96810fbb451807d04b6183f99ad13974e6dbbafdd05508ade72c48b2acf1272e'],
     }),
@@ -1187,7 +1112,15 @@ exts_list = [
     ('qoqo_qiskit', '0.10.1', {
         'checksums': ['017dd3306125f80575c875bca8c1afa273a7160be50fef5170982e69bb987d4f'],
     }),
+    # myqlm-qoqo binding:
+    ('qoqo_myqlm', '0.3.0', {
+        'checksums': ['eaf92acfecfe880818073f733e75aed9b473f7371795ddb83025e363b6c5cfe0'],
+    }),
 ]
+
+modextrapaths = {
+    'LD_LIBRARY_PATH': 'lib/python%(pyshortver)s/site-packages/lattice_functions_external.libs/',
+}
 
 sanity_check_paths = {
     'files': [

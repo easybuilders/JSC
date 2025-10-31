@@ -3,7 +3,7 @@ easyblock = 'ConfigureMake'
 
 name = 'UCX'
 version = 'default'
-local_realversion = '1.17.0'
+local_realversion = '1.18.1'
 
 homepage = 'https://www.openucx.org/'
 description = f"""Unified Communication X
@@ -17,7 +17,9 @@ toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
 toolchainopts = {'pic': True}
 source_urls = [f'https://github.com/openucx/ucx/releases/download/v{local_realversion}']
 sources = ['%%(namelower)s-%s.tar.gz' % local_realversion.split("-")[0]]
-checksums = ['34658e282f99f89ce7a991c542e9727552734ac6ad408c52f22b4c2653b04276']
+checksums = [
+    {'ucx-1.18.1.tar.gz': '8018dd75f11b5e8d6e57dcdb5b798d2c1f000982c353efde1f3170025c6c3b4c'},
+]
 
 builddependencies = [
     ('binutils', '2.42'),

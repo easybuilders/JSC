@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see https://github.com/hpcugent/easybuild
+# Copyright:: Copyright 2013 Juelich Supercomputing Centre, Germany
+# Authors::   Bernd Mohr <b.mohr@fz-juelich.de>
+# License::   New BSD
+#
+# This work is based from experiences from the UNITE project
+# http://apps.fz-juelich.de/unite/
+##
+
+# For using $SYSTEMNAME to determine license path. The local prefix is to appease the checker
+import os as local_os
+
+easyblock = 'Binary'
+
+name = "Vampir"
+version = "10.7.0"
+
+homepage = 'http://www.vampir.eu'
+description = """The VAMPIR software tool provides an easy-to-use framework that enables
+developers to quickly display and analyze arbitrary program behavior at any level of detail.
+The tool suite implements optimized event analysis algorithms and customizable displays that
+enable fast and interactive rendering of very complex performance monitoring data.
+
+"""
+
+toolchain = SYSTEM
+
+sources = [
+    'vampir-%(version)s-linux-x86_64-setup.sh',
+    'vampir-%(version)s-linux-aarch64-setup.sh',
+]
+checksums = [
+    {'vampir-10.7.0-linux-x86_64-setup.sh': '7306dde041645c5263bdc52143835a92cf1ffa199423ecc68aff3e6a79d6a731'},
+    {'vampir-10.7.0-linux-aarch64-setup.sh': '69b97da1a6005c9b8b7316295b6cd2fb2558873f8e9cf5075f1fbe029ff50e33'},
+]
+
+install_cmd = './vampir-%%(version)s-linux-%s-setup.sh --silent --instdir=%%(installdir)s' % ARCH
+
+sanity_check_paths = {
+    'files': ["bin/vampir", "doc/vampir-manual.pdf"],
+    'dirs': []
+}
+
+if local_os.environ['SYSTEMNAME'] == 'jupiter':
+else:
+
+
+moduleclass = 'tools'

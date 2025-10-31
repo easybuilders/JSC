@@ -1,0 +1,65 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "PythonBundle"
+
+name = "Score-P-Python"
+version = "4.4.0"
+versionsuffix = "-9.2"
+
+homepage = "https://github.com/score-p/scorep_binding_python"
+description = f"""
+Python bindings for the performance measurement infrastructure Score-P, allowing to trace Python applications.
+This includes support for called Python functions, accelerator support, MPI, and more.
+
+Python bindings are built for Score-P v{versionsuffix[1:]}
+"""
+
+toolchain = {"name": "gompi", "version": "2024a"}
+
+dependencies = [
+    ("Python", "3.12.3"),
+    ("Score-P", "9.2"),
+    ("mpi4py", "4.0.1"),
+]
+
+# To be removed with EB 5.x
+exts_default_options = {
+    'download_dep_fail': True,
+    'sanity_pip_check': True,
+    'use_pip': True,
+}
+
+exts_list = [
+    ('scorep', version, {
+        'modulename': 'scorep',
+        'patches': ['Score-P-Python-4.4.0_improve-opari2-detection.patch'],
+        'checksums': [
+            {'scorep-4.4.0.tar.gz':
+             'bd619762dfd20b2bc62600cafc8cca03bb21d118c4fdd7c5299bdf251e465621'},
+            {'Score-P-Python-4.4.0_improve-opari2-detection.patch':
+             '8abf612d8a0635983da4898d2cf34182418c8cf36df564399371c9105fc08dde'},
+        ],
+    }),
+]
+
+sanity_check_paths = {
+    "files": [
+        'lib/python3.12/site-packages/scorep/__init__.py',
+        'lib/python3.12/site-packages/scorep/user.py'
+    ],
+    "dirs": [
+        'lib/python3.12/site-packages/scorep'
+    ]
+}
+
+modextravars = {
+    "MPI4PY_RC_RECV_MPROBE": "False",
+    "MPI4PY_RC_THREAD_LEVEL": "funneled",
+}
+
+modloadmsg = """
+[INFO] Score-P Python bindings set the following environment variables when loading the module:
+- MPI4PY_RC_RECV_MPROBE=False
+- MPI4PY_RC_THREAD_LEVEL=funneled
+"""
+
+moduleclass = "perf"

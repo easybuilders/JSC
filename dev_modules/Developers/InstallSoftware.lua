@@ -122,7 +122,10 @@ if mode()=="load" then
                 "  - Setting the filter to don't include irrelevant environment information in test reports\n"..
                 "    (EASYBUILD_TEST_REPORT_ENV_FILTER)\n"..
                 "  - Using JSC EasyBuild hooks (EASYBUILD_HOOKS)\n"..
-                "  - Setting module classes to include side compilers (EASYBUILD_MOODULECLASSES)\n")
+                "  - Setting module classes to include side compilers (EASYBUILD_MOODULECLASSES)")
+    if (convertToCanonical(stage) > convertToCanonical("2025") ) then
+        LmodMessage("  - Disable RPATH (EASYBUILD_DISABLE_RPATH)")
+    end
 end
 
 -- Unload some modules for convenience
@@ -186,7 +189,7 @@ elseif systemname == "jureca_arm" then
     optarch = ""
     cuda_compute = "8.0"
 -- JURECA-GH and JEDI
-elseif systemname == "jureca_gh" or systemname == "jedi" then
+elseif systemname == "jureca_gh" or systemname == "jedi" or systemname == "jupiter" then
     optarch = "GCC:mcpu=native"
     cuda_compute = "9.0"
 -- JURECA-SPR
@@ -284,11 +287,16 @@ if is_devel and (isloaded("Stages/"..stage) or isloaded("Stages/Devel")) then
     end
     -- Tell the robot where to search there when looking for missing dependencies
     append_path("EASYBUILD_ROBOT", pathJoin(stage_path, "eb_repo"))
+    append_path("EASYBUILD_ROBOT_PATHS", pathJoin(stage_path, "eb_repo"))
     setenv("EASYBUILD_GROUP_WRITABLE_INSTALLDIR", "1")
     setenv("EASYBUILD_UMASK", "002")
     -- We need to allow people to clean out an installation in Devel
     setenv("EASYBUILD_STICKY_BIT", "0")
 else
+    -- Tell the robot where to search there when looking for missing dependencies
+    append_path("EASYBUILD_ROBOT", pathJoin(stage_path, "eb_repo"))
+    append_path("EASYBUILD_ROBOT_PATHS", pathJoin(stage_path, "eb_repo"))
+
     -- The default is to have user-only write access to files/dirs
     setenv("EASYBUILD_UMASK", "022")
 
@@ -323,6 +331,11 @@ setenv("EASYBUILD_USE_EXISTING_MODULES", "1")
 -- Enable user installations
 setenv("EASYBUILD_SUBDIR_USER_MODULES", pathJoin("easybuild", systemname, "modules"))
 setenv("EASYBUILD_ENVVARS_USER_MODULES", "USERINSTALLATIONS,HOME")
+
+-- Disable RPATH on EasyBuild 5+
+if (convertToCanonical(stage) > convertToCanonical("2025") ) then
+    setenv("EASYBUILD_DISABLE_RPATH", "True")
+end
 
 -- Filter for test reports
 setenv("EASYBUILD_TEST_REPORT_ENV_FILTER", ".*PS1.*|PROMPT.*|.*LICENSE.*|.*PROJECT.*|.*DATA.*|.*FASTDATA.*|.*SCRATCH.*|.*IMESCRATCH.*|.*HOME.*|.*ARCHIVE.*|.*LOGNAME.*|^SSH|USER|HOSTNAME|UID|.*COOKIE.*")

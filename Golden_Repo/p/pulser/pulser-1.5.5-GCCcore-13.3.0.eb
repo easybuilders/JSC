@@ -1,0 +1,66 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'pulser'
+version = '1.5.5'
+
+homepage = 'https://github.com/pasqal-io/Pulser'
+description = """Pulser-core provides the core
+functionalities needed to create sequences with pulser."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+dependencies = [
+    ('Python', '3.12.3'),
+    ('Pillow-SIMD', '10.4.0'),
+    ('SciPy-bundle', '2024.05', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),  # numpy
+    ('matplotlib', '3.9.2', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('hatchling', '1.24.2'),
+    ('poetry', '1.8.3'),
+    ('qutip', '5.0.4'),
+    ('pydantic', '2.9.1'),
+]
+
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+    'sanity_pip_check': True,
+    'download_dep_fail': True,
+    'use_pip_for_deps': False,
+}
+
+exts_list = [
+    ('pyjwt', '2.10.1', {
+        'modulename': 'jwt',
+        'checksums': ['3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953'],
+    }),
+    ('backoff', '2.2.1', {
+        'checksums': ['03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba'],
+    }),
+    ('pulser_core', version, {
+        'modulename': False,
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['3248ffedb58e7684c3c5aa29beb35839f3bffe711d75c5b5f2cf2737c9c7799e'],
+    }),
+    ('auth0-python', '3.24.1', {
+        'modulename': 'auth0',
+        'checksums': ['62c2e177b9517879bd8632da9eb7668aedd5775fddea87b0e0e1e9a89b9dd096'],
+    }),
+    ('pulser_simulation', version, {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['71c349f129d1bbe9e20dd30ad5ef730c3364083384e4d6ad4539b412739c61e5'],
+    }),
+    ('pasqal_cloud', '0.13.0', {
+        'checksums': ['22a86a24219c75c4cb95b318da6fca5f5916d44b3a89feb2d4c2da59419b053e'],
+    }),
+    ('pulser_pasqal', '0.20.1', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['c836189e22156f6a3692f7ff8b3ec3cfe5f368474c950be830a6f1f639e53e47'],
+    }),
+    (name, version, {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['1454c116c80b1ba80bb504246e8fdebd8436e0d137a872143eab5d9e582d81df'],
+    }),
+]
+
+moduleclass = 'quantum'

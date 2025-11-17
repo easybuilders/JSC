@@ -11,7 +11,16 @@ from easybuild.tools.config import build_option
 from easybuild.tools.config import install_path
 from easybuild.tools.build_log import EasyBuildError, print_msg, print_warning
 
-SUPPORTED_COMPILERS = ["GCC", "iccifort", "intel-compilers", "NVHPC", "PGI"]
+SUPPORTED_COMPILERS = [
+    "GCC",
+    "iccifort",
+    "intel-compilers",
+    "Intel",
+    "NVIDIA",
+    "nvidia-compilers",
+    "NVHPC",
+    "PGI"
+]
 SUPPORTED_MPIS = ["impi", "psmpi", "OpenMPI", "BullMPI"]
 # Maintain toplevel list for easy use of --try-toolchain
 SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
@@ -64,6 +73,7 @@ VETOED_INSTALLATIONS = {
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
+        'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
     ],
@@ -71,6 +81,7 @@ VETOED_INSTALLATIONS = {
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
+        'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
     ],
@@ -78,6 +89,7 @@ VETOED_INSTALLATIONS = {
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
+        'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
     ],
@@ -85,6 +97,7 @@ VETOED_INSTALLATIONS = {
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
         'impi', 'impi-settings',
+        'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild'
     ],
@@ -135,6 +148,7 @@ TWEAKABLE_DEPENDENCIES = {
     # 'Boost': '1.78.0',
     # 'Boost.Python': '1.78.0',
     'CUDA': '13',
+    'CUDA-Python': '13',
     'glu': ('OpenGL', '2025.09'),
     'glew': ('OpenGL', '2025.09'),
     'libglvnd': ('OpenGL', '2025.09'),
@@ -150,15 +164,19 @@ TWEAKABLE_DEPENDENCIES = {
 TWEAKABLE_DEPENDENCIES_PER_SYSTEM = {
     'juwels': {
         'CUDA': '12',
+        'CUDA-Python': '12',
     },
     'jusuf': {
         'CUDA': '12',
+        'CUDA-Python': '12',
     },
     'deep': {
         'CUDA': '12',
+        'CUDA-Python': '12',
     },
     'jsccloud': {
         'CUDA': '12',
+        'CUDA-Python': '12',
     },
 }
 
@@ -182,6 +200,7 @@ REQUIRE_MODALTSOFTNAME = {
     "psmpi": "ParaStationMPI",
     "iccifort": "Intel",
     "intel-compilers": "Intel",
+    "nvidia-compilers": "NVIDIA",
 }
 
 
@@ -319,9 +338,6 @@ def parse_hook(ec, *args, **kwargs):
 
     # Process Perl module
     ec = inject_perl_tweaks(ec)
-
-    # Process Python module
-    ec = inject_python_tweaks(ec)
 
     # Change module name if applicable
     ec = inject_modaltsoftname(ec)
@@ -655,27 +671,6 @@ end
             ec[key] = value
         ec.log.info(
             "[parse hook] Injecting Perl-JSC-extra loading")
-
-    return ec
-
-
-def inject_python_tweaks(ec):
-    # Python require to load Python-JSC-extra
-    ec_dict = ec.asdict()
-    if ec.name == 'Python' and is_system_path(install_path().lower()):
-        key = "modluafooter"
-        value = '''
-if mode()=="load" then
-    try_load("Python-JSC-extra")
-end
-        '''
-        if key in ec_dict:
-            if not value in ec_dict[key]:
-                ec[key] = "\n".join([ec[key], value])
-        else:
-            ec[key] = value
-        ec.log.info(
-            "[parse hook] Injecting Python-JSC-extra loading")
 
     return ec
 

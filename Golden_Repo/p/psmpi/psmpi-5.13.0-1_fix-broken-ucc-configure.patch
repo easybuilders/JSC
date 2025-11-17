@@ -1,0 +1,31 @@
+Fix broken configure check for ParaStationMPI when testing for CUDA support in UCC.
+The first argument for AC_LANG_PROGRAM is missing an additional layer of braces,
+while the second argument defines a main which is automatically added by AC_LANG_PROGRAM.
+
+This fails the test with NVHPC, and might produce unexpected results with other compilers.
+
+Author: Jan Reuter (j.reuter@fz-juelich.de)
+
+diff -Naur psmpi-5.13.0-1.orig/mpich2/src/mpid/common/ucc/subconfigure.m4 psmpi-5.13.0-1/mpich2/src/mpid/common/ucc/subconfigure.m4
+--- psmpi-5.13.0-1.orig/mpich2/src/mpid/common/ucc/subconfigure.m4	2025-09-26 10:29:11.000000000 +0200
++++ psmpi-5.13.0-1/mpich2/src/mpid/common/ucc/subconfigure.m4	2025-10-17 10:34:57.817376570 +0200
+@@ -24,14 +24,12 @@
+         ucc_info_defs=$(${ucc_info_path} -b)
+         AC_LANG_PUSH([C])
+         AC_COMPILE_IFELSE(  [AC_LANG_PROGRAM(
+-                                    [${ucc_info_defs}],
++                                    [[${ucc_info_defs}]],
+                                     [[
+-                                        int main() {
+-                                          #if !defined(HAVE_CUDA) || HAVE_CUDA != 1
+-                                          #error macro not defined
+-                                          #endif
+-                                          return 0;
+-                                        }
++                                      #if !defined(HAVE_CUDA) || HAVE_CUDA != 1
++                                      #error macro not defined
++                                      #endif
++                                      return 0;
+                                     ]]
+                                     )
+                             ],[

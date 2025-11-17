@@ -89,6 +89,8 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
             'impi': 'IntelMPI',
             'IntelMPI': 'impi',
             'LWP-settings': 'LWP',
+            'nvidia-compilers': 'NVIDIA',
+            'NVIDIA': 'nvidia-compilers',
         }
 
         # Strip version from short_modname
@@ -109,12 +111,15 @@ class FlexibleCustomHierarchicalMNS(HierarchicalMNS):
 
     def _find_relevant_compiler_info(self, comp_info):
         comp_name, comp_ver = comp_info
-
         # Hack the MNS here, so NVHPC 2[4-9] always expands to NVHPC 2X, so all versions of the compiler can reuse the
         # stack NVIDIA stated in GTC2024 that they intend to keep ABI compatibility, and if they break it, it would be
         # clearly announced.
-        if comp_name == "NVHPC":
-            comp_ver = re.sub(r'^2.', '2X', comp_ver)
+        if comp_name == "NVHPC" or comp_name == "nvidia-compilers" or comp_name == "NVIDIA":
+            comp_ver = re.sub(r'^2[0-9]+\.?[0-9]+-', '2X-', comp_ver)
+            # Always point to CUDA-13, even though we're using CUDA 12 on JUSUF & JUWELS.
+            # EasyBuild doesn't always replace the path, so otherwise we'd point to incorret module paths.
+            comp_ver = re.sub(r'-CUDA-12', '-CUDA-13', comp_ver)
+            return comp_name, comp_ver
 
         # Also hack the MNS for Intel, since 202x.x.x and 202x.x.x-CUDA-1x are basically the same installation,
         # only with additional files for SYCL offloading to NVIDIA GPUs.

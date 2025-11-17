@@ -1,0 +1,76 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# Copyright:: 2024 Juelich Supercomputing Centre, Forschungszentrum Juelich
+# Authors::   Alexandre Strube <a.strube@fz-juelich.de>
+# License::   MIT/GPL
+
+easyblock = 'ConfigureMake'
+
+name = 'HDF5-plugins'
+version = '1.14.6'
+
+homepage = 'https://portal.hdfgroup.org/display/support'
+description = """HDF5 is a data model, library, and file format
+ for storing and managing data. It supports an unlimited variety
+ of datatypes, and is designed for flexible and efficient I/O and
+ for high volume and complex data."""
+
+toolchain = {'name': 'ipsmpi', 'version': '2025b'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+source_urls = [
+    'https://github.com/HDFGroup/hdf5_plugins/releases/download/hdf5-%(version)s/']
+sources = ['hdf5_plugins-1.14.tar.gz']
+patches = [
+    'HDF5-plugins-1.14.6_JPEG.patch',
+    'HDF5-plugins-blosc.patch',
+    'HDF5-plugins-configure-blosc.patch',
+    'HDF5-plugins-1.14.6_BLOSC.patch',
+]
+checksums = [
+    {'hdf5_plugins-1.14.tar.gz': '622a6803150df0f9fff97eb4fdce559f4a2540682516ce8787fe5964c323a5be'},
+    {'HDF5-plugins-1.14.6_JPEG.patch': '8ad919aa0ea1ad9c07d254421e277486996fd888be8603bcec55d4816c628264'},
+    {'HDF5-plugins-blosc.patch': '9fb22587c5e43fdfb6578954767c46291b623c2eb237b0856370fcf1617f239e'},
+    {'HDF5-plugins-configure-blosc.patch': '61bae69db1870f656b33195bb96e33cd8c9fd30fa1d1f7e3e2dc7bf921d6922e'},
+    {'HDF5-plugins-1.14.6_BLOSC.patch': '9ccb290b1d4c66afb2907c9532e289c6c0e05f0e3cbb6bcf83de61962e3722e0'},
+]
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('Autotools', '20250527'),
+    ('CMake', '4.0.3'),
+]
+
+dependencies = [
+    ('HDF5', version),
+    ('libjpeg-turbo', '3.1.1'),
+    ('bzip2', '1.0.8'),
+    ('lz4', '1.10.0'),
+    ('Blosc', '1.21.6'),
+    ('Blosc2', '2.19.0'),
+]
+
+local_generate_configure_file = 'libtoolize && aclocal && autoreconf \
+   --install && autoupdate && autoconf  && automake --add-missing'
+local_build_commands = ''
+for local_dir in ['BZIP2', 'LZ4', 'JPEG', 'BLOSC', 'BLOSC2']:
+    local_build_commands += \
+        f'cd {local_dir} && {local_generate_configure_file} && cd .. && '
+configure_cmd = local_build_commands + \
+    f'{local_generate_configure_file} && ./configure --with-hdf5=$EBROOTHDF5 \
+        --with-jpeglib=$EBROOTLIBJPEGMINTURBO \
+        --with-bzip2=$EBROOTBZIP2 \
+        --with-lz4=$EBROOTLZ4 \
+        --with-blosc=$EBROOTBLOSC \
+        --with-blosc2=$EBROOTBLOSC2 \
+        --with-hdf5-plugin-dir=%(installdir)s/lib/plugin'
+
+sanity_check_paths = {
+    'files': ['lib/plugin/libh5jpeg.so',
+              'lib/plugin/libh5lz4.so',
+              'lib/plugin/libh5bz2.so',
+              'lib/plugin/libh5blosc.so',
+              'lib/plugin/libh5blosc2.so'],
+    'dirs': ['lib'],
+}
+
+moduleclass = 'data'

@@ -1,0 +1,31 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'NVHPC'
+version = '25.9'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://developer.nvidia.com/hpc-sdk/'
+description = "C, C++ and Fortran compilers included with the NVIDIA HPC SDK"
+
+toolchain = SYSTEM
+
+dependencies = [
+    ('CUDA', '13'),
+    ('nvidia-compilers', '25.9', versionsuffix),
+]
+
+skipsteps = ['sanitycheck']
+
+sanity_check_paths = {
+    'files': [''],
+    'dirs': [''],
+}
+
+modloadmsg = """
+[WARNING] NVHPC as a compiler module is deprecated. Please use 'nvidia-compilers' instead.
+          This module might get removed in future Stages.
+"""
+
+# Do not use compiler here, since this directly affects the HMNS, causing the module to be loaded recursively.
+moduleclass = 'lang'

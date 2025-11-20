@@ -16,6 +16,7 @@ local_comp_mpi_tc = ('nvompic', version)
 
 dependencies = [
     local_compiler,
+    ('CUDA', '13', '', SYSTEM),
     ('OpenMPI', '5.0.8', '', local_compiler),
     ('FlexiBLAS', '3.4.5', '', local_compiler),
     ('FFTW', '3.3.10', '', local_compiler),

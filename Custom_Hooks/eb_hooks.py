@@ -18,8 +18,6 @@ SUPPORTED_COMPILERS = [
     "Intel",
     "NVIDIA",
     "nvidia-compilers",
-    "NVHPC",
-    "PGI"
 ]
 SUPPORTED_MPIS = ["impi", "psmpi", "OpenMPI", "BullMPI"]
 # Maintain toplevel list for easy use of --try-toolchain
@@ -35,6 +33,8 @@ SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
     "gomkl",
     "npsmkl",
     "nvomkl",
+    "nvofbf",
+    "npsfbf",
     "pmvmklc",
     "gmvmklc",
 ]
@@ -200,7 +200,6 @@ REQUIRE_MODALTSOFTNAME = {
     "psmpi": "ParaStationMPI",
     "iccifort": "Intel",
     "intel-compilers": "Intel",
-    "nvidia-compilers": "NVIDIA",
 }
 
 

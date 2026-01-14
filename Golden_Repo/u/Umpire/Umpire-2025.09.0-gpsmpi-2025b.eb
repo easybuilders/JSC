@@ -1,0 +1,55 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Umpire'
+version = '2025.09.0'
+
+homepage = 'https://github.com/LLNL/Umpire'
+description = """
+An application-focused API for memory management on NUMA & GPU architectures
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2025b'}
+toolchainopts = {'pic': True, 'cstd': 'c++17'}
+
+github_account = 'LLNL'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+patches = ['umpire-cuda13-compatibility_pull992.patch']
+checksums = [
+    'f05075c314c6ae5eee906b8374584e70e8741143e31af6e063f826941c1fc752',
+    '9092a490c51dd99d994205820b6d0cf996d1ede6e128353e48f1dc1f7afc597e',
+]
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('CMake', '4.0.3'),
+    ('blt', '0.7.1'),
+]
+
+dependencies = [
+    ('camp', '2025.12.0'),
+    ('fmt', '11.2.0'),
+    ('CUDA', '13', '', SYSTEM),
+]
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+configopts += "-Dcamp_DIR=${EBROOTCAMP} "
+configopts += "-Dfmt_DIR=${EBROOTFMT} "
+
+configopts += "-DENABLE_CUDA=ON "
+configopts += '-DCMAKE_CUDA_ARCHITECTURES="%(cuda_cc_cmake)s" '
+
+configopts += "-DENABLE_OPENMP=ON "
+configopts += "-DENABLE_FORTRAN=ON "
+configopts += "-DUMPIRE_ENABLE_MPI=ON "
+
+sanity_check_paths = {
+    'files': ['include/umpire/Umpire.hpp'],
+    'dirs': ['bin', 'include', 'lib'],
+}
+
+moduleclass = 'vis'

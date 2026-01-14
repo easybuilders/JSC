@@ -1,0 +1,29 @@
+Author: Thomas Mueller, pthread_yield must be replaced by sched_yield
+diff -Naur libxsmm-1.17.orig/include/libxsmm_macros.h libxsmm-1.17/include/libxsmm_macros.h
+--- libxsmm-1.17.orig/include/libxsmm_macros.h	2025-11-19 09:38:06.135077000 +0100
++++ libxsmm-1.17/include/libxsmm_macros.h	2025-11-19 09:42:18.141482142 +0100
+@@ -812,6 +812,7 @@
+ # if defined(_WIN32) || defined(__CYGWIN__)
+ #   include <windows.h>
+ # else
++#   include <sched.h>
+ #   include <pthread.h>
+ # endif
+ #endif
+diff -Naur libxsmm-1.17.orig/include/libxsmm_sync.h libxsmm-1.17/include/libxsmm_sync.h
+--- libxsmm-1.17.orig/include/libxsmm_sync.h	2025-11-19 09:38:18.185604000 +0100
++++ libxsmm-1.17/include/libxsmm_sync.h	2025-11-19 09:40:55.225537192 +0100
+@@ -464,11 +464,11 @@
+ #     define LIBXSMM_SYNC_YIELD pthread_yield_np()
+ #   else
+ #     if defined(__USE_GNU) || !defined(__BSD_VISIBLE)
+-      LIBXSMM_EXTERN int pthread_yield(void) LIBXSMM_THROW;
++      LIBXSMM_EXTERN int sched_yield(void) LIBXSMM_THROW;
+ #     else
+       LIBXSMM_EXTERN void pthread_yield(void);
+ #     endif
+-#     define LIBXSMM_SYNC_YIELD pthread_yield()
++#     define LIBXSMM_SYNC_YIELD sched_yield()
+ #   endif
+ #   if defined(LIBXSMM_LOCK_SYSTEM_SPINLOCK) && defined(__APPLE__) && defined(__MACH__)
+ #     define LIBXSMM_LOCK_SPINLOCK mutex

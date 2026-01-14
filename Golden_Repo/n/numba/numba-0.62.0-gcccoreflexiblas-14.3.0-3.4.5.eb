@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'numba'
+version = '0.62.0'
+
+homepage = 'https://numba.pydata.org/'
+description = """Numba is an Open Source NumPy-aware optimizing compiler for
+Python sponsored by Continuum Analytics, Inc. It uses the remarkable LLVM
+compiler infrastructure to compile Python syntax to machine code."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '14.3.0-3.4.5'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('CMake', '4.0.3'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('SciPy-bundle', '2025.07'),
+    ('LLVM', '20.1.8'),
+]
+
+local_llvmlite_preinstallopts = "export LLVM_CONFIG=${EBROOTLLVM}/bin/llvm-config && "
+local_llvmlite_preinstallopts += "sed -i 's/llvm_config, \"--system-libs/llvm_config, \"--link-static --system-libs/' "
+local_llvmlite_preinstallopts += "ffi/build.py && "
+
+exts_list = [
+    ('llvmlite', '0.45.0', {
+        'preinstallopts': local_llvmlite_preinstallopts,
+        'checksums': ['ceb0bcd20da949178bd7ab78af8de73e9f3c483ac46b5bef39f06a4862aa8336'],
+        'testinstall': True,
+        'runtest': 'python -m llvmlite.tests',
+    }),
+    (name, version, {
+        'checksums': [
+            {'numba-0.62.0.tar.gz': '2afcc7899dc93fefecbb274a19c592170bc2dbfae02b00f83e305332a9857a5a'},
+            {'numba-0.62.0_improve-cuda-driver-compatibility.patch':
+             '95e5b26fc82ac73bc7cb58e05266dfb484aa65e894d81723082b4c21f1c45008'}
+        ],
+        'patches': ['numba-0.62.0_improve-cuda-driver-compatibility.patch'],
+        # 'testinstall': True,
+        # 'runtest': 'cd %(builddir)s && python -m numba.runtests -m %(parallel)s',
+    }),
+]
+
+fix_python_shebang_for = ['bin/*']
+
+sanity_check_paths = {
+    'files': ['bin/numba'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    'numba --help',
+]
+
+moduleclass = 'lang'

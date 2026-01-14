@@ -49,8 +49,7 @@ class EB_Hypre(ConfigureMake):
         extra_vars = {
             'disable_cuda': [False, "Force disabling CUDA", CUSTOM]
         }
-        return EasyBlock.extra_options(extra_vars)
-
+        return ConfigureMake.extra_options(extra_vars)
 
     def __init__(self, *args, **kwargs):
         """Easyblock constructor."""

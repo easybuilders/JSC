@@ -1,0 +1,50 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'ConfigureMake'
+
+name = 'libsmeagol'
+version = '1.2'
+
+homepage = 'https://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/SMEAGOL.html'
+description = """ SMEAGOL is a library for non-equilibrium greens function (NEGF) DFT calculations 
+based on the original SMEAGOL/SIESTA code interfaced to CP2K. For details and usage refer to the
+homepage https://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/SMEAGOL.html"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2025b'}
+toolchainopts = {'pic': True, 'openmp': False, 'usempi': True, 'verbose': True,
+                 'extra_fflags': '-DMPI -O3 -g -std=gnu -fallow-argument-mismatch'
+                 + ' -fblas-matmul-limit=0 -fno-omit-frame-pointer'}
+
+sources = [
+    {'source_urls': ['https://www.cp2k.org/static/downloads'],
+     'download_filename': '%(name)s-%(version)s.tar.gz',
+     'filename': '%(name)s-%(version)s.tar.gz'},
+]
+
+patches = [
+    'libsmeagol-1.2.patch',
+]
+
+checksums = [
+    '0b76198a48c47256cd8b048f32c7752a1de4e533ed1c1f4ea097255dd712917b',
+    'a52406cc159494df7340f4852e604578048577ffda3970f688649a50663dd4e7',
+]
+
+
+buildopts = "AR='ar -r ' FC=$FC FCFLAGS_FIXEDFORM=-ffixed-form FCFLAGS_FREEFORM='-ffree-form -ffree-line-length-none' "
+buildopts += "FCFLAGS='$(FFLAGS)'"
+
+skipsteps = ['configure', 'test', 'install']
+maxparallel = 4
+postinstallcmds = [
+    'mkdir %(installdir)s/include',
+    'mkdir %(installdir)s/lib ',
+    'cp lib/libsmeagol.a %(installdir)s/lib',
+    'cp obj/*.mod %(installdir)s/include ',
+]
+
+sanity_check_paths = {
+    'files': ['lib/libsmeagol.a', 'include/mnegf_interface.mod'],
+    'dirs': ['lib', 'include'],
+}
+
+moduleclass = 'chem'

@@ -1,0 +1,48 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Tarball'
+
+name = 'cuSOLVERMp'
+
+version = '0.7.2'
+local_build_ver = '888'
+versionsuffix = '-CUDA-%(cudaver)s'
+
+homepage = 'https://docs.nvidia.com/cuda/cusolvermp/'
+description = """
+NVIDIA cuSOLVERMp is a high-performance, distributed-memory, GPU-accelerated
+library that provides tools for the solution of dense linear systems and
+eigenvalue problems.
+
+cuSOLVERMp is compatible with 2D block-cyclic data layout and provides
+ScaLAPACK-like C APIs.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+local_arch = 'sbsa' if ARCH == 'aarch64' else 'x86_64'
+source_urls = [f'https://developer.download.nvidia.com/compute/cusolvermp/redist/libcusolvermp/linux-{local_arch}/']
+sources = [f'libcusolvermp-linux-{local_arch}-%(version)s.{local_build_ver}_cuda%(cudamajver)s-archive.tar.xz']
+checksums = [
+    {
+        f'libcusolvermp-linux-sbsa-%(version)s.{local_build_ver}_cuda12-archive.tar.xz':
+            '4c1a2688ec0072dec6d9d2303b489a48ad34a419e42ba05f51af68a43221fed6',
+        f'libcusolvermp-linux-x86_64-%(version)s.{local_build_ver}_cuda12-archive.tar.xz':
+            '70243423e07861007ca5a95d35247af4ecdbcd0bf77aa09016a1abf3dcffb6a8',
+        f'libcusolvermp-linux-sbsa-%(version)s.{local_build_ver}_cuda13-archive.tar.xz':
+            '429772ba439da9ac1ea88989a0cc56f2f14b377af349129b1bf913e9357dbbd8',
+        f'libcusolvermp-linux-x86_64-%(version)s.{local_build_ver}_cuda13-archive.tar.xz':
+            '5b7ac5f41e0f2d0ddb226736879c1ad123302d08e4dbccb543dad2c90780888d',
+    }
+]
+
+dependencies = [
+    ('CUDA', '13', '', SYSTEM),
+    ('NCCL', 'default', versionsuffix)
+]
+
+sanity_check_paths = {
+    'dirs': ['lib', 'include'],
+    'files': ['LICENSE', f'lib/libcusolverMp.{SHLIB_EXT}', 'include/cusolverMp.h']
+}
+
+moduleclass = 'math'

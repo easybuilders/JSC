@@ -1,0 +1,71 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterProxy-RStudio'
+version = '2025.12.0'
+
+homepage = 'https://github.com/jupyterhub/jupyter-rsession-proxy'
+description = """
+Jupyter proxy for RStudio sessions.
+RStudio is an integrated development environment (IDE) for R.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    # check for existance
+    # ('RStudioServer', '2025.09.2+418', '-R-4.5.2'),
+    # ('R-bundle-CRAN', '2025.11'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('jupyter-server-proxy', '20260302'),
+]
+
+exts_list = [
+    ('jupyter_rsession_proxy', '2.4.0', {
+        'checksums': ['0af9e934ae767b6729b65f34d3467213cdbe5f060b5aaa520fbe6fed886dea71'],
+    }),
+]
+
+postinstallcmds = [
+    'mkdir %(installdir)s/bin/',
+    (
+        '{ cat > %(installdir)s/bin/rserver; } << EOF \n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'if [[ -f \\${HOME}/.rserver/start_rserver.sh ]]; then \n'
+        '  source \\${HOME}/.rserver/start_rserver.sh \n'
+        'else \n'
+        '  module purge \n'
+        '  module load Stages/${STAGE} \n'
+        '  module load GCC \n'
+        '  module load '
+        '     OpenMPI '
+        '     RStudio-Server '
+        '     R-bundle-CRAN \n'
+        'fi\n'
+        '\n'
+        'rserver "\\$@" \n'
+        '\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/rserver'
+]
+
+modextravars = {
+    'RSERVER_TIMEOUT': '90',
+    'JUPYTER_RSESSION_PROXY_THREAD_POOL_SIZE': '20',
+    'JUPYTER_RSESSION_PROXY_USE_SOCKET': 'ON',
+}
+
+sanity_check_paths = {
+    'files': ['bin/rserver'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'tools'

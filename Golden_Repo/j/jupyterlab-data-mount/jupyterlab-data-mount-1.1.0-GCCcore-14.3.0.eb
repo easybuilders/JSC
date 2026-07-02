@@ -1,0 +1,33 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-data-mount'
+version = '1.1.0'
+
+homepage = "https://github.com/jsc-jupyter/jupyterlab-data-mount"
+
+description = """
+Jupyter extension to mount external data storage.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('jupyter-server', '2.17.0'),
+]
+
+exts_list = [
+    ('jupyterlab_data_mount', version, {
+        'checksums': ['abacec4534fedf4833af1553387ae724cbb41bfcac449465b523292c37d5689f'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

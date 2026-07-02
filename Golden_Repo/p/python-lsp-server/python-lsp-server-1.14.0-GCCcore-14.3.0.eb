@@ -1,0 +1,64 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'python-lsp-server'
+version = "1.14.0"
+
+homepage = 'https://github.com/python-lsp/python-lsp-server'
+description = """
+  A Python 3.8+ implementation of the Language Server Protocol.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatchling', '1.27.0'),
+    ('poetry', '2.1.3'),
+]
+dependencies = [
+    ('Python', '3.13.5'),
+    ('Python-bundle-PyPI', '2025.07'),
+    ('IPython', '9.4.0'),
+    ('black', '26.1.0'),
+]
+
+exts_list = [
+    ('docstring-to-markdown', '0.17', {
+        'checksums': ['df72a112294c7492487c9da2451cae0faeee06e86008245c188c5761c9590ca3'],
+    }),
+    ('python-lsp-jsonrpc', '1.1.2', {
+        'modulename': 'pylsp_jsonrpc',
+        'checksums': ['4688e453eef55cd952bff762c705cedefa12055c0aec17a06f595bcc002cc912'],
+    }),
+    ('pyflakes', '3.4.0', {
+        'checksums': ['b24f96fafb7d2ab0ec5075b7350b3d2d2218eab42003821c06344973d3ea2f58'],
+    }),
+    ('mccabe', '0.7.0', {
+        'checksums': ['348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325'],
+    }),
+    ('pycodestyle', '2.14.0', {
+        'checksums': ['c4b5b517d278089ff9d0abdec919cd97262a3367449ea1c8b49b91529167b783'],
+    }),
+    ('yapf', '0.43.0', {
+        'checksums': ['00d3aa24bfedff9420b2e0d5d9f5ab6d9d4268e72afbf59bb3fa542781d5218e'],
+    }),
+    ('pytoolconfig', '1.3.1', {
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['5d8cea8ae1996938ec3eaf44567bbc5ef1bc900742190c439a44a704d6e1b62b'],
+    }),
+    ('rope', '1.14.0', {
+        'checksums': ['8803e3b667315044f6270b0c69a10c0679f9f322ed8efe6245a93ceb7658da69'],
+    }),
+    ('python_lsp_server', version, {
+        'modulename': 'pylsp',
+        'checksums': ['509c445fc667f41ffd3191cb7512a497bf7dd76c14ceb1ee2f6c13ebe71f9a6b'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib'],
+}
+
+moduleclass = 'tools'

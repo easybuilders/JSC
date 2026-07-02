@@ -17,6 +17,11 @@ dependencies = [
     ('Python', '3.13.5'),
 ]
 
+local_kaleido = {
+    'aarch64': 'manylinux2014_aarch64',
+    'x86_64':  'manylinux1_x86_64'
+}
+
 exts_list = [
     ('tenacity', '9.1.2', {
         'patches': ['tenacity-9.0.0_fix_version.patch'],
@@ -32,6 +37,17 @@ exts_list = [
     ('plotly', version, {
         'checksums': ['d5d38224883fd38c1409bef7d6a8dc32b74348d39313f3c52ca998b8e447f5c8'],
     }),
+    ('kaleido', '0.2.1', {
+        'source_tmpl': '%%(name)s-%%(version)s-py2.py3-none-%s.whl' % local_kaleido[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py2.py3-none-%s.whl' % local_kaleido['aarch64']:
+                '845819844c8082c9469d9c17e42621fbf85c2b237ef8a86ec8a8527f98b6512a',
+            '%%(name)s-%%(version)s-py2.py3-none-%s.whl' % local_kaleido['x86_64']:
+                'aa21cf1bf1c78f8fa50a9f7d45e1003c387bd3d6fe0a767cfbbf344b95bdc3a8',
+        }],
+    }),
 ]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
 
 moduleclass = 'vis'

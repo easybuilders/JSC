@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-slurm-provisioner'
+version = '0.6.0'
+
+homepage = 'https://github.com/FZJ-JSC/jupyter-slurm-provisioner-extension'
+description = """
+A JupyterLab extension for using a slurm kernel provisioner
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('JupyterLab', '4.5.5'),
+]
+
+exts_list = [
+    ('jupyter-slurm-provisioner', version, {
+        'checksums': ['24141dc4abfb009d424837a5d78159c2b63e0243d63618cacebcf4f23edc101f'],
+    }),
+    ('jupyter_slurm_provisioner_extension', '0.4.0', {
+        'checksums': ['7ddf4d4415332f872c34c7dcf95dea4f4ce6100e7492acce6cf9343833e453e7'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': [
+        'share/jupyter/labextensions',
+        'lib/python%(pyshortver)s/site-packages'
+    ],
+}
+
+moduleclass = 'tools'

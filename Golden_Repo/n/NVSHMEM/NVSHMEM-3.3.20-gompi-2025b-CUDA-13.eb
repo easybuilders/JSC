@@ -48,7 +48,7 @@ configopts += '-DNVSHMEM_MPI_SUPPORT=1 '
 configopts += '-DNVSHMEMTEST_USE_MPI_LAUNCHER=1 '
 configopts += '-DNCCL_HOME=${EBROOTNCCL} '
 configopts += '-DNVSHMEM_USE_NCCL=1 '
-# configopts += '-DNVSHMEM_IBGDA_SUPPORT=1 '
+configopts += '-DNVSHMEM_IBGDA_SUPPORT=1 '
 configopts += '-DNVSHMEM_PREFIX=%(installdir)s '
 # NVSHMEM builds a wheel package if this option is enabled.
 # Properly installing the Python bindings is better handled in a separate EC.

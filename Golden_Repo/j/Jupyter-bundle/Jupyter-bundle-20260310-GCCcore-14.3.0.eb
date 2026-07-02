@@ -1,0 +1,98 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Bundle'
+
+name = 'Jupyter-bundle'
+version = '20260310'
+
+homepage = "https://jupyter.org/"
+
+description = """
+ This bundle collects a range of Jupyter interfaces (Lab, Noteboon and nbclassic),
+  extensions (Jupyter Server Proxy, Jupyter Resource Monitor, Jupyter Lmod) and
+  the JupyterHub.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+dependencies = [
+    ('JupyterHub', '5.4.2'),
+    ('JupyterLab', '4.5.5'),
+    ('JupyterNotebook', '7.5.4'),
+    ('nbclassic', '1.3.3'),
+    ('jupyter-server-proxy', '20260302'),
+    ('jupyter-resource-usage', '1.2.0'),
+
+    # JupyterLab extensions (base)
+    ('jupyterlab-lsp', '5.2.0'),
+    ('jupyterlab-favorites', '3.5.0'),
+    ('jupyter-archive', '3.4.0'),
+    ('jupyterlab-variableinspector', '3.2.4'),
+    ('ipympl', '0.9.8'),
+    ('jupyterlab-git', '0.52.0'),
+
+    # JupyterLab extensions (extras)
+    ('jupyterlab-latex', '4.4.0'),
+    ('jupyterlab-gitlab', '4.0.0'),
+    ('jupyterlab-h5web', '12.6.1'),
+    ('jupyter-bokeh', '4.0.5'),
+    ('plotly.py', '6.5.0'),
+    ('ipyleaflet', '0.20.0'),
+    ('panel', '1.8.9'),
+    ('holoviews', '1.22.1'),
+    ('ipyparallel', '9.0.2'),
+    ('sidecar', '0.8.1'),
+    ('jupyterlab-code-formatter', '3.0.3'),
+
+    # JupyterLab extensions (optional)
+    # ('JupyterLab-NVdashboard', '0.13.0'),
+    # ('jupyter-collaboration', '4.2.1'),
+    # ('jupyter-slurm-provisioner', '0.6.0'),
+    # ('jupyter-kernel-gateway', '3.0.1'),
+    # ('jupyterview', '0.8.0'),
+    # ('nglview', '4.0.1'),
+    # ('nbdev', '3.0.12'),
+    # #('jupyter-ai', '3.0.0'),
+    # #('dask-labextension', '7.0.0'),
+    # #('voila', '0.5.8'),
+    # #('jupyterlab-spellchecker', '0.8.4'),
+    # #('ipyvue', '1.11.2'),
+    # #('dash', '2.18.2'),
+
+    # Jupyter kernels (optional)
+    # ('JupyterKernel-Bash', '0.10.0', '-4.5.5'),
+    # ('JupyterKernel-Cling', '1.2', '-4.5.5'),
+    # ('JupyterKernel-LFortran', '0.61.0'),
+    # ('JupyterKernel-Java', '3.0.2'),
+    # ('JupyterKernel-Julia', '1.12.3'),
+    # ('JupyterKernel-Octave', '11.1.0', '-4.5.5'),
+    # ('JupyterKernel-R', '4.5.2', '-4.5.5'),
+    # ('JupyterKernel-Ruby', '3.4.7'),
+    # ('JupyterKernel-PyQuantum', '2026.03', '-4.5.5'),
+    # ('JupyterKernel-PyEarthSystem', '2026.3', '-4.5.5'),
+    # #('JupyterKernel-PyDeepLearning', '2025.1', '-4.5.5'),
+    # #('JupyterKernel-PyVisualization', '2025.2', '-4.5.5'),
+    # #('JupyterProxy-XpraHTML5', '0.4.3'),
+    # #('JupyterProxy-Matlab', ''),
+    # #('JupyterProxy-NESTDesktop, '0.4.0'),
+    # ('JupyterProxy-RStudio', '2024.12.0').
+
+    # Extras
+    ('netcdf4-python', '1.7.2', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('FFmpeg', '7.1.2'),
+    ('LLVM', '20.1.8'),
+    ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('sympy', '1.14.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('xarray', '2025.10.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('scikit-build', '0.18.1'),
+    ('scikit-learn', '1.7.1', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    # ('scikit-image', '0.25.0', '', ('gcccoreflexiblas', '13.3.0-3.4.4')),
+    ('numba', '0.62.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Shapely', '2.1.1', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('pyunicore', '1.3.5'),
+    ('Pandoc', '3.8.2.1', '', SYSTEM),
+
+    # not supported any more
+    # ('bqplot', '0.13.0rc0'),
+]
+
+moduleclass = 'tools'

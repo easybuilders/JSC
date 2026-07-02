@@ -1,0 +1,77 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'Binary'
+
+name = 'java-language-server'
+version = '0.2.46'
+local_java_ver = '21'
+local_commit = '0f4eda83443a34f92f3ad4b7cf7384fe69fbbbff'
+
+homepage = 'https://github.com/georgewfraser/java-language-server'
+description = """Java language server using the Java compiler API
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+source_urls = ['https://github.com/georgewfraser/java-language-server/archive/']
+sources = ['%s.tar.gz' % local_commit]
+checksums = ['a085b595c7fcad0d114b8a1bd09ec453486b3ccdb64d06d1848ecc17b70acac9']
+builddependencies = [
+    ('binutils', '2.44'),
+    ('Maven', '3.9.11', '', SYSTEM),
+]
+
+dependencies = [
+    ('Java', local_java_ver, '', SYSTEM),
+]
+
+extract_sources = True
+install_cmds = [
+    (
+        'cd %%(builddir)s/%%(name)s-%s && '
+        'jlink '
+        '  --module-path $JAVA_HOME/jmods '
+        '  --add-modules java.base,java.compiler,java.logging,java.sql,java.xml,jdk.compiler,jdk.jdi,'
+        'jdk.unsupported,jdk.zipfs '
+        '  --output dist/linux '
+        '  --no-header-files '
+        '  --no-man-pages '
+        '  --compress 2 && '
+        'mvn package -DskipTests && '
+        'cp -a dist/* %%(installdir)s/'
+    ) % (local_commit),
+    'rm %(installdir)s/*windows* %(installdir)s/*mac*',
+    'mkdir -p %(installdir)s/etc/jupyter/jupyter_server_config.d/',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/jupyter_server_config.d/java-ls.json; } <<EOF\n'
+        '{\n'
+        '  "LanguageServerManager": {\n'
+        '    "language_servers": {\n'
+        '      "java": {\n'
+        '        "version": 2,\n'
+        '        "argv": ["%(installdir)s/lang_server_linux.sh"],\n'
+        '        "languages": ["java", "java-source"],\n'
+        '        "mime_types": ["text/java", "text/x-java-source"],\n'
+        '        "display_name": "java-language-server",\n'
+        '        "initializationOptions": {\n'
+        '          "settings": {\n'
+        '            "java": {}\n'
+        '          }\n'
+        '        }\n'
+        '      }\n'
+        '    }\n'
+        '  }\n'
+        '}\n'
+        'EOF\n'
+    ),
+]
+
+modextrapaths = {
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter',
+}
+
+sanity_check_paths = {
+    'files': ['launch_linux.sh'],
+    'dirs': ['classpath', 'linux'],
+}
+
+moduleclass = 'tools'

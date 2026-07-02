@@ -18,6 +18,7 @@ SUPPORTED_COMPILERS = [
     "Intel",
     "NVIDIA",
     "nvidia-compilers",
+    "llvm-compilers",
 ]
 SUPPORTED_MPIS = ["impi", "psmpi", "OpenMPI", "BullMPI"]
 # Maintain toplevel list for easy use of --try-toolchain
@@ -37,6 +38,9 @@ SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
     "npsfbf",
     "pmvmklc",
     "gmvmklc",
+    "lfbf",
+    "lfoss",
+    "lpsflf",
 ]
 SUPPORTED_MPI_TOOLCHAIN_FAMILIES = [
     "iimpi",
@@ -48,6 +52,8 @@ SUPPORTED_MPI_TOOLCHAIN_FAMILIES = [
     "nvompic",
     "gmvapich2c",
     "pmvapich2c",
+    "lpsmpi",
+    "lompi",
 ]
 # Could potentially make a dictionary of names and supported versions here but that is
 # probably overkill
@@ -335,6 +341,9 @@ def parse_hook(ec, *args, **kwargs):
     # Process UCX options
     ec = inject_ucx_tweaks(ec)
 
+    # Process NCCL options
+    ec = inject_nccl_tweaks(ec)
+
     # Process Perl module
     ec = inject_perl_tweaks(ec)
 
@@ -601,6 +610,27 @@ end
             ec[key] = value
         ec.log.info(
             "[parse hook] Injecting UCX-settings loading")
+
+    return ec
+
+
+def inject_nccl_tweaks(ec):
+    # NCCL require to load NCCL-settings
+    ec_dict = ec.asdict()
+    if ec.name in 'NCCL' and is_system_path(install_path().lower()):
+        key = "modluafooter"
+        value = '''
+if mode()=="load" then
+    try_load("NCCL-settings")
+end
+        '''
+        if key in ec_dict:
+            if not value in ec_dict[key]:
+                ec[key] = "\n".join([ec[key], value])
+        else:
+            ec[key] = value
+        ec.log.info(
+            "[parse hook] Injecting NCCL-settings loading")
 
     return ec
 

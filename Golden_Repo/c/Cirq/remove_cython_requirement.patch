@@ -1,0 +1,9 @@
+# Remove cython requirement at runtime since it is actually only required at buildtime
+--- requirements.txt.orig	2026-01-26 17:05:28.181864873 +0100
++++ requirements.txt	2026-01-26 17:06:00.402446571 +0100
+@@ -1,5 +1,4 @@
+ attrs
+-cython>=3.0.0
+ numpy>=1.23.0
+ protobuf>=4.25
+ pyparsing

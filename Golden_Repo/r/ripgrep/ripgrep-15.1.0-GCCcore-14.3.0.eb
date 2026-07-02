@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'BinariesTarball'
+
+name = 'ripgrep'
+version = '15.1.0'
+
+homepage = 'https://github.com/BurntSushi/ripgrep'
+description = """ripgrep recursively searches directories for a regex pattern while respecting your gitignore"""
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+]
+
+local_arch_rg = {
+    'aarch64': 'aarch64-unknown-linux-gnu',
+    'x86_64':  'x86_64-unknown-linux-musl'
+}
+
+source_urls = ['https://github.com/BurntSushi/ripgrep/releases/download/%(version)s/']
+sources = ['%%(name)s-%%(version)s-%s.tar.gz' % (local_arch_rg[ARCH])]
+
+checksums = [{
+    '%%(name)s-%%(version)s-%s.tar.gz'
+    % (local_arch_rg['aarch64']):
+        '2b661c6ef508e902f388e9098d9c4c5aca72c87b55922d94abdba830b4dc885e',
+    '%%(name)s-%%(version)s-%s.tar.gz'
+    % (local_arch_rg['x86_64']):
+        '1c9297be4a084eea7ecaedf93eb03d058d6faae29bbc57ecdaf5063921491599',
+}]
+
+sanity_check_paths = {
+    'files': ['bin/rg'],
+    'dirs': [],
+}
+
+sanity_check_commands = ['rg --version']
+
+moduleclass = 'tools'

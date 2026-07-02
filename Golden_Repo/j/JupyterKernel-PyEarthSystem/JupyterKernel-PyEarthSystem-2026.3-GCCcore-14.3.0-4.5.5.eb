@@ -1,0 +1,165 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterKernel-PyEarthSystem'
+version = '2026.3'
+local_jupyterver = '4.5.5'
+versionsuffix = '-' + local_jupyterver
+
+homepage = 'https://www.fz-juelich.de'
+description = """
+Special Earth System Modeling kernel for Jupyter.
+Project Jupyter exists to develop open-source software, open-standards, and services
+for interactive computing across dozens of programming languages.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    # just ensure they exist (if they can be loaded here)
+    ('Python-bundle-PyPI', '2025.07'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('netcdf4-python', '1.7.2', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('xarray', '2025.10.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('dask', '2025.9.1', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Cartopy', '0.25.0'),
+    ('Ninja', '1.13.0'),
+    ('GitPython', '3.1.45'),
+    # ('GSL', '2.8'),
+    ('gnuplot', '6.0.3'),
+    ('ncview', '2.1.11'),
+    ('ImageMagick', '7.1.2-7'),
+    ('GDAL', '3.11.3'),
+    ('numba', '0.62.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('plotly.py', '6.5.0'),
+    # ('HDF5', '1.14.6'),
+    # ('OpenMPI', '5.0.8'),
+    # ('NCO', '5.3.6'),
+    # ('CDO', '2.5.4'),
+    # ('mpi4py', '4.1.0'),
+    # ('PyTorch', '2.9.1', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('JupyterLab', local_jupyterver),
+]
+
+components = [
+    ('logos', '1.0', {
+        'easyblock': 'Binary',
+        'sources': [
+            {'filename': 'logo-32x32.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-64x64.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+            {'filename': 'logo-128x128.png', 'extract_cmd': "cp %s %%(builddir)s/"},
+        ],
+        'checksums': [
+            {'logo-32x32.png': '9be08e0d60c570111fc4cee9f93ee2dbda162fbeabe86dadd454f2691e740d2f'},
+            {'logo-64x64.png': 'fda5018fe188829e019e75935e1f1dc34677f5e19bd84d9403a675c460f8030d'},
+            {'logo-128x128.png': '32c80f50184d757afbac72ea72f5120659bc9245bfecaf7762b0dda1f5ecd6eb'},
+        ]
+    }),
+]
+
+exts_list = [
+]
+
+local_kernel_dir = 'pyearthsystem'
+local_kernel_name = 'PyEarthSystem-%s' % version
+
+modextrapaths = {
+    'JUPYTER_PATH': ['share/jupyter'],  # add search path for kernelspecs
+    'HOROVOD_MPI_THREADS_DISABLE': ['1'],  # no mpi by default
+}
+
+# Ensure that the user-specific $HOME/.local/share/jupyter is always first entry in JUPYTHER_PATH
+modluafooter = """
+remove_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+prepend_path("JUPYTER_PATH", pathJoin(os.getenv("HOME"), ".local/share/jupyter"))
+"""
+
+postinstallcmds = [
+    # create kernel skeleton
+    (
+        'python3 -m ipykernel install --name=%s --prefix=%%(installdir)s && '
+        'rm -f %%(installdir)s/share/jupyter/kernels/%s/logo-svg.svg && '
+        'mv %%(installdir)s/logo-32x32.png   %%(installdir)s/share/jupyter/kernels/%s/logo-32x32.png && '
+        'mv %%(installdir)s/logo-64x64.png   %%(installdir)s/share/jupyter/kernels/%s/logo-64x64.png && '
+        'mv %%(installdir)s/logo-128x128.png %%(installdir)s/share/jupyter/kernels/%s/logo-128x128.png'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir, local_kernel_dir),
+
+    # write kernel.sh
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.sh; } << EOF\n'
+        '#!/bin/bash \n'
+        '\n'
+        '# Load required modules \n'
+        'module purge \n'
+        'module load Stages/${STAGE} \n'
+        'module load GCC/14.3.0 \n'
+        'module load OpenMPI/5.0.8 \n'
+        ''
+        'module load %s/%s%s '
+        ' Python-bundle-PyPI/2025.07 '
+        ' SciPy-bundle/2025.07 '
+        ' netcdf4-python/1.7.2 '
+        ' xarray/2025.10.0 '
+        ' dask/2025.9.1 '
+        ' Cartopy/0.25.0 '
+        ' Ninja/1.13.0 '
+        ' GitPython/3.1.45 '
+        ' GSL/2.8 '
+        ' gnuplot/6.0.3 '
+        ' ncview/2.1.11 '
+        ' ImageMagick/7.1.2-7 '
+        ' GDAL/3.11.3 '
+        ' numba/0.62.0 '
+        ' plotly.py/6.5.0 '
+        ' HDF5/1.14.6 '
+        ' NCO/5.3.6 '
+        ' CDO/2.5.4 '
+        ' mpi4py/4.1.0 '
+        ' PyTorch/2.9.1 '
+        '\n'
+        'export PYTHONPATH=%%(installdir)s/lib/python%%(pyshortver)s/site-packages:\\$PYTHONPATH \n'
+        'exec python -m ipykernel \\$@\n'
+        '\n'
+        'EOF'
+    ) % (local_kernel_dir, name, version, versionsuffix),
+    'chmod +x %%(installdir)s/share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+
+    # write kernel.json
+    (
+        '{ cat > %%(installdir)s/share/jupyter/kernels/%s/kernel.json; } << \'EOF\'\n'
+        '{ \n'
+        '  "argv": [ \n'
+        '    "%%(installdir)s/share/jupyter/kernels/%s/kernel.sh", \n'
+        '    "-m", \n'
+        '    "ipykernel_launcher", \n'
+        '    "-f", \n'
+        '    "{connection_file}" \n'
+        '  ], \n'
+        '  "display_name": "%s", \n'
+        '  "language": "python", \n'
+        '  "name": "%s", \n'
+        '  "metadata": { \n'
+        '    "debugger": true \n'
+        '  } \n'
+        '}\n'
+        'EOF'
+    ) % (local_kernel_dir, local_kernel_dir, local_kernel_name, local_kernel_name),
+]
+
+sanity_check_paths = {
+    'files': [
+        'share/jupyter/kernels/%s/kernel.sh' % local_kernel_dir,
+        'share/jupyter/kernels/%s/kernel.json' % local_kernel_dir,
+    ],
+    'dirs': [
+        'share/jupyter/kernels/',
+    ],
+}
+
+moduleclass = 'tools'

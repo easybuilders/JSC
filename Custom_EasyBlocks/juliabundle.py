@@ -24,11 +24,11 @@
 # along with EasyBuild.  If not, see <http://www.gnu.org/licenses/>.
 ##
 """
-EasyBuild support for building and installing Julia packages, implemented as an easyblock
+EasyBuild support for building and installing Julia packages, implemented as an easyblock.
 
 @author: Victor Holanda (CSCS)
 @author: Samuel Omlin (CSCS)
-minor adjustments by Jens Henrik Goebbert (JSC)
+minor adjustments by Jens Henrik Goebbert (JSC) and Frank W. Wagner (JSC)
 """
 import os
 import socket
@@ -36,88 +36,92 @@ import socket
 from easybuild.easyblocks.generic.bundle import Bundle
 from easybuild.tools.config import build_option
 from easybuild.tools import systemtools
-#from easybuild.easyblocks.generic.pythonpackage import PythonPackage, det_pylibdir
 from .juliapackage import JuliaPackage
 
 
 class JuliaBundle(Bundle):
-    """
-    Install an Julia package as a separate module, or as an extension.
-    """
+    """Install a Julia package as a separate module or as an extension."""
 
     @staticmethod
     def extra_options(extra_vars=None):
-        """Easyconfig parameters specific to bundles of Python packages."""
+        """Easyconfig parameters specific to bundles of Julia packages."""
         if extra_vars is None:
             extra_vars = {}
-        # combine custom easyconfig parameters of Bundle & JuliaPackage
         extra_vars = Bundle.extra_options(extra_vars)
         return JuliaPackage.extra_options(extra_vars)
 
     def get_environment_folder(self):
-        if self.cfg['system_name']:
-            systemname = self.cfg['system_name']
-        else:
-            systemname = socket.gethostname().split('.')[1]
+        """Determine environment folder name based on system and architecture."""
+        cfg = self.cfg
 
-        if self.cfg['arch_name'] == '':
-            return systemname
+        system_name = cfg.get('system_name') or socket.gethostname().split('.')[1]
 
-        if self.cfg['arch_name']:
-            return '-'.join([systemname, self.cfg['arch_name']])
+        arch_name = cfg.get('arch_name')
+        if arch_name == '':
+            return system_name
+        if arch_name:
+            return f"{system_name}-{arch_name}"
 
-        if self.cfg['toolchain_name']:
-            return self.cfg['toolchain_name']
+        toolchain_name = cfg.get('toolchain_name')
+        if toolchain_name:
+            return toolchain_name
 
-        cpu_family = systemtools.get_cpu_family()
+        family = systemtools.get_cpu_family()
         arch = systemtools.get_cpu_architecture()
-        return '-'.join([systemname, cpu_family, arch])
+        return f"{system_name}-{family}-{arch}"
 
     def __init__(self, *args, **kwargs):
         super(JuliaBundle, self).__init__(*args, **kwargs)
         self.cfg['exts_defaultclass'] = 'JuliaPackage'
 
-        # need to disable templating to ensure that actual value for exts_default_options is updated...
-        prev_enable_templating = self.cfg.enable_templating
-        self.cfg.enable_templating = False
+        # disable templating so we can update exts_default_options
+        with self.cfg.disable_templating():
 
-        # set default options for extensions according to relevant top-level easyconfig parameters
-        julpkg_keys = JuliaPackage.extra_options().keys()
-        for key in julpkg_keys:
-            if key not in self.cfg['exts_default_options']:
-                self.cfg['exts_default_options'][key] = self.cfg[key]
+            exts_opts = {}
 
-        self.cfg['exts_default_options']['download_dep_fail'] = True
-        self.log.info("Detection of downloaded extension dependencies is enabled")
+            julpkg_keys = JuliaPackage.extra_options().keys()
+            for key in julpkg_keys:
+                if key not in self.cfg['exts_default_options']:
+                    exts_opts[key] = self.cfg[key]
 
-        self.cfg.enable_templating = prev_enable_templating
+            exts_opts['download_dep_fail'] = True
+            self.cfg['exts_default_options'].update(exts_opts)
+
+            self.log.info("Detection of downloaded extension dependencies is enabled.")
 
         self.log.info("exts_default_options: %s", self.cfg['exts_default_options'])
 
+        # depot/load paths
         self.extensions_depot = 'extensions'
 
-        self.admin_load_path = os.path.join(self.extensions_depot, "environments", '-'.join([self.version, self.get_environment_folder()]))
+        self.admin_load_path = os.path.join(self.extensions_depot, 'environments', f"{self.version}-{self.get_environment_folder()}")
 
         self.install_depot = 'local/share/julia'
 
     def sanity_check_step(self):
         """Custom sanity check for Julia."""
-
-        custom_paths = {
-            'files': [],
-            'dirs': ['extensions'],
-        }
-        super(JuliaBundle, self).sanity_check_step(custom_paths=custom_paths)
+        super(JuliaBundle, self).sanity_check_step(
+            custom_paths={
+                'files': [],
+                'dirs': ['extensions'],
+            },
+            custom_commands=[]
+        )
 
     def make_module_extra(self, *args, **kwargs):
         txt = super(JuliaBundle, self).make_module_extra(*args, **kwargs)
 
-        txt += self.module_generator.prepend_paths('EBJULIA_ADMIN_DEPOT_PATH', self.extensions_depot)
+        # Dict of {'varname': (method, value_or_list)} tuples;
+        # method is either 'prepend_paths' or 'append_paths'
+        path_vars = {
+                'JULIA_DEPOT_PATH': ('append_paths', [self.extensions_depot, self.install_depot]),
+                'EBJULIA_ADMIN_DEPOT_PATH': ('prepend_paths', self.extensions_depot),
+                'EBJULIA_ADMIN_LOAD_PATH': ('prepend_paths', self.admin_load_path),
+                'EBJULIA_STD_DEPOT_PATH': ('append_paths', self.install_depot),
+        }
 
-        txt += self.module_generator.prepend_paths('EBJULIA_ADMIN_LOAD_PATH', self.admin_load_path)
-
-        txt += self.module_generator.append_paths('JULIA_DEPOT_PATH', self.install_depot)
-
-        txt += self.module_generator.append_paths('EBJULIA_STD_DEPOT_PATH', self.install_depot)
+        for var, (method_name, val) in path_vars.items():
+            method = getattr(self.module_generator, method_name)
+            txt += method(var, val)
 
         return txt

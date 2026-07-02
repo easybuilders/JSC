@@ -1,0 +1,71 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# For using $SYSTEMNAME to determine license path. The local prefix is to appease the checker
+import os as local_os
+
+easyblock = 'Binary'
+
+name = "VampirServer"
+version = "10.8.1"
+
+homepage = 'http://www.vampir.eu'
+description = """The VAMPIR software tool provides an easy-to-use framework that enables
+developers to quickly display and analyze arbitrary program behavior at any level of detail.
+The tool suite implements optimized event analysis algorithms and customizable displays that
+enable fast and interactive rendering of very complex performance monitoring data.
+"""
+
+download_instructions = """VampirServer requires a license.
+After registration it can be downloaded from https://vampir.eu """
+
+usage = """
+To start VampirServer
+module load Vampir VampirServer
+vampir &
+BATCH_OPT="--account=<budget> --partition=<partition>" vampirserver start -n 4 mpi
+(note server + port + server_id)
+- Use it
+Vampir GUI-> open other -> remote file -> server + port
+- To stop VampirServer
+vampirserver stop <server_id>
+"""
+
+toolchain = {'name': 'gpsmpi', 'version': '2025b'}
+
+toolchainopts = {"usempi": True}
+
+sources = [
+    'vampirserver-%s-linux-x86_64-setup.sh' % (version),
+    'vampirserver-%s-linux-aarch64-setup.sh' % (version),
+]
+checksums = [
+    {'vampirserver-10.8.1-linux-x86_64-setup.sh': '804a2671cf1ef9729838d9c2c604755b1be896b63c6232f2c3e2afa1baab6433'},
+    {'vampirserver-10.8.1-linux-aarch64-setup.sh': 'ffcc9aee373758f81def7ee480b793bacfee81e78cee086a28b6fbd9f707ced3'},
+]
+
+if ARCH == "x86_64":
+    install_cmd = ('./vampirserver-%(version)s-linux-x86_64-setup.sh --silent --instdir=%(installdir)s '
+                   '&& %(installdir)s/bin/vampirserver config --silent')
+else:
+    install_cmd = ('./vampirserver-%(version)s-linux-aarch64-setup.sh --silent --instdir=%(installdir)s '
+                   '&& %(installdir)s/bin/vampirserver config --silent')
+
+
+sanity_check_paths = {
+    'files': ["bin/vampirserver", "doc/vampirserver-manual.pdf"],
+    'dirs': []
+}
+
+# Remove Cray-specific 'ap' launcher,
+# use SLURM launcher as MPI launcher and default
+postinstallcmds = [
+    'rm %(installdir)s/etc/server/launcher/ap',
+    '''sed -i s/'BATCH_OPT=""'/'#BATCH_OPT=""'/g %(installdir)s/etc/server/launcher/slurm''',
+    'cp %(installdir)s/etc/server/launcher/slurm %(installdir)s/etc/server/launcher/mpi',
+]
+
+if local_os.environ['SYSTEMNAME'] == 'jupiter':
+    modextravars = {'VAMPIRSERVER_LICENSE': '/e/software/default/licenses/vampir/vampirserver.license'}
+else:
+    modextravars = {'VAMPIRSERVER_LICENSE': '/p/software/default/licenses/vampir/vampirserver.license'}
+
+moduleclass = 'perf'

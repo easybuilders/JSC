@@ -1,0 +1,60 @@
+diff -Naur nvshmem-3.5.21-0.orig/perftest/CMakeLists.txt nvshmem-3.5.21-0/perftest/CMakeLists.txt
+--- nvshmem-3.5.21-0.orig/perftest/CMakeLists.txt	2026-03-03 11:55:37.154184935 +0100
++++ nvshmem-3.5.21-0/perftest/CMakeLists.txt	2026-03-03 11:57:33.436510722 +0100
+@@ -134,7 +134,7 @@
+ endif()
+ 
+ if(CUDAToolkit_VERSION_MAJOR LESS 13)
+-  set(PERFTEST_CXX_STANDARD 11)
++  set(PERFTEST_CXX_STANDARD 17)
+ else()
+   set(PERFTEST_CXX_STANDARD 17)
+ endif()
+diff -Naur nvshmem-3.5.21-0.orig/src/CMakeLists.txt nvshmem-3.5.21-0/src/CMakeLists.txt
+--- nvshmem-3.5.21-0.orig/src/CMakeLists.txt	2026-03-03 11:55:37.157184944 +0100
++++ nvshmem-3.5.21-0/src/CMakeLists.txt	2026-03-03 11:56:58.477413230 +0100
+@@ -46,7 +46,7 @@
+ ## Start bitcode library configurations
+ 
+ if(CUDAToolkit_VERSION_MAJOR LESS 13)
+-  set(LIB_CXX_STANDARD 11)
++  set(LIB_CXX_STANDARD 17)
+ else()
+   set(LIB_CXX_STANDARD 17)
+ endif()
+diff -Naur nvshmem-3.5.21-0.orig/src/device/CMakeLists.txt nvshmem-3.5.21-0/src/device/CMakeLists.txt
+--- nvshmem-3.5.21-0.orig/src/device/CMakeLists.txt	2026-03-03 11:55:37.157184944 +0100
++++ nvshmem-3.5.21-0/src/device/CMakeLists.txt	2026-03-03 11:56:55.173404017 +0100
+@@ -67,7 +67,7 @@
+ message(STATUS "NVSHMEM_DEBUG: ${NVSHMEM_DEBUG}")
+ 
+ if(CUDAToolkit_VERSION_MAJOR LESS 13)
+-  set(LIB_CXX_STANDARD 11)
++  set(LIB_CXX_STANDARD 17)
+ else()
+   set(LIB_CXX_STANDARD 17)
+ endif()
+diff -Naur nvshmem-3.5.21-0.orig/src/modules/transport/common/CMakeLists.txt.in nvshmem-3.5.21-0/src/modules/transport/common/CMakeLists.txt.in
+--- nvshmem-3.5.21-0.orig/src/modules/transport/common/CMakeLists.txt.in	2026-03-03 11:55:37.164184964 +0100
++++ nvshmem-3.5.21-0/src/modules/transport/common/CMakeLists.txt.in	2026-03-03 11:56:23.574315485 +0100
+@@ -6,7 +6,7 @@
+     CXX_STANDARD_REQUIRED ON
+     CUDA_STANDARD_REQUIRED ON
+     CXX_STANDARD 11
+-    CUDA_STANDARD 11
++    CUDA_STANDARD 17
+     CUDA_SEPARABLE_COMPILATION ON
+   )
+ 
+diff -Naur nvshmem-3.5.21-0.orig/test/CMakeLists.txt nvshmem-3.5.21-0/test/CMakeLists.txt
+--- nvshmem-3.5.21-0.orig/test/CMakeLists.txt	2026-03-03 11:55:37.165184967 +0100
++++ nvshmem-3.5.21-0/test/CMakeLists.txt	2026-03-03 11:57:27.032492864 +0100
+@@ -134,7 +134,7 @@
+ endif()
+ 
+   if(CUDAToolkit_VERSION_MAJOR LESS 13)
+-    set(TEST_CXX_STANDARD 11)
++    set(TEST_CXX_STANDARD 17)
+     set(TEST_CXX_ARG c++11)
+   else()
+     set(TEST_CXX_STANDARD 17)

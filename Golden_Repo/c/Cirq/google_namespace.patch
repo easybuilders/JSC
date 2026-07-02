@@ -1,0 +1,11 @@
+# Fix namespace imports for Cirq when pkg_resources is called.
+# A warning is set by default. Erasing Warning.
+# Replace declare_namespace with pkgutil.extend_path
+--- __init__.py.orig	2025-11-27 15:27:01.921097873 +0100
++++ __init__.py	2025-11-27 15:27:45.001499775 +0100
+@@ -1,4 +1,4 @@
+ try:
+-  __import__('pkg_resources').declare_namespace(__name__)
++  __path__ = __import__('pkgutil').extend_path(__path__, __name__)
+ except ImportError:
+   __path__ = __import__('pkgutil').extend_path(__path__, __name__)

@@ -1,0 +1,138 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'JupyterLab'
+version = '4.5.5'
+
+homepage = 'https://jupyter.org/'
+description = """JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar
+ building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs,
+ etc.) in a flexible and powerful user interface. JupyterLab will eventually replace the classic Jupyter
+ Notebook."""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+dependencies = [
+    ('Python', '3.13.5'),
+    ('IPython', '9.4.0'),
+    ('jupyter-server', '2.17.0'),
+    ('HTTPX', '0.28.1'),
+]
+
+exts_list = [
+    ('json5', '0.12.1', {
+        'checksums': ['b2743e77b3242f8d03c143dd975a6ec7c52e2f2afe76ed934e53503dd4ad4990'],
+    }),
+    ('jupyterlab_server', '2.28.0', {
+        'checksums': ['35baa81898b15f93573e2deca50d11ac0ae407ebb688299d3a5213265033712c'],
+    }),
+    ('jupyter_lsp', '2.3.0', {
+        'checksums': ['458aa59339dc868fb784d73364f17dbce8836e906cd75fd471a325cba02e0245'],
+    }),
+    ('async_lru', '2.0.5', {
+        'checksums': ['481d52ccdd27275f42c43a928b4a50c3bfb2d67af4e78b170e3e0bb39c66e5bb'],
+    }),
+    ('jupyterlab', version, {
+        'checksums': ['eac620698c59eb810e1729909be418d9373d18137cac66637141abba613b3fda'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/jupyter-lab', 'bin/jupyter-labextension', 'bin/jupyter-labhub'],
+    'dirs': ['etc/jupyter', 'share/jupyter'],
+}
+
+postinstallcmds = [
+    # default configuration
+    'mkdir -p %(installdir)s/bin/ ',
+    (
+        # init commands for terminal
+        '{ cat > %(installdir)s/bin/terminadorc; } << \'EOF\'\n'
+        '#!/bin/bash\n'
+        'cat /etc/motd\n'
+        'module purge > /dev/null 2>&1\n'
+        'module load Stages/2026\n'
+        'module load GCCcore/.14.3.0\n'
+        'exec bash -i\n'
+        'EOF'
+    ),
+    'chmod +x %(installdir)s/bin/terminadorc ',
+    'mkdir -p %(installdir)s/etc/jupyter/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/jupyter_notebook_config.py; } << \'EOF\'\n'
+        'import os\n'
+        # set explicit port if required 
+        'port = os.getenv("JUPYTERLAB_PORT")\n'
+        'if port: c.ServerApp.port = int(port)\n'
+        # ensure the user can reach all files
+        'c.ServerApp.root_dir = "/"\n'
+        'home_dir = os.getenv("JUPYTERHUB_HOME") or os.getenv("HOME", "")\n'
+        'if home_dir: c.ServerApp.preferred_dir = home_dir\n'
+        # set start-script from above for terminal initialization
+        'c.ServerApp.terminado_settings={"shell_command": [r"%(installdir)s/bin/terminadorc"]}\n'
+        # set max size of downloadable/uploadable files to 1 GB
+        'c.ServerApp.tornado_settings = {"websocket_max_message_size": 1024 * 1024 * 1024}\n'
+        'c.ServerApp.max_buffer_size = 1024 * 1024 * 1024\n'
+        'c.ServerApp.max_body_size = 1024 * 1024 * 1024\n'
+        # increase connection robustness for websockets 
+        # 'c.ServerApp.websocket_ping_interval = 30\n'
+        # 'c.ServerApp.websocket_ping_timeout = 15\n'
+        # hide quit_button in File-menu
+        'c.ServerApp.quit_button = False\n'
+        'EOF'
+    ),
+    (
+        '{ cat > %(installdir)s/etc/jupyter/jupyter_server_config.py; } << \'EOF\'\n'
+        'import os\n'
+        # set manager without installation capability
+        'c.LabApp.extension_manager="readonly"\n'
+        # set file manager's start dir
+        'system_name = os.getenv("JUPYTERHUB_SERVER_NAME") or os.getenv("SYSTEMNAME", "default")\n'
+        'home_dir = os.getenv("JUPYTERHUB_HOME") or os.getenv("HOME", "")\n'
+        'default_url = f"/lab/workspaces/{system_name}/tree{home_dir}"\n'
+        'c.ServerApp.default_url = default_url\n'
+        'c.LabApp.default_url = default_url\n'
+        # allow to show hidden files
+        'c.ContentsManager.allow_hidden = True\n'
+        'EOF'
+    ),
+
+    # override lab-defaults  ########################
+    # Add the default_setting_override.json file for modifications of the system-wide default settings
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "@jupyterlab/extensionmanager-extension:plugin": {\n'
+        '        "enabled": true\n'
+        '    },\n'
+        '    "@jupyterlab/apputils-extension:notification": {\n'
+        '        "checkForUpdates": false\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+sanity_check_commands = ['jupyter lab --help']
+
+modextrapaths = {
+    # see https://github.com/easybuilders/easybuild-easyconfigs/issues/19097
+    'EB_ENV_JUPYTER_ROOT': '',
+    # needed to allow `default_settings_overrides.json` files in <jupyter_config>/labconfig dirs
+    'JUPYTER_CONFIG_PATH': 'etc/jupyter/',
+}
+modextravars = {
+    # only one path allowed as JUPYTERLAB_DIR
+    'JUPYTERLAB_DIR': '%(installdir)s/share/jupyter/lab',
+    # keep user's configuration in their home directory
+    # note: '~' is not expanded by JupyterLab
+    'JUPYTERLAB_SETTINGS_DIR': '$HOME/.jupyter/lab/user-settings',
+    'JUPYTERLAB_WORKSPACES_DIR': '$HOME/.jupyter/lab/workspaces',
+}
+
+moduleclass = 'tools'

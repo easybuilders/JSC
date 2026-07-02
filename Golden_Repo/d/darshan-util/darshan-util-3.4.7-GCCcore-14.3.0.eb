@@ -1,0 +1,85 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = "ConfigureMake"
+name = "darshan-util"
+version = "3.4.7"
+
+homepage = 'http://www.mcs.anl.gov/research/projects/darshan/'
+
+description = """Darshan is designed to capture an accurate picture of
+application I/O behavior, including properties such as patterns of
+access within files, with minimum overhead.  The name is taken from a
+Sanskrit word for “sight” or “vision”.
+
+The module 'darshan-util' contains a collection of tools for analyzing
+log files produced by Darshan instrumentation (i.e., darshan-runtime).
+This module has been built with the PyDarshan extension.
+"""
+
+usage = """
+The result is a conversion of a darshan log file to a PDF report
+
+darshan-job-summary.pl /path/to/your/logdir/mylog.darshan.gz
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+source_urls = ['https://web.cels.anl.gov/projects/darshan/releases']
+sources = ['darshan-%(version)s.tar.gz']
+checksums = ['115a6d840b3bdb30751c271c0dec098b25bed2f8c77175125c133564d76afe5b']
+
+local_subpath = 'darshan-util'
+
+# The dependency Perl-bundle-CPAN updates the env variable PERL5LIB.
+# This is required only at run time.
+# having this variable set during configuration results in perl binary mismatch error. 
+
+preconfigopts = "unset PERL5LIB && "
+preconfigopts += 'cd %s && ../prepare.sh && ' % local_subpath
+
+prebuildopts = 'cd %s && ' % local_subpath
+
+preinstallopts = 'cd %s && ' % local_subpath
+
+configopts = '--with-zlib=$EBROOTZLIB --with-bzlib=$EBROOTBZIP2'
+
+sanity_check_paths = {
+    'files': ["bin/darshan-job-summary.pl"],
+    'dirs': []
+}
+
+builddependencies = [
+    ("binutils", "2.44"),
+]
+
+
+dependencies = [
+    ("gnuplot", "6.0.3"),
+    ("Perl", "5.40.2"),
+    ("texlive", "20250308"),
+    ("Perl-bundle-CPAN", '5.40.2'),
+    ("Ghostscript", "10.05.1"),
+    ('Python', '3.13.5'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('matplotlib', '3.10.5', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Seaborn', '0.13.2', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Mako', '1.3.10'),
+    ('hatchling', '1.27.0'),
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'prebuildopts': '',
+    'preinstallopts': '',
+}
+
+exts_list = [
+    ('humanize', '4.9.0', {
+        'checksums': ['582a265c931c683a7e9b8ed9559089dea7edcf6cc95be39a3cbc2c5d5ac2bcfa'],
+    }),
+    ('darshan', '3.4.7.0', {
+        'checksums': ['e4e37c2707c5526a865bf4813b248ae4c327664538772e95c946f3b0079dc347'],
+    }),
+]
+
+moduleclass = 'lib'

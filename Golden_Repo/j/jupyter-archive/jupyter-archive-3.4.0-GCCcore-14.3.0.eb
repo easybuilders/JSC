@@ -1,0 +1,49 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyter-archive'
+version = '3.4.0'
+
+homepage = "https://github.com/jupyterlab-contrib/jupyter-archive"
+
+description = """
+A Jupyter/Jupyterlab extension to make, download and extract archive files.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('jupyter-server', '2.17.0'),
+]
+
+exts_list = [
+    ('jupyter_archive', '%(version)s', {
+        'checksums': ['9bf0170e0b45ac83fc46cbf1abc60f40ced5aacf0b5a1dae465eb3bdabaf17e9'],
+    }),
+]
+
+postinstallcmds = [
+    # override default settings
+    'mkdir -p %(installdir)s/etc/jupyter/labconfig/ ',
+    (
+        '{ cat > %(installdir)s/etc/jupyter/labconfig/default_setting_overrides.json; } << \'EOF\'\n'
+        '{\n'
+        '    "@hadim/jupyter-archive:archive": {\n'
+        '        "format": "zip",\n'
+        '        "followSymlinks": "true",\n'
+        '        "downloadHidden": "true"\n'
+        '    }\n'
+        '}\n'
+        'EOF'
+    ),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

@@ -1,0 +1,30 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonPackage'
+
+name = 'torchvision'
+version = '0.24.1'
+
+homepage = 'https://github.com/pytorch/vision'
+description = " Datasets, Transforms and Models specific to Computer Vision"
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '14.3.0-3.4.5'}
+
+source_urls = ['https://download.pytorch.org/whl/cu128/']
+
+if ARCH == 'aarch64':
+    sources = ['%(name)s-%(version)s-cp313-cp313-manylinux_2_28_%(arch)s.whl']
+    checksums = ['7695d95e4e4c25fe1af3b880ffcd2dbcaa43cce7fd7edbe0157305b837c1dcf8']
+else:
+    sources = ['%(name)s-%(version)s%2Bcu128-cp313-cp313-manylinux_2_28_%(arch)s.whl']
+    checksums = ['5f7c5e0fa08d2cbee93b6e04bbedd59b5e11462cff6cefd07949217265df2370']
+
+builddependencies = [('CMake', '4.0.3')]
+
+dependencies = [
+    ('CUDA', '13', '', SYSTEM),
+    ('Python', '3.13.5'),
+    ('Pillow', '11.3.0'),
+    ('PyTorch', '2.9.1'),
+]
+
+moduleclass = 'vis'

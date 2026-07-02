@@ -1,0 +1,297 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'MyQLM'
+version = '1.13.1'
+
+homepage = 'https://atos.net/en/lp/myqlm'
+description = """myQLM is a quantum software stack for writing, simulating, optimizing, and executing quantum programs.
+    myQLM also interfaces with the QLM, for Quantum Learning Machine, the quantum programming appliance of Atos."""
+
+toolchain = {'name': 'foss', 'version': '2025b'}
+
+builddependencies = [
+    ('poetry', '2.1.3'),
+    ('CMake', '4.0.3'),
+    ('maturin', '1.9.1'),
+    ('setuptools-rust', '1.11.0'),
+    ('hatchling', '1.27.0'),
+    ('pybind11', '3.0.0'),
+    ('PDM', '2.25.5'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('dill', '0.4.0'),
+    ('networkx', '3.5', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('tqdm', '4.67.1'),
+    ('CUDA', '13', '', SYSTEM),
+    ('matplotlib', '3.10.5', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('plotly.py', '6.5.0'),
+    ('Qutip', '5.2.1'),
+    ('IPython', '9.4.0'),
+    ('jax', '0.8.1', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Pulser', '1.6.2'),
+    ('Cirq', '2025.09'),
+    ('Qiskit', '2.2.0'),
+    ('SymEngine-Python', '0.14.0'),
+    ('ml_dtypes', '0.5.3', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('qoqo-quest', '0.18.0'),
+]
+
+local_architecture = {
+    'aarch64': '2_34_aarch64',
+    'x86_64':  '2_28_x86_64'
+}
+
+exts_list = [
+    ('Wand', '0.6.13', {
+        'checksums': ['f5013484eaf7a20eb22d1821aaefe60b50cc329722372b5f8565d46d4aaafcca'],
+    }),
+    ('websockets', '15.0.1', {
+        'checksums': ['82544de02076bafba038ce055ee6412d68da13ab47f0c60cab827346de828dee'],
+    }),
+    ('thrift', '0.21.0', {
+        'checksums': ['5e6f7c50f936ebfa23e924229afc95eb219f8c8e5a83202dd4a391244803e402'],
+    }),
+    ('svgwrite', '1.4.3', {
+        'checksums': ['a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3'],
+        'source_tmpl': '%(name)s-%(version)s.zip'
+    }),
+    ('stim', '1.15.0', {
+        'checksums': ['95236006859d6754be99629d4fb44788e742e962ac8c59caad421ca088f7350e'],
+    }),
+    ('prettytable', '3.16.0', {
+        'checksums': ['3c64b31719d961bf69c9a7e03d0c1e477320906a98da63952bc6698d6164ff57'],
+    }),
+    ('anytree', '2.13.0', {
+        'checksums': ['c9d3aa6825fdd06af7ebb05b4ef291d2db63e62bb1f9b7d9b71354be9d362714'],
+    }),
+    ('qat_comm', '1.9.0', {
+        'modulename': 'qat.comm',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '5b560c8112041df5942d813714fdced92f37e1a24a31b8993e3ea903b0da4893',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '39accae71c6b08923ea60705fdab506d9c8a2212e6b12cf1a5eb94010fa3c19b',
+        }],
+    }),
+    ('pyopenssl', '25.1.0', {
+        'modulename': 'OpenSSL',
+        'checksums': ['8d031884482e0c67ee92bf9a4d8cceb08d92aba7136432ffb0703c5280fc205b'],
+    }),
+    ('qat_core', '1.13.1', {
+        'modulename': 'qat.core',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '41a6e5ed1a5a53f18ee29914213ae4a9580b3193f085c35839616135c210acd6',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '554e64e5cd1794d7900d83357ed55ede7d7d4f24eeafd9551ff4e26cbcd400ee',
+        }],
+    }),
+    ('qat_linalg_util', '1.1.0', {
+        'modulename': 'qat.linalgutil',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'f5a84bd5911629c70a11a81654da537988a38da3c5b0c2b71c411474d0c50556',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '708c1e576fa6d755d734fdcc8f474c307305df75b6464532c22ec48022ccbec8',
+        }],
+    }),
+    ('qat_lang', '3.4.0', {
+        'modulename': 'qat.lang',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'dbd30679a43230237756f7e043fe7e45d92013d7880a2cbd731e1b84cc037c2c',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '8236d8c8cd218d73e448873664097aec93da03f9c809f81134293f2f68d0ba05',
+        }],
+    }),
+    ('qat_fusion', '0.4.0', {
+        'modulename': 'qat.fusion',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '24a4965ac1e0d0cfe6c5fedefc8b2769aa472b24269bd5ca19a56779c6ded175',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                'c1d85b6cf96d7a465bd51263ab5bd816ceed5fc4c44798094171aebee21663a5',
+        }],
+    }),
+    ('qat_devices', '0.6.0', {
+        'modulename': 'qat.devices',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '0c7da71cde121b6b7b1353b1c34ba1b8e824df51ede5fbd41cb0585c1d90d889',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '8589ba2e6fc85ce0f5ebb524bcfd1fff9dd633f60b3b5c1ecccc42ca6ce2c9b1',
+        }],
+    }),
+    ('qat_anapli', '0.3.0', {
+        'modulename': 'qat.anapli',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'a806d6c91543b656a63c7b03aad416ef27cab43b8257125a682f97dbe94d2e13',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '2a14557cf6c5ce409c08f3545368bc0fe4d561bb5373630c013289e82070c8a0',
+        }],
+    }),
+    ('myqlm_contrib', '1.11.0', {
+        'modulename': 'qat.sabre',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['3e1a395d0e84d7239f2ba530c20490839a531444780d08b47a2cd30b5fc206a2'],
+    }),
+    ('qat_variational', '1.8.0', {
+        'modulename': 'qat.plugins',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '355d917f1bf4f7549c114d9cc551177f9cadd26bb2d9d11fb75b819522f9b354',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '44413942c26ca18080a5743c7422fb3dfb395d0188aac20d56983c94a208fe45',
+        }],
+    }),
+    ('qat_quops', '1.6.0', {
+        'modulename': 'qat.quops',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '99aa6b2c1f4ebdf76a7f42123c274018b3decae17fcc8f427c772fa6abdb5ba3',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '8a54a6c7496c0e1bdfab9a5cb2a56709ad573a3b3999c78daa257230e73a9daa',
+        }],
+    }),
+    ('qat_pbo', '1.7.0', {
+        'modulename': 'qat.pbo',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'c406f361983594eeef319ab24c873ae9bdf94222cde5a5786e535e8790e3d41c',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                'ee9c63d4c61b557e1a68e99807b3e1ff94322f4cdf1a9da906827b75a6487795',
+        }],
+    }),
+    ('qat_hardware', '1.7.0', {
+        'modulename': 'qat.hardware',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'df98b5e566561a819a31ccaec92138f14f899c68b17a2fe20aa65903f8604600',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                'faa2c05e54ed12063fbbd58d36b0b14d574bae9c5e2c70b43edcfb49024236c0',
+        }],
+    }),
+    ('myqlm_clinalg', '0.5.0', {
+        'modulename': 'qat.clinalg',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'd5032b08ac75bbb38657541a4532bae0ee5b28fee5537be673177052019a2073',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                'c3fed0264a8ca31f0f31f5808fc33b00c19259760df13fadf84e194d39550b21',
+        }],
+    }),
+    ('qat_nnize', '1.5.0', {
+        'modulename': 'qat.nnize',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'ee55126c79de54cffd143e0c2a72c559d73bc1671c8348dba9a0be27b4f2c56c',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '2f13525558e23be217575d53af604ec5a10f9160b3e2e61e70f109af2877337a',
+        }],
+    }),
+    ('qat_analog', '0.8.0', {
+        'modulename': 'qat.analog',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '0e866f236fc66b5880e438f13e470b8858737956fd1c49c9762dd5791fc76d7f',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '12a475987a42c44370e67a4b070b978a651c09b3b3c0ea49158533f89aa35287',
+        }],
+    }),
+    ('myqlm_simulators', '1.11.0', {
+        'modulename': 'qat.pylinalg',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['024393ef02b4520048d63d6430896f54146398cc3384f23eefe8b1fd4bd8260d'],
+    }),
+    ('qat_synthopline', '0.6.0', {
+        'modulename': 'qat.synthopline',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'b90a1a6db5fb9e14780d3654364b0ec8aea3331e5f65732c42c6976edcda96f4',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '9b114c64163a32af550ba28274ca48ddbb1b92ac57c0d167719d53411fc490e8',
+        }],
+    }),
+    ('qlmaas', '1.13.1', {
+        'modulename': 'qat.qlmaas',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                'e7e81aef12f69dc1bc13334b8c8e2972fee4d1ca9917624b0be94406d80f3edb',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '5d3727709a515826617ee19e788f9f37e28d93a37c7fd9c17f86deef55560e2a',
+        }],
+    }),
+    ('myqlm_fermion', '1.4.0', {
+        'modulename': 'qat.fermion',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['e8f4521900294256057faacb89bab0c718274b78af3bb27d30aa8bbda41e2a55'],
+    }),
+    ('myqlm', version, {
+        'modulename': 'qat',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['f63693d98f07bfe44d48943294b171e8ea3611b087b2a5faf4664be8133f7c9e'],
+    }),
+    # myqlm-qiskit binding:
+    # Next extensions obtained from 'pip install myqlm-interop[all]' (except pyquil)
+    ('myqlm_interop', '2.1.0', {
+        'modulename': 'qat.interop',
+        'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl',
+        'checksums': ['44ad6170e72817e00298cc1782efb39f700a7c6d7492341fda97c4d29c5a2ea0'],
+    }),
+    ('narwhals', '2.12.0', {
+        'checksums': ['075b6d56f3a222613793e025744b129439ecdff9292ea6615dd983af7ba6ea44'],
+    }),
+    # myqlm-pulser binding:
+    ('pulser_myqlm', '0.8.3', {
+        'source_urls': ['https://github.com/pasqal-io/Pulser-myQLM/archive/refs/tags/'],
+        'sources': ['v%(version)s.tar.gz'],
+        'checksums': ['2a3c1ed5d1bb1fc6412543767db2d5cdd6b3c02d7ba959b4033503b24956e971'],
+    }),
+    ('projectq', '0.8.0', {
+        'checksums': ['0bcd242afabe947ac4737dffab1de62628b84125ee6ccb3ec23bd4f1d082ec60'],
+    }),
+    # qoqo_myqlm returned to myqlm to make qoqo-quest MyQLM independent
+    ('qoqo_myqlm', '0.5.0', {
+        'checksums': ['2734abc9fdfb074247737a3cc29e2f5ff8fba8eecff4513cf53376ca3615563b'],
+    }),
+    # pulser_myqlm qat_interop (qiskit_myqlm) in this easyconfig since they are more stable
+    # pygsti added in mGST easyconfig from now on
+    ('qat_qiskit', '0.1.0', {
+        'modulename': 'qat.qiskit',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['aarch64']:
+                '323d7f39a89dabe4ad74b49ef838e7f4e94b5f168ab71853d4edcc16353f6184',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_%s.whl' % local_architecture['x86_64']:
+                '37f1bdcfbdd0801c4be75f6c65ed0cc2786b348fef825be9869fe02ebf0cbbec',
+        }],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['lib/python%(pyshortver)s/site-packages/qat/__init__.so'],
+    'dirs': ['bin'],
+}
+
+moduleclass = 'quantum'

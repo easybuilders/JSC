@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterlab-favorites'
+version = '3.5.0'
+
+homepage = "https://github.com/jupyterlab-contrib/jupyterlab-favorites"
+
+description = """
+Add the ability to save favorite folders to JupyterLab for quicker browsing.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('JupyterLab', '4.5.5'),
+]
+
+exts_list = [
+    ('jsonmerge', '1.9.2', {
+        'checksums': ['c43757e0180b0e19b7ae4c130ad42a07cc580c31912f61f4823e8eaf2fa394a3'],
+    }),
+    ('jupyterlab_favorites', version, {
+        'patches': [('update_favorites_json', '.')],
+        'checksums': [
+            'fbe1961b14fb87bbb8c24251e50b6c78a049b9e6bd7da33048e7d91a46abea82',
+            '496a9ef8bb7f399907a8923e1386d541528e77e237ea7e3abe5b28d432a9bd11',
+        ],
+    }),
+]
+
+postinstallcmds = [
+    #  store default in ../share/jupyter/lab/schemas/jupyterlab-favorites/favorites.json
+    #  create dynamic defaults for $HOME, $SCRATCH, $PROJECT with the following script
+    'mkdir -p %(installdir)s/bin/ ',
+    (
+        'install -m 0755 '
+        '        %(builddir)s/jupyterlab_favorites/jupyterlab_favorites-%(version)s/update_favorites_json '
+        '        %(installdir)s/bin/ '
+    ),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

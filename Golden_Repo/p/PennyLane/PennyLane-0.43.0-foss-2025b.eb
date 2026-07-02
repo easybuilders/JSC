@@ -1,0 +1,312 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CargoPythonBundle'
+
+name = 'PennyLane'
+version = '0.43.0'
+
+homepage = 'https://pennylane.ai/'
+description = """
+PennyLane is a cross-platform Python library for quantum computing,
+quantum machine learning, and quantum chemistry. 
+"""
+
+toolchain = {'name': 'foss', 'version': '2025b'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    # required for rustwork:
+    ('Rust', '1.88.0'),
+    # For PennyLane-Lightning:
+    ('CMake', '4.0.3'),
+    # required for rustworkx:
+    ('setuptools-rust', '1.11.0'),
+    # For PennyLane-Lightning
+    ('poetry', '2.1.3'),
+    ('Ninja', '1.13.0'),
+    ('ninja-python', '1.11.1.4'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('Python-bundle-PyPI', '2025.07'),
+    ('flit', '3.12.0'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('networkx', '3.5', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('CUDA', '13', '', SYSTEM),
+    ('cuQuantum-Python', '25.09.0'),
+    ('pybind11', '3.0.0'),
+    ('Pulser', '1.6.2'),
+]
+
+crates = [
+    ('adler2', '2.0.0'),
+    ('aho-corasick', '1.1.3'),
+    ('allocator-api2', '0.2.21'),
+    ('arbitrary', '1.4.1'),
+    ('autocfg', '1.4.0'),
+    ('bitflags', '2.9.0'),
+    ('cc', '1.2.18'),
+    ('cfg-if', '1.0.0'),
+    ('crc32fast', '1.4.2'),
+    ('crossbeam-deque', '0.8.6'),
+    ('crossbeam-epoch', '0.9.18'),
+    ('crossbeam-utils', '0.8.21'),
+    ('derive_arbitrary', '1.4.1'),
+    ('either', '1.15.0'),
+    ('env_logger', '0.8.4'),
+    ('equivalent', '1.0.2'),
+    ('fixedbitset', '0.5.7'),
+    ('flate2', '1.1.1'),
+    ('foldhash', '0.1.5'),
+    ('getrandom', '0.2.15'),
+    ('getrandom', '0.3.2'),
+    ('hashbrown', '0.15.2'),
+    ('heck', '0.5.0'),
+    ('hermit-abi', '0.3.9'),
+    ('indexmap', '2.9.0'),
+    ('indoc', '2.0.6'),
+    ('itertools', '0.13.0'),
+    ('itertools', '0.14.0'),
+    ('itoa', '1.0.15'),
+    ('jobserver', '0.1.33'),
+    ('libc', '0.2.171'),
+    ('libfuzzer-sys', '0.4.9'),
+    ('libm', '0.2.15'),
+    ('log', '0.4.27'),
+    ('matrixmultiply', '0.3.9'),
+    ('memchr', '2.7.4'),
+    ('memoffset', '0.9.1'),
+    ('miniz_oxide', '0.8.7'),
+    ('ndarray', '0.16.1'),
+    ('ndarray-stats', '0.6.0'),
+    ('noisy_float', '0.2.0'),
+    ('num-bigint', '0.4.6'),
+    ('num-complex', '0.4.6'),
+    ('num-integer', '0.1.46'),
+    ('num-traits', '0.2.19'),
+    ('num_cpus', '1.16.0'),
+    ('numpy', '0.24.0'),
+    ('once_cell', '1.21.3'),
+    ('petgraph', '0.8.1'),
+    ('portable-atomic', '1.11.0'),
+    ('portable-atomic-util', '0.2.4'),
+    ('ppv-lite86', '0.2.21'),
+    ('priority-queue', '2.3.1'),
+    ('proc-macro2', '1.0.94'),
+    ('pyo3', '0.24.1'),
+    ('pyo3-build-config', '0.24.1'),
+    ('pyo3-ffi', '0.24.1'),
+    ('pyo3-macros', '0.24.1'),
+    ('pyo3-macros-backend', '0.24.1'),
+    ('quick-xml', '0.37.4'),
+    ('quickcheck', '1.0.3'),
+    ('quickcheck_macros', '1.1.0'),
+    ('quote', '1.0.40'),
+    ('r-efi', '5.2.0'),
+    ('rand', '0.8.5'),
+    ('rand', '0.9.1'),
+    ('rand_chacha', '0.3.1'),
+    ('rand_chacha', '0.9.0'),
+    ('rand_core', '0.6.4'),
+    ('rand_core', '0.9.3'),
+    ('rand_distr', '0.5.1'),
+    ('rand_pcg', '0.9.0'),
+    ('rawpointer', '0.2.1'),
+    ('rayon', '1.10.0'),
+    ('rayon-cond', '0.4.0'),
+    ('rayon-core', '1.12.1'),
+    ('regex', '1.11.1'),
+    ('regex-automata', '0.4.9'),
+    ('regex-syntax', '0.8.5'),
+    ('rustc-hash', '2.1.1'),
+    ('ryu', '1.0.20'),
+    ('serde', '1.0.219'),
+    ('serde_derive', '1.0.219'),
+    ('serde_json', '1.0.140'),
+    ('shlex', '1.3.0'),
+    ('smallvec', '1.15.0'),
+    ('sprs', '0.11.3'),
+    ('syn', '2.0.100'),
+    ('target-lexicon', '0.13.2'),
+    ('unicode-ident', '1.0.18'),
+    ('unindent', '0.2.4'),
+    ('wasi', '0.11.0+wasi-snapshot-preview1'),
+    ('wasi', '0.14.2+wasi-0.2.4'),
+    ('wit-bindgen-rt', '0.39.0'),
+    ('zerocopy', '0.8.24'),
+    ('zerocopy-derive', '0.8.24'),
+]
+
+checksums = [
+    {'adler2-2.0.0.tar.gz': '512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627'},
+    {'aho-corasick-1.1.3.tar.gz': '8e60d3430d3a69478ad0993f19238d2df97c507009a52b3c10addcd7f6bcb916'},
+    {'allocator-api2-0.2.21.tar.gz': '683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923'},
+    {'arbitrary-1.4.1.tar.gz': 'dde20b3d026af13f561bdd0f15edf01fc734f0dafcedbaf42bba506a9517f223'},
+    {'autocfg-1.4.0.tar.gz': 'ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26'},
+    {'bitflags-2.9.0.tar.gz': '5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd'},
+    {'cc-1.2.18.tar.gz': '525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c'},
+    {'cfg-if-1.0.0.tar.gz': 'baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd'},
+    {'crc32fast-1.4.2.tar.gz': 'a97769d94ddab943e4510d138150169a2758b5ef3eb191a9ee688de3e23ef7b3'},
+    {'crossbeam-deque-0.8.6.tar.gz': '9dd111b7b7f7d55b72c0a6ae361660ee5853c9af73f70c3c2ef6858b950e2e51'},
+    {'crossbeam-epoch-0.9.18.tar.gz': '5b82ac4a3c2ca9c3460964f020e1402edd5753411d7737aa39c3714ad1b5420e'},
+    {'crossbeam-utils-0.8.21.tar.gz': 'd0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28'},
+    {'derive_arbitrary-1.4.1.tar.gz': '30542c1ad912e0e3d22a1935c290e12e8a29d704a420177a31faad4a601a0800'},
+    {'either-1.15.0.tar.gz': '48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719'},
+    {'env_logger-0.8.4.tar.gz': 'a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3'},
+    {'equivalent-1.0.2.tar.gz': '877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f'},
+    {'fixedbitset-0.5.7.tar.gz': '1d674e81391d1e1ab681a28d99df07927c6d4aa5b027d7da16ba32d1d21ecd99'},
+    {'flate2-1.1.1.tar.gz': '7ced92e76e966ca2fd84c8f7aa01a4aea65b0eb6648d72f7c8f3e2764a67fece'},
+    {'foldhash-0.1.5.tar.gz': 'd9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2'},
+    {'getrandom-0.2.15.tar.gz': 'c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7'},
+    {'getrandom-0.3.2.tar.gz': '73fea8450eea4bac3940448fb7ae50d91f034f941199fcd9d909a5a07aa455f0'},
+    {'hashbrown-0.15.2.tar.gz': 'bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289'},
+    {'heck-0.5.0.tar.gz': '2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea'},
+    {'hermit-abi-0.3.9.tar.gz': 'd231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024'},
+    {'indexmap-2.9.0.tar.gz': 'cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e'},
+    {'indoc-2.0.6.tar.gz': 'f4c7245a08504955605670dbf141fceab975f15ca21570696aebe9d2e71576bd'},
+    {'itertools-0.13.0.tar.gz': '413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186'},
+    {'itertools-0.14.0.tar.gz': '2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285'},
+    {'itoa-1.0.15.tar.gz': '4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c'},
+    {'jobserver-0.1.33.tar.gz': '38f262f097c174adebe41eb73d66ae9c06b2844fb0da69969647bbddd9b0538a'},
+    {'libc-0.2.171.tar.gz': 'c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6'},
+    {'libfuzzer-sys-0.4.9.tar.gz': 'cf78f52d400cf2d84a3a973a78a592b4adc535739e0a5597a0da6f0c357adc75'},
+    {'libm-0.2.15.tar.gz': 'f9fbbcab51052fe104eb5e5d351cf728d30a5be1fe14d9be8a3b097481fb97de'},
+    {'log-0.4.27.tar.gz': '13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94'},
+    {'matrixmultiply-0.3.9.tar.gz': '9380b911e3e96d10c1f415da0876389aaf1b56759054eeb0de7df940c456ba1a'},
+    {'memchr-2.7.4.tar.gz': '78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3'},
+    {'memoffset-0.9.1.tar.gz': '488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a'},
+    {'miniz_oxide-0.8.7.tar.gz': 'ff70ce3e48ae43fa075863cef62e8b43b71a4f2382229920e0df362592919430'},
+    {'ndarray-0.16.1.tar.gz': '882ed72dce9365842bf196bdeedf5055305f11fc8c03dee7bb0194a6cad34841'},
+    {'ndarray-stats-0.6.0.tar.gz': '17ebbe97acce52d06aebed4cd4a87c0941f4b2519b59b82b4feb5bd0ce003dfd'},
+    {'noisy_float-0.2.0.tar.gz': '978fe6e6ebc0bf53de533cd456ca2d9de13de13856eda1518a285d7705a213af'},
+    {'num-bigint-0.4.6.tar.gz': 'a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9'},
+    {'num-complex-0.4.6.tar.gz': '73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495'},
+    {'num-integer-0.1.46.tar.gz': '7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f'},
+    {'num-traits-0.2.19.tar.gz': '071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841'},
+    {'num_cpus-1.16.0.tar.gz': '4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43'},
+    {'numpy-0.24.0.tar.gz': 'a7cfbf3f0feededcaa4d289fe3079b03659e85c5b5a177f4ba6fb01ab4fb3e39'},
+    {'once_cell-1.21.3.tar.gz': '42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d'},
+    {'petgraph-0.8.1.tar.gz': '7a98c6720655620a521dcc722d0ad66cd8afd5d86e34a89ef691c50b7b24de06'},
+    {'portable-atomic-1.11.0.tar.gz': '350e9b48cbc6b0e028b0473b114454c6316e57336ee184ceab6e53f72c178b3e'},
+    {'portable-atomic-util-0.2.4.tar.gz': 'd8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507'},
+    {'ppv-lite86-0.2.21.tar.gz': '85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9'},
+    {'priority-queue-2.3.1.tar.gz': 'ef08705fa1589a1a59aa924ad77d14722cb0cd97b67dd5004ed5f4a4873fce8d'},
+    {'proc-macro2-1.0.94.tar.gz': 'a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84'},
+    {'pyo3-0.24.1.tar.gz': '17da310086b068fbdcefbba30aeb3721d5bb9af8db4987d6735b2183ca567229'},
+    {'pyo3-build-config-0.24.1.tar.gz': 'e27165889bd793000a098bb966adc4300c312497ea25cf7a690a9f0ac5aa5fc1'},
+    {'pyo3-ffi-0.24.1.tar.gz': '05280526e1dbf6b420062f3ef228b78c0c54ba94e157f5cb724a609d0f2faabc'},
+    {'pyo3-macros-0.24.1.tar.gz': '5c3ce5686aa4d3f63359a5100c62a127c9f15e8398e5fdeb5deef1fed5cd5f44'},
+    {'pyo3-macros-backend-0.24.1.tar.gz': 'f4cf6faa0cbfb0ed08e89beb8103ae9724eb4750e3a78084ba4017cbe94f3855'},
+    {'quick-xml-0.37.4.tar.gz': 'a4ce8c88de324ff838700f36fb6ab86c96df0e3c4ab6ef3a9b2044465cce1369'},
+    {'quickcheck-1.0.3.tar.gz': '588f6378e4dd99458b60ec275b4477add41ce4fa9f64dcba6f15adccb19b50d6'},
+    {'quickcheck_macros-1.1.0.tar.gz': 'f71ee38b42f8459a88d3362be6f9b841ad2d5421844f61eb1c59c11bff3ac14a'},
+    {'quote-1.0.40.tar.gz': '1885c039570dc00dcb4ff087a89e185fd56bae234ddc7f056a945bf36467248d'},
+    {'r-efi-5.2.0.tar.gz': '74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5'},
+    {'rand-0.8.5.tar.gz': '34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404'},
+    {'rand-0.9.1.tar.gz': '9fbfd9d094a40bf3ae768db9361049ace4c0e04a4fd6b359518bd7b73a73dd97'},
+    {'rand_chacha-0.3.1.tar.gz': 'e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88'},
+    {'rand_chacha-0.9.0.tar.gz': 'd3022b5f1df60f26e1ffddd6c66e8aa15de382ae63b3a0c1bfc0e4d3e3f325cb'},
+    {'rand_core-0.6.4.tar.gz': 'ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c'},
+    {'rand_core-0.9.3.tar.gz': '99d9a13982dcf210057a8a78572b2217b667c3beacbf3a0d8b454f6f82837d38'},
+    {'rand_distr-0.5.1.tar.gz': '6a8615d50dcf34fa31f7ab52692afec947c4dd0ab803cc87cb3b0b4570ff7463'},
+    {'rand_pcg-0.9.0.tar.gz': 'b48ac3f7ffaab7fac4d2376632268aa5f89abdb55f7ebf8f4d11fffccb2320f7'},
+    {'rawpointer-0.2.1.tar.gz': '60a357793950651c4ed0f3f52338f53b2f809f32d83a07f72909fa13e4c6c1e3'},
+    {'rayon-1.10.0.tar.gz': 'b418a60154510ca1a002a752ca9714984e21e4241e804d32555251faf8b78ffa'},
+    {'rayon-cond-0.4.0.tar.gz': '2964d0cf57a3e7a06e8183d14a8b527195c706b7983549cd5462d5aa3747438f'},
+    {'rayon-core-1.12.1.tar.gz': '1465873a3dfdaa8ae7cb14b4383657caab0b3e8a0aa9ae8e04b044854c8dfce2'},
+    {'regex-1.11.1.tar.gz': 'b544ef1b4eac5dc2db33ea63606ae9ffcfac26c1416a2806ae0bf5f56b201191'},
+    {'regex-automata-0.4.9.tar.gz': '809e8dc61f6de73b46c85f4c96486310fe304c434cfa43669d7b40f711150908'},
+    {'regex-syntax-0.8.5.tar.gz': '2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c'},
+    {'rustc-hash-2.1.1.tar.gz': '357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d'},
+    {'ryu-1.0.20.tar.gz': '28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f'},
+    {'serde-1.0.219.tar.gz': '5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6'},
+    {'serde_derive-1.0.219.tar.gz': '5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00'},
+    {'serde_json-1.0.140.tar.gz': '20068b6e96dc6c9bd23e01df8827e6c7e1f2fddd43c21810382803c136b99373'},
+    {'shlex-1.3.0.tar.gz': '0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64'},
+    {'smallvec-1.15.0.tar.gz': '8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9'},
+    {'sprs-0.11.3.tar.gz': '8bff8419009a08f6cb7519a602c5590241fbff1446bcc823c07af15386eb801b'},
+    {'syn-2.0.100.tar.gz': 'b09a44accad81e1ba1cd74a32461ba89dee89095ba17b32f5d03683b1b1fc2a0'},
+    {'target-lexicon-0.13.2.tar.gz': 'e502f78cdbb8ba4718f566c418c52bc729126ffd16baee5baa718cf25dd5a69a'},
+    {'unicode-ident-1.0.18.tar.gz': '5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512'},
+    {'unindent-0.2.4.tar.gz': '7264e107f553ccae879d21fbea1d6724ac785e8c3bfc762137959b5802826ef3'},
+    {'wasi-0.11.0+wasi-snapshot-preview1.tar.gz': '9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423'},
+    {'wasi-0.14.2+wasi-0.2.4.tar.gz': '9683f9a5a998d873c0d21fcbe3c083009670149a8fab228644b8bd36b2c48cb3'},
+    {'wit-bindgen-rt-0.39.0.tar.gz': '6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1'},
+    {'zerocopy-0.8.24.tar.gz': '2586fea28e186957ef732a5f8b3be2da217d65c5969d4b1e17f973ebbe876879'},
+    {'zerocopy-derive-0.8.24.tar.gz': 'a996a8f63c5c4448cd959ac1bab0aaa3306ccfd060472f85943ee0750f0169be'},
+]
+
+local_arch = {
+    'aarch64': 'aarch64',
+    'x86_64':  'x86_64'
+}
+
+exts_list = [
+    ('termcolor', '3.1.0', {
+        'checksums': ['6a6dd7fbee581909eeec6a756cff1d7f7c376063b14e4a298dc4980309e55970'],
+    }),
+    ('rustworkx', '0.17.1', {
+        'checksums': ['59ea01b4e603daffa4e8827316c1641eef18ae9032f0b1b14aa0181687e3108e'],
+    }),
+    ('cachetools', '6.2.1', {
+        'checksums': ['3f391e4bd8f8bf0931169baf7456cc822705f4e2a31f840d218f445b9a854201'],
+    }),
+    ('autoray', '0.8.0', {
+        'checksums': ['5d0d71da03cb02d5bc590a1af64e0ba58589352d628843a0ecbcfe90040dc520'],
+    }),
+    ('autograd', '1.8.0', {
+        'checksums': ['107374ded5b09fc8643ac925348c0369e7b0e73bbed9565ffd61b8fd04425683'],
+    }),
+    ('astunparse', '1.6.3', {
+        'checksums': ['5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872'],
+    }),
+    ('diastatic-malt', '2.15.2', {
+        'modulename': 'malt',
+        'checksums': ['7eb90d8c30b7ff16b4e84c3a65de2ff7f5b7b9d0f5cdea23918e747ff7fb5320'],
+    }),
+    ('pennylane_lightning', version, {
+        'checksums': ['ee6f34d4733be0e1d1ba1a12b3a9d3672c9fa455786dbc062176bfe028d6c69d'],
+    }),
+    ('pennylane', version, {
+        'preinstallopts': "set -e; export SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PENNYLANE=0.43.0 && ",
+        'source_tmpl': 'v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/PennyLaneAI/pennylane/archive/refs/tags/'],
+        'checksums': ['626e96fd08152b18fd28f7d29de19e262893e0557e5c22f70093cd324f6dcd1d'],
+    }),
+    ('pennylane_lightning_tensor', version, {
+        # 'pennylane_lightning.lightning_tensor' not available on non-GPU nodes.
+        # Re-run and compiled successfully in all systems (x86_64, aarch64)
+        'modulename': False,
+        'patches': ['nanobind-stl-pair.patch'],
+        'checksums': [
+            {'%(name)s-%(version)s.tar.gz': 'bd61a5d89e83498eaac670205506425bc4a460da12ffdbd08c1096694fde6b5d'},
+            {'nanobind-stl-pair.patch': 'eddcc6063441a1f7283d81000f76c5b15f07ca4fc1d47fe7f8d457d57a5acfdf'},
+        ],
+    }),
+    ('pennylane_lightning_gpu', version, {
+        'modulename': 'pennylane_lightning.lightning_gpu',
+        'checksums': ['9bf611852f4b4dd368c94941376462d7f3fe95faa39281f47bc7a272ca8f4341'],
+    }),
+    ('pennylane_lightning_kokkos', version, {
+        'modulename': 'pennylane_lightning.lightning_kokkos',
+        'checksums': ['f128372b1050bc5fa8029d3c81a04e3336a0cf6b2f51f2e92bb5173fc21697df'],
+    }),
+]
+
+postinstallcmds = [
+    r"""
+    for pkg in \
+      pennylane_lightning \
+      pennylane_lightning_kokkos \
+      pennylane_lightning_tensor \
+      pennylane_lightning_gpu
+    do
+        meta="%(installdir)s/lib/python%(pyshortver)s/site-packages/${pkg}-0.43.0.dist-info/METADATA"
+        if [ -f "$meta" ]; then
+            sed -i '/^Requires-Dist: scipy-openblas32/d' "$meta"
+        fi
+    done
+    """
+]
+
+moduleclass = 'quantum'

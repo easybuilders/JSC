@@ -1,0 +1,51 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'nglview'
+version = '4.0.1'
+
+homepage = 'https://github.com/arose/nglview'
+description = "IPython widget to interactively view molecular structures and trajectories."
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('nodejs', '22.17.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('Python-bundle-PyPI', '2025.07'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('JupyterLab', '4.5.5'),
+    ('JupyterNotebook', '7.5.4'),
+    ('ASE', '3.26.0', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),  # optional
+    # ('MDAnalysis', '2.10.0'),  # optional
+    # ('MDTraj', '1.11.0'),  # optional
+]
+
+local_pytest_cmd = (
+    "pytest -v "
+    "--deselect tests/test_show.py::test_show_schrodinger "
+    "--deselect tests/test_widget.py::test_existing_js_files "
+    "--deselect tests/test_movie_maker.py::test_movie_maker "
+    "--deselect tests/test_version.py::test_make_sure_versions_matched "
+    "tests"
+)
+
+exts_list = [
+    (name, version, {
+        'use_pip_extras': 'ase',  # MDAnalysis,mdtraj
+        # unpin numpy - pinned due to ParmEd
+        # https://github.com/ParmEd/ParmEd/issues/1406
+        'preinstallopts': "sed -i 's/numpy<2.3/numpy/' setup.py && ",
+        'testinstall': True,
+        'runtest': local_pytest_cmd,
+        'checksums': ['1e15b819b9f8ada3e521e587d24cc3754573203cc99ee5d801cef28d992865a5'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'chem'

@@ -25,12 +25,26 @@ checksums = [
 skipsteps = ['configure']
 maxparallel = 1
 
-buildopts = ['STATIC=0 NOBLAS=1']
+if ARCH == 'x86_64':
+    local_options = 'MKL=1 ILP64=0 OPENBLAS=0 NOBLAS=0'
+    builddependencies = [
+        ('imkl', '2025.2.0', '', SYSTEM),
+    ]
+else:
+    local_options = 'MKL=0 ILP64=0 OPENBLAS=1 NOBLAS=0'
+    builddependencies = [
+        ('OpenBLAS', '0.3.30'),
+    ]
+
+buildopts = [local_options + ' STATIC=1 ', local_options + ' STATIC=0 ']
 
 # install both static and dynamic version
-installopts = ['PREFIX=%(installdir)s', 'PREFIX=%(installdir)s STATIC=0 NOBLAS=1']
+installopts = [
+    'PREFIX=%(installdir)s ' + local_options + ' STATIC=1',
+    'PREFIX=%(installdir)s ' + local_options + ' STATIC=0 '
+]
 
-runtest = 'STATIC=0 MKL=0 ILP64=0 OPENBLAS=0 NOBLAS=1 tests'
+runtest = local_options + ' tests'
 
 sanity_check_paths = {
     'files': ['bin/libxsmm_gemm_generator', 'include/libxsmm.h', 'lib/libxsmm.a', 'lib/libxsmm.%s' % SHLIB_EXT],

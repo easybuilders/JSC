@@ -1,0 +1,244 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'cuQuantum-Python'
+version = '25.09.0'
+
+# Removed versionsuffix and CUDA-1X in filename
+# since hook a CI grabs the correct CUDA per system
+# _cu12 extensions used to follow Stages/2026 extension calls
+
+homepage = 'https://docs.nvidia.com/cuda/cuquantum/'
+description = """NVIDIA cuQuantum SDK is a high-performance library
+for quantum information science and beyond.
+Currently its primary target is quantum circuit simulations and it consists
+of two major components:
+
+        cuStateVec: a high-performance library for state vector computations
+
+        cuTensorNet: a high-performance library for tensor network computations
+"""
+
+toolchain = {'name': 'gompi', 'version': '2025b'}
+toolchainopts = {'pic': True}
+
+builddependencies = [
+    ('Cython', '3.1.2'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('Python-bundle-PyPI', '2025.07'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('CUDA', '13', '', SYSTEM),
+    ('cuQuantum', '25.09.0'),
+    ('CuPy', '13.6.0', '-CUDA-%(cudaver)s', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+]
+
+local_arch = {
+    'aarch64': 'aarch64',
+    'x86_64':  'x86_64'
+}
+
+local_arch_odds = {
+    'aarch64': '2014_aarch64.manylinux_2_17_aarch64',
+    'x86_64':  '2010_x86_64.manylinux_2_12_x86_64'
+}
+
+exts_list = [
+    ('fastrlock', '0.8.3', {
+        'checksums': ['4af6734d92eaa3ab4373e6c9a1dd0d5ad1304e172b1521733c6c3b3d73c8fa5d'],
+    }),
+    ('cutensor_cu12', '2.3.1', {
+        # cutensornet-cu12 requires this .whl, loaded as dependency and doesn't fulfill requirement
+        'modulename': 'cutensor',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['aarch64']:
+                '42a0edff221a604c27599716c1f12c0a024b965c79ef6302aca53d763f61f908',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['x86_64']:
+                '57eb09c809f09d6fa94548aa5bca63177ec7e8cc1ae2f44805f13ff4f9331654',
+        }],
+    }),
+    ('custatevec_cu12', '1.10.0', {
+        'modulename': 'cuquantum.bindings.custatevec',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['aarch64']:
+                '12fcad2101c096ecc62bd9045003ea59cfccb5ea98f1c02ea89c6028ebe6dd93',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['x86_64']:
+                'f02569635ca26eaa06e7da8fa92e44e5ce99b75552a250ec7ce010ba766ee9cd',
+        }],
+    }),
+    ('cutensornet_cu12', '2.9.0', {
+        'modulename': 'cuquantum.bindings.cutensornet',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['aarch64']:
+                '270bd8641e6b398980bbd3a69eefe106e4a6675c19af17a8518a5f335b51ee95',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['x86_64']:
+                '346875dd19db2b18c2ec89bac3f35e478ee752c0153153e7f6e92fda508e9768',
+        }],
+    }),
+    ('nvidia_cusolver_cu12', '11.7.3.90', {
+        'modulename': 'nvidia.cusolver',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl'
+            % local_arch['aarch64']:
+                'db9ed69dbef9715071232caa9b69c52ac7de3a95773c2db65bdba85916e4e5c0',
+            '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl'
+            % local_arch['x86_64']:
+                '4376c11ad263152bd50ea295c05370360776f8c3427b30991df774f9fb26c450',
+        }],
+    }),
+    ('nvidia_cublas_cu12', '12.8.4.1', {
+        'modulename': 'nvidia.cublas',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl'
+            % local_arch['aarch64']:
+                'b86f6dd8935884615a0683b663891d43781b819ac4f2ba2b0c9604676af346d0',
+            '%%(name)s-%%(version)s-py3-none-manylinux_2_27_%s.whl'
+            % local_arch['x86_64']:
+                '8ac4e771d5a348c551b2a426eda6193c19aa630236b418086020df5ba9667142',
+        }],
+    }),
+    ('nvidia_cusparse_cu12', '12.5.8.93', {
+        'modulename': 'nvidia.cusparse',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.manylinux_2_17_%s.whl'
+        % (local_arch[ARCH], local_arch[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.manylinux_2_17_%s.whl'
+            % (local_arch['aarch64'], local_arch['aarch64']):
+                '9b6c161cb130be1a07a27ea6923df8141f3c295852f4b260c65f18f3e0a091dc',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.manylinux_2_17_%s.whl'
+            % (local_arch['x86_64'], local_arch['x86_64']):
+                '1ec05d76bbbd8b61b06a80e1eaf8cf4959c3d4ce8e711b65ebd0443bb0ebb13b',
+        }],
+    }),
+    ('nvidia_nvjitlink_cu12', '12.8.93', {
+        'modulename': 'nvidia.nvjitlink',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+        % (local_arch_odds[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+            % (local_arch_odds['aarch64']):
+                'adccd7161ace7261e01bb91e44e88da350895c270d23f744f0820c818b7229e7',
+            '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+            % (local_arch_odds['x86_64']):
+                '81ff63371a7ebd6e6451970684f916be2eab07321b73c9d244dc2b4da7f73b88',
+        }],
+    }),
+    ('nvidia_cuda_nvrtc_cu12', '12.8.93', {
+        'modulename': 'nvidia.cuda_nvrtc',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+        % (local_arch_odds[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+            % (local_arch_odds['aarch64']):
+                'fc1fec1e1637854b4c0a65fb9a8346b51dd9ee69e61ebaccc82058441f15bce8',
+            '%%(name)s-%%(version)s-py3-none-manylinux%s.whl'
+            % (local_arch_odds['x86_64']):
+                'a7756528852ef889772a84c6cd89d41dfa74667e24cca16bb31f8f061e3e9994',
+        }],
+    }),
+    ('cuda-pathfinder', '1.2.3', {
+        'modulename': 'cuda.pathfinder',
+        'start_dir': 'cuda_pathfinder',
+        'source_tmpl': '%(name)s-v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/NVIDIA/cuda-python/archive/refs/tags/'],
+        'checksums': ['d3b6a3c46b3c9e417310889b4c30431ac58d6716d2c0ca63ea28ff0322ac90cb'],
+    }),
+    ('cuda-core', '0.3.2', {
+        'modulename': 'cuda.core',
+        'start_dir': 'cuda_core',
+        'source_tmpl': '%(name)s-v%(version)s.tar.gz',
+        'source_urls': ['https://github.com/NVIDIA/cuda-python/archive/refs/tags/'],
+        'checksums': ['ef6898e81cd81c1ba0e16278d25192615bc69acc558cd036947847617fd09e95'],
+    }),
+    ('cudensitymat_cu12', '0.3.0', {
+        'modulename': 'cuquantum.densitymat',
+        'source_tmpl': '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['aarch64']:
+                '1eab0234c1f301bb2ea552188d2b95bee921d8887f295b4433e150e890fb60da',
+            '%%(name)s-%%(version)s-py3-none-manylinux2014_%s.whl'
+            % local_arch['x86_64']:
+                '8d703f82438dbdb49d9fc7148630a89026f7498eb14846b02cb4c91250652db4',
+        }],
+    }),
+    ('pyclibrary', '0.3.0', {
+        'checksums': ['8a3eaa9ab728c11b077644275af4e05ca24ddcad491f47eb45b75db6be52c654'],
+    }),
+    ('cuda_bindings', '12.9.4', {
+        'modulename': 'cuda.bindings',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_24_%s.manylinux_2_28_%s.whl'
+        % (local_arch[ARCH], local_arch[ARCH]),
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_24_%s.manylinux_2_28_%s.whl'
+            % (local_arch['aarch64'], local_arch['aarch64']):
+                'cf8bfaedc238f3b115d957d1fd6562b7e8435ba57f6d0e2f87d0e7149ccb2da5',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_24_%s.manylinux_2_28_%s.whl'
+            % (local_arch['x86_64'], local_arch['x86_64']):
+                '32bdc5a76906be4c61eb98f546a6786c5773a881f3b166486449b5d141e4a39f',
+        }],
+    }),
+    ('nvmath_python', '0.6.0', {
+        # No .tar.gz, no repo
+        'modulename': 'nvmath',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_28_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_28_%s.whl'
+            % local_arch['aarch64']:
+                '2d800543e2dc008e2e22463c66d7908e32ea57b52c081d8584f8d7fffa7896c8',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux_2_28_%s.whl'
+            % local_arch['x86_64']:
+                '8b3595175d59b7b4aee5466d5b9c90a3e2e22448b1df0eebf8d4bae85b337f4c',
+        }],
+    }),
+    ('cuquantum_python_cu12', '25.9.0', {
+        # from source cuquantum_python autodetects most recent CUDA (CUDA/13)
+        # calling cuquantum_python_cu13 and all its _cu13.whl which cannot
+        # be called because Stage/2026 uses _cu12.whl and must be respected for compatibility
+        # with PyQuantum Kernel
+        'modulename': 'cuquantum',
+        'source_tmpl': '%%(name)s-%%(version)s-cp313-cp313-manylinux2014_%s.whl' % local_arch[ARCH],
+        'checksums': [{
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux2014_%s.whl'
+            % local_arch['aarch64']:
+                '5195902bce79048666d20df5918984c10995c9cc233270cae46fb32fe085ed59',
+            '%%(name)s-%%(version)s-cp313-cp313-manylinux2014_%s.whl'
+            % local_arch['x86_64']:
+                '42fe4b98adda989394d783a6c7762e1fc95c5c67a7cb9069716bca166870f742',
+        }],
+    }),
+]
+
+# required to detect libnvrtc.so.12:
+modextrapaths = {
+    'LD_LIBRARY_PATH': 'lib/python%(pyshortver)s/site-packages/nvidia/cuda_nvrtc/lib',
+}
+
+# Modify cuquantum_python_cu12 constraint METADATA, cupy 13.6.0 dependency works with cuquantum.
+postinstallcmds = [
+    "sed -i "
+    "'s/^Requires-Dist: cupy-cuda12x.*/Requires-Dist: cupy>=13.0/' "
+    "%(installdir)s/lib/python%(pyshortver)s/site-packages/"
+    "cuquantum_python_cu12-25.9.0.dist-info/METADATA"
+]
+
+# Conflict with CUDA-Python:
+# CUDA-Python-12: pyclibrary (0.2.2), cuda_bindings (12.9.2), cuda-pathfinder (1.1.0), cuda-core (0.3.1)
+# CUDA-Python-13: pyclibrary (0.2.2), cuda_bindings (13.0.2), cuda-pathfinder (1.3.1a0) cuda-core (0.4.0)
+# cuQuantum-Python: pyclibrary (0.3.0), cuda_bindings (12.9.4), cuda-pathfinder (1.2.3), cuda-core (0.3.2)
+modluafooter = 'conflict("CUDA-Python")'
+
+moduleclass = 'quantum'

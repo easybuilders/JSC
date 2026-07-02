@@ -1,0 +1,39 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'PythonBundle'
+
+name = 'jupyterview'
+version = '0.8.0'
+
+homepage = "https://github.com/trungleduc/jupyterview"
+
+description = """
+jupyterview is an extension that adds the VTK data visualization capability to JupyterLab.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('poetry', '2.1.3'),
+    ('hatch-jupyter-builder', '0.9.1'),
+]
+
+dependencies = [
+    ('Python', '3.13.5'),
+    ('jupyter-server', '2.17.0'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('Python-bundle-PyPI', '2025.07'),
+]
+
+exts_list = [
+    ('meshio', '5.3.5', {
+        'checksums': ['f21f01abd9f29ba06ea119304b3d39e610421cfe93b9dd23362834919f87586d'],
+    }),
+    (name, version, {
+        'checksums': ['fc2924e78186e3284734dc2cec645f0dbff0cd87dfb6d0bbe051ca63fef1a820'],
+    }),
+]
+
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

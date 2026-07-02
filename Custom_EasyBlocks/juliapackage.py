@@ -24,11 +24,11 @@
 # along with EasyBuild.  If not, see <http://www.gnu.org/licenses/>.
 ##
 """
-EasyBuild support for building and installing Julia packages, implemented as an easyblock
+EasyBuild support for building and installing Julia packages, implemented as an easyblock.
 
 @author: Victor Holanda (CSCS)
 @author: Samuel Omlin (CSCS)
-minor adjustments by Jens Henrik Goebbert (JSC)
+minor adjustments by Jens Henrik Goebbert (JSC) and Frank W. Wagner (JSC)
 """
 import os
 import sys
@@ -38,13 +38,11 @@ import easybuild.tools.toolchain as toolchain
 from easybuild.framework.easyconfig import CUSTOM
 from easybuild.framework.extensioneasyblock import ExtensionEasyBlock
 from easybuild.tools.build_log import EasyBuildError
-from easybuild.tools.run import run_cmd, parse_log_for_error
+from easybuild.tools.run import run_shell_cmd
 
 
 class JuliaPackage(ExtensionEasyBlock):
-    """
-    Install an Julia package as a separate module, or as an extension.
-    """
+    """Install a Julia package as a separate module or as an extension."""
 
     @staticmethod
     def extra_options(extra_vars=None):
@@ -93,8 +91,7 @@ class JuliaPackage(ExtensionEasyBlock):
         pass
 
     def make_julia_cmd(self, remove=False):
-        """Create a command to run in julia to install an julia package."""
-
+        """Create a command to run in Julia to install an Julia package."""
         if self.cfg['packagespec']:
             package_spec = self.cfg['packagespec']
         else:
@@ -124,14 +121,13 @@ class JuliaPackage(ExtensionEasyBlock):
 
     def install_step(self):
         """Install procedure for Julia packages."""
-
         cmd = self.make_julia_cmd(remove=False)
-        cmdttdouterr, _ = run_cmd(cmd, log_all=True, simple=False, regexp=False)
+        res = run_shell_cmd(cmd)
+        cmdttdouterr = res.output
 
-        cmderrors = parse_log_for_error(cmdttdouterr, regExp="^ERROR:")
-        if cmderrors:
+        if any("ERROR:" in line for line in cmdttdouterr.splitlines()):
             cmd = self.make_julia_cmd(remove=True)
-            run_cmd(cmd, log_all=False, log_ok=False, simple=False, inp=sys.stdin, regexp=False)
+            run_shell_cmd(cmd, fail_on_error=False, stdin=sys.stdin)
             raise EasyBuildError("Errors detected during installation of Julia package %s!", self.name)
 
         self.log.info("Julia package %s installed succesfully" % self.name)
@@ -141,14 +137,10 @@ class JuliaPackage(ExtensionEasyBlock):
         self.install_step()
 
     def sanity_check_step(self, *args, **kwargs):
-        """
-        Custom sanity check for Julia packages
-        """
-        #NOTE: we don't use Pkg.status with arguments as only supported for Julia >=v1.1
-        # if juliaver >= 1.1:
+        """Custom sanity check for Julia packages."""
         cmd = "unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && julia --eval 'using Pkg; Pkg.status(\"%s\")'" % (self.depot, self.projectdir, self.package_name)
-        # else:
-        #    cmd = "unset EBJULIA_USER_DEPOT_PATH && unset EBJULIA_ADMIN_DEPOT_PATH && export JULIA_DEPOT_PATH=%s && export JULIA_PROJECT=%s && julia --eval 'using Pkg; Pkg.status()'" % (self.depot, self.projectdir)
-        cmdttdouterr, _ = run_cmd(cmd, log_all=True, simple=False, regexp=False)
+        res = run_shell_cmd(cmd)
+        cmdttdouterr = res.output
         self.log.error("Julia package %s sanity returned %s" % (self.name, cmdttdouterr))
-        return len(parse_log_for_error(cmdttdouterr, regExp="%s\s+v%s" % (self.package_name, self.version))) != 0
+        pattern = "%s  v%s" % (self.package_name, self.version)
+        return any(pattern in line for line in cmdttdouterr.splitlines())

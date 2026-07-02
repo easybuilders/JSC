@@ -1,0 +1,82 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# This is an easyconfig file for EasyBuild, see
+# https://github.com/easybuilders/easybuild
+# Copyright:: Copyright 2014 Juelich Supercomputing Centre, Germany
+# Authors::   Alexandre Strube <surak@surak.eti.br>
+# License::   New BSD
+##
+
+name = "TotalView"
+version = "2025.4.3"
+
+homepage = 'http://www.roguewave.com/products-services/totalview'
+
+description = """TotalView breaks down barriers to understanding what's going
+ on with your high-performance computing (HPC) and supercomputing applications.
+ Purpose-built for multicore and parallel computing, TotalView provides a set
+ of tools providing unprecedented control over processes and thread execution,
+ along with deep visibility into program states and data.
+
+ By allowing the simultaneous debugging of many processes and threads in a
+ single window, you get complete control over program execution: running,
+ stepping, and halting line-by-line through code within a single thread or
+ within arbitrary groups of processes or threads. You can also work backwards
+ from failure through reverse debugging, isolating the root cause faster by
+ eliminating the need to repeatedly restart the application, reproduce and
+ troubleshoot difficult problems that can occur in concurrent programs that
+ take advantage of threads, OpenMP, MPI, GPUs, or coprocessors.
+
+ With customizable displays of the state of your running program, memory leaks,
+ deadlocks, and race conditions are things of the past. Whether you're a
+ scientific and technical computing veteran, or new to the development
+ challenges of multicore or parallel applications, TotalView gives you the
+ insight to find and correct errors quickly, validate prototypes early, verify
+ calculations accurately, and above all, certify code correctly.
+
+ TotalView works with C, C++, and Fortran applications written for Linux
+ (including the Cray and Blue Gene platforms), UNIX, Mac OS X, and Xeon Phi
+ coprocessor, and supports OpenMP, MPI, and OpenACC / CUDA.
+ """
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+
+dependencies = [
+    ('binutils', '2.44'),
+    ('X11', '20250608'),
+]
+
+source_urls = ['https://totalview.io/downloads']
+download_instructions = (f"TotalView requires a license. An evaluation license can be obtained at {source_urls}.")
+
+if ARCH == 'x86_64':
+    sources = [
+        '%(namelower)s_%(version)s_linux_x86-64.tar',
+        '%(namelower)s.%(version)s-doc.tar',
+    ]
+    checksums = [
+        {'totalview_2025.4.3_linux_x86-64.tar': 'ef4e510f73ae2fec1584d7a70552d2113a5d9827f510b96a1a8d5325b28790ac'},
+        {'totalview.2025.4.3-doc.tar': 'd5a8f8180b67268ef6913f93422a923da172e4372ad48f753d5d4da206a2091d'},
+    ]
+
+else:
+    sources = [
+        '%(namelower)s_%(version)s_linux_arm64.tar',
+        '%(namelower)s.%(version)s-doc.tar',
+    ]
+    checksums = [
+        {'totalview_2025.4.3_linux_arm64.tar': '8aa777d0795ed36a8a74e6fd1fec195d66f712539c132ba97eb0ddd633cf5d1a'},
+        {'totalview.2025.4.3-doc.tar': 'd5a8f8180b67268ef6913f93422a923da172e4372ad48f753d5d4da206a2091d'},
+    ]
+
+
+modextravars = {
+    'RLM_LICENSE': '7147@licsrv11.zam.kfa-juelich.de'
+}
+
+sanity_check_paths = {
+    'files': ["toolworks/%(namelower)s.%(version)s/bin/totalview"],
+    'dirs': []
+}
+
+moduleclass = 'debugger'

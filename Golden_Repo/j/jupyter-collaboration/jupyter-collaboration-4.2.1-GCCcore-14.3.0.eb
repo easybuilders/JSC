@@ -1,0 +1,188 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CargoPythonBundle'
+
+name = 'jupyter-collaboration'
+version = "4.2.1"
+
+homepage = 'https://github.com/jupyterlab/jupyter-collaboration'
+description = """JupyterLab Real-Time Collaboration is a Jupyter Server Extension and JupyterLab
+extensions providing support for Y documents and adding collaboration UI
+elements in JupyterLab."""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('hatch-jupyter-builder', '0.9.1'),
+    ('Rust', '1.88.0'),
+    ('maturin', '1.9.1'),
+]
+dependencies = [
+    ('Python', '3.13.5'),
+    ('JupyterLab', '4.5.5'),
+    ('tqdm', '4.67.1'),
+]
+
+crates = [
+    ('arc-swap', '1.8.2'),
+    ('async-lock', '3.4.2'),
+    ('async-trait', '0.1.89'),
+    ('bitflags', '2.11.0'),
+    ('bumpalo', '3.20.2'),
+    ('cfg-if', '1.0.4'),
+    ('concurrent-queue', '2.5.0'),
+    ('crossbeam-utils', '0.8.21'),
+    ('dashmap', '6.1.0'),
+    ('event-listener', '5.4.1'),
+    ('event-listener-strategy', '0.5.4'),
+    ('fastrand', '2.3.0'),
+    ('getrandom', '0.2.17'),
+    ('hashbrown', '0.14.5'),
+    ('heck', '0.5.0'),
+    ('itoa', '1.0.17'),
+    ('js-sys', '0.3.91'),
+    ('libc', '0.2.183'),
+    ('lock_api', '0.4.14'),
+    ('memchr', '2.8.0'),
+    ('once_cell', '1.21.4'),
+    ('parking', '2.2.1'),
+    ('parking_lot_core', '0.9.12'),
+    ('pin-project-lite', '0.2.17'),
+    ('portable-atomic', '1.13.1'),
+    ('proc-macro2', '1.0.106'),
+    ('pyo3', '0.28.2'),
+    ('pyo3-build-config', '0.28.2'),
+    ('pyo3-ffi', '0.28.2'),
+    ('pyo3-macros', '0.28.2'),
+    ('pyo3-macros-backend', '0.28.2'),
+    ('quote', '1.0.45'),
+    ('redox_syscall', '0.5.18'),
+    ('rustversion', '1.0.22'),
+    ('scopeguard', '1.2.0'),
+    ('serde', '1.0.228'),
+    ('serde_core', '1.0.228'),
+    ('serde_derive', '1.0.228'),
+    ('serde_json', '1.0.149'),
+    ('smallstr', '0.3.1'),
+    ('smallvec', '1.15.1'),
+    ('syn', '2.0.117'),
+    ('target-lexicon', '0.13.5'),
+    ('thiserror', '2.0.18'),
+    ('thiserror-impl', '2.0.18'),
+    ('unicode-ident', '1.0.24'),
+    ('wasi', '0.11.1+wasi-snapshot-preview1'),
+    ('wasm-bindgen', '0.2.114'),
+    ('wasm-bindgen-macro', '0.2.114'),
+    ('wasm-bindgen-macro-support', '0.2.114'),
+    ('wasm-bindgen-shared', '0.2.114'),
+    ('windows-link', '0.2.1'),
+    ('yrs', '0.25.0'),
+    ('zmij', '1.0.21'),
+]
+checksums = [
+    {'arc-swap-1.8.2.tar.gz': 'f9f3647c145568cec02c42054e07bdf9a5a698e15b466fb2341bfc393cd24aa5'},
+    {'async-lock-3.4.2.tar.gz': '290f7f2596bd5b78a9fec8088ccd89180d7f9f55b94b0576823bbbdc72ee8311'},
+    {'async-trait-0.1.89.tar.gz': '9035ad2d096bed7955a320ee7e2230574d28fd3c3a0f186cbea1ff3c7eed5dbb'},
+    {'bitflags-2.11.0.tar.gz': '843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af'},
+    {'bumpalo-3.20.2.tar.gz': '5d20789868f4b01b2f2caec9f5c4e0213b41e3e5702a50157d699ae31ced2fcb'},
+    {'cfg-if-1.0.4.tar.gz': '9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801'},
+    {'concurrent-queue-2.5.0.tar.gz': '4ca0197aee26d1ae37445ee532fefce43251d24cc7c166799f4d46817f1d3973'},
+    {'crossbeam-utils-0.8.21.tar.gz': 'd0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28'},
+    {'dashmap-6.1.0.tar.gz': '5041cc499144891f3790297212f32a74fb938e5136a14943f338ef9e0ae276cf'},
+    {'event-listener-5.4.1.tar.gz': 'e13b66accf52311f30a0db42147dadea9850cb48cd070028831ae5f5d4b856ab'},
+    {'event-listener-strategy-0.5.4.tar.gz': '8be9f3dfaaffdae2972880079a491a1a8bb7cbed0b8dd7a347f668b4150a3b93'},
+    {'fastrand-2.3.0.tar.gz': '37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be'},
+    {'getrandom-0.2.17.tar.gz': 'ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0'},
+    {'hashbrown-0.14.5.tar.gz': 'e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1'},
+    {'heck-0.5.0.tar.gz': '2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea'},
+    {'itoa-1.0.17.tar.gz': '92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2'},
+    {'js-sys-0.3.91.tar.gz': 'b49715b7073f385ba4bc528e5747d02e66cb39c6146efb66b781f131f0fb399c'},
+    {'libc-0.2.183.tar.gz': 'b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d'},
+    {'lock_api-0.4.14.tar.gz': '224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965'},
+    {'memchr-2.8.0.tar.gz': 'f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79'},
+    {'once_cell-1.21.4.tar.gz': '9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50'},
+    {'parking-2.2.1.tar.gz': 'f38d5652c16fde515bb1ecef450ab0f6a219d619a7274976324d5e377f7dceba'},
+    {'parking_lot_core-0.9.12.tar.gz': '2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1'},
+    {'pin-project-lite-0.2.17.tar.gz': 'a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd'},
+    {'portable-atomic-1.13.1.tar.gz': 'c33a9471896f1c69cecef8d20cbe2f7accd12527ce60845ff44c153bb2a21b49'},
+    {'proc-macro2-1.0.106.tar.gz': '8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934'},
+    {'pyo3-0.28.2.tar.gz': 'cf85e27e86080aafd5a22eae58a162e133a589551542b3e5cee4beb27e54f8e1'},
+    {'pyo3-build-config-0.28.2.tar.gz': '8bf94ee265674bf76c09fa430b0e99c26e319c945d96ca0d5a8215f31bf81cf7'},
+    {'pyo3-ffi-0.28.2.tar.gz': '491aa5fc66d8059dd44a75f4580a2962c1862a1c2945359db36f6c2818b748dc'},
+    {'pyo3-macros-0.28.2.tar.gz': 'f5d671734e9d7a43449f8480f8b38115df67bef8d21f76837fa75ee7aaa5e52e'},
+    {'pyo3-macros-backend-0.28.2.tar.gz': '22faaa1ce6c430a1f71658760497291065e6450d7b5dc2bcf254d49f66ee700a'},
+    {'quote-1.0.45.tar.gz': '41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924'},
+    {'redox_syscall-0.5.18.tar.gz': 'ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d'},
+    {'rustversion-1.0.22.tar.gz': 'b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d'},
+    {'scopeguard-1.2.0.tar.gz': '94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49'},
+    {'serde-1.0.228.tar.gz': '9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e'},
+    {'serde_core-1.0.228.tar.gz': '41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad'},
+    {'serde_derive-1.0.228.tar.gz': 'd540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79'},
+    {'serde_json-1.0.149.tar.gz': '83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86'},
+    {'smallstr-0.3.1.tar.gz': '862077b1e764f04c251fe82a2ef562fd78d7cadaeb072ca7c2bcaf7217b1ff3b'},
+    {'smallvec-1.15.1.tar.gz': '67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03'},
+    {'syn-2.0.117.tar.gz': 'e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99'},
+    {'target-lexicon-0.13.5.tar.gz': 'adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca'},
+    {'thiserror-2.0.18.tar.gz': '4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4'},
+    {'thiserror-impl-2.0.18.tar.gz': 'ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5'},
+    {'unicode-ident-1.0.24.tar.gz': 'e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75'},
+    {'wasi-0.11.1+wasi-snapshot-preview1.tar.gz': 'ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b'},
+    {'wasm-bindgen-0.2.114.tar.gz': '6532f9a5c1ece3798cb1c2cfdba640b9b3ba884f5db45973a6f442510a87d38e'},
+    {'wasm-bindgen-macro-0.2.114.tar.gz': '18a2d50fcf105fb33bb15f00e7a77b772945a2ee45dcf454961fd843e74c18e6'},
+    {'wasm-bindgen-macro-support-0.2.114.tar.gz': '03ce4caeaac547cdf713d280eda22a730824dd11e6b8c3ca9e42247b25c631e3'},
+    {'wasm-bindgen-shared-0.2.114.tar.gz': '75a326b8c223ee17883a4251907455a2431acc2791c98c26279376490c378c16'},
+    {'windows-link-0.2.1.tar.gz': 'f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5'},
+    {'yrs-0.25.0.tar.gz': 'f6893d39bc55d014e4a1d0e71d06c0c41590d5cdeac35c126be44998bc320cff'},
+    {'zmij-1.0.21.tar.gz': 'b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa'},
+]
+
+exts_list = [
+    ('anyio', '4.12.1', {
+        'checksums': ['41cfcc3a4c85d3f05c932da7c26d0201ac36f72abd4435ba90d0464a3ffed703'],
+    }),
+    ('sqlite_anyio', '0.2.3', {
+        'checksums': ['12a8b0ececaa63d70d5cc5f91edbd932fc1eca9da70ebce2b31d3a199767b3d3'],
+    }),
+    ('puccinialin', '0.1.5', {
+        'checksums': ['bbb6641a6357f70616bd26fc0237a8bf6dfe19b28efd0767ff2058bf37c3d602'],
+    }),
+    ('pycrdt', '0.12.50', {
+        'checksums': ['506d4bc00d7d566de4018dca52998ab7cf97c787363bc59440d3a3bb3336d1a0'],
+    }),
+    ('pycrdt_websocket', '0.16.0', {
+        'modulename': 'pycrdt.websocket',
+        'checksums': ['89d4d830f41028c55cc9877635f73f94f49131ca73ffac7353d0be421150d0fd'],
+    }),
+    ('pycrdt_store', '0.1.3', {
+        'modulename': 'pycrdt.store',
+        'checksums': ['12a0e263b2c07eb18bbe7203c828b88ba953cb93094ad37d22aeb6c619df2ef0'],
+    }),
+    ('jupyter_ydoc', '3.4.0', {
+        'checksums': ['d2418e42878cabf3d9208b2ecfaf5d8a6e140485fec8b738133168e60b83c89e'],
+    }),
+    ('jupyter_server_ydoc', '2.2.1', {
+        'checksums': ['6957f6a66a8794c4265494bba27067a4b09b2936af9916792c20d137a703be46'],
+    }),
+    ('jupyter_server_fileid', '0.9.3', {
+        'checksums': ['521608bb87f606a8637fcbdce2f3d24a8b3cc89d2eef61751cb40e468d4e54be'],
+    }),
+    ('jupyter_docprovider', '2.2.1', {
+        'checksums': ['d8aa3b5db3b9b401de05159df8da36e2d87485e6dcdf597a20e58c921f705dda'],
+    }),
+    ('jupyter_collaboration_ui', '2.2.1', {
+        'checksums': ['2a9a8e990cf5d2ba78fa99334568691c46815eb729e17339256cc7a65262a196'],
+    }),
+    ('jupyter_collaboration', version, {
+        'checksums': ['0904167987de3ccee339fbae6df6bbeb6e252a0af6b3d02f1e7bb54b505396cd'],
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/jupyter-fileid'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'etc/jupyter', 'share/jupyter'],
+}
+
+# Add the notebook extension to the search path for jupyter notebooks
+modextrapaths = {'EB_ENV_JUPYTER_ROOT': ''}
+
+moduleclass = 'tools'

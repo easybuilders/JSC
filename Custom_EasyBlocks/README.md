@@ -112,3 +112,17 @@ Overview of the custom EasyBlocks.
 - __*needed because*__ changes not yet in EasyBuild release
 - __*difference compared to upstream*__ support for additional libraries
 - __*can not be removed*__ until EasyBuild v5.2.1/v5.3.0
+
+## psmpi
+
+- __*added by*__ j.reuter
+- __*needed because*__ LLVM is not supported upstream yet
+- __*difference compared to upstream*__ support for LLVM
+- __*can not be removed*__ until https://github.com/easybuilders/easybuild-easyblocks/pull/4047 is merged
+
+## score_p
+
+- __*added by*__ j.reuter
+- __*needed because*__ reworked easyblock for version v10.0
+- __*difference compared to upstream*__ updated easyblock not part of EasyBuild v5.3.1
+- __*can not be removed*__ until https://github.com/easybuilders/easybuild-easyblocks/pull/4133 has been merged

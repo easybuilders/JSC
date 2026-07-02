@@ -1,0 +1,12 @@
+diff --git a/pennylane_lightning/core/bindings/BindingsCudaUtils.hpp b/pennylane_lightning/core/bindings/BindingsCudaUtils.hpp
+index ef8d31c9..aeb7c2ce 100644
+--- a/pennylane_lightning/core/bindings/BindingsCudaUtils.hpp
++++ b/pennylane_lightning/core/bindings/BindingsCudaUtils.hpp
+@@ -26,6 +26,7 @@
+ #include "cuda_helpers.hpp"
+ 
+ #include <nanobind/nanobind.h>
++#include <nanobind/stl/pair.h>
+ 
+ /// @cond DEV
+ namespace {

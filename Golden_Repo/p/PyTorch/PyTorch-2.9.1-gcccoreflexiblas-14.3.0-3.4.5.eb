@@ -169,7 +169,7 @@ if ARCH == 'aarch64':
             'checksums': [{'nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_aarch64.zip':
                           '8878dce784d0fac90131b6817b607e803c36e629ba34dc5b433471382196b6a5'},
                           {'fix_pip_check_jupiter_cusparselt_platform.patch':
-                          '5bfc97a8b406c9d18f8e1222aba0df60e72e2e880ed13d0c161cbfe93522bd9a'}],
+                          'f7fd307ce86a410811f659fc5bd31bf0969cfa53bdeb00a68a707af97edc3c38'}],
         }),
         ('nvidia-nvjitlink-cu12', '12.8.93', {
             'modulename': False,

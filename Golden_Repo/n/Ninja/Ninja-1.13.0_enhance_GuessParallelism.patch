@@ -1,0 +1,102 @@
+Make ninja recognize the environment variable NINJAJOBS 
+and limit the number of parallelism on login nodes to
+prevent system overload
+On login nodes if config->parallelism exceeds 8, cap it to 8
+author: Sebastian Achilles (Juelich Supercomputing Centre)
+--- a/src/ninja.cc
++++ b/src/ninja.cc
+@@ -233,7 +233,7 @@ void Usage(const BuildConfig& config) {
+ "  -C DIR   change to DIR before doing anything else\n"
+ "  -f FILE  specify input build file [default=build.ninja]\n"
+ "\n"
+-"  -j N     run N jobs in parallel (0 means infinity) [default=%d on this system]\n"
++"  -j N     run N jobs in parallel [default=%d on this system]\n"
+ "  -k N     keep going until N jobs fail (0 means infinity) [default=1]\n"
+ "  -l N     do not start new jobs if the load average is greater than N\n"
+ "  -n       dry run (don't run commands but act like they succeeded)\n"
+@@ -247,6 +247,11 @@ void Usage(const BuildConfig& config) {
+ 
+ /// Choose a default value for the -j (parallelism) flag.
+ int GuessParallelism() {
++  int   j = 0;
++  char* jobs = getenv( "NINJAJOBS" );
++  if ( jobs != NULL ) j = atoi( jobs );
++  if ( j > 0 ) return j;
++
+   switch (int processors = GetProcessorCount()) {
+   case 0:
+   case 1:
+@@ -1622,6 +1627,34 @@ class DeferGuessParallelism {
+       needGuess = false;
+       config->parallelism = GuessParallelism();
+     }
++
++    /// Limit the number of parallelism on login nodes to prevent system overload
++    /// If config->parallelism exceeds 8, cap it to 8
++    const char *filePath = "/etc/FZJ/nodetype";
++    FILE *file = fopen(filePath, "r");
++
++    int found = 0;
++
++    if (file != NULL) {
++
++      char buffer[256];
++
++      while (fgets(buffer, sizeof(buffer), file)) {
++          if (strstr(buffer, "login") != NULL) {
++              found = 1;
++              break;
++          }
++      }
++
++      fclose(file);
++    } else {
++      found = 0;
++    }
++
++    if (found) {
++      if ( config->parallelism > 8 )
++        config->parallelism = 8;
++    }
+   }
+   ~DeferGuessParallelism() { Refresh(); }
+ };
+@@ -1659,9 +1692,35 @@ int ReadFlags(int* argc, char*** argv,
+         if (*end != 0 || value < 0)
+           Fatal("invalid -j parameter");
+ 
+-        // We want to run N jobs in parallel. For N = 0, INT_MAX
++        // We want to run N jobs in parallel. For N = 0,
++        // use 8 jobs on login nodes and otherwise INT_MAX
+         // is close enough to infinite for most sane builds.
+-        config->parallelism = value > 0 ? value : INT_MAX;
++        const char *filePath = "/etc/FZJ/nodetype";
++        FILE *file = fopen(filePath, "r");
++
++        int found = 0;
++
++        if (file != NULL) {
++
++          char buffer[256];
++
++          while (fgets(buffer, sizeof(buffer), file)) {
++              if (strstr(buffer, "login") != NULL) {
++                  found = 1;
++                  break;
++              }
++          }
++
++          fclose(file);
++        } else {
++          found = 0;
++        }
++
++        if (found) {
++          config->parallelism = value > 0 ? value : 8;
++        } else {
++          config->parallelism = value > 0 ? value : INT_MAX;
++        }
+         config->disable_jobserver_client = true;
+         deferGuessParallelism.needGuess = false;
+         break;
+       }

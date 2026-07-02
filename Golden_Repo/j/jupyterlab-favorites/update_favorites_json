@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+
+import logging
+import argparse
+import os
+
+import json5
+import jsonschema
+
+from jsonmerge import Merger
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true')
+
+logging.basicConfig()
+if parser.parse_args().debug:
+    logging.getLogger().setLevel(logging.DEBUG)
+else:
+    logging.getLogger().setLevel(logging.INFO)
+
+merge_schema = {
+    "jupyter.lab.setting-icon": "jupyterlab-favorites:filledStar",
+    "jupyter.lab.setting-icon-label": "Favorites",
+    "title": "Favorites",
+    "description": "Favorites settings.",
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "favorites": {
+            "title": "Favorites",
+            "description": "The list of favorites.",
+            "items": {"$ref": "#/definitions/favorite"},
+            "type": "array",
+            "default": [],
+            "mergeStrategy": "arrayMergeById",
+            "mergeOptions": {"idRef": "name"},
+        },
+        "showWidget": {
+            "title": "Show Widget",
+            "description": "Toggles the favorites widget above the filebrowser breadcrumbs.",
+            "type": "boolean",
+            "default": True,
+        },
+    },
+    "definitions": {
+        "favorite": {
+            "properties": {
+                "root": {"type": "string"},
+                "path": {"type": "string"},
+                "contentType": {"type": "string"},
+                "iconLabel": {"type": "string"},
+                "name": {"type": "string"},
+                "default": {"type": "boolean"},
+                "hidden": {"type": "boolean"},
+            },
+            "required": ["root", "path"],
+            "type": "object",
+        }
+    },
+}
+logging.debug(f"JSON schema for merging: {json5.dumps(merge_schema, indent=4)}")
+
+
+def validate(instance, schema):
+    try:
+        jsonschema.validate(instance=instance, schema=schema)
+    except jsonschema.ValidationError as e:
+        logging.error("Exception occurred", exc_info=True)
+        return e.schema["error_msg"]
+
+
+def fav_jsonstr(envvar, jsonstr):
+    path = os.getenv(envvar)
+    hidden = "true" if not path else "false"
+    jsonstr += f"""
+        {{
+            "root": "/",
+            "contentType": "directory",
+            "iconLabel": "ui-components:folder",
+            "path": "{path}",
+            "name": "${envvar}",
+            "hidden": {hidden}
+        }}"""
+    return jsonstr
+
+
+# create favorite-json for $HOME, $SCRATCH, $PROJECT
+sys_fav_jsonstr = """{
+    "favorites": ["""
+sys_fav_jsonstr = fav_jsonstr("HOME", sys_fav_jsonstr) + ","
+sys_fav_jsonstr = fav_jsonstr("PROJECT", sys_fav_jsonstr) + ","
+sys_fav_jsonstr = fav_jsonstr("SCRATCH", sys_fav_jsonstr)
+sys_fav_jsonstr += """
+    ],
+    "showWidget": true
+}"""
+logging.debug(f"JSON for additional favorites: {sys_fav_jsonstr}")
+validate(instance=json5.loads(sys_fav_jsonstr), schema=merge_schema)
+
+# get path to favorites.jupyterlab-settings
+settings_dpath = os.getenv(
+    "JUPYTERLAB_SETTINGS_DIR",
+    os.path.join(os.environ["HOME"], ".jupyter/lab/user-settings"),
+)
+fav_settings_dpath = os.path.join(settings_dpath, "@jlab-enhanced/favorites/")
+fav_settings_fpath = os.path.join(fav_settings_dpath, "favorites.jupyterlab-settings")
+logging.debug(f"settings file path: {fav_settings_fpath}")
+
+# if user settings file exists we need to merge
+if os.path.exists(fav_settings_fpath):
+    logging.debug(f"settings file exists: {fav_settings_fpath}")
+
+    # read user-settings
+    user_fav_json = {}
+    with open(fav_settings_fpath, "r") as fav_file:
+        try:
+            user_fav_json = json5.load(fav_file)
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            logging.error("Decoding JSON has FAILED", exc_info=True)
+
+    # merge JSONs
+    fav_merger = Merger(merge_schema)
+    try:
+        merged_json = fav_merger.merge(user_fav_json, json5.loads(sys_fav_jsonstr))
+    except:
+        logging.error("Merging JSONs has FAILED", exc_info=True)
+
+    # print result
+    logging.debug(f"merged settings file: {json5.dumps(merged_json, indent=4)}")
+
+    # validate result
+    validate(instance=merged_json, schema=merge_schema)
+
+    # write JSON to file
+    jsonstr = json5.dumps(merged_json, indent=4)
+    try:
+        with open(fav_settings_fpath, "w") as fav_file:
+            fav_file.write(jsonstr)
+        logging.info(f"Writing merged settings file SUCCESSFULL")
+    except:
+        logging.error("Writing settings file FAILED", exc_info=True)
+
+# if user settings file does NOT exist - we need to create it
+else:
+    logging.debug(
+        f"settings file {fav_settings_fpath} does not exist - creating a new one"
+    )
+
+    # create file with content
+    try:
+        os.makedirs(fav_settings_dpath, exist_ok=True)
+        with open(fav_settings_fpath, "w") as fav_file:
+            fav_file.write(sys_fav_jsonstr)
+        logging.info(f"Writing new settings file SUCCESSFULL")
+    except:
+        logging.error("Writing settings file FAILED", exc_info=True)
+

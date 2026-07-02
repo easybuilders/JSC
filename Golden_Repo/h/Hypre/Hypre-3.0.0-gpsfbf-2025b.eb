@@ -1,0 +1,28 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'Hypre'
+version = '3.0.0'
+
+homepage = 'https://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods'
+description = """Hypre is a library for solving large, sparse linear systems of equations on massively
+ parallel computers. The problems of interest arise in the simulation codes being developed at LLNL
+ and elsewhere to study physical phenomena in the defense, environmental, energy, and biological sciences."""
+
+toolchain = {'name': 'gpsfbf', 'version': '2025b'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/hypre-space/hypre/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['d9dbfa34ebd07af1641f04b06338c7808b1f378e2d7d5d547514db9f11dffc26']
+
+dependencies = [
+    ('Umpire', '2025.09.0'),
+]
+
+configopts = '--with-umpire-include=${EBROOTUMPIRE}/include '
+configopts += '--with-umpire-lib-dirs=${EBROOTUMPIRE}/lib '
+configopts += '--with-umpire-libs=libumpire.so '
+configopts += '--enable-unified-memory '
+
+start_dir = 'src'
+
+moduleclass = 'numlib'

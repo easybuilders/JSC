@@ -1,0 +1,44 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+# SG (JSC) add PnetCDF support
+
+name = 'ESMF'
+version = '8.9.0'
+
+homepage = 'https://earthsystemmodeling.org/'
+description = """The Earth System Modeling Framework (ESMF) is a suite of software tools for developing
+ high-performance, multi-component Earth science modeling applications."""
+
+toolchain = {'name': 'foss', 'version': '2025b'}
+toolchainopts = {'usempi': True, 'openmp': True, 'cstd': 'c++11', 'pic': True}
+
+source_urls = ['https://github.com/esmf-org/esmf/archive/']
+sources = ['v%(version)s.tar.gz']
+patches = ['ESMF-8.9.0_libopts.patch']
+checksums = [
+    {'v8.9.0.tar.gz': '586e0101d76ff9842d9ad43567fae50317ee794d80293430d9f1847dec0eefa5'},
+    {'ESMF-8.9.0_libopts.patch': '45094af8e4495d25f73ef9358c2313ba24624a400b5b1011a73b89babbf8cf12'},
+]
+
+builddependencies = [('CMake', '3.31.8')]
+
+dependencies = [
+    ('libarchive', '3.8.1'),
+    ('netCDF', '4.9.3'),
+    ('netCDF-Fortran', '4.6.2'),
+    ('netCDF-C++4', '4.3.1'),
+    ('PnetCDF', '1.14.1'),
+]
+
+# Activate PnetCDF-support
+preinstallopts = 'export ESMF_PNETCDF="pnetcdf-config" && '
+preinstallopts += 'export ESMF_PNETCDF_LIBS="-lpnetcdf" && '
+
+# add netCDF and PnetCDF third party libraries
+buildopts = 'ESMF_NETCDF_INCLUDE=$EBROOTNETCDFMINFORTRAN/include '
+buildopts += 'ESMF_NETCDF_LIBS="`nc-config --libs` `nf-config --flibs` `ncxx4-config --libs`" '
+buildopts += 'ESMF_PNETCDF="pnetcdf-config" '
+
+# too parallel causes the build to become really slow
+maxparallel = 8
+
+moduleclass = 'geo'

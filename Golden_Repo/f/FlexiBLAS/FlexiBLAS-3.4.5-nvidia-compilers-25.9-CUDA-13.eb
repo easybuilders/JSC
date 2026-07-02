@@ -62,7 +62,13 @@ components = [
 
 postinstallcmds = [
     'if [ ! -f %(installdir)s/lib/libflexiblas.so ]; then '
-    '    ln -s libflexiblas_intel.so %(installdir)s/lib/libflexiblas.so; '
+    '    ln -sf libflexiblas_intel.so %(installdir)s/lib/libflexiblas.so; '
+    'fi',
+    'if [ ! -f %(installdir)s/lib/libflexiblas.so.%(version_major)s ]; then '
+    '    ln -sf libflexiblas.so %(installdir)s/lib/libflexiblas.so.%(version_major)s; '
+    'fi',
+    'if [ ! -f %(installdir)s/lib/libflexiblas.so.%(version_major_minor)s ]; then '
+    '    ln -sf libflexiblas.so.%(version_major)s  %(installdir)s/lib/libflexiblas.so.%(version_major_minor)s; '
     'fi',
 ]
 

@@ -273,7 +273,9 @@ end
 
 setenv("EASYBUILD_HIDE_DEPS", hidden_deps)
 
-setenv("EASYBUILD_HIDE_TOOLCHAINS", "GCCcore")
+if (convertToCanonical(stage) < convertToCanonical("2027") ) then
+    setenv("EASYBUILD_HIDE_TOOLCHAINS", "GCCcore")
+end
 
 -- Managing permissions and expanding robot path
 -- Setting variables to allow for a group install space

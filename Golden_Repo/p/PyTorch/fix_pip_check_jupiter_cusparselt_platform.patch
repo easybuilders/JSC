@@ -1,9 +1,0 @@
-# This patch fixes the wheel platform tag for nvidia-cusparselt-cu12 package
---- lib/python3.13/site-packages/nvidia_cusparselt_cu12-0.7.1.dist-info/WHEEL.orig	2026-01-06 17:27:50.058881226 +0100
-+++ lib/python3.13/site-packages/nvidia_cusparselt_cu12-0.7.1.dist-info/WHEEL	2026-01-06 17:28:08.247552903 +0100
-@@ -1,5 +1,5 @@
- Wheel-Version: 1.0
- Generator: setuptools (75.8.0)
- Root-Is-Purelib: true
--Tag: py3-none-manylinux2014_sbsa
-+Tag: py3-none-manylinux2014_aarch64

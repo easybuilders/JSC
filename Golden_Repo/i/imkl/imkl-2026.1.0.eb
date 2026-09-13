@@ -1,0 +1,19 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'imkl'
+version = '2026.1.0'
+
+homepage = 'https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html'
+description = "Intel oneAPI Math Kernel Library"
+
+toolchain = SYSTEM
+
+# see https://software.intel.com/content/www/us/en/develop/articles/oneapi-standalone-components.html
+source_urls = ['https://registrationcenter-download.intel.com/akdlm/IRC_NAS/17f37e16-768e-40d2-bcf8-c252dc6c5499/']
+sources = ['intel-onemkl-%(version)s.237_offline.sh']
+checksums = ['854deea4c4eec21d23cfb895b0c76ac02b5a76e3a9581a39b4c69fb7ffc69146']
+
+interfaces = False
+
+installopts = "--download-cache=%(builddir)s/cache --download-dir=%(builddir)s/download --log-dir=%(builddir)s/log"
+
+moduleclass = 'numlib'

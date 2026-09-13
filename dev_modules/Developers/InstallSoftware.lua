@@ -59,7 +59,12 @@ if string.find(stage, "Devel") or string.find(stage, "Stage1")  then
     is_devel = true
 end
 local stage_path = pathJoin(software_root, "stages", stage)
-local data = os.getenv("DATA_swmanage")
+local data
+if ( systemname == "jupiter" and convertToCanonical(stage) < convertToCanonical("2027") ) then
+    data = os.getenv("JUSTDATA_swmanage")
+else
+    data = os.getenv("DATA_swmanage")
+end
 local common_eb_path = pathJoin(data, "EasyBuild")
 
 local sources_path = pathJoin(common_eb_path, "sources")
@@ -275,6 +280,8 @@ setenv("EASYBUILD_HIDE_DEPS", hidden_deps)
 
 if (convertToCanonical(stage) < convertToCanonical("2027") ) then
     setenv("EASYBUILD_HIDE_TOOLCHAINS", "GCCcore")
+else
+    unsetenv("EASYBUILD_HIDE_TOOLCHAINS")
 end
 
 -- Managing permissions and expanding robot path
@@ -421,3 +428,6 @@ prepend_path("PATH", pathJoin(common_eb_path, stage, 'bin'))
 
 -- Finally, set EB to use python3
 setenv("EB_PYTHON", "python3")
+
+-- This module depends on the Stages module
+depends_on("Stages")

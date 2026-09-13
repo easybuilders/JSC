@@ -1,0 +1,25 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+name = 'VTune'
+version = '2026.3.0'
+
+homepage = 'https://software.intel.com/en-us/vtune'
+description = """Intel VTune Amplifier XE is the premier performance profiler for C, C++, C#, Fortran,
+ Assembly and Java."""
+
+toolchain = SYSTEM
+
+# By downloading, you accept the Intel End User License Agreement
+# (https://software.intel.com/content/www/us/en/develop/articles/end-user-license-agreement.html)
+# accept_eula = True
+source_urls = ['https://registrationcenter-download.intel.com/akdlm/IRC_NAS/15c0886a-bdc0-49d1-ad5c-318ff2112294']
+sources = ['intel-vtune-%(version)s.8_offline.sh']
+checksums = ['6fa6beba12a616ee94671e9bc438304cc9cf21a5a677c7a4bd6e815a7c7367d9']
+
+sanity_check_paths = {
+    'files': ['%(namelower)s/%(version_major_minor)s/bin64/amplxe-perf'],
+    'dirs': ['%(namelower)s/%(version_major_minor)s/bin64',
+             '%(namelower)s/%(version_major_minor)s/lib64',
+             '%(namelower)s/%(version_major_minor)s/include/intel64']
+}
+
+moduleclass = 'tools'

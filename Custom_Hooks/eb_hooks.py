@@ -6,7 +6,6 @@ import re
 import subprocess
 import yaml
 
-from easybuild.tools.run import run_cmd
 from easybuild.tools.config import build_option
 from easybuild.tools.config import install_path
 from easybuild.tools.build_log import EasyBuildError, print_msg, print_warning
@@ -26,18 +25,10 @@ SUPPORTED_TOPLEVEL_TOOLCHAIN_FAMILIES = [
     "intel",
     "intel-para",
     "ipsfbf",
-    "iomkl",
-    "iofbf",
     "foss",
-    "gpsmkl",
     "gpsfbf",
-    "gomkl",
-    "npsmkl",
-    "nvomkl",
     "nvofbf",
     "npsfbf",
-    "pmvmklc",
-    "gmvmklc",
     "lfbf",
     "lfoss",
     "lpsflf",
@@ -50,8 +41,6 @@ SUPPORTED_MPI_TOOLCHAIN_FAMILIES = [
     "gompi",
     "npsmpic",
     "nvompic",
-    "gmvapich2c",
-    "pmvapich2c",
     "lpsmpi",
     "lompi",
 ]
@@ -59,7 +48,6 @@ SUPPORTED_MPI_TOOLCHAIN_FAMILIES = [
 # probably overkill
 SUPPORTED_TOOLCHAIN_FAMILIES = (
     SUPPORTED_COMPILERS
-    + ["gcccoremkl"]
     + ["gcccoreflexiblas"]
     + ["GCCcore"]
     + SUPPORTED_MPI_TOOLCHAIN_FAMILIES
@@ -73,12 +61,12 @@ VETOED_INSTALLATIONS = {
     ],
     'juwels': [
         'BullMPI', 'BullMPI-settings',
-        'NVPL',
+        'NVPL', 'CUDA',
     ],
     'jureca_arm': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
-        'impi', 'impi-settings',
+        'impi', 'impi-settings', 'ipp',
         'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
@@ -86,7 +74,7 @@ VETOED_INSTALLATIONS = {
     'jureca_gh': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
-        'impi', 'impi-settings',
+        'impi', 'impi-settings', 'ipp',
         'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
@@ -94,7 +82,7 @@ VETOED_INSTALLATIONS = {
     'jupiter': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
-        'impi', 'impi-settings',
+        'impi', 'impi-settings', 'ipp',
         'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild',
@@ -102,7 +90,7 @@ VETOED_INSTALLATIONS = {
     'jedi': [
         'Advisor', 'AOCC', 'AOCL-BLAS', 'AMD-uProf',
         'Intel', 'intel-compilers', 'imkl',
-        'impi', 'impi-settings',
+        'impi', 'impi-settings', 'ipp',
         'ipsmpi', 'intel-para', 'imkl-FFTW',
         'BullMPI', 'BullMPI-settings',
         'VTune', 'intel-XED', 'intel-mbuild'
@@ -133,7 +121,7 @@ VETOED_INSTALLATIONS = {
     'jusuf': [
         'impi', 'impi-settings',
         'BullMPI', 'BullMPI-settings',
-        'NVPL',
+        'NVPL', 'CUDA',
     ],
     'hdfml': [
         'BullMPI', 'BullMPI-settings',
@@ -141,7 +129,7 @@ VETOED_INSTALLATIONS = {
     ],
     'deep': [
         'BullMPI', 'BullMPI-settings',
-        'NVPL'
+        'NVPL', 'CUDA',
     ],
     'hdfcloud': ['NVPL'],
     'jsccloud': [
@@ -151,39 +139,19 @@ VETOED_INSTALLATIONS = {
 }
 
 TWEAKABLE_DEPENDENCIES = {
-    # 'Boost': '1.78.0',
-    # 'Boost.Python': '1.78.0',
     'CUDA': '13',
     'CUDA-Python': '13',
-    'glu': ('OpenGL', '2025.09'),
-    'glew': ('OpenGL', '2025.09'),
-    'libglvnd': ('OpenGL', '2025.09'),
-    # 'libxc': '5.1.7',
-    'libGLU': ('OpenGL', '2025.09'),
-    'Mesa': ('OpenGL', '2025.09'),
     'NCCL': 'default',
-    'pkg-config': ('pkgconf', '2.4.3'),
     'UCC': 'default',
     'UCX': 'default',
+    'pkg-config': ('pkgconf', '2.5.1'),
 }
 
 TWEAKABLE_DEPENDENCIES_PER_SYSTEM = {
-    'juwels': {
-        'CUDA': '12',
-        'CUDA-Python': '12',
-    },
-    'jusuf': {
-        'CUDA': '12',
-        'CUDA-Python': '12',
-    },
-    'deep': {
-        'CUDA': '12',
-        'CUDA-Python': '12',
-    },
-    'jsccloud': {
-        'CUDA': '12',
-        'CUDA-Python': '12',
-    },
+    'juwels': {},
+    'jusuf': {},
+    'deep': {},
+    'jsccloud': {},
 }
 
 MKL_THREADING_LAYER = {
@@ -195,8 +163,6 @@ SIDECOMPILERS = ['AOCC', 'Clang']
 
 common_site_contact = 'Support <sc@fz-juelich.de>'
 
-# Also maintain a list of CUDA enabled compilers
-CUDA_ENABLED_TOOLCHAINS = ["pmvmklc", "gmvmklc", "gmvapich2c", "pmvapich2c"]
 # Use this for a heuristic to see if the easyconfig comes from the Golden Repo
 GOLDEN_REPO = "Golden_Repo"
 
@@ -207,6 +173,43 @@ REQUIRE_MODALTSOFTNAME = {
     "iccifort": "Intel",
     "intel-compilers": "Intel",
 }
+
+
+def ci_installation_vetoer(ec):
+    """
+    Reject easyconfigs that are not built with SYSTEM or a 2026.1 toolchain.
+    """
+    ALLOWED_TOOLCHAINS = {
+        ("GCCcore", "15.2.0"),
+        ("GCC", "15.2.0"),
+        ("llvm-compilers", "21.1.8"),
+        ("intel-compilers", "2026.1.0"),
+        ("nvidia-compilers", "26.9"),
+        ("gcccoreflexiblas", "15.2.0-3.5.0"),
+        ("system", "system"),
+    }
+
+    tc = ec["toolchain"]
+    name = tc["name"]
+    version = tc["version"]
+
+    if (name, version) in ALLOWED_TOOLCHAINS:
+        return
+
+    # Accept any toolchain version ending in 2026.1
+    if version.endswith("2026.1"):
+        return
+
+    raise EasyBuildError(
+        "Installation of %(name)s/%(version)s is forbidden: "
+        "toolchain %(tc_name)s/%(tc_ver)s is not SYSTEM or a 2026.1 toolchain"
+        % {
+            "name": ec["name"],
+            "version": ec["version"],
+            "tc_name": name,
+            "tc_ver": version,
+        }
+    )
 
 
 def installation_vetoer(ec):
@@ -226,12 +229,14 @@ def installation_vetoer(ec):
             print_msg(f"- {package}", stderr=True)
         exit(1)
 
+
 def is_system_path(path):
     system_installation_paths = r'^/(e|p)/software'
     if re.match(system_installation_paths, path):
         return True
     else:
         return False
+
 
 def get_user_info(user=None):
     # Query jutil to extract the contact information
@@ -257,7 +262,7 @@ def get_user_info(user=None):
             else:
                 if is_system_path(install_path().lower()):
                     print_warning(
-                        f"\n'jutil' is not present and 'SITE_CONTACT_NAME' or 'SITE_CONTACT_EMAIL' are not defined\n"
+                        "\n'jutil' is not present and 'SITE_CONTACT_NAME' or 'SITE_CONTACT_EMAIL' are not defined\n"
                         "Please defined both in your environment and try again\n"
                     )
                     exit(1)
@@ -266,6 +271,7 @@ def get_user_info(user=None):
                     return [pwd.getpwuid(os.getuid())[4], '???']
     else:
         return ['CI user', 'ci_user@fz-juelich.de']
+
 
 def software_responsible_formatter(names_emails):
     if isinstance(names_emails, list):
@@ -279,6 +285,7 @@ def software_responsible_formatter(names_emails):
         return responsibles
     else:
         return f"{names_emails['name']} <{names_emails['email']}>"
+
 
 def format_site_contact(names_emails, default_contact=True, alternative_contact=''):
     if default_contact:
@@ -331,6 +338,8 @@ def parse_hook(ec, *args, **kwargs):
     # First of all check if this should be installed
     if os.getenv('CI_CHECK_STYLE') is None:
         installation_vetoer(ec)
+    else:
+        ci_installation_vetoer(ec)
 
     # Process compiler options
     ec = inject_compiler_tweaks(ec)
@@ -363,9 +372,6 @@ def parse_hook(ec, *args, **kwargs):
 
     ec = tweak_module_conflict_side_compilers(ec)
 
-    if ec.name == 'Clang':
-        ec = tweak_clang(ec)
-
     # If we are parsing we are not searching, in this case if the easyconfig is
     # located in the search path, warn that it's dependencies will (most probably)
     # not be resolved
@@ -387,6 +393,7 @@ def parse_hook(ec, *args, **kwargs):
                 "  eb --robot=$EASYBUILD_ROBOT:$EBROOTEASYBUILD/easybuild/easyconfigs --try-update-deps ...."
             )
 
+
 def get_combined_tweakable_deps():
     # Read system_name
     system_name = os.getenv('LMOD_SYSTEM_NAME')
@@ -403,12 +410,6 @@ def get_combined_tweakable_deps():
 
     return combined_tweakable_deps
 
-def tweak_clang(ec):
-    combined_tweakable_deps = get_combined_tweakable_deps()
-
-    # Add CUDA as dependency, so the Clang easyblock enables NVPTX as target
-    ec['dependencies'].append(('CUDA', combined_tweakable_deps['CUDA'], '', {'name': 'system', 'version': 'system'}))
-    return ec
 
 def tweak_dependencies(ec):
     combined_tweakable_deps = get_combined_tweakable_deps()
@@ -455,7 +456,7 @@ def tweak_module_conflict_side_compilers(ec):
         key = "modluafooter"
         value = 'conflict(%s)' % ','.join('"'+x+'"' for x in SIDECOMPILERS)
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec_dict[key], value])
         else:
             ec[key] = value
@@ -464,19 +465,22 @@ def tweak_module_conflict_side_compilers(ec):
 
     return ec
 
+
 def find_acls():
     for p in os.getenv('EASYBUILD_ROBOT_PATHS').split(':'):
-        acls_path = '/'.join(p.split('/')[:-1]+["acls.yml"])
+        acls_path = os.path.join(p, '..', 'acls.yml')
         if os.path.isfile(acls_path) and os.access(acls_path, os.R_OK):
             return acls_path
     raise EasyBuildError(f"No readable acls.yml was found on any of these paths: {os.getenv('EASYBUILD_ROBOT_PATHS')}")
 
+
 def find_acl_script():
     for p in os.getenv('EASYBUILD_ROBOT_PATHS').split(':'):
-        setacls_path = '/'.join(p.split('/')[:-1]+['bin','setacls'])
+        setacls_path = os.path.join(p, '..', 'bin', 'setacls')
         if os.path.isfile(setacls_path) and os.access(setacls_path, os.R_OK) and os.access(setacls_path, os.X_OK):
             return setacls_path
     raise EasyBuildError(f"No setacls script was found on any of these paths {os.getenv('EASYBUILD_ROBOT_PATHS')}")
+
 
 def inject_site_contact_and_user_labels(ec):
     ec_dict = ec.asdict()
@@ -523,7 +527,7 @@ def inject_site_contact_and_user_labels(ec):
         key = "modluafooter"
         value = 'add_property("build","user")'
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec_dict[key], value])
         else:
             ec[key] = value
@@ -541,13 +545,12 @@ def inject_gpu_property(ec):
     # Check if CUDA is in the dependencies, if so add the GPU Lmod tag
     if (
         "CUDA" in [dep[0] for dep in iter(ec_dict["dependencies"])]
-        or ec_dict["toolchain"]["name"] in CUDA_ENABLED_TOOLCHAINS
         or ec_dict["name"] == 'CUDA'
     ):
         key = "modluafooter"
         value = 'add_property("arch","gpu")'
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec_dict[key], value])
         else:
             ec[key] = value
@@ -562,7 +565,7 @@ def inject_hidden_property(ec):
     hidden_pkgs = os.getenv('EASYBUILD_HIDE_DEPS', '').split(',')
     if ec.name in hidden_pkgs:
         key = "hidden"
-        if not key in ec_dict or ec_dict[key] is False:
+        if key not in ec_dict or ec_dict[key] is False:
             ec[key] = True
             ec.log.info(
                 "[parse hook] Hiding software found in $EASYBUILD_HIDE_DEPS: %s",
@@ -576,7 +579,7 @@ def inject_modaltsoftname(ec):
     # Check if we need to use 'modaltsoftname'
     if ec.name in REQUIRE_MODALTSOFTNAME:
         key = "modaltsoftname"
-        if not key in ec_dict or ec_dict[key] is None:
+        if key not in ec_dict or ec_dict[key] is None:
             ec[key] = REQUIRE_MODALTSOFTNAME[ec.name]
             ec.log.info(
                 "[parse hook] Injecting modaltsoftname '%s' for '%s'",
@@ -604,7 +607,7 @@ if mode()=="load" then
 end
         '''
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec[key], value])
         else:
             ec[key] = value
@@ -625,7 +628,7 @@ if mode()=="load" then
 end
         '''
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec[key], value])
         else:
             ec[key] = value
@@ -650,7 +653,7 @@ end
 family("mpi")
         '''
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec[key], value])
         else:
             ec[key] = value
@@ -667,14 +670,14 @@ def inject_compiler_tweaks(ec):
         key = "modluafooter"
         value = 'family("compiler")'
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec[key], value])
         else:
             ec[key] = value
         ec.log.info("[parse hook] Injecting Lmod compiler family")
         # Supported compilers should also be recursively unloaded
         key = "recursive_module_unload"
-        if not key in ec_dict or ec_dict[key] is None:
+        if key not in ec_dict or ec_dict[key] is None:
             ec[key] = True
             ec.log.info(
                 "[parse hook] Injecting recursive module unloading for supported compiler"
@@ -694,7 +697,7 @@ if mode()=="load" then
 end
         '''
         if key in ec_dict:
-            if not value in ec_dict[key]:
+            if value not in ec_dict[key]:
                 ec[key] = "\n".join([ec[key], value])
         else:
             ec[key] = value
@@ -720,7 +723,7 @@ def pre_ready_hook(self, *args, **kwargs):
     override_toolchain_check = os.getenv("JSC_OVERRIDE_TOOLCHAIN_CHECK")
     if not override_toolchain_check:
         toolchain_name = toolchain["name"]
-        if not toolchain_name in SUPPORTED_TOOLCHAIN_FAMILIES and not is_system_path(install_path().lower()):
+        if toolchain_name not in SUPPORTED_TOOLCHAIN_FAMILIES and not is_system_path(install_path().lower()):
             stage = os.getenv("STAGE", default=None)
             if stage:
                 # Clean things up if it is a Devel stage
@@ -787,6 +790,7 @@ def pre_module_hook(self, *args, **kwargs):
                 'MKL_THREADING_LAYER': MKL_THREADING_LAYER[self.name]
             })
 
+
 def post_package_hook(self, *args, **kwargs):
     if os.getenv('CI_INSTALLATION'):
         print_msg("Running ACLs script...")
@@ -806,4 +810,4 @@ def post_package_hook(self, *args, **kwargs):
 
         print_msg(" ".join(acls_cmd), prefix=False)
 
-        acls = subprocess.Popen(acls_cmd, env=patched_env)
+        subprocess.Popen(acls_cmd, env=patched_env)

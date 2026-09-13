@@ -13,7 +13,7 @@ Overview of the custom EasyBlocks.
 - __*added by*__ j.reuter
 - __*needed because*__ Adds minor changes to better handle new `nvidia-compilers` toochain at JSC, not yet upstreamed
 - __*difference compared to upstream*__ allow to still use internal components for `nvidia-compilers`, fix issue with CUDA versions (see [#4024](https://github.com/easybuilders/easybuild-easyblocks/pull/4024))
-- __*can not be removed*__ until all changes are merged upstream
+- __*can not be removed*__ to preserve customizations made by JSC
 
 ## allinea
 
@@ -106,23 +106,9 @@ Overview of the custom EasyBlocks.
 - __*difference compared to upstream*__ not available upstream
 - __*can not be removed*__ at least until merged upstream
 
-## extrae
+## scipy
 
 - __*added by*__ j.reuter
-- __*needed because*__ changes not yet in EasyBuild release
-- __*difference compared to upstream*__ support for additional libraries
-- __*can not be removed*__ until EasyBuild v5.2.1/v5.3.0
-
-## psmpi
-
-- __*added by*__ j.reuter
-- __*needed because*__ LLVM is not supported upstream yet
-- __*difference compared to upstream*__ support for LLVM
-- __*can not be removed*__ until https://github.com/easybuilders/easybuild-easyblocks/pull/4047 is merged
-
-## score_p
-
-- __*added by*__ j.reuter
-- __*needed because*__ reworked easyblock for version v10.0
-- __*difference compared to upstream*__ updated easyblock not part of EasyBuild v5.3.1
-- __*can not be removed*__ until https://github.com/easybuilders/easybuild-easyblocks/pull/4133 has been merged
+- __*needed because*__ we cannot skip tests otherwise
+- __*difference compared to upstream*__ already merged, but not in a release yet
+- __*can not be removed*__ until EasyBuild v5.4.1 / v5.5.0

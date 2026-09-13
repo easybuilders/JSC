@@ -38,9 +38,9 @@ builddependencies = [
 ]
 dependencies = [
     ('CubeLib', '4.9.1'),
-    ('OTF2', '3.1.1'),
+    ('OTF2', '3.2'),
     # Completely optional dependencies, but people might expect to find them
-    ('Score-P', '9.4'),
+    ('Score-P', '10.1'),
     ('CubeGUI', '4.9.1'),
 ]
 

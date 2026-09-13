@@ -64,25 +64,50 @@ components = [
     }),
     ('flux-sched', '0.48.0', {
         'easyblock': 'CMakeMake',
-        'checksums': ['8f8de89e445303e07b27912d4044862a8594d46b68d20dbb28b1e20bef198efe'],
+        'patches': ['flux-sched-0.48.0-t1028-increase-timeout.patch'],
+        'checksums': [
+            '8f8de89e445303e07b27912d4044862a8594d46b68d20dbb28b1e20bef198efe',
+            '943c644ec5c046865e8ec06183d970a3fdf1ed408df4480f4600c040b8b28b1a',
+        ],
         'runtest': True,
     }),
-    ('flux-pmix', '0.7.0', {
+    ('flux-pmix', '0.7.1', {
         'easyblock': 'ConfigureMake',
-        'checksums': ['0ad9fa0d76e8ffeaa4aa45bd39760b623219e8d3d2a66eb62e8832c2f7e3f47b'],
+        'checksums': ['0530d203370b13b63263ee48ecc829ab6bddadabf4e66ea470983f6f530a410f'],
         'configopts': '--without-openmpi',
         'runtest': 'check',
     }),
 ]
 
+local_pmi_config = (
+    'if shell.options["pmi"] == nil then\\n'
+    '    shell.options["pmi"] = "pmix,simple"\\n'
+    'end\\n\\n'
+)
+
+postinstallcmds = [
+    f"sed -i '1s/^/{local_pmi_config}/' %(installdir)s/etc/flux/shell/initrc.lua"
+]
+
 sanity_check_paths = {
-    'files': ['bin/flux'],
-    'dirs': ['lib'],
+    'files': [
+        'bin/flux',
+        f'lib/flux/modules/sched-fluxion-resource.{SHLIB_EXT}',
+        f'lib/flux/shell/plugins/pmix.{SHLIB_EXT}',
+    ],
+    'dirs': ['share/man/man1'],
 }
 
-sanity_check_commands = ['flux -h']
+sanity_check_commands = [
+    'flux -h',
+    'flux start -s1 "flux run -o verbose hostname" 2>&1 | grep "pmix: server is enabled"',
+]
 
-modextravars = {'FLUX_PMI_CLIENT_METHODS': 'simple pmix single'}
+modextravars = {
+    'FLUX_PMI_CLIENT_METHODS': 'simple pmix libpmi2 libpmi single',
+    'FLUX_F58_FORCE_ASCII': '1',
+    'PSP_PMI_VERSION': 'x',
+}
 
 # Enable tab completion, and remove it upon unloading the module.
 modluafooter = """

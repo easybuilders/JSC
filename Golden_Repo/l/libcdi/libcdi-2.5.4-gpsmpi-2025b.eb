@@ -16,7 +16,11 @@ toolchainopts = {'pic': True, 'usempi': True}
 source_urls = [
     'https://gitlab.dkrz.de/mpim-sw/libcdi/-/archive/cdi-%(version)s/']
 sources = ['libcdi-cdi-%(version)s.tar.gz']
-checksums = ['6093f9c48116dd63299179ab968b23330c20e15789450a923fd6a74699d7c7d8']
+patches = ['fix_cdi-config.patch']
+checksums = [
+    '6093f9c48116dd63299179ab968b23330c20e15789450a923fd6a74699d7c7d8',
+    '7737251b442dac671f75b358ada027ba19f2ed85bfe6e3880d753b0cac2a3603',
+]
 
 start_dir = 'libcdi-cdi-%(version)s'
 

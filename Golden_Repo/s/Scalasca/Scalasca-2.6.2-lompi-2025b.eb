@@ -37,10 +37,10 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('Score-P', '9.4'),
+    ('Score-P', '10.1'),
     ('CubeGUI', '4.9.1'),
     ('CubeLib', '4.9.1'),
-    ('OTF2', '3.1.1'),
+    ('OTF2', '3.2'),
 ]
 
 sanity_check_paths = {

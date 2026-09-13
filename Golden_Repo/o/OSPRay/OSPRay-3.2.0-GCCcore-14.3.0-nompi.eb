@@ -1,0 +1,70 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'OSPRay'
+version = '3.2.0'
+versionsuffix = '-nompi'
+
+homepage = 'http://www.ospray.org/'
+description = """
+OSPRay is an open source, scalable, and portable ray tracing engine for
+high-performance, high-fidelity visualization on Intel® Architecture CPUs.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/ospray/OSPRay/archive/']
+sources = ['v%(version)s.tar.gz']
+patches = ['update_deps_versions.patch']
+checksums = [
+    '2c8108df2950bc5d1bc2a62f74629233dbe4f36e3f6a8ea032907d4a3fdc6750',
+    '39a156c3f14d73a766f78367ad15bcebcf5fe8218f150e2f8b54d6ea95182d77'
+]
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('CMake', '4.0.3'),
+    ('Doxygen', '1.14.0')
+]
+
+dependencies = [
+    ('ispc', '1.27.0'),
+    ('X11', '20250608'),
+    ('OpenGL', '2025.09'),
+    ('freeglut', '3.6.0'),
+    ('Qt6', '6.9.3'),
+    ('tbb', '2022.2.0'),
+    ('Embree', '4.4.1'),
+    ('rkcommon', '1.14.2'),
+    ('openvkl', '2.0.1'),
+    ('OpenImageDenoise', '2.3.3'),
+]
+
+separate_build_dir = True
+
+configopts = '-DCMAKE_VERBOSE_MAKEFILE=ON '
+configopts += '-DOSPRAY_INSTALL_DEPENDENCIES=OFF '
+configopts += '-DOSPRAY_BUILD_ISA=ALL '
+configopts += '-Dembree_DIR=$EBROOTEMBREE/lib64/cmake/embree-4.4.1 '
+configopts += '-DOSPRAY_ENABLE_APPS:BOOL=OFF '
+configopts += '-DOSPRAY_MODULE_DENOISER:BOOL=ON '
+configopts += '-DOSPRAY_MODULE_MPI:BOOL=False '
+
+configopts += '-DOSPRAY_ENABLE_APPS:BOOL=OFF '
+configopts += '-DOSPRAY_ENABLE_APPS_BENCHMARK:BOOL=OFF '
+configopts += '-DOSPRAY_ENABLE_APPS_EXAMPLES:BOOL=OFF '
+configopts += '-DOSPRAY_ENABLE_APPS_TUTORIALS:BOOL=OFF '
+configopts += '-DOSPRAY_ENABLE_APPS_TESTING:BOOL=OFF '
+
+sanity_check_paths = {
+    'dirs': ['include/ospray/',
+             'lib64/cmake/%(namelower)s-%(version)s', 'share/doc/OSPRay'],
+    'files': ['include/ospray/version.h',
+              'lib64/libospray.so',
+              'share/doc/OSPRay/README.md'],
+}
+
+modextrapaths = {'CMAKE_MODULE_PATH': ['lib64/cmake/ospray-%(version)s']}
+
+moduleclass = 'vis'

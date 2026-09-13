@@ -20,8 +20,6 @@ local stages =  os.getenv("STAGES")
 if stages == nil then
     LmodError(yellow.."Can't determine a value for STAGES (which is usually an environment variable)"..normal)
 end
--- Set the path for all system EasyBuild extras
-local common_eb_path = "/p/usersoftware/swmanage/user_installations/"
 
 -- Check first if "stages" has been loaded. If not find the stage based on the install path of EasyBuild
 local stage =  os.getenv("STAGE")
@@ -34,6 +32,20 @@ if stage == nil then
         LmodError(yellow.."Can't determine a value for STAGE (which is usually an environment variable)"..normal)
     end
 end
+
+-- Read systemname
+local systemname = capture("cat /etc/FZJ/systemname")
+--Sanitize systemname
+systemname = string.gsub(systemname, "\n", "")
+
+-- Set the path for all system EasyBuild extras
+local usersoftware_swmanage
+if ( systemname == "jupiter" and convertToCanonical(stage) < convertToCanonical("2027") ) then
+    usersoftware_swmanage = os.getenv("JUSTUSERSOFTWARE_swmanage")
+else
+    usersoftware_swmanage = os.getenv("USERSOFTWARE_swmanage")
+end
+local common_eb_path = pathJoin(usersoftware_swmanage, "user_installations")
 
 -- If not loaded, load the default EasyBuild module
 if not isloaded("EasyBuild") then
@@ -327,7 +339,12 @@ if isFile(gr_path.."/hidden_deps.txt") then
 end
 
 setenv("EASYBUILD_HIDE_DEPS", hidden_deps)
-setenv("EASYBUILD_HIDE_TOOLCHAINS", "GCCcore")
+if (convertToCanonical(stage) < convertToCanonical("2027") ) then
+    setenv("EASYBUILD_HIDE_TOOLCHAINS", "GCCcore")
+else
+    unsetenv("EASYBUILD_HIDE_TOOLCHAINS")
+end
+
 
 -- Managing permissions and expanding robot path:
 
@@ -412,3 +429,6 @@ prepend_path("PATH", pathJoin(common_eb_path, stage, 'bin'))
 
 -- Finally, set EB to use python3
 setenv("EB_PYTHON", "python3")
+
+-- This module depends on the Stages module
+depends_on("Stages")

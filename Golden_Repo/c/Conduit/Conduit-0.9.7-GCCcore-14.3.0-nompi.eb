@@ -1,0 +1,59 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'Conduit'
+version = '0.9.7'
+versionsuffix = '-nompi'
+
+local_commit = '6471d81a79597324387c73fd21bc13fe7db9c960'
+
+homepage = 'https://github.com/LLNL/conduit/'
+description = "Simplified Data Exchange for Catalyst, Ascent and others"
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://github.com/LLNL/conduit/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['5b69eff41218b95d5466d1feb0df1e223f018570dadc0ae3a35d7f962fec5252']
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('CMake', '4.0.3'),
+    ('blt', '0.7.1'),
+]
+dependencies = [
+    ('Python', '3.13.5'),
+    ('SciPy-bundle', '2025.07', '', ('gcccoreflexiblas', '14.3.0-3.4.5')),
+    ('zlib', '1.3.1'),
+    ('CUDA', '13', '', SYSTEM),
+    ('HDF5', '1.14.6', '-serial'),
+]
+
+start_dir = 'src'
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+configopts += "-DBLT_SOURCE_DIR=${EBROOTBLT} "
+configopts += "-DBUILD_SHARED_LIBS=ON "
+configopts += "-DENABLE_CUDA=ON "
+configopts += "-DENABLE_OPENMP=ON "
+configopts += "-DENABLE_FORTRAN=ON "
+configopts += "-DENABLE_PYTHON=ON "
+configopts += "-DPYTHON_MODULE_INSTALL_PREFIX='%(installdir)s/lib/python%(pyshortver)s/site-packages' "
+
+configopts += "-DZLIB_DIR=${EBROOTZLIB} "
+# configopts += "-DHDF5_DIR=${EBROOTHDF5} "  # building ParaView fails if set
+# configopts += "-DSILO_DIR= "
+# configopts += "-DPARMETIS_DIR= "
+# configopts += "-DCALIPER_DIR= "
+
+# configopts += "-DADIOS_DIR= "  # only supports old ADIOS1
+# configopts += "-DZFP_DIR=${EBROOTZFP} "  # only supports old zfp 0.5.5
+
+sanity_check_paths = {
+    'files': ['include/conduit/conduit.h'],
+    'dirs': ['bin', 'include', 'lib'],
+}
+
+moduleclass = 'vis'

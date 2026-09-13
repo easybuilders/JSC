@@ -1,0 +1,16 @@
+diff -Naur ospray-3.2.0.orig/cmake/ospray_options.cmake ospray-3.2.0/cmake/ospray_options.cmake
+--- ospray-3.2.0.orig/cmake/ospray_options.cmake	2024-07-22 21:06:49.000000000 +0200
++++ ospray-3.2.0/cmake/ospray_options.cmake	2026-07-16 09:14:00.861520401 +0200
+@@ -11,9 +11,9 @@
+ set(OSPRAY_CMAKECONFIG_DIR
+     "${CMAKE_INSTALL_LIBDIR}/cmake/ospray-${OSPRAY_VERSION}")
+ 
+-set(ISPC_VERSION_REQUIRED 1.23.0)
+-set(RKCOMMON_VERSION_REQUIRED 1.14.0)
+-set(EMBREE_VERSION_REQUIRED 4.3.3)
++set(ISPC_VERSION_REQUIRED 1.27.0)
++set(RKCOMMON_VERSION_REQUIRED 1.14.2)
++set(EMBREE_VERSION_REQUIRED 4.4.1)
+ set(OPENVKL_VERSION_REQUIRED 2.0.1)
+ set(OIDN_VERSION_REQUIRED 2.3.0)
+ set(OSPRAY_IMGUI_GIT_TAG cb16be3a3fc1f9cd146ae24d52b615f8a05fa93d) # v1.90.9

@@ -1,0 +1,47 @@
+# This file is part of JSC's public easybuild repository (https://github.com/easybuilders/jsc)
+easyblock = 'CMakeMake'
+
+name = 'VisRTX'
+version = '0.13.0'
+
+homepage = 'https://github.com/NVIDIA/VisRTX'
+description = """
+VisRTX is an experimental, scientific visualization-focused implementation
+of the Khronos ANARI standard, and is developed
+by the HPC Visualization Developer Technology team at NVIDIA.
+"""
+
+toolchain = {'name': 'gompi', 'version': '2025b'}
+toolchainopts = {'pic': True}
+
+github_account = 'NVIDIA'
+source_urls = [GITHUB_SOURCE]
+sources = ['v%(version)s.tar.gz']
+checksums = ['324ce58c3c64964069f962b904a4b7bfcaaeae058229e2861a0ff26d399025a6']
+
+builddependencies = [
+    ('binutils', '2.44'),
+    ('CMake', '4.0.3'),
+]
+
+dependencies = [
+    ('ANARI-SDK', '0.15.0'),
+    ('OpenGL', '2025.09'),
+    ('OptiX', '9.0.0', '', SYSTEM),
+    ('CUDA', '13', '', SYSTEM),
+]
+
+separate_build_dir = True
+
+configopts = "-DCMAKE_VERBOSE_MAKEFILE=ON "
+
+runtest = False
+
+sanity_check_paths = {
+    'files': [
+        'lib/libanari_library_visrtx.so',
+    ],
+    'dirs': ['include/anari/ext/visrtx', 'lib']
+}
+
+moduleclass = 'vis'

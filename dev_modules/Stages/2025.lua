@@ -81,3 +81,8 @@ prepend_path("LMOD_MODULERCFILE", pathJoin(pkgroot, "lmod/modulerc.lua"))
 
 -- Make the module 'sticky' so it is hard to unload
 add_property("lmod", "sticky")
+
+-- After loading Stages, reload UserInstallations if it's loaded
+if isloaded("UserInstallations") then
+    load("UserInstallations")
+end
